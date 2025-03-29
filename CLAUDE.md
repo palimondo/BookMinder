@@ -1,5 +1,44 @@
 # BookMinder Development Guidelines
 
+## Core Programming Philosophy
+- **Code is a liability, not an asset** - Minimize implementation while maximizing value
+- **Executable specifications over documentation** - Tests document behavior and validate assumptions
+- **Scientific approach** - Form clear hypotheses before implementation
+- **Disciplined engineering** - Apply evidence-based practices consistently
+- **Minimize code** - Every line should justify its existence
+- **Simple solutions** - Favor straightforward approaches over clever ones
+- **YAGNI** - "You Aren't Gonna Need It" - Don't build features until required
+- **Design for testability** - Structure code to enable isolated testing
+
+## Implementation Process
+1. **Start with clear acceptance criteria**
+   - Define precise, testable outcomes before writing any code
+   - Document edge cases and expected behaviors
+   - Focus on the "what" before the "how"
+
+2. **Formulate working hypotheses**
+   - Document assumptions about the problem space
+   - Create small tests to validate each hypothesis
+   - Use tests to explore the problem space methodically
+
+3. **Value incremental progress**
+   - Make small, focused changes
+   - Commit frequently at stable points
+   - Maintain working software throughout development
+
+4. **Prioritize feedback loops**
+   - Value fast, frequent feedback
+   - Use tests as the primary feedback mechanism
+   - Measure progress through working, tested features
+
+## Anti-patterns to Avoid
+- Premature optimization
+- Large untested implementations
+- Complex solutions to simple problems
+- Rushing to code without clear requirements
+- Adding "just in case" functionality
+- Prioritizing implementation over working tests
+
 ## Build Commands
 - Setup: `pip install -r requirements.txt`
 - Run: `python bookminder.py`
