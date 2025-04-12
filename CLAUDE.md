@@ -3,7 +3,7 @@
 <core_philosophy>
 ## Core Programming Philosophy
 - **Code is a liability, not an asset** - Minimize implementation while maximizing value
-- **Executable specifications over documentation** - Tests document behavior and validate assumptions
+- **Executable specifications over documentation** - Tests document behavior and validate assumptions via Behavior-Driven Development (BDD) with `describe`/`it` style tests (RSpec/Jest-like)
 - **Scientific approach** - Form clear hypotheses before implementation
 - **Disciplined engineering** - Apply evidence-based practices consistently
 - **Minimize code** - Every line should justify its existence
@@ -47,12 +47,14 @@
 
 <build_commands>
 ## Build Commands
-- Setup: `pip install -r requirements.txt`
+- Setup Base: `pip install -r requirements.txt`
+- Setup Testing Tools: `pip install pytest pytest-describe pytest-spec pytest-cov`
 - Run: `python bookminder.py`
-- Test all: `pytest`
-- Single test: `pytest tests/test_file.py::test_function`
-- Test coverage: `pytest --cov=bookminder`
+- **Test all (Fast Feedback)**: `pytest`
+- **View Living Documentation**: `pytest --spec` (Use to understand requirements via test output)
+- **Check Test Coverage**: `pytest --cov=bookminder --cov-report=term-missing`
 - Lint: `flake8`
+- Format: `black .`
 - Type check: `mypy .`
 </build_commands>
 
@@ -62,13 +64,13 @@
 - **Formatting**: Follow PEP 8, max line length 88 (Black)
 - **Imports**: Group standard library, third-party, local imports; alphabetize within groups
 - **Types**: Use type hints for all functions and parameters
-- **Documentation**: 
+- **Documentation**:
   - Prefer self-documenting code over verbose docstrings
   - Minimal, focused docstrings for complex functions only
 - **Error Handling**: Use specific exceptions with context; include meaningful error messages
 - **Naming**: snake_case for functions/variables, CamelCase for classes, UPPERCASE for constants
 - **Style**: Favor functional over procedural where appropriate; prioritize conciseness
-- **Tests**: Write tests first; focus on behavior, not implementation
+- **Tests**: Write tests first; focus on behavior, not implementation. Use `pytest-describe` syntax (`describe_...`/`it_...`) with descriptive names stating context and behavior.
 </code_style>
 
 <requirements_gathering>
@@ -80,26 +82,20 @@
   3. Edge cases and error conditions
   4. Acceptance criteria in concrete terms
 - Document requirements in the TODO.md file
-- Translate requirements directly into acceptance tests
+- Translate requirements directly into acceptance tests using the BDD `describe`/`it` structure.
 - Reference requirements in commit messages
 </requirements_gathering>
 
 <tdd_discipline>
-## TDD Discipline
-- Always start with a failing acceptance test based on gathered requirements
-- Verify each test fails (RED) before implementing
-- Document the nature of test failures before fixing
-- Implement only what's needed to make tests pass (GREEN)
-- Refactor only after tests pass, never during implementation
-- Verify test coverage - no implementation without a failing test first
-- Follow the TDD cycle workflow:
-  1. Gather requirements and document them
-  2. Write a failing acceptance test
-  3. Write a failing unit test
-  4. Make the test pass
-  5. Refactor
-  6. Repeat steps 3-5 until acceptance test passes
-  7. Update TODO.md to reflect progress
+## BDD/TDD Discipline
+- Always start with a failing BDD acceptance test based on requirements.
+- **Write Failing Test**: Define the next behavior using a `describe_...` / `it_...` structure and assertion.
+- **Run & Verify RED**: Execute the *specific new test* (e.g., `pytest path/to/test.py::describe_context::it_behavior`) and confirm it fails.
+- **Implement GREEN**: Write the minimum production code to pass the failing test.
+- **Run All Tests**: Execute `pytest` to confirm success and no regressions.
+- **Refactor**: Improve code while keeping all tests green.
+- **Coverage Check**: Verify code coverage (via `pytest --cov`) after implementation.
+- Repeat cycle for each behavior. Update `TODO.md` to track progress.
 </tdd_discipline>
 
 <session_workflow>
@@ -117,12 +113,11 @@
 
 <git_workflow>
 ## Git Workflow
-- Make two distinct commits in the TDD cycle:
-  1. After GREEN phase (tests + minimal implementation)
-  2. After REFACTOR phase (code improvements)
+- Make two distinct commits in the TDD/BDD cycle:
+  1. After GREEN phase (passing BDD test + minimal implementation).
+  2. After REFACTOR phase (code improvements, tests still passing).
 - Commit messages should be descriptive and explain the "why" behind changes
 - Reference the specific requirements being addressed in commit messages
 - Focus on what the change accomplishes, not just what files were modified
-- Each commit should be small, focused, and preserve working state
-- No implementation should be written without its corresponding test first
+- Each commit should be small, focused, and preserve working state (all tests passing).
 </git_workflow>
