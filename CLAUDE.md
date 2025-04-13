@@ -95,7 +95,7 @@
 ## BDD/TDD Discipline
 - Always start with a failing BDD acceptance test based on requirements.
 - **Write Failing Test**: Define the next behavior using a `describe_...` / `it_...` structure and assertion.
-- **Run & Verify RED**: Execute the *specific new test* (e.g., `pytest path/to/test.py::describe_context::it_behavior`) and confirm it fails for the correct reason (not import errors or syntax issues).
+- **Run & Verify RED**: Execute the *specific new test* (e.g., `pytest path/to/test.py::describe_context::it_behavior`) and confirm it fails.
 - **Implement GREEN**: Write the minimum production code to pass the failing test.
 - **Run All Tests**: Execute `pytest` to confirm success and no regressions.
 - **Refactor**: Improve code while keeping all tests green.
