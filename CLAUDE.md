@@ -101,6 +101,26 @@
 - **Refactor**: Improve code while keeping all tests green.
 - **Coverage Check**: Verify code coverage (via `pytest --cov`) after implementation.
 - Repeat cycle for each behavior. Update `TODO.md` to track progress.
+
+### Implementation Checklist
+Before writing any code, verify:
+1. ✓ Do we have a clear requirement defined in TODO.md?
+2. ✓ Have we written a failing test for this specific requirement?
+3. ✓ Is the test descriptively named with `describe_`/`it_` structure?
+4. ✓ Is the test focused on behavior (what) not implementation (how)?
+
+Before implementing any feature, verify:
+1. ✓ Have we run the test and confirmed it fails (RED)?
+2. ✓ Is our planned implementation the minimal solution?
+3. ✓ Are we following YAGNI principles (no "just in case" code)?
+4. ✓ Are we only adding files and directories required NOW?
+
+Before committing, verify:
+1. ✓ Do all tests pass (GREEN)?
+2. ✓ Have we removed redundant or unnecessary code?
+3. ✓ Are we maintaining adequate test coverage?
+4. ✓ Does our commit message explain WHY (not just WHAT)?
+5. ✓ Have we avoided adding unnecessary files?
 </tdd_discipline>
 
 <session_workflow>
