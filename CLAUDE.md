@@ -95,7 +95,7 @@
 ## BDD/TDD Discipline
 - Always start with a failing BDD acceptance test based on requirements.
 - **Write Failing Test**: Define the next behavior using a `describe_...` / `it_...` structure and assertion.
-- **Run & Verify RED**: Execute the *specific new test* (e.g., `pytest path/to/test.py::describe_context::it_behavior`) and confirm it fails.
+- **Run & Verify RED**: Execute the *specific new test* (e.g., `pytest path/to/test.py::describe_context::it_behavior`) and confirm it fails for the correct reason (not import errors or syntax issues).
 - **Implement GREEN**: Write the minimum production code to pass the failing test.
 - **Run All Tests**: Execute `pytest` to confirm success and no regressions.
 - **Refactor**: Improve code while keeping all tests green.
@@ -108,6 +108,8 @@ Before writing any code, verify:
 2. ✓ Have we written a failing test for this specific requirement?
 3. ✓ Is the test descriptively named with `describe_`/`it_` structure?
 4. ✓ Is the test focused on behavior (what) not implementation (how)?
+5. ✓ Does the test actually verify meaningful behavior, not just types or structure?
+6. ✓ Are assertions strong enough to catch real bugs or missing functionality?
 
 Before implementing any feature, verify:
 1. ✓ Have we run the test and confirmed it fails (RED)?
@@ -119,8 +121,9 @@ Before committing, verify:
 1. ✓ Do all tests pass (GREEN)?
 2. ✓ Have we removed redundant or unnecessary code?
 3. ✓ Are we maintaining adequate test coverage?
-4. ✓ Does our commit message explain WHY (not just WHAT)?
-5. ✓ Have we avoided adding unnecessary files?
+4. ✓ Have we run linters (flake8, black, mypy) to ensure code quality?
+5. ✓ Does our commit message explain WHY (not just WHAT)?
+6. ✓ Have we avoided adding unnecessary files?
 </tdd_discipline>
 
 <session_workflow>
