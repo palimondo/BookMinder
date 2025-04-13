@@ -3,23 +3,32 @@
 ## Requirements Status
 | Requirement ID | Description | Status | Acceptance Tests | Notes |
 |---------------|-------------|--------|------------------|-------|
-| REQ-001       | Initial project setup | Not Started | N/A | Project structure, dev environment |
+| REQ-001       | Initial project setup | Completed | N/A | Project structure, dev environment |
+| REQ-002       | List books from Apple Books | Completed | Implemented | Sort by last update date |
+| REQ-003       | Extract book TOC | Not Started | Not Created | Table of contents extraction |
+| REQ-004       | Extract highlights with context | Not Started | Not Created | With surrounding paragraphs |
+| REQ-005       | Export to Markdown/HTML | Not Started | Not Created | For LLM consumption |
 
 ## Current Sprint
-- [ ] Review original vision document (ORIGINAL_VISION.md)
+- [x] Review original vision document (ORIGINAL_VISION.md)
 - [ ] Create README.md based on ORIGINAL_VISION.md
-- [ ] Set up project structure
-- [ ] Define core requirements through requirements dialogue
-- [ ] Create initial acceptance tests
+- [x] Set up project structure
+- [x] Define core requirements through requirements dialogue
+- [x] Create initial acceptance tests
+- [x] Implement Apple Books library access
+- [ ] Implement EPUB parsing and TOC extraction
 
 ## Backlog
-- [ ] Set up development environment
+- [x] Set up development environment
 - [ ] Implement core functionality
 - [ ] Build CLI interface
 - [ ] Add documentation
+- [ ] MCP integration
 
 ## Completed
 - [x] Create project repository
+- [x] Setup Python virtual environment
+- [x] Install development dependencies
 
 ## Notes
 - Read ORIGINAL_VISION.md for initial project scope and vision
