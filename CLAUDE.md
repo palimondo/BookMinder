@@ -70,7 +70,7 @@
 - **Error Handling**: Use specific exceptions with context; include meaningful error messages
 - **Naming**: snake_case for functions/variables, CamelCase for classes, UPPERCASE for constants
 - **Style**: Favor functional over procedural where appropriate; prioritize conciseness
-- **Tests**: Write tests first; focus on behavior, not implementation. Use `pytest-describe` syntax (`describe_...`/`it_...`) with descriptive names stating context and behavior.
+- **Tests**: Write tests first; focus on behavior, not implementation. Use `pytest-describe` syntax (`describe_...`/`it_...`) with descriptive names stating context and behavior. Do not add docstrings in specs files as the function names are self-documenting and will produce readable output with `pytest --spec`.
 </code_style>
 
 <requirements_gathering>
