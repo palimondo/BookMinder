@@ -60,12 +60,49 @@ book = find_book_by_title("Growing Object-Oriented Software, Guided by Tests")
 
 This project follows Test-Driven Development (TDD) principles with Behavior-Driven Development (BDD) style tests.
 
+### Setting Up Your Environment
+
+1. **Activate the virtual environment**:
+   ```bash
+   # If you haven't created the virtual environment yet:
+   python3 -m venv venv
+
+   # Activate it (this must be done in each new terminal session)
+   source venv/bin/activate
+   ```
+
+2. **Verify you're using the correct Python**:
+   ```bash
+   # Should show a path inside the venv directory
+   which python
+   ```
+
+3. **Install dependencies** (only needed once):
+   ```bash
+   # Install project dependencies
+   pip install -r requirements.txt
+
+   # Install the project in development mode
+   pip install -e .
+   ```
+
 ### Running Tests
 
 ```bash
-pytest                          # Run all tests
-pytest --spec                   # View tests as specifications
-pytest --cov=bookminder         # Check test coverage
+# Run all tests
+pytest
+
+# Run tests with BDD/spec output (most readable)
+pytest --spec
+
+# Run specific tests
+pytest specs/apple_books/library_spec.py --spec
+
+# Run tests even if no files changed (force)
+pytest --spec -v
+
+# Check test coverage
+pytest --cov=bookminder
 ```
 
 ### Code Quality
@@ -73,7 +110,21 @@ pytest --cov=bookminder         # Check test coverage
 We use pre-commit hooks to enforce code quality. Run manually:
 
 ```bash
+# Install pre-commit (one time setup)
+pip install pre-commit
+pre-commit install
+
+# Run all checks manually
 pre-commit run --all-files
+
+# Run formatting only
+black .
+
+# Run linting only
+flake8
+
+# Run type checking only
+mypy .
 ```
 
 ## License
