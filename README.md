@@ -89,20 +89,20 @@ This project follows Test-Driven Development (TDD) principles with Behavior-Driv
 ### Running Tests
 
 ```bash
-# Run all tests
-pytest
+# Run all tests (specify test directory explicitly)
+pytest specs/
 
-# Run tests with BDD/spec output (most readable)
-pytest --spec
+# Run all tests with BDD/spec output for living documentation
+pytest specs/ --spec
 
 # Run specific tests
 pytest specs/apple_books/library_spec.py --spec
 
-# Run tests even if no files changed (force)
-pytest --spec -v
+# Run tests with verbose output (force run)
+pytest specs/ --spec -v
 
 # Check test coverage
-pytest --cov=bookminder
+pytest specs/ --cov=bookminder
 ```
 
 ### Code Quality

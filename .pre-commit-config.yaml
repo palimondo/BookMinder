@@ -3,7 +3,9 @@ repos:
     rev: v4.5.0
     hooks:
     -   id: trailing-whitespace
+        exclude: ^claude-dev-log-diary/
     -   id: end-of-file-fixer
+        exclude: ^claude-dev-log-diary/
     -   id: check-yaml
     -   id: check-added-large-files
 
@@ -12,6 +14,7 @@ repos:
     hooks:
     -   id: black
         args: [--line-length=88]
+        exclude: ^claude-dev-log-diary/
 
 -   repo: https://github.com/pycqa/flake8
     rev: 7.0.0
@@ -19,6 +22,7 @@ repos:
     -   id: flake8
         additional_dependencies: [flake8-docstrings]
         args: ['--max-line-length=88', '--extend-ignore=E203']
+        exclude: ^claude-dev-log-diary/
 
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0
@@ -27,3 +31,4 @@ repos:
         additional_dependencies:
         -   types-pyyaml
         -   types-requests
+        exclude: ^claude-dev-log-diary/
