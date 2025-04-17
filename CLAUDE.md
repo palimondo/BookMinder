@@ -43,7 +43,18 @@
 - Rushing to code without clear requirements
 - Adding "just in case" functionality
 - Prioritizing implementation over working tests
+- Creating files that don't serve immediate requirements
+- Adding unnecessary comments or docstrings
 </anti_patterns>
+
+<package_structure>
+## Python Package Structure
+- **Minimal Package Structure**: Only create directories and files needed for current functionality
+- **Empty __init__.py Files**: Keep `__init__.py` files empty; they exist only to make Python's import system work
+- **No Premature Modules**: Don't create modules until you have functionality to put in them
+- **Avoid Boilerplate**: Don't add docstrings to empty `__init__.py` files or test files
+- **No Implementation Without Tests**: Never create implementation files without corresponding tests
+</package_structure>
 
 <build_commands>
 ## Build Commands

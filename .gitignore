@@ -7,6 +7,14 @@ venv/
 
 # Testing
 .pytest_cache/
+.coverage
 
 # Build artifacts
 *.egg-info/
+
+# Type checking
+.mypy_cache/
+
+# Editor files
+.vscode/
+.idea/
