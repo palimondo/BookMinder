@@ -48,32 +48,45 @@
 <build_commands>
 ## Build Commands
 - Setup Base: `pip install -r requirements.txt`
-- Setup Testing Tools: `pip install pytest pytest-describe pytest-spec pytest-cov`
+- Setup Development Environment: `pip install -e ".[dev]"`
+- Setup Pre-commit Hooks: `pre-commit install`
 - Run: `python bookminder.py`
 - **Test all (Fast Feedback)**: `pytest`
 - **View Living Documentation**: `pytest --spec` (Use to understand requirements via test output)
 - **Check Test Coverage**: `pytest --cov=bookminder --cov-report=term-missing`
-- Lint: `flake8`
-- Format: `black .`
-- Type check: `mypy .`
+- **Lint and Format** (manual):
+  - Format: `black .`
+  - Lint: `flake8`
+  - Type check: `mypy .`
+  - Run all checks: `pre-commit run --all-files`
 </build_commands>
 
 <code_style>
 ## Code Style
 - **Python Version**: 3.9+
 - **Formatting**: Follow PEP 8, max line length 88 (Black)
+  - Automated via pre-commit hooks
+  - Run manually: `black .`
+- **Linting**: Use flake8 for code quality
+  - Automated via pre-commit hooks
+  - Run manually: `flake8`
+- **Type Checking**: Use mypy for static type analysis
+  - Automated via pre-commit hooks
+  - Run manually: `mypy .`
 - **Imports**: Group standard library, third-party, local imports; alphabetize within groups
 - **Types**: Use type hints for all functions and parameters
 - **Documentation**:
   - Prefer self-documenting code over verbose docstrings
   - Minimal, focused docstrings for complex functions only
+  - **NEVER add redundant comments** that restate what the code already expresses
 - **Error Handling**: Use specific exceptions with context; include meaningful error messages
 - **Naming**: snake_case for functions/variables, CamelCase for classes, UPPERCASE for constants
 - **Style**: Favor functional over procedural where appropriate; prioritize conciseness
-- **Tests**: 
+- **Tests**:
   - Write tests first; focus on behavior, not implementation
   - Use `pytest-describe` syntax (`describe_...`/`it_...`) with descriptive names stating context and behavior
   - Do not add docstrings in specs files as the function names are self-documenting
+  - Do not add comments in specs files that merely restate what the code is doing
   - Name spec files as `<module_name>_spec.py` following BDD conventions
   - Use `pytest --spec` to generate readable documentation from test structure
 </code_style>
@@ -121,9 +134,11 @@ Before committing, verify:
 1. ✓ Do all tests pass (GREEN)?
 2. ✓ Have we removed redundant or unnecessary code?
 3. ✓ Are we maintaining adequate test coverage?
-4. ✓ Have we run linters (flake8, black, mypy) to ensure code quality?
-5. ✓ Does our commit message explain WHY (not just WHAT)?
-6. ✓ Have we avoided adding unnecessary files?
+4. ✓ Have we run linters and formatters (via pre-commit) to ensure code quality?
+5. ✓ Have we removed ALL redundant comments and docstrings?
+6. ✓ Does our commit message explain WHY (not just WHAT)?
+7. ✓ Have we avoided adding unnecessary files?
+8. ✓ Is our code self-documenting without relying on comments?
 </tdd_discipline>
 
 <session_workflow>
