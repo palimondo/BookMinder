@@ -1,0 +1,14 @@
+# Core dependencies
+ebooklib
+beautifulsoup4
+pyyaml
+click
+
+# Development dependencies
+pytest
+pytest-describe
+pytest-spec
+pytest-cov
+black
+flake8
+mypy
