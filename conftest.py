@@ -1,6 +1,6 @@
-"""Configuration for pytest."""
+"""Configure module imports for pytest."""
 import sys
 import os
 
-# Add the project root directory to Python's module path
+# Add project root to Python path for proper imports
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))

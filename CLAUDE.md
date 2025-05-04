@@ -175,3 +175,12 @@ Before committing, verify:
 - Focus on what the change accomplishes, not just what files were modified
 - Each commit should be small, focused, and preserve working state (all tests passing).
 </git_workflow>
+
+<project_maintenance>
+## Project Maintenance
+- Regularly verify the AI's model version in the pyproject.toml contributors list
+- Update the contributors list whenever Claude is upgraded to a newer version
+- Keep package metadata current and accurate in pyproject.toml
+- Review docs/ directory content periodically to ensure documentation reflects current state
+- Maintain LICENSE file with correct attribution and current year
+</project_maintenance>
