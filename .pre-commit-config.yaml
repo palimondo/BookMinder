@@ -1,3 +1,9 @@
+# Pre-commit hook configuration
+# Auto-stages only fixed files, not all changes
+default_stages: [pre-commit]
+default_language_version:
+    python: python3
+
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0

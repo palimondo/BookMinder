@@ -183,4 +183,5 @@ Before committing, verify:
 - Keep package metadata current and accurate in pyproject.toml
 - Review docs/ directory content periodically to ensure documentation reflects current state
 - Maintain LICENSE file with correct attribution and current year
+- Stage all files after running pre-commit hooks that modify files, to ensure fixes are included in commit
 </project_maintenance>
