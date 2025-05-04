@@ -4,7 +4,7 @@
 ## Core Programming Philosophy
 - **Code is a liability, not an asset** - Minimize implementation while maximizing value
 - **Executable specifications over documentation** - Tests document behavior and validate assumptions via Behavior-Driven Development (BDD) with `describe`/`it` style tests (RSpec/Jest-like)
-- **Scientific approach** - Form clear hypotheses before implementation
+- **Scientific approach** - Think hard and form a clear hypotheses before implementation
 - **Disciplined engineering** - Apply evidence-based practices consistently
 - **Minimize code** - Every line should justify its existence
 - **Simple solutions** - Favor straightforward approaches over clever ones

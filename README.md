@@ -30,6 +30,8 @@ A tool to extract content and highlights from Apple Books for LLM analysis.
    source venv/bin/activate
    ```
 
+   > **IMPORTANT**: You must activate the virtual environment in each new terminal session before running any commands for this project. If you see commands like `pytest` failing with "command not found", it likely means the virtual environment is not activated.
+
 3. Install dependencies
    ```bash
    # For basic usage
@@ -88,21 +90,23 @@ This project follows Test-Driven Development (TDD) principles with Behavior-Driv
 
 ### Running Tests
 
+**Remember**: Always activate the virtual environment first with `source venv/bin/activate` before running any commands.
+
 ```bash
-# Run all tests (specify test directory explicitly)
-pytest specs/
+# Run all tests
+pytest
 
 # Run all tests with BDD/spec output for living documentation
-pytest specs/ --spec
+pytest --spec
 
 # Run specific tests
 pytest specs/apple_books/library_spec.py --spec
 
-# Run tests with verbose output (force run)
-pytest specs/ --spec -v
+# Run tests with verbose output
+pytest --spec -v
 
 # Check test coverage
-pytest specs/ --cov=bookminder
+pytest --cov=bookminder
 ```
 
 ### Code Quality
@@ -110,6 +114,9 @@ pytest specs/ --cov=bookminder
 We use pre-commit hooks to enforce code quality. Run manually:
 
 ```bash
+# Make sure virtual environment is activated
+source venv/bin/activate
+
 # Install pre-commit (one time setup)
 pip install pre-commit
 pre-commit install
