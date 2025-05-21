@@ -11,9 +11,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
 authors = [
-    {name = "Pavol Vaskovic", email = "pali@pali.sk"}
-]
-contributors = [
+    {name = "Pavol Vaskovic", email = "pali@pali.sk"},
     {name = "Claude AI (claude-3-7-sonnet-20250219)"}
 ]
 keywords = ["ebooks", "apple-books", "highlights", "llm"]
