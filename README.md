@@ -13,7 +13,7 @@ A tool to extract content and highlights from Apple Books for LLM analysis.
 
 ### Requirements
 
-- Python 3.9+
+- Python 3.13 (automatically managed by uv)
 - macOS (for Apple Books access)
 
 ### Installation
@@ -26,7 +26,7 @@ A tool to extract content and highlights from Apple Books for LLM analysis.
 
 2. Create a virtual environment with uv
    ```bash
-   uv venv
+   uv venv --python 3.13
    source .venv/bin/activate
    ```
 
@@ -70,7 +70,7 @@ This project follows Test-Driven Development (TDD) principles with Behavior-Driv
 1. **Activate the virtual environment**:
    ```bash
    # If you haven't created the virtual environment yet:
-   uv venv
+   uv venv --python 3.13
 
    # Activate it (this must be done in each new terminal session)
    source .venv/bin/activate

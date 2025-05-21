@@ -32,7 +32,7 @@ If you're on a completely fresh macOS installation:
 
 4. **Create a virtual environment and install dependencies**:
    ```bash
-   uv venv
+   uv venv --python 3.13
    source .venv/bin/activate
    uv pip install -e ".[dev]"
    ```
@@ -48,7 +48,7 @@ If you're on a completely fresh macOS installation:
 
 - **Create a virtual environment**:
   ```bash
-  uv venv
+  uv venv --python 3.13
   ```
 
 - **Activate the virtual environment**:
@@ -109,7 +109,7 @@ If you're currently using pip and venv, the transition to uv is straightforward:
 
 2. **Create new environment with uv**:
    ```bash
-   uv venv
+   uv venv --python 3.13
    source .venv/bin/activate
    uv pip install -e ".[dev]"
    ```

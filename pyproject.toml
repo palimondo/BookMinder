@@ -8,7 +8,7 @@ name = "bookminder"
 version = "0.1.0"
 description = "Extract content and highlights from Apple Books for LLM analysis"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = "==3.13.*"
 license = "MIT"
 authors = [
     {name = "Pavol Vaskovic", email = "pali@pali.sk"},
@@ -52,7 +52,7 @@ python_functions = "it_*"
 python_classes = "describe_*"
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.13"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -60,7 +60,7 @@ disallow_incomplete_defs = true
 
 [tool.ruff]
 line-length = 88
-target-version = "py39"
+target-version = "py313"
 exclude = [".git", "__pycache__", "build", "dist", "claude-dev-log-diary"]
 select = ["E", "F", "I", "B", "W", "UP", "N", "D"]
 ignore = ["E203"]
