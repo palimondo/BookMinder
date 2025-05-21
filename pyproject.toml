@@ -62,10 +62,10 @@ disallow_incomplete_defs = true
 line-length = 88
 target-version = "py313"
 exclude = [".git", "__pycache__", "build", "dist", "claude-dev-log-diary"]
-select = ["E", "F", "I", "B", "W", "UP", "N", "D"]
-ignore = ["E203"]
 
 [tool.ruff.lint]
+select = ["E", "F", "I", "B", "W", "UP", "N", "D"]
+ignore = ["E203", "D203", "D213"]  # Ignore incompatible rules
 extend-select = ["I"]
 
 # Ignore missing docstrings in tests and __init__.py files
