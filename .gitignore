@@ -2,8 +2,10 @@
 __pycache__/
 *.pyc
 
-# Virtual environment
+# Virtual environments
 venv/
+.venv/
+.uvenv/
 
 # Testing
 .pytest_cache/
