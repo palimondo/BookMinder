@@ -20,25 +20,28 @@ A tool to extract content and highlights from Apple Books for LLM analysis.
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/yourusername/BookMinder.git
+   git clone https://github.com/palimondo/BookMinder.git
    cd BookMinder
    ```
 
-2. Create a virtual environment
+2. Create a virtual environment with uv
    ```bash
-   python -m venv venv
-   source venv/bin/activate
+   uv venv
+   source .venv/bin/activate
    ```
 
    > **IMPORTANT**: You must activate the virtual environment in each new terminal session before running any commands for this project. If you see commands like `pytest` failing with "command not found", it likely means the virtual environment is not activated.
 
+   > **FIRST TIME SETUP**: If you don't have uv installed, run:
+   > ```bash
+   > curl -LsSf https://astral.sh/uv/install.sh | sh
+   > ```
+   > See `docs/uv_setup.md` for more details.
+
 3. Install dependencies
    ```bash
-   # For basic usage
-   pip install -r requirements.txt
-
-   # For development
-   pip install -e ".[dev]"
+   # Install development dependencies
+   uv pip install -e ".[dev]"
    ```
 
 4. Set up pre-commit hooks (for development)
@@ -67,30 +70,27 @@ This project follows Test-Driven Development (TDD) principles with Behavior-Driv
 1. **Activate the virtual environment**:
    ```bash
    # If you haven't created the virtual environment yet:
-   python3 -m venv venv
+   uv venv
 
    # Activate it (this must be done in each new terminal session)
-   source venv/bin/activate
+   source .venv/bin/activate
    ```
 
 2. **Verify you're using the correct Python**:
    ```bash
-   # Should show a path inside the venv directory
+   # Should show a path inside the .venv directory
    which python
    ```
 
 3. **Install dependencies** (only needed once):
    ```bash
-   # Install project dependencies
-   pip install -r requirements.txt
-
    # Install the project in development mode
-   pip install -e .
+   uv pip install -e ".[dev]"
    ```
 
 ### Running Tests
 
-**Remember**: Always activate the virtual environment first with `source venv/bin/activate` before running any commands.
+**Remember**: Always activate the virtual environment first with `source .venv/bin/activate` before running any commands.
 
 ```bash
 # Run all tests
@@ -106,7 +106,7 @@ pytest specs/apple_books/library_spec.py --spec
 pytest --spec -v
 
 # Check test coverage
-pytest --cov=bookminder
+pytest --cov=bookminder --cov-report=term-missing
 ```
 
 ### Code Quality
@@ -115,24 +115,25 @@ We use pre-commit hooks to enforce code quality. Run manually:
 
 ```bash
 # Make sure virtual environment is activated
-source venv/bin/activate
+source .venv/bin/activate
 
 # Install pre-commit (one time setup)
-pip install pre-commit
 pre-commit install
 
 # Run all checks manually
 pre-commit run --all-files
 
 # Run formatting only
-black .
+ruff format .
 
 # Run linting only
-flake8
+ruff check --fix .
 
 # Run type checking only
 mypy .
 ```
+
+For more detailed information about using uv, see [docs/uv_setup.md](docs/uv_setup.md).
 
 ## License
 
