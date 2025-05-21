@@ -67,6 +67,11 @@ ignore = ["E203"]
 
 [tool.ruff.lint]
 extend-select = ["I"]
+# Ignore missing docstrings in tests and __init__.py files
+per-file-ignores = {
+    "specs/**/*.py": ["D100", "D101", "D102", "D103", "D104"],
+    "**/__init__.py": ["D104"]
+}
 
 [tool.ruff.format]
 quote-style = "double"
