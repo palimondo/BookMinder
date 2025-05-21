@@ -185,3 +185,12 @@ Before committing, verify:
 - Maintain LICENSE file with correct attribution and current year
 - Stage all files after running pre-commit hooks that modify files, to ensure fixes are included in commit
 </project_maintenance>
+
+<file_operations>
+## File Operations and Git Hygiene
+- **Always use `git mv` for moving files**: When relocating tracked files, always use `git mv` instead of regular `mv` to maintain proper Git history
+- **Place documentation in docs/ directory**: Keep all documentation files in the docs/ directory with lowercase, underscore-separated names
+- **Verify each development step in isolation**: Test each step of the development workflow to ensure it works as expected before documenting it
+- **Test project setup on a clean environment**: Regularly verify that project setup works correctly from scratch
+- **Test commands in fresh shells**: Ensure all documented commands work in new terminal sessions
+</file_operations>
