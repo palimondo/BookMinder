@@ -33,8 +33,7 @@ dev = [
     "pytest-describe",
     "pytest-spec",
     "pytest-cov",
-    "black",
-    "flake8",
+    "ruff",
     "mypy",
     "pre-commit",
 ]
@@ -48,10 +47,6 @@ bookminder = "bookminder.cli:main"
 packages = ["bookminder", "bookminder.apple_books"]
 
 # Tool configurations
-[tool.black]
-line-length = 88
-target-version = ["py39"]
-
 [tool.pytest.ini_options]
 testpaths = ["specs"]
 python_files = "*_spec.py"
@@ -65,7 +60,17 @@ warn_unused_configs = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
 
-[tool.flake8]
-max-line-length = 88
-extend-ignore = "E203"
-exclude = [".git", "__pycache__", "build", "dist"]
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+exclude = [".git", "__pycache__", "build", "dist", "claude-dev-log-diary"]
+select = ["E", "F", "I", "B", "W", "UP", "N", "D"]
+ignore = ["E203"]
+
+[tool.ruff.lint]
+extend-select = ["I"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

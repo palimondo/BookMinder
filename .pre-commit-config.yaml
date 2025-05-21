@@ -15,19 +15,13 @@ repos:
     -   id: check-yaml
     -   id: check-added-large-files
 
--   repo: https://github.com/psf/black
-    rev: 23.12.1
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.3
     hooks:
-    -   id: black
-        args: [--line-length=88]
+    -   id: ruff
+        args: [--fix]
         exclude: ^claude-dev-log-diary/
-
--   repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
-    hooks:
-    -   id: flake8
-        additional_dependencies: [flake8-docstrings]
-        args: ['--max-line-length=88', '--extend-ignore=E203']
+    -   id: ruff-format
         exclude: ^claude-dev-log-diary/
 
 -   repo: https://github.com/pre-commit/mirrors-mypy

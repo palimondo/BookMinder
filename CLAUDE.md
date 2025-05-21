@@ -58,16 +58,18 @@
 
 <build_commands>
 ## Build Commands
-- Setup Base: `pip install -r requirements.txt`
-- Setup Development Environment: `pip install -e ".[dev]"`
+- Setup uv (Recommended): See `docs/uv_setup.md`
+  - Create virtual environment: `uv venv`
+  - Activate: `source .venv/bin/activate`
+  - Install development dependencies: `uv pip install -e ".[dev]"`
 - Setup Pre-commit Hooks: `pre-commit install`
-- Run: `python bookminder.py`
+- Run: `python -m bookminder`
 - **Test all (Fast Feedback)**: `pytest`
 - **View Living Documentation**: `pytest --spec` (Use to understand requirements via test output)
 - **Check Test Coverage**: `pytest --cov=bookminder --cov-report=term-missing`
 - **Lint and Format** (manual):
-  - Format: `black .`
-  - Lint: `flake8`
+  - Format: `ruff format .`
+  - Lint: `ruff check --fix .`
   - Type check: `mypy .`
   - Run all checks: `pre-commit run --all-files`
 </build_commands>
@@ -75,12 +77,10 @@
 <code_style>
 ## Code Style
 - **Python Version**: 3.9+
-- **Formatting**: Follow PEP 8, max line length 88 (Black)
+- **Formatting and Linting**: Use ruff (max line length 88)
   - Automated via pre-commit hooks
-  - Run manually: `black .`
-- **Linting**: Use flake8 for code quality
-  - Automated via pre-commit hooks
-  - Run manually: `flake8`
+  - Run formatter manually: `ruff format .`
+  - Run linter manually: `ruff check --fix .`
 - **Type Checking**: Use mypy for static type analysis
   - Automated via pre-commit hooks
   - Run manually: `mypy .`
