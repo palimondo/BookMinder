@@ -1,5 +1,8 @@
 # BookMinder
 
+[![BookMinder CI](https://github.com/palimondo/BookMinder/actions/workflows/main.yml/badge.svg)](https://github.com/palimondo/BookMinder/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/palimondo/BookMinder/branch/main/graph/badge.svg)](https://codecov.io/gh/palimondo/BookMinder)
+
 A tool to extract content and highlights from Apple Books for LLM analysis.
 
 ## Features
