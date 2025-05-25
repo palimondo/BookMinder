@@ -76,7 +76,7 @@
 
 <code_style>
 ## Code Style
-- **Python Version**: 3.9+
+- **Python Version**: 3.13
 - **Formatting and Linting**: Use ruff (max line length 88)
   - Automated via pre-commit hooks
   - Run formatter manually: `ruff format .`

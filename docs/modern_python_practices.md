@@ -153,7 +153,7 @@ Several tools now support or require pyproject.toml:
    version = "0.1.0"
 
    [tool.poetry.dependencies]
-   python = "^3.9"
+   python = "^3.13"
    requests = "^2.25.1"
 
    [tool.poetry.dev-dependencies]
