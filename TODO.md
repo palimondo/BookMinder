@@ -1,5 +1,41 @@
 # BookMinder Project TODO
 
+## 🏗️ PROJECT CONTEXT
+**BookMinder** = Second attempt (first was BookMind)
+**Goal**: Create Walking Skeleton only (GOOS terminology) - minimal implementation exercising main architecture
+**Constraint**: No creative feature additions - stick to defined scope
+**Status**: Got sidetracked with tooling setup (uv migration) - need to refocus on core functionality
+
+## 📌 PINNED ISSUES (High Priority)
+
+### 1. Fix Apple Books lazy download issue
+**Status**: Business Logic Bug
+**Issue**: `list_books()` excludes valid books not downloaded from iCloud yet - causing test failures on MacBook Air
+**Solution**: Include books from Books.plist even if not locally available, add `downloaded` status field
+**Files**: `bookminder/apple_books/library.py`
+
+### 2. Separate Unit vs Integration Tests
+**Status**: Test Architecture Issue
+**Issue**: Current tests are integration tests (real Apple Books) but run as unit tests, causing CI failures
+**Solution**: Unit tests (mocked) for CI, integration tests (real Apple Books) for local validation
+**Files**: Restructure `specs/` directory, create mocks
+
+### 3. GitHub Actions workflow completion
+**Status**: Partially Complete
+**Issue**: CI workflow exists but fails due to test architecture issues above
+**Solution**: Complete workflow setup once test mocking is done
+**Files**: `.github/workflows/main.yml`
+
+## 🚧 WALKING SKELETON COMPLETION
+
+### 4. Complete Walking Skeleton - Missing CLI Entry Point
+**Status**: Critical Gap for Walking Skeleton
+**Issue**: README.md references `bookminder.py` CLI but it doesn't exist
+**Solution**: Create minimal CLI that demonstrates book listing/search functionality
+**Files**: `bookminder.py` (create), acceptance tests for CLI
+
+---
+
 ## Requirements Status
 | Requirement ID | Description | Status | Acceptance Tests | Notes |
 |---------------|-------------|--------|------------------|-------|
