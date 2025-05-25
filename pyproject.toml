@@ -57,6 +57,10 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
+exclude = [
+    "specs/",
+    "claude-dev-log-diary/",
+]
 
 [tool.ruff]
 line-length = 88

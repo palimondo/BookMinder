@@ -32,4 +32,4 @@ repos:
         additional_dependencies:
         -   types-pyyaml
         -   types-requests
-        exclude: ^claude-dev-log-diary/
+        exclude: ^(claude-dev-log-diary/|specs/)
