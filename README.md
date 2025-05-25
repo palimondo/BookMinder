@@ -12,131 +12,90 @@ A tool to extract content and highlights from Apple Books for LLM analysis.
 - Extract highlighted passages with context
 - Export in Markdown format for LLM consumption
 
-## Setup
+## Developer Setup
 
 ### Requirements
 
 - Python 3.13 (automatically managed by uv)
 - macOS (for Apple Books access)
 
-### Installation
+### Quick Start
 
-1. Clone the repository
-   ```bash
-   git clone https://github.com/palimondo/BookMinder.git
-   cd BookMinder
-   ```
+Clone and setup:
+```bash
+git clone https://github.com/palimondo/BookMinder.git
+cd BookMinder
+```
 
-2. Create a virtual environment with uv
-   ```bash
-   uv venv --python 3.13
-   source .venv/bin/activate
-   ```
+Install uv if not already installed:
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+See [docs/uv_setup.md](docs/uv_setup.md) for more details.
 
-   > **IMPORTANT**: You must activate the virtual environment in each new terminal session before running any commands for this project. If you see commands like `pytest` failing with "command not found", it likely means the virtual environment is not activated.
+Create environment and install dependencies:
+```bash
+uv venv --python 3.13
+source .venv/bin/activate
+uv pip install -e ".[dev]"
+pre-commit install
+```
 
-   > **FIRST TIME SETUP**: If you don't have uv installed, run:
-   > ```bash
-   > curl -LsSf https://astral.sh/uv/install.sh | sh
-   > ```
-   > See `docs/uv_setup.md` for more details.
+Verify setup works:
+```bash
+pytest --spec
+```
 
-3. Install dependencies
-   ```bash
-   # Install development dependencies
-   uv pip install -e ".[dev]"
-   ```
-
-4. Set up pre-commit hooks (for development)
-   ```bash
-   pre-commit install
-   ```
+> **IMPORTANT**: Always activate the virtual environment with `source .venv/bin/activate` in each new terminal session before running any commands.
 
 ## Usage
 
 ```python
 from bookminder.apple_books.library import list_books, find_book_by_title
 
-# List all books
 books = list_books()
-
-# Find a specific book
 book = find_book_by_title("Growing Object-Oriented Software, Guided by Tests")
 ```
 
-## Development
+## Development Workflow
 
-This project follows Test-Driven Development (TDD) principles with Behavior-Driven Development (BDD) style tests.
-
-### Setting Up Your Environment
-
-1. **Activate the virtual environment**:
-   ```bash
-   # If you haven't created the virtual environment yet:
-   uv venv --python 3.13
-
-   # Activate it (this must be done in each new terminal session)
-   source .venv/bin/activate
-   ```
-
-2. **Verify you're using the correct Python**:
-   ```bash
-   # Should show a path inside the .venv directory
-   which python
-   ```
-
-3. **Install dependencies** (only needed once):
-   ```bash
-   # Install the project in development mode
-   uv pip install -e ".[dev]"
-   ```
+This project follows Test-Driven Development (TDD) with Behavior-Driven Development (BDD) style tests.
 
 ### Running Tests
 
-**Remember**: Always activate the virtual environment first with `source .venv/bin/activate` before running any commands.
-
+Activate environment first (always required):
 ```bash
-# Run all tests
-pytest
+source .venv/bin/activate
+```
 
-# Run all tests with BDD/spec output for living documentation
+Run tests with BDD output for living documentation:
+```bash
 pytest --spec
+```
 
-# Run specific tests
+Run specific tests:
+```bash
 pytest specs/apple_books/library_spec.py --spec
+```
 
-# Run tests with verbose output
-pytest --spec -v
-
-# Check test coverage
+Check test coverage:
+```bash
 pytest --cov=bookminder --cov-report=term-missing
 ```
 
 ### Code Quality
 
-We use pre-commit hooks to enforce code quality. Run manually:
-
+Run all pre-commit checks:
 ```bash
-# Make sure virtual environment is activated
-source .venv/bin/activate
-
-# Install pre-commit (one time setup)
-pre-commit install
-
-# Run all checks manually
 pre-commit run --all-files
-
-# Run formatting only
-ruff format .
-
-# Run linting only
-ruff check --fix .
-
-# Run type checking only
-mypy .
 ```
 
-For more detailed information about using uv, see [docs/uv_setup.md](docs/uv_setup.md).
+Or run individual tools:
+```bash
+ruff format .
+ruff check --fix .
+mypy .
+```
 
 ## License
 
