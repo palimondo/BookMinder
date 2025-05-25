@@ -1,11 +1,10 @@
 """Apple Books library access functions."""
 
-import os
-import subprocess
-import plistlib
 import datetime
-from typing import List, Dict, Any, Optional
-
+import os
+import plistlib
+import subprocess
+from typing import Any
 
 # Path to Apple Books library
 BOOKS_PATH = os.path.expanduser(
@@ -14,12 +13,13 @@ BOOKS_PATH = os.path.expanduser(
 BOOKS_PLIST = os.path.join(BOOKS_PATH, "Books.plist")
 
 
-def _read_books_plist() -> List[Dict[str, Any]]:
-    """
-    Read the Books.plist file and extract book data.
+def _read_books_plist() -> list[dict[str, Any]]:
+    """Read the Books.plist file and extract book data.
 
-    Returns:
+    Returns
+    -------
         List of book dictionaries from the plist file
+
     """
     # Use plutil to convert binary plist to XML format which plistlib can read
     result = subprocess.run(
@@ -31,18 +31,21 @@ def _read_books_plist() -> List[Dict[str, Any]]:
 
     # Parse the XML plist data
     plist_data = plistlib.loads(result.stdout)
-    return plist_data.get("Books", [])
+    books = plist_data.get("Books", [])
+    return books if isinstance(books, list) else []
 
 
-def list_books(sort_by: Optional[str] = None) -> List[Dict[str, Any]]:
-    """
-    List books from the Apple Books library.
+def list_books(sort_by: str | None = None) -> list[dict[str, Any]]:
+    """List books from the Apple Books library.
 
     Args:
+    ----
         sort_by: Optional field to sort by, e.g. 'updated'
 
     Returns:
+    -------
         List of book dictionaries with metadata
+
     """
     try:
         raw_books = _read_books_plist()
@@ -74,15 +77,17 @@ def list_books(sort_by: Optional[str] = None) -> List[Dict[str, Any]]:
         return []
 
 
-def find_book_by_title(title: str) -> Optional[Dict[str, Any]]:
-    """
-    Find a book by its title.
+def find_book_by_title(title: str) -> dict[str, Any] | None:
+    """Find a book by its title.
 
     Args:
+    ----
         title: The title to search for
 
     Returns:
+    -------
         Book dictionary if found, None otherwise
+
     """
     books = list_books()
     for book in books:

@@ -60,7 +60,7 @@ disallow_incomplete_defs = true
 
 [tool.ruff]
 line-length = 88
-target-version = "py313"
+target-version = "py312"
 exclude = [".git", "__pycache__", "build", "dist", "claude-dev-log-diary"]
 
 [tool.ruff.lint]
