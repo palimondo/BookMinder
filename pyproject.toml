@@ -5,14 +5,15 @@ build-backend = "setuptools.build_meta"
 # PEP 621 project metadata
 [project]
 name = "bookminder"
-version = "0.1.0"
+version = "0.2.0"
 description = "Extract content and highlights from Apple Books for LLM analysis"
 readme = "README.md"
 requires-python = "==3.13.*"
 license = "MIT"
 authors = [
     {name = "Pavol Vaskovic", email = "pali@pali.sk"},
-    {name = "Claude AI (claude-3-7-sonnet-20250219)"}
+    {name = "Claude AI (claude-3-7-sonnet-20250219)"},
+    {name = "Claude AI (claude-sonnet-4-20250514)"}
 ]
 keywords = ["ebooks", "apple-books", "highlights", "llm"]
 
