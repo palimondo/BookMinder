@@ -8,7 +8,9 @@ import pytest
 def use_test_books(monkeypatch):
     """Use test fixtures instead of real Apple Books library."""
     fixtures_path = Path(__file__).parent / "fixtures"
+    test_plist = fixtures_path / "Books.plist"
     monkeypatch.setattr("bookminder.apple_books.library.BOOKS_PATH", str(fixtures_path))
+    monkeypatch.setattr("bookminder.apple_books.library.BOOKS_PLIST", str(test_plist))
 
 
 def describe_book_library():
