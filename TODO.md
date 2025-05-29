@@ -61,6 +61,10 @@
 - [ ] Add documentation
 - [ ] MCP integration
 
+## Future Test Improvements
+- [ ] Create minimal EPUB test file with TOC structure for testing EPUB parsing features
+- [ ] Add more test books to fixtures when needed (e.g., books with different formats, languages, or metadata)
+
 ## Completed
 - [x] Create project repository
 - [x] Setup Python virtual environment
