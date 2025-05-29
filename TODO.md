@@ -14,17 +14,17 @@
 **Solution**: Include books from Books.plist even if not locally available, add `downloaded` status field
 **Files**: `bookminder/apple_books/library.py`
 
-### 2. Separate Unit vs Integration Tests
-**Status**: Test Architecture Issue
-**Issue**: Current tests are integration tests (real Apple Books) but run as unit tests, causing CI failures
-**Solution**: Unit tests (mocked) for CI, integration tests (real Apple Books) for local validation
-**Files**: Restructure `specs/` directory, create mocks
+### 2. ~~Separate Unit vs Integration Tests~~ ✅ RESOLVED
+**Status**: ~~Test Architecture Issue~~ Fixed with test fixtures
+**Issue**: ~~Current tests are integration tests (real Apple Books) but run as unit tests, causing CI failures~~
+**Solution**: ~~Unit tests (mocked) for CI, integration tests (real Apple Books) for local validation~~ Implemented test fixtures with minimal Books.plist
+**Files**: ~~Restructure `specs/` directory, create mocks~~ Added `specs/apple_books/fixtures/` with test data
 
-### 3. GitHub Actions workflow completion
-**Status**: Partially Complete
-**Issue**: CI workflow exists but fails due to test architecture issues above
-**Solution**: Complete workflow setup once test mocking is done
-**Files**: `.github/workflows/main.yml`
+### 3. ~~GitHub Actions workflow completion~~ ✅ RESOLVED
+**Status**: ~~Partially Complete~~ Completed
+**Issue**: ~~CI workflow exists but fails due to test architecture issues above~~
+**Solution**: ~~Complete workflow setup once test mocking is done~~ CI now passes with test fixtures
+**Files**: `.github/workflows/main.yml` (no changes needed)
 
 ## 🚧 WALKING SKELETON COMPLETION
 
