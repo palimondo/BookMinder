@@ -109,7 +109,7 @@
 			<key>pageCount</key>
 			<integer>384</integer>
 			<key>path</key>
-			<string>/Users/palimondo/Library/Containers/com.apple.BKAgentService/Data/Documents/iBooks/Books/401429854.epub</string>
+			<string>specs/apple_books/fixtures/401429854.epub</string>
 			<key>primaryLanguage</key>
 			<string>en</string>
 			<key>publisher</key>
