@@ -4,7 +4,7 @@ import datetime
 import os
 import plistlib
 import subprocess
-from typing import Any
+from typing import Any, cast
 
 # Path to Apple Books library
 BOOKS_PATH = os.path.expanduser(
@@ -31,8 +31,7 @@ def _read_books_plist() -> list[dict[str, Any]]:
 
     # Parse the XML plist data
     plist_data = plistlib.loads(result.stdout)
-    books = plist_data.get("Books", [])
-    return books if isinstance(books, list) else []
+    return cast(list[dict[str, Any]], plist_data.get("Books", []))
 
 
 def list_books(sort_by: str | None = None) -> list[dict[str, Any]]:
@@ -50,19 +49,18 @@ def list_books(sort_by: str | None = None) -> list[dict[str, Any]]:
     raw_books = _read_books_plist()
 
     # Convert to our standardized format
-    books = []
-    for book in raw_books:
-        # Create standardized book entry
-        book_entry = {
+    books = [
+        {
             "title": book.get("itemName", "Unknown"),
             "path": book.get("path", ""),
             "author": book.get("artistName", "Unknown"),
             "updated": book.get("updateDate", datetime.datetime.min),
         }
-        books.append(book_entry)
+        for book in raw_books
+    ]
 
     # Sort books if requested
-    if sort_by == "updated" and books:
+    if sort_by == "updated":
         books.sort(key=lambda b: b["updated"], reverse=True)
 
     return books
@@ -80,8 +78,4 @@ def find_book_by_title(title: str) -> dict[str, Any] | None:
         Book dictionary if found, None otherwise
 
     """
-    books = list_books()
-    for book in books:
-        if book["title"] == title:
-            return book
-    return None
+    return next((book for book in list_books() if book["title"] == title), None)
