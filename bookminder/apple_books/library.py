@@ -23,13 +23,6 @@ class Book(TypedDict):
 
 
 def _read_books_plist() -> list[dict[str, Any]]:
-    """Read the Books.plist file and extract book data.
-
-    Returns
-    -------
-        List of book dictionaries from the plist file
-
-    """
     # Use plutil to convert binary plist to XML format which plistlib can read
     result = subprocess.run(
         ["plutil", "-convert", "xml1", "-o", "-", str(BOOKS_PLIST)],
@@ -43,18 +36,8 @@ def _read_books_plist() -> list[dict[str, Any]]:
     return books if isinstance(books, list) else []
 
 
-def list_books(sort_by: str | None = None) -> list[Book]:
-    """List books from the Apple Books library.
-
-    Args:
-    ----
-        sort_by: Optional field to sort by, e.g. 'updated'
-
-    Returns:
-    -------
-        List of Book objects with metadata
-
-    """
+def list_books() -> list[Book]:
+    """List books from the Apple Books library."""
     raw_books = _read_books_plist()
 
     books: list[Book] = [
@@ -66,23 +49,9 @@ def list_books(sort_by: str | None = None) -> list[Book]:
         )
         for book in raw_books
     ]
-
-    if sort_by == "updated":
-        books.sort(key=lambda b: b["updated"], reverse=True)
-
     return books
 
 
 def find_book_by_title(title: str) -> Book | None:
-    """Find a book by its title.
-
-    Args:
-    ----
-        title: The title to search for
-
-    Returns:
-    -------
-        Book object if found, None otherwise
-
-    """
+    """Find a book by exact title match."""
     return next((book for book in list_books() if book["title"] == title), None)
