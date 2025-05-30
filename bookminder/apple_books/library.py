@@ -47,34 +47,25 @@ def list_books(sort_by: str | None = None) -> list[dict[str, Any]]:
         List of book dictionaries with metadata
 
     """
-    try:
-        raw_books = _read_books_plist()
+    raw_books = _read_books_plist()
 
-        # Convert to our standardized format
-        books = []
-        for book in raw_books:
-            # Skip books that don't have paths or don't exist
-            path = book.get("path")
-            if not path or not os.path.exists(path):
-                continue
+    # Convert to our standardized format
+    books = []
+    for book in raw_books:
+        # Create standardized book entry
+        book_entry = {
+            "title": book.get("itemName", "Unknown"),
+            "path": book.get("path", ""),
+            "author": book.get("artistName", "Unknown"),
+            "updated": book.get("updateDate", datetime.datetime.min),
+        }
+        books.append(book_entry)
 
-            # Create standardized book entry
-            book_entry = {
-                "title": book.get("itemName", "Unknown"),
-                "path": path,
-                "author": book.get("artistName", "Unknown"),
-                "updated": book.get("updateDate", datetime.datetime.min),
-            }
-            books.append(book_entry)
+    # Sort books if requested
+    if sort_by == "updated" and books:
+        books.sort(key=lambda b: b["updated"], reverse=True)
 
-        # Sort books if requested
-        if sort_by == "updated" and books:
-            books.sort(key=lambda b: b["updated"], reverse=True)
-
-        return books
-    except Exception as e:
-        print(f"Error reading books: {e}")
-        return []
+    return books
 
 
 def find_book_by_title(title: str) -> dict[str, Any] | None:

@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import pytest
@@ -32,9 +31,8 @@ def describe_book_library():
             for book in books:
                 assert "title" in book, f"Book missing title: {book}"
                 assert "path" in book, f"Book missing path: {book}"
-                assert os.path.exists(
-                    book["path"]
-                ), f"Book path does not exist: {book['path']}"
+                assert "author" in book, f"Book missing author: {book}"
+                assert "updated" in book, f"Book missing updated date: {book}"
 
         def it_can_find_specific_book_by_title():
             from bookminder.apple_books.library import find_book_by_title
@@ -53,3 +51,9 @@ def describe_book_library():
                 assert (
                     books[0]["updated"] >= books[1]["updated"]
                 ), "Books not sorted correctly"
+
+        def it_returns_none_when_book_not_found():
+            from bookminder.apple_books.library import find_book_by_title
+
+            book = find_book_by_title("Non-existent Book Title")
+            assert book is None, "Expected None for non-existent book"
