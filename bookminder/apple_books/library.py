@@ -2,7 +2,6 @@
 
 import datetime
 import plistlib
-import subprocess
 from pathlib import Path
 from typing import Any, TypedDict
 
@@ -23,15 +22,8 @@ class Book(TypedDict):
 
 
 def _read_books_plist() -> list[dict[str, Any]]:
-    # Use plutil to convert binary plist to XML format which plistlib can read
-    result = subprocess.run(
-        ["plutil", "-convert", "xml1", "-o", "-", str(BOOKS_PLIST)],
-        capture_output=True,
-        text=False,
-        check=True,
-    )
-
-    plist_data = plistlib.loads(result.stdout)
+    with open(BOOKS_PLIST, "rb") as f:
+        plist_data = plistlib.load(f)
     books = plist_data.get("Books", [])
     return books if isinstance(books, list) else []
 
