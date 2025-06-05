@@ -65,7 +65,7 @@ exclude = [
 
 [tool.ruff]
 line-length = 88
-target-version = "py312"
+target-version = "py313"
 exclude = [".git", "__pycache__", "build", "dist", "claude-dev-log-diary"]
 
 [tool.ruff.lint]
