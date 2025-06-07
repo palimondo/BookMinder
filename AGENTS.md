@@ -11,7 +11,6 @@ This project, BookMinder, is a Python tool designed to extract content and highl
 - `README.md` - General information and setup instructions.
 - `pyproject.toml` - Project metadata and dependencies (managed by UV).
 - `TODO.md` - Task tracking for development.
-- Note: This project does not currently use HTML templates or a dedicated `static/` directory. Utility scripts, if any, would typically be in a `scripts/` directory, but one is not currently present.
 
 ## Setup & Dependencies
 - **Python version**: 3.13 (managed by `uv`).
@@ -75,7 +74,10 @@ This project emphasizes disciplined engineering, minimal and simple solutions, a
 - **Executable Specifications**: Tests (especially BDD-style `specs`) are the primary documentation of behavior.
 
 **Development Process:**
-- **Requirements First**: Start with clear, testable acceptance criteria for any new feature or change.
+- **Understand Requirements Thoroughly**:
+    - Before coding, ensure requirements are crystal clear. This includes the user's goal, necessary inputs/outputs, edge cases, and precise acceptance criteria.
+    - Refer to `TODO.md` for documented requirements. If anything is unclear or missing, seek clarification before proceeding.
+- **Formulate and Test Hypotheses**: For complex problems or unclear areas, formulate explicit hypotheses about behavior or solutions. Create small, targeted tests to validate these assumptions early.
 - **Test-Driven Development (TDD/BDD)**:
     - Always write a failing test *before* writing implementation code.
     - Tests should define behavior (`what`), not just implementation details (`how`).
@@ -115,6 +117,24 @@ This project emphasizes disciplined engineering, minimal and simple solutions, a
 - Adding functionality not directly tied to a current, specific requirement.
 - Writing implementation code before a failing test.
 - Unnecessary files, comments, or boilerplate.
+
+**Key Development Checks:**
+
+*   **Before Starting Work:**
+    *   ✓ Is there a clear requirement defined (e.g., in `TODO.md` or from user input)?
+    *   ✓ Are acceptance criteria, inputs/outputs, and edge cases understood?
+*   **During Implementation (TDD/BDD Cycle):**
+    *   ✓ Have you written a failing test for the specific behavior you are about to implement?
+    *   ✓ Is the test descriptively named (e.g., `describe_...::it_...`) and focused on behavior?
+    *   ✓ (After writing code) Is the implementation the *minimal* necessary to pass the current test? (YAGNI)
+    *   ✓ Do *all* tests pass after your change? (`pytest`)
+*   **Before Committing:**
+    *   ✓ Have all tests passed? (`pytest`)
+    *   ✓ Has the code been formatted and linted? (`ruff format .`, `ruff check --fix .`)
+    *   ✓ Has type checking passed? (`mypy .`) (Or run `pre-commit run --all-files`)
+    *   ✓ Is the code self-documenting? Have redundant comments/docstrings been removed?
+    *   ✓ Does the commit message clearly explain the "why" and "what" of the changes?
+    *   ✓ Are only necessary files included in the commit?
 
 ## Commit & PR Guidelines
 
