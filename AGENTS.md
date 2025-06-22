@@ -150,6 +150,7 @@ This project emphasizes disciplined engineering, minimal and simple solutions, a
         1. After achieving a **GREEN** state (new BDD test passes with minimal implementation).
         2. After a **REFACTOR** phase (code is cleaned up, tests still pass).
 - **Atomicity**: Each commit should be small, focused, and maintain a working state (all tests and linters passing).
+- **File Staging**: Never use `git add .` - always stage files explicitly by name to avoid accidentally committing large or sensitive files.
 
 **Pull Requests (PRs):**
 - **Description**: When the agent creates a PR, it should include a clear description summarizing:

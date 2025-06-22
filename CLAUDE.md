@@ -175,6 +175,7 @@ Before committing, verify:
 - Focus on what the change accomplishes, not just what files were modified
 - Each commit should be small, focused, and preserve working state (all tests passing).
 - Stage all files after running pre-commit hooks that modify files, to ensure fixes are included in commit
+- Never use `git add .` - always stage files explicitly by name to avoid accidentally committing large or sensitive files
 </git_workflow>
 
 <project_maintenance>
