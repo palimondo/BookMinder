@@ -1,7 +1,9 @@
 """Apple Books library access functions."""
 
 import datetime
+import glob
 import plistlib
+import sqlite3
 from pathlib import Path
 from typing import Any, NotRequired, TypedDict
 
@@ -51,28 +53,59 @@ def find_book_by_title(title: str) -> Book | None:
 
 
 def list_recent_books() -> list[Book]:
-    """List recently read books with progress."""
-    # Minimal implementation to make test pass
-    return [
-        Book(
-            title="The Pragmatic Programmer",
-            author="Dave Thomas & Andy Hunt",
-            path="",
-            updated=datetime.datetime.min,
-            progress=73.0,
-        ),
-        Book(
-            title="Continuous Delivery",
-            author="Dave Farley & Jez Humble",
-            path="",
-            updated=datetime.datetime.min,
-            progress=45.0,
-        ),
-        Book(
-            title="Test Driven Development",
-            author="Kent Beck",
-            path="",
-            updated=datetime.datetime.min,
-            progress=22.0,
-        ),
-    ]
+    """List recently read books with progress from BKLibrary database."""
+    # Find BKLibrary database using glob pattern
+    home = Path.home()
+    db_pattern = str(
+        home
+        / "Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary"
+        / "BKLibrary-*.sqlite"
+    )
+    db_files = glob.glob(db_pattern)
+
+    if not db_files:
+        # No database found - return empty list for now
+        return []
+
+    db_path = db_files[0]  # Use first match
+
+    try:
+        with sqlite3.connect(db_path) as conn:
+            conn.row_factory = sqlite3.Row  # Enable column access by name
+            cursor = conn.cursor()
+
+            # Query from docs/apple_books.md
+            query = """
+                SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS * 100 as progress,
+                       ZLASTOPENDATE
+                FROM ZBKLIBRARYASSET
+                WHERE ZREADINGPROGRESS > 0
+                ORDER BY ZLASTOPENDATE DESC
+                LIMIT 10
+            """
+
+            cursor.execute(query)
+            rows = cursor.fetchall()
+
+            books = []
+            for row in rows:
+                # Convert Apple timestamp (Core Data format) to datetime
+                apple_epoch = datetime.datetime(2001, 1, 1, tzinfo=datetime.UTC)
+                last_opened = apple_epoch + datetime.timedelta(
+                    seconds=row["ZLASTOPENDATE"] or 0
+                )
+
+                book = Book(
+                    title=row["ZTITLE"] or "Unknown",
+                    author=row["ZAUTHOR"] or "Unknown",
+                    path="",  # We don't need path for recent books display
+                    updated=last_opened,
+                    progress=float(row["progress"] or 0),
+                )
+                books.append(book)
+
+            return books
+
+    except sqlite3.Error:
+        # Database error (locked, corrupted, etc.) - return empty list
+        return []
