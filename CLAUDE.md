@@ -174,6 +174,7 @@ Before committing, verify:
 - Reference the specific requirements being addressed in commit messages
 - Focus on what the change accomplishes, not just what files were modified
 - Each commit should be small, focused, and preserve working state (all tests passing).
+- Stage all files after running pre-commit hooks that modify files, to ensure fixes are included in commit
 </git_workflow>
 
 <project_maintenance>
@@ -183,27 +184,15 @@ Before committing, verify:
 - Keep package metadata current and accurate in pyproject.toml
 - Review docs/ directory content periodically to ensure documentation reflects current state
 - Maintain LICENSE file with correct attribution and current year
-- Stage all files after running pre-commit hooks that modify files, to ensure fixes are included in commit
+- These instructions are duplicated in AGENTS.md for use with other agentic coding systems, therefore when updating these instructions, always ask the user if changes should be applied to both CLAUDE.md and AGENTS.md
 </project_maintenance>
 
 <file_operations>
 ## File Operations and Git Hygiene
 - **Always use `git mv` for moving files**: When relocating tracked files, always use `git mv` instead of regular `mv` to maintain proper Git history
 - **Place documentation in docs/ directory**: Keep all documentation files in the docs/ directory with lowercase, underscore-separated names
+- **Never access `claude-dev-log-diary/` directory without first asking for explicit user permission**: This directory contains complete console transcripts (hundreds of KBs) for historical analysis
 - **Verify each development step in isolation**: Test each step of the development workflow to ensure it works as expected before documenting it
 - **Test project setup on a clean environment**: Regularly verify that project setup works correctly from scratch
 - **Test commands in fresh shells**: Ensure all documented commands work in new terminal sessions
 </file_operations>
-
-<dev_logs_policy>
-## Development Logs Policy
-- **Never access `claude-dev-log-diary/` directory without first asking for explicit user permission**
-- Contains complete console transcripts (hundreds of KBs) for historical analysis
-- Current codebase, tests, and documentation are the authoritative references for development
-</dev_logs_policy>
-
-<instruction_synchronization>
-## Instruction Synchronization
-- These instructions are duplicated in AGENTS.md for use with other agentic coding systems
-- When updating these instructions, always ask the user if changes should be applied to both CLAUDE.md and AGENTS.md
-</instruction_synchronization>

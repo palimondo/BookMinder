@@ -175,18 +175,10 @@ This project emphasizes disciplined engineering, minimal and simple solutions, a
 - **File Management**:
     - **Moving/Renaming Files**: Always use `git mv old_path new_path` for moving or renaming files tracked by Git. This preserves their history.
     - **Documentation Files**: Project documentation (like this `AGENTS.md` or `README.md`) should be placed in the root directory or in the `docs/` directory. Use lowercase, underscore-separated names for new documents in `docs/`.
+    - **Never access `claude-dev-log-diary/` directory without first asking for explicit user permission**: This directory contains complete console transcripts (hundreds of KBs) for historical analysis.
 - **Environment and Commands**:
     - Always ensure you are in the correct virtual environment (`source .venv/bin/activate`) before running any project-specific commands.
     - If documenting or testing a sequence of commands, verify them in a fresh shell session to ensure they work correctly from a clean state.
 - **Focus on Requirements**: Ensure all changes directly address a stated requirement or an agreed-upon improvement. Avoid speculative or "nice-to-have" additions unless specifically requested.
 - **Agent Self-Correction**: If a subtask fails or an approach doesn't work, the agent should analyze the failure, potentially revise its plan or approach, and retry. Documenting these iterations can be helpful.
-
-## Development Logs Policy
-
-- **Never access `claude-dev-log-diary/` directory without first asking for explicit user permission**
-- Contains complete console transcripts (hundreds of KBs) for historical analysis
-- Current codebase, tests, and `TODO.md` are the authoritative references for development
-
-## Instruction Synchronization
-- These instructions are duplicated in CLAUDE.md for use with Claude AI specifically
-- When updating these instructions, always ask the user if changes should be applied to both AGENTS.md and CLAUDE.md
+- **Instruction Synchronization**: These instructions are duplicated in CLAUDE.md for use with Claude AI specifically. When updating these instructions, always ask the user if changes should be applied to both AGENTS.md and CLAUDE.md.
