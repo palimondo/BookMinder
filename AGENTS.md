@@ -183,6 +183,10 @@ This project emphasizes disciplined engineering, minimal and simple solutions, a
 
 ## Development Logs Policy
 
-- **Never access `claude-dev-log-diary/` directory** without explicit user instruction
+- **Never access `claude-dev-log-diary/` directory without first asking for explicit user permission**
 - Contains complete console transcripts (hundreds of KBs) for historical analysis
 - Current codebase, tests, and `TODO.md` are the authoritative references for development
+
+## Instruction Synchronization
+- These instructions are duplicated in CLAUDE.md for use with Claude AI specifically
+- When updating these instructions, always ask the user if changes should be applied to both AGENTS.md and CLAUDE.md

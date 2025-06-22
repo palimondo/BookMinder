@@ -197,7 +197,13 @@ Before committing, verify:
 
 <dev_logs_policy>
 ## Development Logs Policy
-- **Never access `claude-dev-log-diary/` directory** without explicit user instruction
+- **Never access `claude-dev-log-diary/` directory without first asking for explicit user permission**
 - Contains complete console transcripts (hundreds of KBs) for historical analysis
 - Current codebase, tests, and documentation are the authoritative references for development
 </dev_logs_policy>
+
+<instruction_synchronization>
+## Instruction Synchronization
+- These instructions are duplicated in AGENTS.md for use with other agentic coding systems
+- When updating these instructions, always ask the user if changes should be applied to both CLAUDE.md and AGENTS.md
+</instruction_synchronization>
