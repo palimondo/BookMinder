@@ -3,7 +3,7 @@
 import datetime
 import plistlib
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Any, NotRequired, TypedDict
 
 BOOKS_PATH = (
     Path.home()
@@ -19,12 +19,7 @@ class Book(TypedDict):
     path: str
     author: str
     updated: datetime.datetime
-
-
-class BookWithProgress(Book, total=False):
-    """Book with optional reading progress."""
-
-    progress: float  # Reading progress as percentage (0.0-100.0)
+    progress: NotRequired[float]  # Reading progress as percentage (0.0-100.0)
 
 
 def _read_books_plist() -> list[dict[str, Any]]:
@@ -55,25 +50,25 @@ def find_book_by_title(title: str) -> Book | None:
     return next((book for book in list_books() if book["title"] == title), None)
 
 
-def list_recent_books() -> list[BookWithProgress]:
+def list_recent_books() -> list[Book]:
     """List recently read books with progress."""
     # Minimal implementation to make test pass
     return [
-        BookWithProgress(
+        Book(
             title="The Pragmatic Programmer",
             author="Dave Thomas & Andy Hunt",
             path="",
             updated=datetime.datetime.min,
             progress=73.0,
         ),
-        BookWithProgress(
+        Book(
             title="Continuous Delivery",
             author="Dave Farley & Jez Humble",
             path="",
             updated=datetime.datetime.min,
             progress=45.0,
         ),
-        BookWithProgress(
+        Book(
             title="Test Driven Development",
             author="Kent Beck",
             path="",
