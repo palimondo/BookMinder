@@ -21,12 +21,10 @@ class Book(TypedDict):
     updated: datetime.datetime
 
 
-class RecentBook(TypedDict):
-    """Recent book with reading progress."""
+class BookWithProgress(Book, total=False):
+    """Book with optional reading progress."""
 
-    title: str
-    author: str
-    progress: float
+    progress: float  # Reading progress as percentage (0.0-100.0)
 
 
 def _read_books_plist() -> list[dict[str, Any]]:
@@ -57,23 +55,29 @@ def find_book_by_title(title: str) -> Book | None:
     return next((book for book in list_books() if book["title"] == title), None)
 
 
-def list_recent_books() -> list[RecentBook]:
+def list_recent_books() -> list[BookWithProgress]:
     """List recently read books with progress."""
     # Minimal implementation to make test pass
     return [
-        RecentBook(
+        BookWithProgress(
             title="The Pragmatic Programmer",
             author="Dave Thomas & Andy Hunt",
+            path="",
+            updated=datetime.datetime.min,
             progress=73.0,
         ),
-        RecentBook(
+        BookWithProgress(
             title="Continuous Delivery",
             author="Dave Farley & Jez Humble",
+            path="",
+            updated=datetime.datetime.min,
             progress=45.0,
         ),
-        RecentBook(
+        BookWithProgress(
             title="Test Driven Development",
             author="Kent Beck",
+            path="",
+            updated=datetime.datetime.min,
             progress=22.0,
         ),
     ]
