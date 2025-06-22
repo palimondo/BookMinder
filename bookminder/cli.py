@@ -2,6 +2,8 @@
 
 import click
 
+from bookminder.apple_books.library import list_recent_books
+
 
 @click.group()
 def main() -> None:
@@ -18,7 +20,7 @@ def list() -> None:
 @list.command()
 def recent() -> None:
     """Show recently read books with progress."""
-    # Minimal hardcoded output to make acceptance test pass
-    click.echo("The Pragmatic Programmer - Dave Thomas & Andy Hunt (73%)")
-    click.echo("Continuous Delivery - Dave Farley & Jez Humble (45%)")
-    click.echo("Test Driven Development - Kent Beck (22%)")
+    books = list_recent_books()
+    for book in books:
+        progress_percent = int(book["progress"])
+        click.echo(f"{book['title']} - {book['author']} ({progress_percent}%)")
