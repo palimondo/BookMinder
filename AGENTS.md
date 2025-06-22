@@ -180,3 +180,9 @@ This project emphasizes disciplined engineering, minimal and simple solutions, a
     - If documenting or testing a sequence of commands, verify them in a fresh shell session to ensure they work correctly from a clean state.
 - **Focus on Requirements**: Ensure all changes directly address a stated requirement or an agreed-upon improvement. Avoid speculative or "nice-to-have" additions unless specifically requested.
 - **Agent Self-Correction**: If a subtask fails or an approach doesn't work, the agent should analyze the failure, potentially revise its plan or approach, and retry. Documenting these iterations can be helpful.
+
+## Development Logs Policy
+
+- **Never access `claude-dev-log-diary/` directory** without explicit user instruction
+- Contains complete console transcripts (hundreds of KBs) for historical analysis
+- Current codebase, tests, and `TODO.md` are the authoritative references for development

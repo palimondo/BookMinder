@@ -194,3 +194,10 @@ Before committing, verify:
 - **Test project setup on a clean environment**: Regularly verify that project setup works correctly from scratch
 - **Test commands in fresh shells**: Ensure all documented commands work in new terminal sessions
 </file_operations>
+
+<dev_logs_policy>
+## Development Logs Policy
+- **Never access `claude-dev-log-diary/` directory** without explicit user instruction
+- Contains complete console transcripts (hundreds of KBs) for historical analysis
+- Current codebase, tests, and documentation are the authoritative references for development
+</dev_logs_policy>
