@@ -22,5 +22,5 @@ def recent() -> None:
     """Show recently read books with progress."""
     books = list_recent_books()
     for book in books:
-        progress_percent = int(book["progress"])
-        click.echo(f"{book['title']} - {book['author']} ({progress_percent}%)")
+        progress = book["reading_progress_percentage"]
+        click.echo(f"{book['title']} - {book['author']} ({progress}%)")

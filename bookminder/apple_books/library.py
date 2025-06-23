@@ -21,7 +21,7 @@ class Book(TypedDict):
     path: str
     author: str
     updated: datetime.datetime
-    progress: NotRequired[float]  # Reading progress as percentage (0.0-100.0)
+    reading_progress_percentage: NotRequired[int]
 
 
 def _apple_timestamp_to_datetime(timestamp: float | None) -> datetime.datetime:
@@ -41,9 +41,9 @@ def _row_to_book(row: sqlite3.Row) -> Book:
     return Book(
         title=row["ZTITLE"] or "Unknown",
         author=row["ZAUTHOR"] or "Unknown",
-        path="",  # We don't need path for recent books display
+        path="",  # TODO: Path not in BKLibrary DB - need Books.plist correlation
         updated=_apple_timestamp_to_datetime(row["ZLASTOPENDATE"]),
-        progress=float(row["progress"] or 0),
+        reading_progress_percentage=int(row["ZREADINGPROGRESS"] * 100),
     )
 
 
@@ -98,10 +98,8 @@ def list_recent_books() -> list[Book]:
             conn.row_factory = sqlite3.Row  # Enable column access by name
             cursor = conn.cursor()
 
-            # Query from docs/apple_books.md
             query = """
-                SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS * 100 as progress,
-                       ZLASTOPENDATE
+                SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE
                 FROM ZBKLIBRARYASSET
                 WHERE ZREADINGPROGRESS > 0
                 ORDER BY ZLASTOPENDATE DESC
@@ -116,5 +114,5 @@ def list_recent_books() -> list[Book]:
             return books
 
     except sqlite3.Error:
-        # Database error (locked, corrupted, etc.) - return empty list
+        # TODO: Handle specific errors - database locked, missing table, etc.
         return []

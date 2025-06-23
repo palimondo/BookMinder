@@ -53,7 +53,9 @@ def describe_list_recent_books():
         for book in books:
             assert "title" in book, f"Book missing title: {book}"
             assert "author" in book, f"Book missing author: {book}"
-            assert "progress" in book, f"Book missing progress: {book}"
+            assert (
+                "reading_progress_percentage" in book
+            ), f"Book missing reading_progress_percentage: {book}"
 
     def it_attempts_to_read_from_bklibrary_database():
         """Test that function tries to query real database, not hardcoded data."""
