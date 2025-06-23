@@ -79,3 +79,12 @@ def describe_list_recent_books():
         monkeypatch.setattr("bookminder.apple_books.library.BKLIBRARY_DB_FILE", None)
         books = list_recent_books()
         assert books == []
+
+    def it_returns_empty_list_on_database_error(monkeypatch):
+        """When database is corrupted or locked, should handle error gracefully."""
+        # Point to a file that exists but isn't a valid SQLite database
+        monkeypatch.setattr(
+            "bookminder.apple_books.library.BKLIBRARY_DB_FILE", Path("/dev/null")
+        )
+        books = list_recent_books()
+        assert books == []
