@@ -13,6 +13,12 @@ BOOKS_PATH = (
 )
 BOOKS_PLIST = BOOKS_PATH / "Books.plist"
 
+BKLIBRARY_PATH = (
+    Path.home() / "Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary"
+)
+_db_files = glob.glob(str(BKLIBRARY_PATH / "BKLibrary-*.sqlite"))
+BKLIBRARY_DB_FILE = Path(_db_files[0]) if _db_files else None
+
 
 class Book(TypedDict):
     """Book metadata from Apple Books library."""
@@ -47,18 +53,6 @@ def _row_to_book(row: sqlite3.Row) -> Book:
     )
 
 
-def _find_bklibrary_database() -> Path | None:
-    """Find the BKLibrary SQLite database file."""
-    home = Path.home()
-    db_pattern = str(
-        home
-        / "Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary"
-        / "BKLibrary-*.sqlite"
-    )
-    db_files = glob.glob(db_pattern)
-    return Path(db_files[0]) if db_files else None
-
-
 def _read_books_plist() -> list[dict[str, Any]]:
     with open(BOOKS_PLIST, "rb") as f:
         plist_data = plistlib.load(f)
@@ -89,12 +83,11 @@ def find_book_by_title(title: str) -> Book | None:
 
 def list_recent_books() -> list[Book]:
     """List recently read books with progress from BKLibrary database."""
-    db_path = _find_bklibrary_database()
-    if not db_path:
+    if not BKLIBRARY_DB_FILE:
         return []
 
     try:
-        with sqlite3.connect(db_path) as conn:
+        with sqlite3.connect(BKLIBRARY_DB_FILE) as conn:
             conn.row_factory = sqlite3.Row  # Enable column access by name
             cursor = conn.cursor()
 
