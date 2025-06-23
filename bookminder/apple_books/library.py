@@ -80,29 +80,22 @@ def find_book_by_title(title: str) -> Book | None:
 
 def list_recent_books() -> list[Book]:
     """List recently read books with progress from BKLibrary database."""
-    if not BKLIBRARY_DB_FILE:
-        return []
+    assert BKLIBRARY_DB_FILE is not None, "BKLibrary database file not found"
+    with sqlite3.connect(BKLIBRARY_DB_FILE) as conn:
+        conn.row_factory = sqlite3.Row  # Enable column access by name
+        cursor = conn.cursor()
 
-    try:
-        with sqlite3.connect(BKLIBRARY_DB_FILE) as conn:
-            conn.row_factory = sqlite3.Row  # Enable column access by name
-            cursor = conn.cursor()
+        query = """
+            SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE
+            FROM ZBKLIBRARYASSET
+            WHERE ZREADINGPROGRESS > 0
+            ORDER BY ZLASTOPENDATE DESC
+            LIMIT 10
+        """
 
-            query = """
-                SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE
-                FROM ZBKLIBRARYASSET
-                WHERE ZREADINGPROGRESS > 0
-                ORDER BY ZLASTOPENDATE DESC
-                LIMIT 10
-            """
+        cursor.execute(query)
+        rows = cursor.fetchall()
 
-            cursor.execute(query)
-            rows = cursor.fetchall()
+        books = [_row_to_book(row) for row in rows]
 
-            books = [_row_to_book(row) for row in rows]
-
-            return books
-
-    except sqlite3.Error:
-        # TODO: Handle specific errors - database locked, missing table, etc.
-        return []
+        return books
