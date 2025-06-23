@@ -1,6 +1,6 @@
 # BookMinder TODO
 
-## Current Goal: List Recently Read Books via CLI
+## List Recently Read Books via CLI [COMPLETED]
 
 ### User Story
 As a reader using Apple Books,  
@@ -16,6 +16,39 @@ Feature: List recent books
     And each book shows: Title, Author, Progress %
     And books are ordered by last read date (newest first)
 ```
+
+## NEXT: Better Error Handling with ATDD
+
+### Missing Acceptance Tests for Error Cases
+```gherkin
+Feature: Handle missing Apple Books gracefully
+
+  Scenario: User without Apple Books installed
+    Given the Apple Books database does not exist
+    When I run "bookminder list recent"
+    Then I see a helpful message "No Apple Books database found"
+    And the exit code is 0
+
+  Scenario: User with corrupted Apple Books database
+    Given the Apple Books database is corrupted
+    When I run "bookminder list recent"
+    Then I see a helpful message "Error reading Apple Books database"
+    And the exit code is 0
+
+  Scenario: User with Apple Books but no books in progress
+    Given the Apple Books database exists
+    But no books have reading progress > 0
+    When I run "bookminder list recent"
+    Then I see a message "No books currently being read"
+    And the exit code is 0
+```
+
+### Key TDD Lessons Learned
+- **Violation**: We added error handling WITHOUT tests first (violated TDD)
+- **Violation**: We retrofitted tests for coverage (Coverage-Driven Development, not TDD)
+- **Success**: Real data analysis helped remove unnecessary defensive code
+- **Success**: 100% coverage achieved, but through wrong approach
+- **Lesson**: Write acceptance tests for error cases FIRST
 
 ### Examples
 ```
