@@ -30,14 +30,11 @@ class Book(TypedDict):
     reading_progress_percentage: NotRequired[int]
 
 
-def _apple_timestamp_to_datetime(timestamp: float | None) -> datetime.datetime:
+def apple_timestamp_to_datetime(timestamp: float) -> datetime.datetime:
     """Convert Apple Core Data timestamp to Python datetime.
 
     Apple uses January 1, 2001 as epoch (vs Unix epoch of January 1, 1970).
     """
-    if timestamp is None:
-        return datetime.datetime.min
-
     apple_epoch = datetime.datetime(2001, 1, 1, tzinfo=datetime.UTC)
     return apple_epoch + datetime.timedelta(seconds=timestamp)
 
@@ -48,7 +45,7 @@ def _row_to_book(row: sqlite3.Row) -> Book:
         title=row["ZTITLE"] or "Unknown",
         author=row["ZAUTHOR"] or "Unknown",
         path="",  # TODO: Path not in BKLibrary DB - need Books.plist correlation
-        updated=_apple_timestamp_to_datetime(row["ZLASTOPENDATE"]),
+        updated=apple_timestamp_to_datetime(row["ZLASTOPENDATE"]),
         reading_progress_percentage=int(row["ZREADINGPROGRESS"] * 100),
     )
 
