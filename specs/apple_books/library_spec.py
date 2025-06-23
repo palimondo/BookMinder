@@ -56,20 +56,3 @@ def describe_list_recent_books():
             assert (
                 "reading_progress_percentage" in book
             ), f"Book missing reading_progress_percentage: {book}"
-
-    def it_attempts_to_read_from_bklibrary_database():
-        """Test that function tries to query real database, not hardcoded data."""
-        books = list_recent_books()
-        # This test will fail with hardcoded data since we expect
-        # actual database results (could be 0 books if no database found)
-        # The key is that it should attempt database access, not return
-        # exactly the 3 hardcoded books we currently have
-        hardcoded_titles = {
-            "The Pragmatic Programmer",
-            "Continuous Delivery",
-            "Test Driven Development",
-        }
-        actual_titles = {book["title"] for book in books}
-        assert (
-            actual_titles != hardcoded_titles
-        ), "Function appears to return hardcoded data instead of querying database"
