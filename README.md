@@ -57,6 +57,17 @@ books = list_books()
 book = find_book_by_title("Growing Object-Oriented Software, Guided by Tests")
 ```
 
+### Command Line Usage
+
+After installation, the `bookminder` command is available.
+
+List recently read books with reading progress:
+```bash
+bookminder list recent
+```
+
+This shows up to 10 books you're currently reading, ordered by last read date.
+
 ## Development Workflow
 
 This project follows Test-Driven Development (TDD) with Behavior-Driven Development (BDD) style tests.
