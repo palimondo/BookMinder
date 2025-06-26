@@ -13,9 +13,17 @@ def describe_bookminder_list_recent_command():
         And each book shows: Title, Author, Progress %
         And books are ordered by last read date (newest first)
         """
-        # Run the CLI command
+        # Run the CLI command with test fixture
         result = subprocess.run(
-            [sys.executable, "-m", "bookminder", "list", "recent"],
+            [
+                sys.executable,
+                "-m",
+                "bookminder",
+                "list",
+                "recent",
+                "--user",
+                "test_reader",
+            ],
             capture_output=True,
             text=True,
             cwd=Path(__file__).parent.parent,
