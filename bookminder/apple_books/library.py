@@ -7,6 +7,8 @@ import sqlite3
 from pathlib import Path
 from typing import Any, NotRequired, TypedDict
 
+APPLE_EPOCH = datetime.datetime(2001, 1, 1, tzinfo=datetime.UTC)
+
 BOOKS_PATH = (
     Path.home()
     / "Library/Containers/com.apple.BKAgentService/Data/Documents/iBooks/Books"
@@ -16,8 +18,7 @@ BOOKS_PLIST = BOOKS_PATH / "Books.plist"
 BKLIBRARY_PATH = (
     Path.home() / "Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary"
 )
-_db_files = glob.glob(str(BKLIBRARY_PATH / "BKLibrary-*.sqlite"))
-BKLIBRARY_DB_FILE = Path(_db_files[0]) if _db_files else None
+BKLIBRARY_DB_FILE = Path(glob.glob(str(BKLIBRARY_PATH / "BKLibrary-*.sqlite"))[0])
 
 
 class Book(TypedDict):
@@ -31,12 +32,7 @@ class Book(TypedDict):
 
 
 def _apple_timestamp_to_datetime(timestamp: float) -> datetime.datetime:
-    """Convert Apple Core Data timestamp to Python datetime.
-
-    Apple uses January 1, 2001 as epoch (vs Unix epoch of January 1, 1970).
-    """
-    apple_epoch = datetime.datetime(2001, 1, 1, tzinfo=datetime.UTC)
-    return apple_epoch + datetime.timedelta(seconds=timestamp)
+    return APPLE_EPOCH + datetime.timedelta(seconds=timestamp)
 
 
 def _row_to_book(row: sqlite3.Row) -> Book:
