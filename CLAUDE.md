@@ -118,6 +118,7 @@
 <tdd_discipline>
 ## BDD/TDD Discipline
 - Always start with a failing BDD acceptance test based on requirements.
+  - We follow the **outside-in ATDD** approach: the acceptance test stays RED until the feature is fully implemented and that's OK. When it passes, we know the feature is complete.
 - **Write Failing Test**: Define the next behavior using a `describe_...` / `it_...` structure and assertion.
 - **Run & Verify RED**: Execute the *specific new test* (e.g., `pytest path/to/test.py::describe_context::it_behavior`) and confirm it fails.
 - **Implement GREEN**: Write the minimum production code to pass the failing test.
