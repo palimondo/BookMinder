@@ -18,9 +18,26 @@ def list() -> None:
 
 
 @list.command()
-def recent() -> None:
+@click.option(
+    "--user",
+    default=None,
+    help="Examine books for specified user (default: current user)",
+)
+def recent(user: str | None) -> None:
     """Show recently read books with progress."""
-    books = list_recent_books()
-    for book in books:
-        progress = book["reading_progress_percentage"]
-        click.echo(f"{book['title']} - {book['author']} ({progress}%)")
+    try:
+        books = list_recent_books(user_name=user)
+        if not books:
+            click.echo("No books currently being read")
+            return
+
+        for book in books:
+            progress = book["reading_progress_percentage"]
+            click.echo(f"{book['title']} - {book['author']} ({progress}%)")
+    except FileNotFoundError as e:
+        if "BKAgentService" in str(e):
+            click.echo("Apple Books not found. Has it been opened on this account?")
+        else:
+            click.echo("Apple Books database not found.")
+    except Exception as e:
+        click.echo(f"Error reading Apple Books: {e}")

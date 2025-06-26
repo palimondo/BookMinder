@@ -68,6 +68,15 @@ bookminder list recent
 
 This shows up to 10 books you're currently reading, ordered by last read date.
 
+#### Admin Usage
+
+As an administrator, you can examine another user's Apple Books library:
+```bash
+bookminder list recent --user alice
+```
+
+This requires appropriate permissions to access the specified user's Library directory.
+
 ## Development Workflow
 
 This project follows Test-Driven Development (TDD) with Behavior-Driven Development (BDD) style tests.
