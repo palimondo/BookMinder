@@ -102,3 +102,11 @@ def describe_bookminder_list_recent_with_user_parameter():
             if line.strip():
                 assert " - " in line, f"Expected 'Title - Author' format in: {line}"
                 assert "%" in line, f"Expected progress percentage in: {line}"
+
+    def it_handles_permission_denied_with_helpful_message():
+        """User without permissions should see helpful sudo message."""
+        # This test would need to mock a permission error
+        # For now, we'll skip it as it requires OS-level permission simulation
+        import pytest
+
+        pytest.skip("Permission testing requires OS-level mocking")

@@ -39,5 +39,15 @@ def recent(user: str | None) -> None:
             click.echo("Apple Books not found. Has it been opened on this account?")
         else:
             click.echo("Apple Books database not found.")
+    except PermissionError as e:
+        if user:
+            click.echo(
+                f"Permission denied: Unable to access {user}'s Apple Books library."
+            )
+            click.echo(
+                "Try running with sudo for admin access to other users' libraries."
+            )
+        else:
+            click.echo(f"Permission denied: {e}")
     except Exception as e:
         click.echo(f"Error reading Apple Books: {e}")
