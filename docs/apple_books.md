@@ -396,6 +396,44 @@ Lao Tzu: Tao Te Ching - Ursula K. Le Guin (8%)
 The Beginning of Infinity - David Deutsch (59%)
 ```
 
+## User State Scenarios
+
+Through real-world testing on macOS, we discovered distinct Apple Books states for different users:
+
+### 1. Never Opened Apple Books
+**Containers Present**: 
+- `com.apple.iBooksX` (created automatically by macOS)
+- No `com.apple.BKAgentService` container
+
+**Files Present**: None
+
+**Key Insight**: The iBooksX container is created during user account setup, not when Apple Books is first opened.
+
+### 2. Fresh Apple Books (Just Opened, No Books)
+**Containers Present**: Both containers exist
+- `com.apple.BKAgentService` (created when Apple Books first launches)
+- `com.apple.iBooksX`
+
+**Files Present**:
+- `Books.plist` with empty books array
+- `BKLibrary-*.sqlite` database with 0 rows in ZBKLIBRARYASSET table
+
+**Key Insight**: Apple Books creates all infrastructure immediately upon first launch, including the SQLite database.
+
+### 3. Legacy/Edge Case Installation
+**Example**: User "katka" from testing
+- Containers from 2020-2021
+- Has `Books.plist` (empty)
+- Missing `BKLibrary` directory entirely
+
+**Possible Causes**:
+- Older Apple Books version
+- Migration issues
+- Manual cleanup
+
+### 4. Active Reader
+**All infrastructure present** with actual book data and reading progress.
+
 ## Database Discovery Timeline
 
 This information was discovered through systematic investigation:
@@ -406,6 +444,7 @@ This information was discovered through systematic investigation:
 4. **Database schema analysis**: Found ZREADINGPROGRESS field with float values
 5. **Data correlation**: Confirmed BKLibrary.sqlite as authoritative progress source
 6. **Filename pattern discovery**: Identified variable numbers in database names
+7. **User state validation**: Tested multiple user accounts to understand container creation
 
 ## Edge Cases and Special Considerations
 
