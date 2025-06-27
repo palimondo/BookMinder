@@ -522,3 +522,61 @@ ORDER BY ZDATEFINISHED DESC;
 - Consider reading session data for more detailed activity analysis
 - Handle potential permission issues accessing sandboxed containers
 - Test across different macOS versions and Apple Books versions
+
+# BookMinder Domain Language and CLI Mapping
+
+To ensure clarity and consistency in BookMinder's development and user interface, we define the following domain language, directly mapped to Apple Books' internal data structures.
+
+## 1. Content Type (What is it?)
+
+Describes the fundamental format or origin of the content.
+
+-   **Book (EPUB):** A standard e-book, typically from the Apple Books store or sideloaded.
+    -   *Mapping:* `BKLibrary.sqlite` where `ZCONTENTTYPE = 1` or `ZKIND = "ebook"`.
+-   **PDF:** A Portable Document Format file.
+    -   *Mapping:* `BKLibrary.sqlite` where `ZCONTENTTYPE = 3` or `ZKIND = "pdf"`.
+-   **Audiobook:** (Future content type if data becomes available).
+
+## 2. Reading Status (Where am I with it?)
+
+Describes the user's progress through the content. This is a critical aspect for filtering and display.
+
+-   **Finished:** The book is marked as complete by Apple Books.
+    -   *Mapping:* `BKLibrary.sqlite` where `ZISFINISHED = 1`.
+    -   *Note:* Empirical research shows that `ZREADINGPROGRESS` may or may not be `1.0` for finished books. However, if `ZREADINGPROGRESS` is `1.0`, then `ZISFINISHED` is also `1`.
+-   **In Progress:** The book has some reading progress but is not marked as finished.
+    -   *Mapping:* `BKLibrary.sqlite` where `ZREADINGPROGRESS > 0.0` AND `ZISFINISHED = 0`.
+-   **Not Started:** The book has 0% reading progress and is not marked as finished.
+    -   *Mapping:* `BKLibrary.sqlite` where `ZREADINGPROGRESS = 0.0` AND `ZISFINISHED = 0`.
+
+## 3. Attributes/Flags (Other characteristics?)
+
+Additional properties that can apply to any content type or reading status.
+
+-   **Sample:** A preview version of a book.
+    -   *Mapping:* `BKLibrary.sqlite` where `ZISSAMPLE = 1`.
+-   **Cloud:** The book is stored in iCloud and may or may not be downloaded locally.
+    -   *Mapping:* `BKLibrary.sqlite` where `ZSTATE` indicates cloud status.
+    -   *Observed `ZSTATE` values:* `None`, `1`, `3`, `5`, `6`. Further empirical observation of Apple Books UI behavior and file system presence is needed to definitively map these values to "Cloud" status.
+
+## CLI Mapping (Proposed Commands)
+
+This section outlines how the domain language translates into user-facing CLI commands.
+
+-   **`bookminder list` (Default: `recent`):** Shows "In Progress" books, ordered by `ZLASTOPENDATE`, limited to 10.
+-   **`bookminder list all`:** Shows all books in the library, regardless of reading status, ordered by `ZLASTOPENDATE`. (Maps to Apple Books "Previous Section").
+-   **Filtering by Reading Status (`--status` option):**
+    -   `bookminder list --status finished`
+    -   `bookminder list --status not-started`
+    -   `bookminder list --status in-progress`
+-   **Filtering by Content Type (`--type` option):**
+    -   `bookminder list --type book`
+    -   `bookminder list --type pdf`
+-   **Filtering by Attributes (`--flag` option):**
+    -   `bookminder list --flag sample`
+    -   `bookminder list --flag cloud`
+-   **Filtering by Time (`--year` option):**
+    -   `bookminder list --year <YYYY>` (e.g., `2024`, `current`)
+-   **Pagination (`--limit`, `--offset`):**
+    -   `bookminder list all --limit 20`
+    -   `bookminder list all --offset 20 --limit 20`
