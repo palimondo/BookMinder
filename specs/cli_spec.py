@@ -52,6 +52,10 @@ def describe_bookminder_list_recent_command():
                     f"Expected parentheses around progress in: {line}"
                 )
 
+        # Assert ordering
+        assert "The Pragmatic Programmer" in output_lines[0]
+        assert "Test Driven Development" in output_lines[1]
+
 
 def describe_bookminder_list_recent_with_user_parameter():
     def it_handles_user_who_never_opened_apple_books():
