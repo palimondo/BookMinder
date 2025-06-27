@@ -124,6 +124,23 @@ This project, BookMinder, is a Python tool designed to extract content and highl
 - Stage all files after running pre-commit hooks that modify files, to ensure fixes are included in commit.
 - Never use `git add .` - always stage files explicitly by name to avoid accidentally committing large or sensitive files.
 
+## Project Contribution
+When contributing to the project, it is important to give proper credit to the contributor.
+
+### Adding a Contributor
+1.  Add the contributor to the `authors` list in `pyproject.toml`.
+2.  The format for an AI contributor is `{name = "<Full Model Name> (<model-identifier>)"}`. For example, `{name = "Gemini 2.5 Flash (gemini-2.5-flash)"}`. This should be updated whenever the model is upgraded to a new version.
+
+### Signing Commits
+All commits should be signed by the author. For AI-generated commits, the following signature should be used:
+
+```
+🤖 Generated with [Gemini CLI](https://github.com/google-gemini/gemini-cli)
+
+Co-Authored-By: Gemini 2.5 Flash (gemini-2.5-flash) <noreply@google.com>
+Co-Authored-By: Gemini 2.5 Pro (gemini-2.5-pro) <noreply@google.com>
+```
+
 ## File Operations and Git Hygiene
 - **Always use `git mv` for moving files**: When relocating tracked files, always use `git mv` instead of regular `mv` to maintain proper Git history.
 - **Place documentation in docs/ directory**: Keep all documentation files in the `docs/` directory with lowercase, underscore-separated names.

@@ -13,7 +13,9 @@ license = "MIT"
 authors = [
     {name = "Pavol Vaskovic", email = "pali@pali.sk"},
     {name = "Claude AI (claude-3-7-sonnet-20250219)"},
-    {name = "Claude AI (claude-sonnet-4-20250514)"}
+    {name = "Claude AI (claude-sonnet-4-20250514)"},
+    {name = "Gemini 2.5 Flash (gemini-2.5-flash)"},
+    {name = "Gemini 2.5 Pro (gemini-2.5-pro)"}
 ]
 keywords = ["ebooks", "apple-books", "highlights", "llm"]
 

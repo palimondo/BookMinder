@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import pytest
-
 from bookminder.apple_books.library import (
     find_book_by_title,
     list_books,
@@ -40,7 +38,6 @@ def describe_find_book_by_title():
 
 
 def describe_list_recent_books():
-    @pytest.mark.skip(reason="Need to update fixture to include database")
     def it_returns_books_with_reading_progress():
         books = list_recent_books(TEST_HOME)
         assert len(books) > 0, "Expected to find recent books"
