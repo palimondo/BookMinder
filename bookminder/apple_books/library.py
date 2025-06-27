@@ -94,7 +94,6 @@ def list_recent_books(user_home: Path | None = None) -> list[Book]:
     if user_home is None:
         user_home = Path.home()
 
-    # Check if BKAgentService exists (Apple Books opened)
     books_plist = _books_plist(user_home)
     if not books_plist.exists():
         raise FileNotFoundError("BKAgentService container not found")

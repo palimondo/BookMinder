@@ -14,7 +14,6 @@ def use_test_books(monkeypatch):
     """Use test fixtures instead of real Apple Books library."""
     fixtures_path = Path(__file__).parent / "fixtures"
 
-    # For the old test structure, we need to set up the paths correctly
     # The fixtures have Books.plist directly, not in the full Apple structure
     def mock_books_plist(user_home):
         return fixtures_path / "Books.plist"
