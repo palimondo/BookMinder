@@ -47,4 +47,4 @@ def recent(user: str | None) -> None:
             progress = book["reading_progress_percentage"]
             click.echo(f"{book['title']} - {book['author']} ({progress}%)")
     except BookminderError as e:
-        click.echo(f"Error reading Apple Books: {e.args[0]}")
+        click.echo(f"{e}")

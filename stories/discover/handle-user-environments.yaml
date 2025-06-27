@@ -1,0 +1,30 @@
+story:
+  as_a: user of BookMinder and a system administrator
+  i_want: to access and understand the state of various Apple Books libraries via the CLI
+  so_that: I can troubleshoot issues, manage shared devices, and receive clear, graceful feedback without the tool crashing.
+
+acceptance_criteria:
+  - scenario: Access a user's active library
+    when: I run "bookminder list recent --user test_reader"
+    then: I see a list of books with reading progress, including "The Pragmatic Programmer - Dave Thomas & Andy Hunt (73%)"
+
+  - scenario: Handle a user who never opened Apple Books
+    when: I run "bookminder list recent --user never_opened_user"
+    then: I see "Apple Books database not found"
+
+  - scenario: Handle a user with an empty library
+    when: I run "bookminder list recent --user fresh_books_user"
+    then: I see "No books currently being read"
+
+  - scenario: Handle a user with a legacy installation
+    when: I run "bookminder list recent --user legacy_books_user"
+    then: I see "Apple Books database not found."
+
+  - scenario: Handle a user with a corrupted database
+    when: I run "bookminder list recent --user corrupted_db_user"
+    then: I see "Error reading Apple Books database:"
+
+  - scenario: Handle a non-existent user path
+    when: I run "bookminder list recent --user non_existent_user"
+    then: |
+      I see "BKLibrary directory not found: /Users/non_existent_user/Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary. Apple Books database not found."

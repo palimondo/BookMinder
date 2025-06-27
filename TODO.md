@@ -29,8 +29,7 @@ in the `stories/` directory, following the format defined in `vision.md`.
 
 ## Completed Features
 - **List Recently Read Books via CLI:** (See `stories/discover/list-recent-books.yaml`)
-- **Admin Access to Other Users' Libraries:** (See `stories/discover/admin/access-other-users-libraries.yaml`)
-- **Better Error Handling with ATDD:** (See `stories/discover/error_handling/handle-missing-apple-books.yaml`)
+- **Handle Diverse User Environments:** (See `stories/discover/handle-user-environments.yaml`)
 
 ## Current Backlog (Stories in `stories/` directory)
 
