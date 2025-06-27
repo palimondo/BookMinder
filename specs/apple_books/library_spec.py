@@ -11,7 +11,6 @@ from bookminder.apple_books.library import (
 
 @pytest.fixture(autouse=True)
 def use_test_books(monkeypatch):
-    """Use test fixtures instead of real Apple Books library."""
     fixtures_path = Path(__file__).parent / "fixtures"
 
     # The fixtures have Books.plist directly, not in the full Apple structure
