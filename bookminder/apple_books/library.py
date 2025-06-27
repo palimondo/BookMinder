@@ -10,8 +10,11 @@ APPLE_EPOCH = datetime.datetime(2001, 1, 1, tzinfo=datetime.UTC)
 APPLE_CONTAINERS = "Library/Containers/com.apple"
 
 
-def _get_books_path(user_home: Path) -> Path:
-    return user_home / f"{APPLE_CONTAINERS}.BKAgentService/Data/Documents/iBooks/Books"
+def _books_plist(user_home: Path) -> Path:
+    return (
+        user_home
+        / f"{APPLE_CONTAINERS}.BKAgentService/Data/Documents/iBooks/Books/Books.plist"
+    )
 
 
 def _get_bklibrary_db_file(user_home: Path) -> Path:
@@ -51,7 +54,7 @@ def _row_to_book(row: sqlite3.Row) -> Book:
 
 
 def _read_books_plist(user_home: Path) -> list[dict[str, Any]]:
-    books_plist = _get_books_path(user_home) / "Books.plist"
+    books_plist = _books_plist(user_home)
     if not books_plist.exists():
         raise FileNotFoundError(f"Books.plist not found: {books_plist}")
 
@@ -92,7 +95,7 @@ def list_recent_books(user_home: Path | None = None) -> list[Book]:
         user_home = Path.home()
 
     # Check if BKAgentService exists (Apple Books opened)
-    books_plist = _get_books_path(user_home) / "Books.plist"
+    books_plist = _books_plist(user_home)
     if not books_plist.exists():
         raise FileNotFoundError("BKAgentService container not found")
 

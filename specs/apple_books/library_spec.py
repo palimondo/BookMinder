@@ -16,12 +16,10 @@ def use_test_books(monkeypatch):
 
     # For the old test structure, we need to set up the paths correctly
     # The fixtures have Books.plist directly, not in the full Apple structure
-    def mock_get_books_path(user_home):
-        return fixtures_path
+    def mock_books_plist(user_home):
+        return fixtures_path / "Books.plist"
 
-    monkeypatch.setattr(
-        "bookminder.apple_books.library._get_books_path", mock_get_books_path
-    )
+    monkeypatch.setattr("bookminder.apple_books.library._books_plist", mock_books_plist)
 
 
 def describe_list_books():
