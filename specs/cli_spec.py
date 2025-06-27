@@ -29,7 +29,6 @@ def _run_cli_with_user(user_name, use_fixture=True):
 
 def describe_bookminder_list_recent_command():
     def it_shows_recently_read_books_with_progress():
-        # FIXME: Now that this gherkin scenarion is in `stories`, code is enough - remove!
         """When I run "bookminder list recent".
 
         Then I see up to 10 books
@@ -70,7 +69,7 @@ def describe_bookminder_list_recent_with_user_parameter():
         )
 
     def it_handles_user_with_legacy_apple_books_installation():
-        result = _run_cli_with_user("legacy_books_user") # missing database
+        result = _run_cli_with_user("legacy_books_user")  # missing database
 
         assert "Apple Books database not found" in result.stdout, (
             f"Expected database not found message, got: {result.stdout}"
@@ -90,9 +89,9 @@ def describe_bookminder_list_recent_with_user_parameter():
     def it_handles_user_with_corrupted_apple_books_database():
         result = _run_cli_with_user("corrupted_db_user")
 
-        assert (
-            "Error reading Apple Books database:" in result.stdout
-        ), f"Expected error message, got: {result.stdout}"
+        assert "Error reading Apple Books database:" in result.stdout, (
+            f"Expected error message, got: {result.stdout}"
+        )
 
     def it_handles_non_existent_relative_user_path():
         user_name = "non_existent_user"
