@@ -113,6 +113,38 @@ This project, BookMinder, is a Python tool designed to extract content and highl
 - Monitor token usage during development.
 - Maintain `TODO.md` as a living document of progress and priorities.
 
+## Story Management
+To effectively manage the project backlog and track progress, we utilize YAML story cards.
+
+### Story Card Structure
+Each story card is a YAML file (e.g., `stories/discover/my-new-feature.yaml`) with the following structure:
+
+```yaml
+story:
+  as_a: <user role>
+  i_want: <what they want to achieve>
+  so_that: <why they want it>
+status: <current status of the story>
+
+acceptance_criteria:
+  - scenario: <scenario description>
+    when: <precondition or action>
+    then: <expected outcome>
+    # Optional: and, given, but clauses as needed
+```
+
+### Status Field
+The `status` field is mandatory for each story card and indicates its current state. Possible values include:
+
+-   `backlog`: The story is defined but not yet started.
+-   `in_progress`: Development has begun.
+-   `in_review`: Code is complete and awaiting review/testing.
+-   `completed`: The story is fully implemented, tested, and deployed.
+-   `on_hold`: Development is paused.
+-   `research`: For research stories, indicating active investigation.
+
+This system ensures clarity, machine-readability, and granular progress tracking for each story.
+
 ## Git Workflow
 - Make two distinct commits in the TDD/BDD cycle:
     1.  After GREEN phase (passing BDD test + minimal implementation).

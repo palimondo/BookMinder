@@ -6,7 +6,6 @@ from bookminder.apple_books.library import (
     list_recent_books,
 )
 
-# Path to test home directory with proper Apple structure
 TEST_HOME = Path(__file__).parent / "fixtures/users/test_reader"
 
 
