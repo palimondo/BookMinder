@@ -27,11 +27,12 @@ def _run_cli_with_user(user_name, use_fixture=True):
 
 def describe_bookminder_list_recent_command():
     def it_shows_recently_read_books_with_progress():
-        """When I run "bookminder list recent".
-
-        Then I see up to 10 books
-        And each book shows: Title, Author, Progress %
-        And books are ordered by last read date (newest first)
+        """Feature: List recent books
+  Scenario: Show recently read books
+    When I run "bookminder list recent"
+    Then I see up to 10 books
+    And each book shows: Title, Author, Progress %
+    And books are ordered by last read date (newest first)
         """
         result = _run_cli_with_user("test_reader")
 
@@ -55,7 +56,11 @@ def describe_bookminder_list_recent_command():
 
 def describe_bookminder_list_recent_with_user_parameter():
     def it_handles_user_who_never_opened_apple_books():
-        """User without Apple Books should see helpful message."""
+        """Feature: Access other users' Apple Books libraries
+  Scenario: User who never opened Apple Books
+    When I run "bookminder list recent --user never_opened_user"
+    Then I see "Apple Books not found. Has it been opened on this account?"
+        """
         result = _run_cli_with_user("never_opened_user")
 
         assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
@@ -64,7 +69,11 @@ def describe_bookminder_list_recent_with_user_parameter():
         )
 
     def it_handles_user_with_fresh_apple_books_no_books():
-        """User who just opened Apple Books but has no books."""
+        """Feature: Access other users' Apple Books libraries
+  Scenario: User with empty library
+    When I run "bookminder list recent --user fresh_books_user"
+    Then I see "No books currently being read"
+        """
         result = _run_cli_with_user("fresh_books_user")
 
         assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
@@ -73,7 +82,11 @@ def describe_bookminder_list_recent_with_user_parameter():
         )
 
     def it_handles_user_with_legacy_apple_books_installation():
-        """User with partial/legacy Apple Books installation (missing database)."""
+        """Feature: Access other users' Apple Books libraries
+  Scenario: User with partial/legacy Apple Books installation (missing database)
+    When I run "bookminder list recent --user legacy_books_user"
+    Then I see "Apple Books database not found."
+        """
         result = _run_cli_with_user("legacy_books_user")
 
         assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
@@ -82,7 +95,11 @@ def describe_bookminder_list_recent_with_user_parameter():
         )
 
     def it_shows_books_for_user_with_reading_progress():
-        """User with books in progress should see their reading list."""
+        """Feature: Access other users' Apple Books libraries
+  Scenario: Admin examines another user's books
+    When I run "bookminder list recent --user alice"
+    Then I see alice's recently read books
+        """
         result = _run_cli_with_user("test_reader")
 
         assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
@@ -96,7 +113,13 @@ def describe_bookminder_list_recent_with_user_parameter():
                 assert "%" in line, f"Expected progress percentage in: {line}"
 
     def it_handles_user_with_corrupted_apple_books_database():
-        """User with corrupted Apple Books database should see helpful message."""
+        """Feature: Handle missing Apple Books gracefully
+  Scenario: User with corrupted Apple Books database
+    Given the Apple Books database is corrupted
+    When I run "bookminder list recent"
+    Then I see a helpful message "Error reading Apple Books database"
+    And the exit code is 0
+        """
         result = _run_cli_with_user("corrupted_db_user")
 
         assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
@@ -106,7 +129,13 @@ def describe_bookminder_list_recent_with_user_parameter():
         ), f"Expected error message, got: {result.stdout}"
 
     def it_handles_non_existent_relative_user_path():
-        """CLI should correctly handle non-existent relative user paths."""
+        """Feature: Handle missing Apple Books gracefully
+  Scenario: User without Apple Books installed
+    Given the Apple Books database does not exist
+    When I run "bookminder list recent"
+    Then I see a helpful message "No Apple Books database found"
+    And the exit code is 0
+        """
         user_name = "non_existent_user"
         result = _run_cli_with_user(user_name, use_fixture=False)
 
