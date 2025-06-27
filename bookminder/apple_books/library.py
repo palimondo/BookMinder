@@ -7,19 +7,15 @@ from pathlib import Path
 from typing import Any, NotRequired, TypedDict
 
 APPLE_EPOCH = datetime.datetime(2001, 1, 1, tzinfo=datetime.UTC)
+APPLE_CONTAINERS = "Library/Containers/com.apple"
 
 
 def _get_books_path(user_home: Path) -> Path:
-    return (
-        user_home
-        / "Library/Containers/com.apple.BKAgentService/Data/Documents/iBooks/Books"
-    )
+    return user_home / f"{APPLE_CONTAINERS}.BKAgentService/Data/Documents/iBooks/Books"
 
 
 def _get_bklibrary_db_file(user_home: Path) -> Path:
-    bklibrary_path = (
-        user_home / "Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary"
-    )
+    bklibrary_path = user_home / f"{APPLE_CONTAINERS}.iBooksX/Data/Documents/BKLibrary"
     if not bklibrary_path.exists():
         raise FileNotFoundError(f"BKLibrary directory not found: {bklibrary_path}")
 
