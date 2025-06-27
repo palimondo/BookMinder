@@ -14,6 +14,7 @@ def main() -> None:
     pass
 
 
+# This is a test comment to trigger pre-commit hooks.
 @main.group()
 def list() -> None:
     """List books from your library."""
