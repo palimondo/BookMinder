@@ -10,11 +10,23 @@ So that I can quickly check what I'm actively reading.
 ### Acceptance Criteria
 ```gherkin
 Feature: List recent books
-  Scenario: Show recently read books
+  Scenario: Show recently read books with enhanced properties
     When I run "bookminder list recent"
     Then I see up to 10 books
-    And each book shows: Title, Author, Progress %
+    And each book shows: Title, Author, Progress %, Content Type, Sample status, and Cloud status
     And books are ordered by last read date (newest first)
+    And Content Type is "Book" for EPUBs and "PDF" for PDFs
+    And Sample status is indicated by "• Sample" if applicable
+    And Cloud status is indicated by "☁️" if applicable
+    And multiple flags are separated by " • "
+    Examples:
+      | Output Format                                                              |
+      | "The Left Hand of Darkness - Ursula K. Le Guin (32%) Book"                 |
+      | "Tiny Experiments - Anne-Laure Le Cunff (1%) Book • Sample"                |
+      | "Lao Tzu: Tao Te Ching - Ursula K. Le Guin (8%) Book ☁️"                   |
+      | "record-layer-paper - Christos Chrysa... (1%) PDF ☁️"                      |
+      | "Snow Crash - Neal Stephenson (0%) Book • Sample ☁️"                       |
+      | "MELITTA CAFFEO SOLO - Unknown Author (100%) PDF"                          |
 ```
 
 ## Admin Access to Other Users' Libraries [COMPLETED]
@@ -51,7 +63,7 @@ Feature: Access other users' Apple Books libraries
 - Created test fixtures for different user scenarios based on real-world validation
 - Feature serves dual purpose: testing infrastructure and legitimate admin use case
 
-## NEXT: Better Error Handling with ATDD
+## NEXT: Better Error Handling with ATDD [COMPLETED]
 
 ### Missing Acceptance Tests for Error Cases
 ```gherkin
@@ -104,3 +116,21 @@ Test Driven Development - Kent Beck (22%)
 2. MCP server interface
 3. Extract highlights with context
 4. Export to Markdown
+
+## Research: ZSTATE Values for Cloud Status
+
+### Goal
+To definitively map `ZSTATE` values in `BKLibrary.sqlite` to the "Cloud" status of books in Apple Books UI.
+
+### Hypothesis
+Specific `ZSTATE` integer values correspond to books that are in iCloud but not downloaded locally.
+
+### Research Steps
+1.  Identify books in Apple Books UI that are clearly in iCloud but not downloaded (showing a cloud icon).
+2.  Query `BKLibrary.sqlite` for these specific books and record their `ZSTATE` values.
+3.  Identify books that are downloaded locally and record their `ZSTATE` values.
+4.  Compare `ZSTATE` values to infer their meaning (e.g., `ZSTATE = 5` might mean cloud-only, `ZSTATE = 1` might mean downloaded).
+
+### Acceptance Criteria (for research outcome)
+- A clear mapping of `ZSTATE` values to "Cloud" status (e.g., `ZSTATE = 5` means cloud-only).
+- Updated documentation in `docs/apple_books.md` with this mapping.
