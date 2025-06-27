@@ -19,14 +19,8 @@ def use_test_books(monkeypatch):
     def mock_get_books_path(user_home):
         return fixtures_path
 
-    def mock_get_books_plist(user_home):
-        return fixtures_path / "Books.plist"
-
     monkeypatch.setattr(
         "bookminder.apple_books.library._get_books_path", mock_get_books_path
-    )
-    monkeypatch.setattr(
-        "bookminder.apple_books.library._get_books_plist", mock_get_books_plist
     )
 
 

@@ -16,16 +16,10 @@ def _get_books_path(user_home: Path) -> Path:
     )
 
 
-def _get_books_plist(user_home: Path) -> Path:
-    return _get_books_path(user_home) / "Books.plist"
-
-
-def _get_bklibrary_path(user_home: Path) -> Path:
-    return user_home / "Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary"
-
-
 def _get_bklibrary_db_file(user_home: Path) -> Path:
-    bklibrary_path = _get_bklibrary_path(user_home)
+    bklibrary_path = (
+        user_home / "Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary"
+    )
     if not bklibrary_path.exists():
         raise FileNotFoundError(f"BKLibrary directory not found: {bklibrary_path}")
 
@@ -61,7 +55,7 @@ def _row_to_book(row: sqlite3.Row) -> Book:
 
 
 def _read_books_plist(user_home: Path) -> list[dict[str, Any]]:
-    books_plist = _get_books_plist(user_home)
+    books_plist = _get_books_path(user_home) / "Books.plist"
     if not books_plist.exists():
         raise FileNotFoundError(f"Books.plist not found: {books_plist}")
 
@@ -102,7 +96,7 @@ def list_recent_books(user_home: Path | None = None) -> list[Book]:
         user_home = Path.home()
 
     # Check if BKAgentService exists (Apple Books opened)
-    books_plist = _get_books_plist(user_home)
+    books_plist = _get_books_path(user_home) / "Books.plist"
     if not books_plist.exists():
         raise FileNotFoundError("BKAgentService container not found")
 
