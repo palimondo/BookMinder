@@ -2,6 +2,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+
 def _run_cli_with_user(user_name, use_fixture=True):
     if use_fixture:
         user_arg = str(Path(__file__).parent / "apple_books/fixtures/users" / user_name)
@@ -100,8 +101,8 @@ def describe_bookminder_list_recent_with_user_parameter():
 
         assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
         assert (
-            "Error reading Apple Books: Error reading Apple Books database:" in
-            result.stdout
+            "Error reading Apple Books: Error reading Apple Books database:"
+            in result.stdout
         ), f"Expected error message, got: {result.stdout}"
 
     def it_handles_non_existent_relative_user_path():

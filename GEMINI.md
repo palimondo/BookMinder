@@ -124,6 +124,23 @@ This project, BookMinder, is a Python tool designed to extract content and highl
 - Stage all files after running pre-commit hooks that modify files, to ensure fixes are included in commit.
 - Never use `git add .` - always stage files explicitly by name to avoid accidentally committing large or sensitive files.
 
+### Pre-Commit Hook Behavior
+This project uses `pre-commit` hooks with `ruff` for linting and formatting. When you attempt to commit, these hooks run automatically.
+
+- **`ruff` (linter):** Runs `ruff check --fix`. If it finds fixable issues, it modifies the files in your working directory.
+- **`ruff-format` (formatter):** Runs `ruff format`. If it finds formatting changes, it modifies the files in your working directory.
+
+If any hook modifies a staged file, `pre-commit` will fail the commit and inform you that files were modified. This is a deliberate design to ensure you explicitly stage the changes made by the hooks.
+
+**Strategy for Committing:**
+It is common to need to attempt a commit multiple times when `ruff-format` makes changes. The typical workflow is:
+1.  Make your code changes and `git add` them.
+2.  Run `git commit`.
+3.  If the commit fails due to `ruff-format` modifying files, `pre-commit` will report this.
+4.  Immediately run `git commit` again. Often, the second attempt will succeed as `ruff-format` has already applied its changes and the files are now in the desired format.
+
+If the commit continues to fail, ensure your local `ruff` version is up-to-date and that there are no conflicting local editor settings that might be re-formatting files after `ruff` runs.
+
 ## Project Contribution
 When contributing to the project, it is important to give proper credit to the contributor.
 
