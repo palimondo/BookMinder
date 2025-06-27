@@ -3,61 +3,49 @@
 import datetime
 import plistlib
 import sqlite3
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, NotRequired, TypedDict
 
 APPLE_EPOCH = datetime.datetime(2001, 1, 1, tzinfo=datetime.UTC)
 
 
-@dataclass
-class LibraryPaths:
-    """Encapsulates all Apple Books library paths for a user."""
+def _get_user_home(user_name: str | None = None) -> Path:
+    if not user_name:
+        return Path.home()
 
-    home: Path
+    user_path = Path(user_name)
+    if user_path.is_absolute():
+        return user_path
+    else:
+        return Path(f"/Users/{user_name}")
 
-    @classmethod
-    def for_user(cls, user_name: str | None = None) -> "LibraryPaths":  # noqa: D102
-        if not user_name:
-            return cls(Path.home())
 
-        user_path = Path(user_name)
-        if user_path.is_absolute():
-            return cls(user_path)
-        else:
-            return cls(Path(f"/Users/{user_name}"))
+def _get_books_path(user_name: str | None = None) -> Path:
+    home = _get_user_home(user_name)
+    return (
+        home / "Library/Containers/com.apple.BKAgentService/Data/Documents/iBooks/Books"
+    )
 
-    @property
-    def books_container(self) -> Path:  # noqa: D102
-        return (
-            self.home
-            / "Library/Containers/com.apple.BKAgentService/Data/Documents/iBooks/Books"
-        )
 
-    @property
-    def books_plist(self) -> Path:  # noqa: D102
-        return self.books_container / "Books.plist"
+def _get_books_plist(user_name: str | None = None) -> Path:
+    return _get_books_path(user_name) / "Books.plist"
 
-    @property
-    def bklibrary_dir(self) -> Path:  # noqa: D102
-        return (
-            self.home / "Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary"
-        )
 
-    @property
-    def bklibrary_db(self) -> Path:  # noqa: D102
-        if not self.bklibrary_dir.exists():
-            raise FileNotFoundError(
-                f"BKLibrary directory not found: {self.bklibrary_dir}"
-            )
+def _get_bklibrary_path(user_name: str | None = None) -> Path:
+    home = _get_user_home(user_name)
+    return home / "Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary"
 
-        db_files = list(self.bklibrary_dir.glob("BKLibrary-*.sqlite"))
-        if not db_files:
-            raise FileNotFoundError(
-                f"No BKLibrary database found in: {self.bklibrary_dir}"
-            )
 
-        return db_files[0]
+def _get_bklibrary_db_file(user_name: str | None = None) -> Path:
+    bklibrary_path = _get_bklibrary_path(user_name)
+    if not bklibrary_path.exists():
+        raise FileNotFoundError(f"BKLibrary directory not found: {bklibrary_path}")
+
+    db_files = list(bklibrary_path.glob("BKLibrary-*.sqlite"))
+    if not db_files:
+        raise FileNotFoundError(f"No BKLibrary database found in: {bklibrary_path}")
+
+    return db_files[0]
 
 
 class Book(TypedDict):
@@ -84,11 +72,12 @@ def _row_to_book(row: sqlite3.Row) -> Book:
     )
 
 
-def _read_books_plist(paths: LibraryPaths) -> list[dict[str, Any]]:
-    if not paths.books_plist.exists():
-        raise FileNotFoundError(f"Books.plist not found: {paths.books_plist}")
+def _read_books_plist(user_name: str | None = None) -> list[dict[str, Any]]:
+    books_plist = _get_books_plist(user_name)
+    if not books_plist.exists():
+        raise FileNotFoundError(f"Books.plist not found: {books_plist}")
 
-    with open(paths.books_plist, "rb") as f:
+    with open(books_plist, "rb") as f:
         plist_data = plistlib.load(f)
     books = plist_data.get("Books", [])
     return books if isinstance(books, list) else []
@@ -96,8 +85,7 @@ def _read_books_plist(paths: LibraryPaths) -> list[dict[str, Any]]:
 
 def list_books(user_name: str | None = None) -> list[Book]:
     """List books from the Apple Books library."""
-    paths = LibraryPaths.for_user(user_name)
-    raw_books = _read_books_plist(paths)
+    raw_books = _read_books_plist(user_name)
 
     books: list[Book] = [
         Book(
@@ -120,14 +108,16 @@ def find_book_by_title(title: str, user_name: str | None = None) -> Book | None:
 
 def list_recent_books(user_name: str | None = None) -> list[Book]:
     """List recently read books with progress from BKLibrary database."""
-    paths = LibraryPaths.for_user(user_name)
-
     # Check if BKAgentService exists (Apple Books opened)
-    if not paths.books_plist.exists():
-        raise FileNotFoundError("BKAgentService container not found")
+    try:
+        books_plist = _get_books_plist(user_name)
+        if not books_plist.exists():
+            raise FileNotFoundError("BKAgentService container not found")
+    except FileNotFoundError:
+        raise FileNotFoundError("BKAgentService container not found") from None
 
     try:
-        db_file = paths.bklibrary_db
+        db_file = _get_bklibrary_db_file(user_name)
     except FileNotFoundError:
         # Database doesn't exist - either legacy installation or never added books
         raise
