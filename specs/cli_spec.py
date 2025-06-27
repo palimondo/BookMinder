@@ -29,12 +29,6 @@ def _run_cli_with_user(user_name, use_fixture=True):
 
 def describe_bookminder_list_recent_command():
     def it_shows_recently_read_books_with_progress():
-        """When I run "bookminder list recent".
-
-        Then I see up to 10 books
-        And each book shows: Title, Author, Progress %
-        And books are ordered by last read date (newest first)
-        """
         result = _run_cli_with_user("test_reader")
 
         output_lines = result.stdout.strip().split("\n")
