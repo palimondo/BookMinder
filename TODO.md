@@ -16,16 +16,15 @@ Feature: List recent books
     And each book shows: Title, Author, Progress %, Content Type, Sample status, and Cloud status
     And books are ordered by last read date (newest first)
     And Content Type is "Book" for EPUBs and "PDF" for PDFs
-    And Sample status is indicated by "• Sample" if applicable
+    And Sample status is indicated by "Sample" if applicable
     And Cloud status is indicated by "☁️" if applicable
-    And multiple flags are separated by " • "
     Examples:
       | Output Format                                                              |
       | "The Left Hand of Darkness - Ursula K. Le Guin (32%) Book"                 |
-      | "Tiny Experiments - Anne-Laure Le Cunff (1%) Book • Sample"                |
+      | "Tiny Experiments - Anne-Laure Le Cunff (1%) Book Sample"                  |
       | "Lao Tzu: Tao Te Ching - Ursula K. Le Guin (8%) Book ☁️"                   |
       | "record-layer-paper - Christos Chrysa... (1%) PDF ☁️"                      |
-      | "Snow Crash - Neal Stephenson (0%) Book • Sample ☁️"                       |
+      | "Snow Crash - Neal Stephenson (0%) Book Sample ☁️"                       |
       | "MELITTA CAFFEO SOLO - Unknown Author (100%) PDF"                          |
 ```
 
@@ -63,7 +62,7 @@ Feature: Access other users' Apple Books libraries
 - Created test fixtures for different user scenarios based on real-world validation
 - Feature serves dual purpose: testing infrastructure and legitimate admin use case
 
-## NEXT: Better Error Handling with ATDD [COMPLETED]
+## NEXT: Better Error Handling with ATDD [CR]
 
 ### Missing Acceptance Tests for Error Cases
 ```gherkin
