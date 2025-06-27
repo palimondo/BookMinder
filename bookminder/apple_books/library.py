@@ -64,10 +64,8 @@ def _read_books_plist(user_home: Path) -> list[dict[str, Any]]:
     return books if isinstance(books, list) else []
 
 
-def list_books(user_home: Path | None = None) -> list[Book]:
+def list_books(user_home: Path) -> list[Book]:
     """List books from the Apple Books library."""
-    if user_home is None:
-        user_home = Path.home()
     raw_books = _read_books_plist(user_home)
 
     books: list[Book] = [
@@ -82,18 +80,15 @@ def list_books(user_home: Path | None = None) -> list[Book]:
     return books
 
 
-def find_book_by_title(title: str, user_home: Path | None = None) -> Book | None:
+def find_book_by_title(title: str, user_home: Path) -> Book | None:
     """Find a book by exact title match."""
     return next(
         (book for book in list_books(user_home) if book["title"] == title), None
     )
 
 
-def list_recent_books(user_home: Path | None = None) -> list[Book]:
+def list_recent_books(user_home: Path) -> list[Book]:
     """List recently read books with progress from BKLibrary database."""
-    if user_home is None:
-        user_home = Path.home()
-
     books_plist = _books_plist(user_home)
     if not books_plist.exists():
         raise FileNotFoundError("BKAgentService container not found")
