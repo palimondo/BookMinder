@@ -1,16 +1,10 @@
-"""Acceptance tests for BookMinder CLI commands."""
-
 import subprocess
 import sys
 from pathlib import Path
 
 def _run_cli_with_user(user_name, use_fixture=True):
-    """Run CLI with --user parameter."""
     if use_fixture:
-        # Convert user name to absolute fixture path
-        user_arg = str(
-            Path(__file__).parent / "apple_books/fixtures/users" / user_name
-        )
+        user_arg = str(Path(__file__).parent / "apple_books/fixtures/users" / user_name)
     else:
         user_arg = user_name
 
@@ -38,24 +32,19 @@ def describe_bookminder_list_recent_command():
         And each book shows: Title, Author, Progress %
         And books are ordered by last read date (newest first)
         """
-        # Run the CLI command with test fixture
         result = _run_cli_with_user("test_reader")
 
-        # Command should succeed
         assert result.returncode == 0, f"Command failed: {result.stderr}"
 
-        # Should have output
         output_lines = result.stdout.strip().split("\n")
         assert len(output_lines) > 0, "Expected output from command"
 
-        # Should not exceed 10 books
         assert len(output_lines) <= 10, (
             f"Expected max 10 books, got {len(output_lines)}"
         )
 
-        # Each line should match format: "Title - Author (Progress%)"
         for line in output_lines:
-            if line.strip():  # Skip empty lines
+            if line.strip():
                 assert " - " in line, f"Expected 'Title - Author' format in: {line}"
                 assert "%" in line, f"Expected progress percentage in: {line}"
                 assert "(" in line and ")" in line, (
@@ -100,7 +89,6 @@ def describe_bookminder_list_recent_with_user_parameter():
         output_lines = result.stdout.strip().split("\n")
         assert len(output_lines) > 0, "Expected books in output"
 
-        # Should have standard book format
         for line in output_lines:
             if line.strip():
                 assert " - " in line, f"Expected 'Title - Author' format in: {line}"
