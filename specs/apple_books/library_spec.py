@@ -11,11 +11,9 @@ from bookminder.apple_books.library import (
 
 @pytest.fixture(autouse=True)
 def use_test_books(monkeypatch):
-    fixtures_path = Path(__file__).parent / "fixtures"
-
     # The fixtures have Books.plist directly, not in the full Apple structure
     def mock_books_plist(user_home):
-        return fixtures_path / "Books.plist"
+        return Path(__file__).parent / "fixtures/Books.plist"
 
     monkeypatch.setattr("bookminder.apple_books.library._books_plist", mock_books_plist)
 
