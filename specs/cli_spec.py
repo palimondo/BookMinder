@@ -14,6 +14,7 @@ def describe_bookminder_list_recent_command():
         And books are ordered by last read date (newest first)
         """
         # Run the CLI command with test fixture
+        test_user_path = Path(__file__).parent / "fixtures/users/test_reader"
         result = subprocess.run(
             [
                 sys.executable,
@@ -22,7 +23,7 @@ def describe_bookminder_list_recent_command():
                 "list",
                 "recent",
                 "--user",
-                "test_reader",
+                str(test_user_path),
             ],
             capture_output=True,
             text=True,
@@ -54,8 +55,18 @@ def describe_bookminder_list_recent_command():
 def describe_bookminder_list_recent_with_user_parameter():
     def _run_cli_with_user(user_name):
         """Run CLI with --user parameter."""
+        # Convert user name to absolute fixture path
+        fixture_path = Path(__file__).parent / "fixtures/users" / user_name
         return subprocess.run(
-            [sys.executable, "-m", "bookminder", "list", "recent", "--user", user_name],
+            [
+                sys.executable,
+                "-m",
+                "bookminder",
+                "list",
+                "recent",
+                "--user",
+                str(fixture_path),
+            ],
             capture_output=True,
             text=True,
             cwd=Path(__file__).parent.parent,

@@ -10,25 +10,17 @@ APPLE_EPOCH = datetime.datetime(2001, 1, 1, tzinfo=datetime.UTC)
 
 
 def _get_user_home(user_name: str | None = None) -> Path:
-    """Get home directory for specified user or current user."""
-    if user_name:
-        # For testing, use fixtures directory
-        if user_name in [
-            "never_opened_user",
-            "fresh_books_user",
-            "legacy_books_user",
-            "test_reader",
-        ]:
-            return (
-                Path(__file__).parent.parent.parent / "specs/fixtures/users" / user_name
-            )
-        # For real users
+    if not user_name:
+        return Path.home()
+
+    user_path = Path(user_name)
+    if user_path.is_absolute():
+        return user_path
+    else:
         return Path(f"/Users/{user_name}")
-    return Path.home()
 
 
 def _get_books_path(user_name: str | None = None) -> Path:
-    """Get Books directory path for specified user."""
     home = _get_user_home(user_name)
     return (
         home / "Library/Containers/com.apple.BKAgentService/Data/Documents/iBooks/Books"
@@ -36,18 +28,15 @@ def _get_books_path(user_name: str | None = None) -> Path:
 
 
 def _get_books_plist(user_name: str | None = None) -> Path:
-    """Get Books.plist path for specified user."""
     return _get_books_path(user_name) / "Books.plist"
 
 
 def _get_bklibrary_path(user_name: str | None = None) -> Path:
-    """Get BKLibrary directory path for specified user."""
     home = _get_user_home(user_name)
     return home / "Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary"
 
 
 def _get_bklibrary_db_file(user_name: str | None = None) -> Path:
-    """Get BKLibrary database file for specified user."""
     bklibrary_path = _get_bklibrary_path(user_name)
     if not bklibrary_path.exists():
         raise FileNotFoundError(f"BKLibrary directory not found: {bklibrary_path}")
@@ -74,7 +63,6 @@ def _apple_timestamp_to_datetime(timestamp: float) -> datetime.datetime:
 
 
 def _row_to_book(row: sqlite3.Row) -> Book:
-    """Convert database row to Book object."""
     return Book(
         title=row["ZTITLE"] or "Unknown",
         author=row["ZAUTHOR"] or "Unknown",
