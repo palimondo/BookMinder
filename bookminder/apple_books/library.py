@@ -9,35 +9,23 @@ from typing import Any, NotRequired, TypedDict
 APPLE_EPOCH = datetime.datetime(2001, 1, 1, tzinfo=datetime.UTC)
 
 
-def _get_user_home(user_name: str | None = None) -> Path:
-    if not user_name:
-        return Path.home()
-
-    user_path = Path(user_name)
-    if user_path.is_absolute():
-        return user_path
-    else:
-        return Path(f"/Users/{user_name}")
-
-
-def _get_books_path(user_name: str | None = None) -> Path:
-    home = _get_user_home(user_name)
+def _get_books_path(user_home: Path) -> Path:
     return (
-        home / "Library/Containers/com.apple.BKAgentService/Data/Documents/iBooks/Books"
+        user_home
+        / "Library/Containers/com.apple.BKAgentService/Data/Documents/iBooks/Books"
     )
 
 
-def _get_books_plist(user_name: str | None = None) -> Path:
-    return _get_books_path(user_name) / "Books.plist"
+def _get_books_plist(user_home: Path) -> Path:
+    return _get_books_path(user_home) / "Books.plist"
 
 
-def _get_bklibrary_path(user_name: str | None = None) -> Path:
-    home = _get_user_home(user_name)
-    return home / "Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary"
+def _get_bklibrary_path(user_home: Path) -> Path:
+    return user_home / "Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary"
 
 
-def _get_bklibrary_db_file(user_name: str | None = None) -> Path:
-    bklibrary_path = _get_bklibrary_path(user_name)
+def _get_bklibrary_db_file(user_home: Path) -> Path:
+    bklibrary_path = _get_bklibrary_path(user_home)
     if not bklibrary_path.exists():
         raise FileNotFoundError(f"BKLibrary directory not found: {bklibrary_path}")
 
@@ -72,8 +60,8 @@ def _row_to_book(row: sqlite3.Row) -> Book:
     )
 
 
-def _read_books_plist(user_name: str | None = None) -> list[dict[str, Any]]:
-    books_plist = _get_books_plist(user_name)
+def _read_books_plist(user_home: Path) -> list[dict[str, Any]]:
+    books_plist = _get_books_plist(user_home)
     if not books_plist.exists():
         raise FileNotFoundError(f"Books.plist not found: {books_plist}")
 
@@ -83,9 +71,11 @@ def _read_books_plist(user_name: str | None = None) -> list[dict[str, Any]]:
     return books if isinstance(books, list) else []
 
 
-def list_books(user_name: str | None = None) -> list[Book]:
+def list_books(user_home: Path | None = None) -> list[Book]:
     """List books from the Apple Books library."""
-    raw_books = _read_books_plist(user_name)
+    if user_home is None:
+        user_home = Path.home()
+    raw_books = _read_books_plist(user_home)
 
     books: list[Book] = [
         Book(
@@ -99,25 +89,25 @@ def list_books(user_name: str | None = None) -> list[Book]:
     return books
 
 
-def find_book_by_title(title: str, user_name: str | None = None) -> Book | None:
+def find_book_by_title(title: str, user_home: Path | None = None) -> Book | None:
     """Find a book by exact title match."""
     return next(
-        (book for book in list_books(user_name) if book["title"] == title), None
+        (book for book in list_books(user_home) if book["title"] == title), None
     )
 
 
-def list_recent_books(user_name: str | None = None) -> list[Book]:
+def list_recent_books(user_home: Path | None = None) -> list[Book]:
     """List recently read books with progress from BKLibrary database."""
+    if user_home is None:
+        user_home = Path.home()
+
     # Check if BKAgentService exists (Apple Books opened)
-    try:
-        books_plist = _get_books_plist(user_name)
-        if not books_plist.exists():
-            raise FileNotFoundError("BKAgentService container not found")
-    except FileNotFoundError:
-        raise FileNotFoundError("BKAgentService container not found") from None
+    books_plist = _get_books_plist(user_home)
+    if not books_plist.exists():
+        raise FileNotFoundError("BKAgentService container not found")
 
     try:
-        db_file = _get_bklibrary_db_file(user_name)
+        db_file = _get_bklibrary_db_file(user_home)
     except FileNotFoundError:
         # Database doesn't exist - either legacy installation or never added books
         raise
