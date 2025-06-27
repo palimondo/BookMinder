@@ -40,25 +40,31 @@ def describe_bookminder_list_recent_command():
         assert len(output_lines) > 0, "Expected output from command"
 
         # Should not exceed 10 books
-        assert (
-            len(output_lines) <= 10
-        ), f"Expected max 10 books, got {len(output_lines)}"
+        assert len(output_lines) <= 10, (
+            f"Expected max 10 books, got {len(output_lines)}"
+        )
 
         # Each line should match format: "Title - Author (Progress%)"
         for line in output_lines:
             if line.strip():  # Skip empty lines
                 assert " - " in line, f"Expected 'Title - Author' format in: {line}"
                 assert "%" in line, f"Expected progress percentage in: {line}"
-                assert (
-                    "(" in line and ")" in line
-                ), f"Expected parentheses around progress in: {line}"
+                assert "(" in line and ")" in line, (
+                    f"Expected parentheses around progress in: {line}"
+                )
 
 
 def describe_bookminder_list_recent_with_user_parameter():
-    def _run_cli_with_user(user_name):
+    def _run_cli_with_user(user_name, use_fixture=True):
         """Run CLI with --user parameter."""
-        # Convert user name to absolute fixture path
-        fixture_path = Path(__file__).parent / "apple_books/fixtures/users" / user_name
+        if use_fixture:
+            # Convert user name to absolute fixture path
+            user_arg = str(
+                Path(__file__).parent / "apple_books/fixtures/users" / user_name
+            )
+        else:
+            user_arg = user_name
+
         return subprocess.run(
             [
                 sys.executable,
@@ -67,7 +73,7 @@ def describe_bookminder_list_recent_with_user_parameter():
                 "list",
                 "recent",
                 "--user",
-                str(fixture_path),
+                user_arg,
             ],
             capture_output=True,
             text=True,
@@ -79,27 +85,27 @@ def describe_bookminder_list_recent_with_user_parameter():
         result = _run_cli_with_user("never_opened_user")
 
         assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
-        assert (
-            "Apple Books not found" in result.stdout
-        ), f"Expected helpful message, got: {result.stdout}"
+        assert "Apple Books database not found" in result.stdout, (
+            f"Expected helpful message, got: {result.stdout}"
+        )
 
     def it_handles_user_with_fresh_apple_books_no_books():
         """User who just opened Apple Books but has no books."""
         result = _run_cli_with_user("fresh_books_user")
 
         assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
-        assert (
-            "No books currently being read" in result.stdout
-        ), f"Expected no books message, got: {result.stdout}"
+        assert "No books currently being read" in result.stdout, (
+            f"Expected no books message, got: {result.stdout}"
+        )
 
     def it_handles_user_with_legacy_apple_books_installation():
         """User with partial/legacy Apple Books installation (missing database)."""
         result = _run_cli_with_user("legacy_books_user")
 
         assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
-        assert (
-            "Apple Books database not found" in result.stdout
-        ), f"Expected database not found message, got: {result.stdout}"
+        assert "Apple Books database not found" in result.stdout, (
+            f"Expected database not found message, got: {result.stdout}"
+        )
 
     def it_shows_books_for_user_with_reading_progress():
         """User with books in progress should see their reading list."""
@@ -126,26 +132,13 @@ def describe_bookminder_list_recent_with_user_parameter():
             in result.stdout
         ), f"Expected error message, got: {result.stdout}"
 
-    def it_handles_relative_user_path():
-        """CLI should correctly handle relative paths for --user option."""
-        result = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "bookminder",
-                "list",
-                "recent",
-                "--user",
-                "non_existent_user",  # Pass a relative string directly
-            ],
-            capture_output=True,
-            text=True,
-            cwd=Path(__file__).parent.parent,
-        )
+    def it_handles_non_existent_relative_user_path():
+        """CLI should correctly handle non-existent relative user paths."""
+        user_name = "non_existent_user"
+        result = _run_cli_with_user(user_name, use_fixture=False)
 
         assert result.returncode == 0, f"Command failed: {result.stderr}"
         assert (
-            "Apple Books not found. Has it been opened on this account?"
-            in result.stdout
-            or "Apple Books database not found." in result.stdout
-        ), f"Expected FileNotFoundError message, got: {result.stdout}"
+            f"/Users/{user_name}/Library/Containers/com.apple.iBooksX/"
+            "Data/Documents/BKLibrary. Apple Books database not found." in result.stdout
+        ), f"Expected FileNotFoundError message with path, got: {result.stdout}"

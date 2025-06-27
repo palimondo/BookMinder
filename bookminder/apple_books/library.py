@@ -101,12 +101,7 @@ def find_book_by_title(title: str, user_home: Path) -> Book | None:
 def list_recent_books(user_home: Path) -> list[Book]:
     """List recently read books with progress from BKLibrary database."""
     try:
-        books_plist = _books_plist(user_home)
-        if not books_plist.exists():
-            raise BookminderError(
-                "BKAgentService container not found. "
-                "Apple Books not found. Has it been opened on this account?"
-            )
+        _books_plist(user_home)  # Call to trigger FileNotFoundError if plist is missing
 
         db_file = _get_bklibrary_db_file(user_home)
 
