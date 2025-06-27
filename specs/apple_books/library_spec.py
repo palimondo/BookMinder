@@ -14,30 +14,29 @@ def use_test_books(monkeypatch):
     """Use test fixtures instead of real Apple Books library."""
     fixtures_path = Path(__file__).parent / "fixtures"
 
-    # Create a mock home that points to our fixtures
-    def mock_get_user_home(user_name=None):
-        # Return the fixtures directory as the "home" for tests
-        # This makes the library functions look in fixtures/Library/Containers/...
-        return fixtures_path.parent.parent  # Go up to specs/ dir
+    from bookminder.apple_books.library import LibraryPaths
 
-    # Patch the _get_user_home function
+    # Create a test subclass that overrides the properties
+    class TestLibraryPaths(LibraryPaths):
+        @property
+        def books_container(self):
+            return fixtures_path
+
+        @property
+        def books_plist(self):
+            return fixtures_path / "Books.plist"
+
+        @property
+        def bklibrary_dir(self):
+            return fixtures_path  # Not used in these tests
+
+    # Mock the for_user factory to return our test instance
+    def mock_for_user(cls, user_name=None):
+        return TestLibraryPaths(fixtures_path.parent.parent)
+
     monkeypatch.setattr(
-        "bookminder.apple_books.library._get_user_home", mock_get_user_home
-    )
-
-    # For the old test structure, we need to set up the paths correctly
-    # The fixtures have Books.plist directly, not in the full Apple structure
-    def mock_get_books_path(user_name=None):
-        return fixtures_path
-
-    def mock_get_books_plist(user_name=None):
-        return fixtures_path / "Books.plist"
-
-    monkeypatch.setattr(
-        "bookminder.apple_books.library._get_books_path", mock_get_books_path
-    )
-    monkeypatch.setattr(
-        "bookminder.apple_books.library._get_books_plist", mock_get_books_plist
+        "bookminder.apple_books.library.LibraryPaths.for_user",
+        classmethod(mock_for_user),
     )
 
 
