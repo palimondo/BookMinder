@@ -45,6 +45,6 @@ def describe_list_recent_books():
         for book in books:
             assert "title" in book, f"Book missing title: {book}"
             assert "author" in book, f"Book missing author: {book}"
-            assert (
-                "reading_progress_percentage" in book
-            ), f"Book missing reading_progress_percentage: {book}"
+            assert "reading_progress_percentage" in book, (
+                f"Book missing reading_progress_percentage: {book}"
+            )
