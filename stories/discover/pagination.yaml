@@ -1,0 +1,16 @@
+story:
+  as_a: reader using Apple Books
+  i_want: to paginate through large lists of books
+  so_that: the output is manageable in the command line
+
+acceptance_criteria:
+  - scenario: List books with a limit
+    when: I run "bookminder list all --limit 1"
+    then:
+      - I see only 1 book
+
+  - scenario: List books with offset and limit
+    when: I run "bookminder list all --offset 1 --limit 1"
+    then:
+      - I see the second book from the full list
+      - The first book is not listed

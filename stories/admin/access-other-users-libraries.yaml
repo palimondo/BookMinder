@@ -1,0 +1,21 @@
+story:
+  as_a: system administrator
+  i_want: to examine another user's Apple Books library
+  so_that: I can help troubleshoot issues or manage shared devices
+
+acceptance_criteria:
+  - scenario: Admin examines another user's books
+    when: I run "bookminder list recent --user alice"
+    then: I see alice's recently read books
+
+  - scenario: User who never opened Apple Books
+    when: I run "bookminder list recent --user never_opened_user"
+    then: I see "Apple Books not found. Has it been opened on this account?"
+
+  - scenario: User with empty library
+    when: I run "bookminder list recent --user fresh_books_user"
+    then: I see "No books currently being read"
+
+  - scenario: User with legacy installation (missing database)
+    when: I run "bookminder list recent --user legacy_books_user"
+    then: I see "Apple Books database not found."

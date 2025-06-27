@@ -1,0 +1,13 @@
+# stories/discover/list-recent-books.yaml
+story:
+  as_a: reader using Apple Books
+  i_want: to see my recently read books via command line
+  so_that: I can quickly check what I'm actively reading
+
+acceptance_criteria:
+  - scenario: Show recently read books
+    when: I run "bookminder list recent"
+    then:
+      - I see up to 10 books
+      - Each book shows: Title, Author, Progress %
+      - Books are ordered by last read date (newest first)

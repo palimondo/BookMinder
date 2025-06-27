@@ -1,0 +1,22 @@
+story:
+  as_a: reader using Apple Books
+  i_want: to see additional properties for recently read books
+  so_that: I have more context about my reading list
+
+acceptance_criteria:
+  - scenario: Show recently read books with enhanced properties
+    when: I run "bookminder list recent"
+    then:
+      - I see up to 10 books
+      - Each book shows: Title, Author, Progress %, Content Type, Sample status, and Cloud status
+      - Books are ordered by last read date (newest first)
+      - Content Type is "Book" for EPUBs and "PDF" for PDFs
+      - Sample status is indicated by "Sample" if applicable
+      - Cloud status is indicated by "☁️" if applicable
+      - Examples:
+        - Output Format: "The Left Hand of Darkness - Ursula K. Le Guin (32%) Book"
+        - Output Format: "Tiny Experiments - Anne-Laure Le Cunff (1%) Book Sample"
+        - Output Format: "Lao Tzu: Tao Te Ching - Ursula K. Le Guin (8%) Book ☁️"
+        - Output Format: "record-layer-paper - Christos Chrysa... (1%) PDF ☁️"
+        - Output Format: "Snow Crash - Neal Stephenson (0%) Book Sample ☁️"
+        - Output Format: "MELITTA CAFFEO SOLO - Unknown Author (100%) PDF"

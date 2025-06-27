@@ -1,0 +1,24 @@
+story:
+  as_a: reader using Apple Books
+  i_want: to filter my book list by reading status
+  so_that: I can quickly find books based on my reading habits
+
+acceptance_criteria:
+  - scenario: List finished books
+    when: I run "bookminder list --status finished"
+    then:
+      - I see only books marked as complete
+      - Each book shows: Title, Author, (Finished) status
+      - (Finished) status takes precedence over progress percentage
+
+  - scenario: List unread books
+    when: I run "bookminder list --status unread"
+    then:
+      - I see only books with 0% reading progress and not marked as finished
+      - Each book shows: Title, Author, (Unread) status
+
+  - scenario: List books in progress
+    when: I run "bookminder list --status in-progress"
+    then:
+      - I see only books with 1-99% reading progress and not marked as finished
+      - Each book shows: Title, Author, Progress %

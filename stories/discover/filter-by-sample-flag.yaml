@@ -1,0 +1,18 @@
+story:
+  as_a: reader using Apple Books
+  i_want: to filter my book list by sample status
+  so_that: I can easily find or exclude sample books
+
+acceptance_criteria:
+  - scenario: List sample books
+    when: I run "bookminder list --flag sample"
+    then:
+      - I see only books marked as samples
+      - Each book shows: Title, Author, Progress %, Content Type, Sample status, and Cloud status
+      - Sample status is indicated by "Sample"
+
+  - scenario: List non-sample books
+    when: I run "bookminder list --flag non-sample"
+    then:
+      - I see only books not marked as samples
+      - Each book shows: Title, Author, Progress %, Content Type, Sample status, and Cloud status
