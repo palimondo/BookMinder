@@ -4,6 +4,7 @@ from pathlib import Path
 
 import click
 
+from bookminder import BookminderError
 from bookminder.apple_books.library import list_recent_books
 
 
@@ -44,10 +45,5 @@ def recent(user: str | None) -> None:
         for book in books:
             progress = book["reading_progress_percentage"]
             click.echo(f"{book['title']} - {book['author']} ({progress}%)")
-    except FileNotFoundError as e:
-        if "BKAgentService" in str(e):
-            click.echo("Apple Books not found. Has it been opened on this account?")
-        else:
-            click.echo("Apple Books database not found.")
-    except Exception as e:
+    except BookminderError as e:
         click.echo(f"Error reading Apple Books: {e}")

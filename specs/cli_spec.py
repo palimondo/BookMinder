@@ -115,3 +115,37 @@ def describe_bookminder_list_recent_with_user_parameter():
             if line.strip():
                 assert " - " in line, f"Expected 'Title - Author' format in: {line}"
                 assert "%" in line, f"Expected progress percentage in: {line}"
+
+    def it_handles_user_with_corrupted_apple_books_database():
+        """User with corrupted Apple Books database should see helpful message."""
+        result = _run_cli_with_user("corrupted_db_user")
+
+        assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
+        assert (
+            "Error reading Apple Books: Error reading Apple Books database:"
+            in result.stdout
+        ), f"Expected error message, got: {result.stdout}"
+
+    def it_handles_relative_user_path():
+        """CLI should correctly handle relative paths for --user option."""
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "bookminder",
+                "list",
+                "recent",
+                "--user",
+                "non_existent_user",  # Pass a relative string directly
+            ],
+            capture_output=True,
+            text=True,
+            cwd=Path(__file__).parent.parent,
+        )
+
+        assert result.returncode == 0, f"Command failed: {result.stderr}"
+        assert (
+            "Apple Books not found. Has it been opened on this account?"
+            in result.stdout
+            or "Apple Books database not found." in result.stdout
+        ), f"Expected FileNotFoundError message, got: {result.stdout}"

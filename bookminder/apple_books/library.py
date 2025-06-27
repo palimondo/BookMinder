@@ -6,6 +6,8 @@ import sqlite3
 from pathlib import Path
 from typing import Any, NotRequired, TypedDict
 
+from bookminder import BookminderError
+
 APPLE_EPOCH = datetime.datetime(2001, 1, 1, tzinfo=datetime.UTC)
 APPLE_CONTAINERS = "Library/Containers/com.apple"
 
@@ -20,11 +22,17 @@ def _books_plist(user_home: Path) -> Path:
 def _get_bklibrary_db_file(user_home: Path) -> Path:
     bklibrary_path = user_home / f"{APPLE_CONTAINERS}.iBooksX/Data/Documents/BKLibrary"
     if not bklibrary_path.exists():
-        raise FileNotFoundError(f"BKLibrary directory not found: {bklibrary_path}")
+        raise BookminderError(
+            f"BKLibrary directory not found: {bklibrary_path}. "
+            "Apple Books database not found."
+        )
 
     db_files = list(bklibrary_path.glob("BKLibrary-*.sqlite"))
     if not db_files:
-        raise FileNotFoundError(f"No BKLibrary database found in: {bklibrary_path}")
+        raise BookminderError(
+            f"No BKLibrary database found in: {bklibrary_path}. "
+            "Apple Books database not found."
+        )
 
     return db_files[0]
 
@@ -56,7 +64,10 @@ def _row_to_book(row: sqlite3.Row) -> Book:
 def _read_books_plist(user_home: Path) -> list[dict[str, Any]]:
     books_plist = _books_plist(user_home)
     if not books_plist.exists():
-        raise FileNotFoundError(f"Books.plist not found: {books_plist}")
+        raise BookminderError(
+            f"Books.plist not found: {books_plist}. "
+            "Apple Books not found. Has it been opened on this account?"
+        )
 
     with open(books_plist, "rb") as f:
         plist_data = plistlib.load(f)
@@ -89,31 +100,35 @@ def find_book_by_title(title: str, user_home: Path) -> Book | None:
 
 def list_recent_books(user_home: Path) -> list[Book]:
     """List recently read books with progress from BKLibrary database."""
-    books_plist = _books_plist(user_home)
-    if not books_plist.exists():
-        raise FileNotFoundError("BKAgentService container not found")
-
     try:
+        books_plist = _books_plist(user_home)
+        if not books_plist.exists():
+            raise BookminderError(
+                "BKAgentService container not found. "
+                "Apple Books not found. Has it been opened on this account?"
+            )
+
         db_file = _get_bklibrary_db_file(user_home)
-    except FileNotFoundError:
-        # Database doesn't exist - either legacy installation or never added books
-        raise
 
-    with sqlite3.connect(db_file) as conn:
-        conn.row_factory = sqlite3.Row  # Enable column access by name
-        cursor = conn.cursor()
+        with sqlite3.connect(db_file) as conn:
+            conn.row_factory = sqlite3.Row  # Enable column access by name
+            cursor = conn.cursor()
 
-        query = """
-            SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE
-            FROM ZBKLIBRARYASSET
-            WHERE ZREADINGPROGRESS > 0
-            ORDER BY ZLASTOPENDATE DESC
-            LIMIT 10
-        """
+            query = """
+                SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE
+                FROM ZBKLIBRARYASSET
+                WHERE ZREADINGPROGRESS > 0
+                ORDER BY ZLASTOPENDATE DESC
+                LIMIT 10
+            """
 
-        cursor.execute(query)
-        rows = cursor.fetchall()
+            cursor.execute(query)
+            rows = cursor.fetchall()
 
-        books = [_row_to_book(row) for row in rows]
+            books = [_row_to_book(row) for row in rows]
 
-        return books
+            return books
+    except FileNotFoundError as e:
+        raise BookminderError(f"Error accessing Apple Books files: {e}") from e
+    except sqlite3.Error as e:
+        raise BookminderError(f"Error reading Apple Books database: {e}") from e
