@@ -181,14 +181,25 @@ When contributing to the project, it is important to give proper credit to the c
 2.  The format for an AI contributor is `{name = "<Full Model Name> (<model-identifier>)"}`. For example, `{name = "Gemini 2.5 Flash (gemini-2.5-flash)"}`. This should be updated whenever the model is upgraded to a new version.
 
 ### Signing Commits
-All commits should be signed by the author. For AI-generated commits, the following signature should be used:
+All commits should be signed by the author. For AI-generated commits, the signature should precisely credit the model used for the session.
 
+-   The standard is to use a single `Co-Authored-By:` line for the active model (e.g., `gemini-2.5-pro`).
+-   I will assume I am `gemini-2.5-pro` unless you notify me that the system has switched models during a session. In the rare case that multiple models contribute to a single commit, a `Co-Authored-By:` line should be included for each.
+
+Example for a standard session:
 ```
 🤖 Generated with [Gemini CLI](https://github.com/google-gemini/gemini-cli)
 
-Co-Authored-By: Gemini 2.5 Flash (gemini-2.5-flash) <noreply@google.com>
 Co-Authored-By: Gemini 2.5 Pro (gemini-2.5-pro) <noreply@google.com>
 ```
+
+## Custom Slash Commands
+
+This project uses custom slash commands stored in the `.claude/commands/` directory to automate frequent or complex prompts. Since I do not have native support for these commands like the Claude CLI, I will follow a specific convention:
+
+-   When you issue a command like `Execute \command_name`, I will look for a corresponding file named `command_name.md` inside the `.claude/commands/` directory.
+-   I will then treat the contents of that file as the primary prompt for my next action.
+-   At the beginning of our sessions, I will list the contents of the `.claude/commands/` directory to familiarize myself with the available custom commands.
 
 ## File Operations and Git Hygiene
 - **Always use `git mv` for moving files**: When relocating tracked files, always use `git mv` instead of regular `mv` to maintain proper Git history.
