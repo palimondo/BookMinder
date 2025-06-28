@@ -248,21 +248,26 @@ Books currently being read, sorted by recent activity. All show percentage progr
 | The Canon of Reason and Virtue | Paul Carus Daisetsu... | 14% | Book | Yes |
 | record-layer-paper | Christos Chrysa... | 1% | PDF | Yes |
 
-#### Previous Section (22+ books visible)
-Mixed collection of all previously accessed books with various states:
+#### Previous Section
+Mixed collection of all previously accessed books with various states.
+
+![Previous Section - List View](Previous%20list.jpg)
+![Previous Section - List View Page 2](Previous%20list%20p2.jpg)
+![Previous Section - Tile View](Previous%20tiles.jpg)
 
 **Partial Progress Books**:
 - Tiny Experiments - Anne-Laure Le Cunff (1%) Book • Sample
-- Manual_Melitta_Purista_CZ_SK - ZINDEL AG (83%) PDF  
+- Manual_Melitta_Purista_CZ_SK - ZINDEL AG (83%) PDF
 - Mechanický pomaranč - Anthony Burgess (4%) Book
 - A Clockwork Orange - Anthony Burgess & Andrew Biswell (96%) Book
-- Twelve Tomorrows - Neil Stephenson, David Brin, etc. (4%) Book
-- Reentry - Eric Berger (82%) Book
+- Quicksilver - Neal Stephenson (4%) Book • Cloud
+- Twelve Tomorrows - Neil Stephenson, David Brin, etc. (4%) Book • Cloud
 - The Scaling Era - Dwarkesh Patel (1%) Book
+- Automobil v podnikaní režimy a tipy Ľudskou Rečou sk v2023 - Unknown Author (4%) PDF • Cloud
 - Working Effectively with Legacy Code - Michael C. Feathers (2%) Book
 - Refactoring - Martin Fowler (2%) Book
 - Extreme Programming Explained - Kent Beck & Cynthia Andres (69%) Book
-- REST in Practice - Jim Webber, Savas Parastatidis, Ian Robinson (5%) Book
+- REST in Practice - Jim Webber, Savas Parastatidis, and Ian Robinson (5%) Book
 - Stubborn Attachments - Tyler Cowen (4%) Book
 
 **Finished Books**:
@@ -271,15 +276,14 @@ Mixed collection of all previously accessed books with various states:
 - The Coming Wave - Mustafa Suleyman & Michael Bhaskar Book • Finished
 - Attack Surface - Cory Doctorow Book • Finished
 - Red Team Blues - Cory Doctorow Book • Finished
-- The Diamond Age - Neal Stephenson Book • Finished
 
 **Sample Books**:
 - Snow Crash - Neal Stephenson Book • Sample
-- What's Our Problem? - Tim Urban Book • Sample
+- What's Our Problem? - Tim Urban Book • Sample • Cloud
 
 **No Progress Shown**:
-- For The Win - Cory Doctorow Book
 - Postman - Technopoly - Neil Postman PDF
+- For The Win - Cory Doctorow Book
 
 #### Books Read This Year Section (4 books)
 Achievement-focused view showing only completed books:
@@ -558,6 +562,7 @@ Additional properties that can apply to any content type or reading status.
 -   **Cloud:** The book is stored in iCloud and may or may not be downloaded locally.
     -   *Mapping:* `BKLibrary.sqlite` where `ZSTATE` indicates cloud status.
     -   *Observed `ZSTATE` values:* `None`, `1`, `3`, `5`, `6`. Further empirical observation of Apple Books UI behavior and file system presence is needed to definitively map these values to "Cloud" status.
+        *   **Update (2025-06-27):** `ZSTATE = 5` has been observed in conjunction with "Series" in the Apple Books UI (e.g., "Hainish", "The Baroque Cycle"). This suggests `ZSTATE = 5` might indicate a series or collection, rather than a cloud-only status. Further research is needed to confirm the definitive mapping for cloud status.
 
 ## CLI Mapping (Proposed Commands)
 
