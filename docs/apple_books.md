@@ -47,7 +47,7 @@ Apple Books uses sandboxed containers to store its data:
 
 **Critical Fields for Reading Progress**:
 - `ZTITLE`: Book title
-- `ZAUTHOR`: Author name  
+- `ZAUTHOR`: Author name
 - `ZASSETID`: Asset identifier (matches Books.plist keys)
 - `ZREADINGPROGRESS`: Float value (0.0 to 1.0) representing actual reading progress
 - `ZLASTOPENDATE`: Timestamp when book was last opened (Apple reference date)
@@ -68,16 +68,16 @@ Apple Books uses sandboxed containers to store its data:
 
 **Example Query for Recent Books**:
 ```sql
-SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE, ZISFINISHED 
-FROM ZBKLIBRARYASSET 
-WHERE ZREADINGPROGRESS > 0 
-ORDER BY ZLASTOPENDATE DESC 
+SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE, ZISFINISHED
+FROM ZBKLIBRARYASSET
+WHERE ZREADINGPROGRESS > 0
+ORDER BY ZLASTOPENDATE DESC
 LIMIT 10;
 ```
 
 **Sample Results**:
 - "The Left Hand of Darkness" - Ursula K. Le Guin - 32% progress
-- "Lao Tzu: Tao Te Ching" - Ursula K. Le Guin - 8% progress  
+- "Lao Tzu: Tao Te Ching" - Ursula K. Le Guin - 8% progress
 - "The Beginning of Infinity" - David Deutsch - 59% progress
 
 ### 3. Recently Opened Books Database
@@ -112,7 +112,7 @@ LIMIT 10;
 
 **In BKLibrary Database**:
 - `ZCONTENTTYPE = 1`: Regular books (EPUB)
-- `ZCONTENTTYPE = 3`: PDF documents  
+- `ZCONTENTTYPE = 3`: PDF documents
 - `ZISSAMPLE = 1`: Sample/preview books
 - `ZKIND = "ebook"`: Standard ebook format
 - `ZKIND = "pdf"`: PDF document
@@ -132,7 +132,7 @@ Asset IDs provide the link between different data sources:
 ```
 Books.plist key: "401429854"
     ↓
-BKLibrary.ZASSETID: "401429854"  
+BKLibrary.ZASSETID: "401429854"
     ↓
 Reading Session.ZASSETID: "401429854"
     ↓
@@ -141,7 +141,7 @@ File path: "401429854.epub"
 
 **Asset ID Sources**:
 - iTunes Store ID for purchased books
-- Generated ID for sideloaded content  
+- Generated ID for sideloaded content
 - Hexadecimal IDs for some system content (e.g., "1F150082C5E6CD9413FAA197989BC910")
 
 ### Apple Timestamp Format Details
@@ -174,7 +174,7 @@ def apple_timestamp_to_datetime(apple_timestamp):
 
 **File Structure**:
 - Main database: `BKLibrary-*.sqlite`
-- Write-Ahead Log: `BKLibrary-*.sqlite-wal` 
+- Write-Ahead Log: `BKLibrary-*.sqlite-wal`
 - Shared Memory: `BKLibrary-*.sqlite-shm`
 
 **Access Pattern**:
@@ -289,7 +289,7 @@ Mixed collection of all previously accessed books with various states.
 Achievement-focused view showing only completed books:
 - Attack Surface - Cory Doctorow
 - Red Team Blues - Cory Doctorow
-- Chip War - Chris Miller  
+- Chip War - Chris Miller
 - The Diamond Age - Neal Stephenson
 
 **Status**: "Yearly Goal Achieved - 4 books finished. Keep reading!"
@@ -327,7 +327,7 @@ Use these specific books to validate database queries match UI display:
 
 **Top 3 Continue Section Books**:
 1. "The Left Hand of Darkness" → Should show ~32% progress
-2. "Lao Tzu: Tao Te Ching" → Should show ~8% progress  
+2. "Lao Tzu: Tao Te Ching" → Should show ~8% progress
 3. "Tao Te Ching" → Should show ~3% progress
 
 **Sample Books** (should have special handling):
@@ -405,7 +405,7 @@ The Beginning of Infinity - David Deutsch (59%)
 Through real-world testing on macOS, we discovered distinct Apple Books states for different users:
 
 ### 1. Never Opened Apple Books
-**Containers Present**: 
+**Containers Present**:
 - `com.apple.iBooksX` (created automatically by macOS)
 - No `com.apple.BKAgentService` container
 
@@ -494,7 +494,7 @@ AND ZREADINGPROGRESS < 1.0
 AND (ZISSAMPLE IS NULL OR ZISSAMPLE = 0)
 ORDER BY ZLASTOPENDATE DESC;
 
--- Include samples in recent reading  
+-- Include samples in recent reading
 SELECT * FROM ZBKLIBRARYASSET 
 WHERE ZREADINGPROGRESS > 0
 ORDER BY ZLASTOPENDATE DESC;
@@ -511,7 +511,7 @@ ORDER BY ZDATEFINISHED DESC;
 - **Use glob patterns** for database discovery (filenames contain variable numbers)
 - **BKLibrary.sqlite is authoritative** for reading progress, not Books.plist
 - **Reading progress stored as float** (0.0 to 1.0), multiply by 100 for percentages
-- **Use ZLASTOPENDATE for recency**, not updateDate from Books.plist
+- **Use ZLASTOPENDATE for recency**, not `updateDate` from Books.plist
 - **Apple timestamps** use 2001-01-01 as epoch, not Unix epoch
 - **Database files include WAL/SHM** files (Write-Ahead Logging) - query main .sqlite file
 - **Handle NULL values** gracefully in all timestamp and progress fields
@@ -559,10 +559,16 @@ Additional properties that can apply to any content type or reading status.
 
 -   **Sample:** A preview version of a book.
     -   *Mapping:* `BKLibrary.sqlite` where `ZISSAMPLE = 1`.
--   **Cloud:** The book is stored in iCloud and may or may not be downloaded locally.
-    -   *Mapping:* `BKLibrary.sqlite` where `ZSTATE` indicates cloud status.
-    -   *Observed `ZSTATE` values:* `None`, `1`, `3`, `5`, `6`. Further empirical observation of Apple Books UI behavior and file system presence is needed to definitively map these values to "Cloud" status.
-        *   **Update (2025-06-27):** `ZSTATE = 5` has been observed in conjunction with "Series" in the Apple Books UI (e.g., "Hainish", "The Baroque Cycle"). This suggests `ZSTATE = 5` might indicate a series or collection, rather than a cloud-only status. Further research is needed to confirm the definitive mapping for cloud status.
+-   **Cloud:** The book is stored in iCloud and not fully downloaded locally.
+    -   *Mapping:* `BKLibrary.sqlite` where `ZSTATE` indicates cloud/local status.
+    -   *Verified ZSTATE Mappings:*
+        - `ZSTATE = 3`: **Cloud Book**. The book is stored in iCloud.
+        - `ZSTATE = 6`: **Cloud Sample**. The book is a sample stored in iCloud.
+        - `ZSTATE = 1`: **Local Book**. The book is stored on the device. This includes local samples (where `ZISSAMPLE = 1`).
+        - `ZSTATE = 5`: **Series Entity / Unowned Series Book**. This `ZSTATE` value is associated with:
+            - The **series entity itself** (e.g., "Hainish"), where `ZTITLE` matches the series name.
+            - **Unowned books within a series** (e.g., "Five Ways to Forgiveness"), where `ZTITLE` is the individual book title.
+        Both are linked to individual books via `ZSERIESID`.
 
 ## CLI Mapping (Proposed Commands)
 
