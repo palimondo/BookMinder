@@ -1,0 +1,23 @@
+story:
+  as_a: reader using Apple Books
+  i_want: to combine multiple filters
+  so_that: I can narrow down my book list to exactly what I'm looking for
+
+acceptance_criteria:
+  - scenario: Combine cloud and sample filters
+    when: I run "bookminder list --filter cloud --filter sample"
+    then:
+      - I see only sample books stored in iCloud (ZSTATE = 6)
+      - Multiple filters use AND logic
+
+  - scenario: Combine exclusion filters
+    when: I run "bookminder list --filter !cloud --filter !sample"
+    then:
+      - I see only full books downloaded locally
+      - Excludes both cloud books and samples
+
+  - scenario: Mix inclusion and exclusion filters
+    when: I run "bookminder list --filter in-progress --filter !sample"
+    then:
+      - I see only books I'm currently reading that are not samples
+      - Shows books with 1-99% progress excluding samples

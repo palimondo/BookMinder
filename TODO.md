@@ -14,6 +14,7 @@ in the `stories/` directory, following the format defined in `vision.md`.
 ### Discover Column
 - `stories/discover/filter-by-cloud-status.yaml` (Partially complete: cloud filtering done, negation pending)
 - `stories/discover/filter-by-sample-flag.yaml`
+- `stories/discover/filter-by-multiple-criteria.yaml`
 - `stories/discover/filter-by-reading-status.yaml`
 - `stories/discover/list-recent-books-enhanced.yaml`
 - `stories/discover/pagination.yaml`
