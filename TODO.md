@@ -11,9 +11,6 @@ in the `stories/` directory, following the format defined in `vision.md`.
 
 ## Current Backlog (Stories in `stories/` directory)
 
-### Development Process Improvements
-- **Prevent accidental staging**: Use [Claude Code hooks](https://docs.anthropic.com/en/docs/claude-code/hooks) to create a PreToolUse hook that blocks `git add .` and `git add -A` commands in Bash tool calls. This will prevent the recurring issue of accidentally staging large fixture files like All_Books*.swift. The hook should check if the command contains these patterns and return a blocked message suggesting to stage files explicitly by name.
-
 ### Discover Column
 - `stories/discover/filter-by-cloud-status.yaml` (Partially complete: cloud filtering done, negation pending)
 - `stories/discover/filter-by-sample-flag.yaml`
