@@ -47,8 +47,8 @@ def describe_bookminder_list_recent_command():
                 )
 
         # Assert ordering
-        assert "The Pragmatic Programmer" in output_lines[0]
-        assert "Test Driven Development" in output_lines[1]
+        assert "Extreme Programming Explained" in output_lines[0]
+        assert "The Left Hand of Darkness" in output_lines[1]
 
 
 def describe_bookminder_list_recent_with_user_parameter():
