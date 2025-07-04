@@ -2,8 +2,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 
 def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=None):
     if use_fixture:
@@ -115,16 +113,12 @@ def describe_bookminder_list_with_filter():
         result = _run_cli_with_user("test_reader", subcommand="recent", filter="cloud")
         assert "Lao Tzu: Tao Te Ching" in result.stdout
         assert "☁️" in result.stdout
-        assert "The Pragmatic Programmer" not in result.stdout
+        # Should not show local books
+        assert "Extreme Programming Explained" not in result.stdout
+        assert "The Left Hand of Darkness" not in result.stdout
 
-    @pytest.mark.skip(reason="Implementation pending")
     def it_excludes_cloud_books_when_filter_is_not_cloud():
-        """List local books
-        when: I run "bookminder list recent --filter !cloud"
-        then:
-          - I see only books downloaded locally
-          - Each book shows: Title, Author, Progress %, Content Type, Sample status, and
-            Cloud status
-        """
-        pass
+        result = _run_cli_with_user("test_reader", subcommand="recent", filter="!cloud")
+        assert len(result.stdout) > 0
+        assert "☁️" not in result.stdout
 

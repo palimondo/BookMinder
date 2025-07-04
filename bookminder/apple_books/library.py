@@ -121,6 +121,9 @@ def list_recent_books(user_home: Path, filter: str | None = None) -> list[Book]:
             if filter == "cloud":
                 query += " AND ZSTATE = ?"
                 params.append(3)
+            elif filter == "!cloud":
+                query += " AND ZSTATE != ?"
+                params.append(3)
 
             query += " ORDER BY ZLASTOPENDATE DESC LIMIT 10"
 

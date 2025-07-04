@@ -6,7 +6,7 @@ story:
 acceptance_criteria:
   - scenario: Access a user's active library
     when: I run "bookminder list recent --user test_reader"
-    then: I see a list of books with reading progress, including "The Pragmatic Programmer - Dave Thomas & Andy Hunt (73%)"
+    then: I see a list of books with reading progress, including "Extreme Programming Explained - Kent Beck & Cynthia Andres (69%)"
 
   - scenario: Handle a user who never opened Apple Books
     when: I run "bookminder list recent --user never_opened_user"
