@@ -207,6 +207,36 @@ except sqlite3.OperationalError as e:
         pass
 ```
 
+### Copying Book Entries to Test Fixtures
+
+To ensure test fixtures accurately reflect real-world data and simplify test case creation, you can copy complete book entries from your main Apple Books database to a test fixture database. This method is robust as it directly transfers data between two SQLite databases with identical schemas.
+
+The fixture management involves two primary scripts located in `specs/apple_books/fixtures/`:
+
+1.  **`create_fixture.sh`**: This script creates a fresh, empty test fixture database for a specified user. It extracts the schema from your real Apple Books database to ensure consistency.
+    ```zsh
+    ./specs/apple_books/fixtures/create_fixture.sh <username>
+    ```
+    Example:
+    ```zsh
+    ./specs/apple_books/fixtures/create_fixture.sh test_reader
+    ```
+    This will create a `BKLibrary-fixture.sqlite` file within the `test_reader` user's fixture directory.
+
+2.  **`copy_book_to_fixture.sh`**: After creating a fixture, this script allows you to copy specific book entries from your real Apple Books database into the newly created fixture database. It dynamically extracts all column names to ensure a complete and accurate copy.
+    ```zsh
+    ./specs/apple_books/fixtures/copy_book_to_fixture.sh <username> "<book_title>"
+    ```
+    Example:
+    ```zsh
+    ./specs/apple_books/fixtures/copy_book_to_fixture.sh test_reader "The Left Hand of Darkness"
+    ```
+
+Both scripts utilize `_common.sh` for shared path definitions.
+
+This process ensures that your test fixtures are isolated, reproducible, and accurately reflect the structure and data of your live Apple Books environment.
+
+
 ## Apple Books UI Analysis
 
 ### UI Structure Overview
