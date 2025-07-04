@@ -606,16 +606,18 @@ This section outlines how the domain language translates into user-facing CLI co
 
 -   **`bookminder list` (Default: `recent`):** Shows "In Progress" books, ordered by `ZLASTOPENDATE`, limited to 10.
 -   **`bookminder list all`:** Shows all books in the library, regardless of reading status, ordered by `ZLASTOPENDATE`. (Maps to Apple Books "Previous Section").
--   **Filtering by Reading Status (`--status` option):**
-    -   `bookminder list --status finished`
-    -   `bookminder list --status not-started`
-    -   `bookminder list --status in-progress`
--   **Filtering by Content Type (`--type` option):**
-    -   `bookminder list --type book`
-    -   `bookminder list --type pdf`
--   **Filtering by Attributes (`--flag` option):**
-    -   `bookminder list --flag sample`
-    -   `bookminder list --flag cloud`
+-   **Filtering by Reading Status (`--filter` option):**
+    -   `bookminder list --filter finished`
+    -   `bookminder list --filter unread`
+    -   `bookminder list --filter in-progress`
+-   **Filtering by Content Type (`--filter` option):**
+    -   `bookminder list --filter book`
+    -   `bookminder list --filter pdf`
+-   **Filtering by Attributes (`--filter` option):**
+    -   `bookminder list --filter sample`
+    -   `bookminder list --filter cloud`
+    -   `bookminder list --filter !cloud` (exclude cloud books)
+    -   `bookminder list --filter !sample` (exclude samples)
 -   **Filtering by Time (`--year` option):**
     -   `bookminder list --year <YYYY>` (e.g., `2024`, `current`)
 -   **Pagination (`--limit`, `--offset`):**
