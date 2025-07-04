@@ -128,6 +128,9 @@ This project emphasizes disciplined engineering, minimal and simple solutions, a
     *   ✓ Is the test descriptively named (e.g., `describe_...::it_...`) and focused on behavior?
     *   ✓ (After writing code) Is the implementation the *minimal* necessary to pass the current test? (YAGNI)
     *   ✓ Do *all* tests pass after your change? (`pytest`)
+    *   ✓ Have you committed after reaching GREEN state? (First commit)
+    *   ✓ If refactoring, have you committed after REFACTOR? (Second commit)
+    *   ✓ Have you updated TODO.md to move completed stories to "Completed Features" section?
 *   **Before Committing:**
     *   ✓ Have all tests passed? (`pytest`)
     *   ✓ Has the code been formatted and linted? (`ruff format .`, `ruff check --fix .`)

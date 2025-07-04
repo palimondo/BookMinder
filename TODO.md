@@ -8,11 +8,11 @@ in the `stories/` directory, following the format defined in `vision.md`.
 - **List Recently Read Books via CLI:** (See `stories/discover/list-recent-books.yaml`)
 - **Handle Diverse User Environments:** (See `stories/discover/handle-user-environments.yaml`)
 - **ZSTATE Values for Cloud Status:** (Research completed, mapping updated in `docs/apple_books.md`)
+- **Filter by Cloud Status:** (See `stories/discover/filter-by-cloud-status.yaml`)
 
 ## Current Backlog (Stories in `stories/` directory)
 
 ### Discover Column
-- `stories/discover/filter-by-cloud-status.yaml` (Partially complete: cloud filtering done, negation pending)
 - `stories/discover/filter-by-sample-flag.yaml`
 - `stories/discover/filter-by-multiple-criteria.yaml`
 - `stories/discover/filter-by-reading-status.yaml`

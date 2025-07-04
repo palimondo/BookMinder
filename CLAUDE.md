@@ -126,9 +126,12 @@
 - **Run & Verify RED**: Execute the *specific new test* (e.g., `pytest path/to/test.py::describe_context::it_behavior`) and confirm it fails.
 - **Implement GREEN**: Write the minimum production code to pass the failing test.
 - **Run All Tests**: Execute `pytest` to confirm success and no regressions.
+- **Commit After GREEN**: Make first commit with passing test and minimal implementation.
 - **Refactor**: Improve code while keeping all tests green.
+- **Commit After Refactor**: Make second commit if any refactoring was done.
 - **Coverage Check**: Verify code coverage (via `pytest --cov`) after implementation.
-- Repeat cycle for each behavior. Update `TODO.md` to track progress.
+- **Update TODO.md**: Move completed stories to "Completed Features" section.
+- Repeat cycle for each behavior.
 
 ### Implementation Checklist
 Before writing any code, verify:
@@ -204,7 +207,7 @@ Before committing, verify:
 - Keep package metadata current and accurate in pyproject.toml
 - Review docs/ directory content periodically to ensure documentation reflects current state
 - Maintain LICENSE file with correct attribution and current year
-- These instructions are duplicated in AGENTS.md for use with other agentic coding systems, therefore when updating these instructions, always ask the user if changes should be applied to both CLAUDE.md and AGENTS.md
+- These instructions are duplicated in AGENTS.md and GEMINI.md for use with other agentic coding systems, therefore when updating these instructions, always ask the user if changes should be applied to CLAUDE.md, AGENTS.md, and GEMINI.md
 </project_maintenance>
 
 <file_operations>

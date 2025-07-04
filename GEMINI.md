@@ -74,9 +74,12 @@ This project, BookMinder, is a Python tool designed to extract content and highl
 - **Run & Verify RED**: Execute the specific new test and confirm it fails.
 - **Implement GREEN**: Write the minimum production code to pass the failing test.
 - **Run All Tests**: Execute `pytest` to confirm success and no regressions.
+- **Commit After GREEN**: Make first commit with passing test and minimal implementation.
 - **Refactor**: Improve code while keeping all tests green.
+- **Commit After Refactor**: Make second commit if any refactoring was done.
 - **Coverage Check**: Verify code coverage after implementation.
-- Repeat cycle for each behavior. Update `TODO.md` to track progress.
+- **Update TODO.md**: Move completed stories to "Completed Features" section.
+- Repeat cycle for each behavior.
 
 ### Implementation Checklist (Before writing any code)
 1.  ✓ Do we have a clear requirement defined in `TODO.md`?
