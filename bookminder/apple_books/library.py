@@ -45,6 +45,7 @@ class Book(TypedDict):
     author: str
     updated: datetime.datetime
     reading_progress_percentage: NotRequired[int]
+    is_cloud: NotRequired[bool]
 
 
 def _apple_timestamp_to_datetime(timestamp: float) -> datetime.datetime:
@@ -58,6 +59,7 @@ def _row_to_book(row: sqlite3.Row) -> Book:
         path="",  # Path requires Books.plist correlation with ZASSETID
         updated=_apple_timestamp_to_datetime(row["ZLASTOPENDATE"]),
         reading_progress_percentage=int(row["ZREADINGPROGRESS"] * 100),
+        is_cloud=row["ZSTATE"] == 3,
     )
 
 
@@ -98,7 +100,7 @@ def find_book_by_title(title: str, user_home: Path) -> Book | None:
     )
 
 
-def list_recent_books(user_home: Path) -> list[Book]:
+def list_recent_books(user_home: Path, flag: str | None = None) -> list[Book]:
     """List recently read books with progress from BKLibrary database."""
     try:
         _books_plist(user_home)  # Call to trigger FileNotFoundError if plist is missing
@@ -110,14 +112,19 @@ def list_recent_books(user_home: Path) -> list[Book]:
             cursor = conn.cursor()
 
             query = """
-                SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE
+                SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE, ZSTATE
                 FROM ZBKLIBRARYASSET
                 WHERE ZREADINGPROGRESS > 0
-                ORDER BY ZLASTOPENDATE DESC
-                LIMIT 10
             """
 
-            cursor.execute(query)
+            params = []
+            if flag == "cloud":
+                query += " AND ZSTATE = ?"
+                params.append(3)
+
+            query += " ORDER BY ZLASTOPENDATE DESC LIMIT 10"
+
+            cursor.execute(query, tuple(params))
             rows = cursor.fetchall()
 
             books = [_row_to_book(row) for row in rows]

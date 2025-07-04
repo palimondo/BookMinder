@@ -27,7 +27,13 @@ def list() -> None:
     default=None,
     help="Examine books for specified user (default: current user)",
 )
-def recent(user: str | None) -> None:
+@click.option(
+    "--flag",
+    default=None,
+    type=click.Choice(["cloud", "local"]),
+    help="Filter books by a specific flag.",
+)
+def recent(user: str | None, flag: str | None) -> None:
     """Show recently read books with progress."""
     # Convert user parameter to Path early
     if user:
@@ -38,13 +44,16 @@ def recent(user: str | None) -> None:
         user_path = Path.home()
 
     try:
-        books = list_recent_books(user_home=user_path)
+        books = list_recent_books(user_home=user_path, flag=flag)
         if not books:
             click.echo("No books currently being read")
             return
 
         for book in books:
-            progress = book["reading_progress_percentage"]
-            click.echo(f"{book['title']} - {book['author']} ({progress}%)")
+            progress = book.get("reading_progress_percentage")
+            progress_str = f" ({progress}%)" if progress is not None else ""
+            cloud_str = " ☁️" if book.get("is_cloud") else ""
+            click.echo(f"{book['title']} - {book['author']}{progress_str}{cloud_str}")
+
     except BookminderError as e:
         click.echo(f"{e}")

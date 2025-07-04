@@ -2,28 +2,36 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
 
-def _run_cli_with_user(user_name, use_fixture=True):
+
+def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", flag=None):
     if use_fixture:
         user_arg = str(Path(__file__).parent / "apple_books/fixtures/users" / user_name)
     else:
         user_arg = user_name
 
+    command = [
+        sys.executable,
+        "-m",
+        "bookminder",
+        "list",
+        subcommand,
+        "--user",
+        user_arg,
+    ]
+
+    if flag:
+        command.extend(["--flag", flag])
+
     result = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "bookminder",
-            "list",
-            "recent",
-            "--user",
-            user_arg,
-        ],
+        command,
         capture_output=True,
         text=True,
         cwd=Path(__file__).parent.parent,
     )
-    assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}"
+    assert result.returncode == 0, \
+        f"Expected exit code 0, got {result.returncode}: {result.stderr}"
     return result
 
 
@@ -100,3 +108,31 @@ def describe_bookminder_list_recent_with_user_parameter():
             f"/Users/{user_name}/Library/Containers/com.apple.iBooksX/"
             "Data/Documents/BKLibrary. Apple Books database not found." in result.stdout
         ), f"Expected FileNotFoundError message with path, got: {result.stdout}"
+
+
+def describe_bookminder_list_with_flag_filter():
+    def it_shows_only_cloud_books_when_flag_is_cloud():
+        """List cloud books
+        when: I run "bookminder list recent --flag cloud"
+        then:
+          - I see only books stored in iCloud (not downloaded locally)
+          - Each book shows: Title, Author, Progress %, Content Type, Sample status, and
+            Cloud status
+          - Cloud status is indicated by "☁️"
+        """
+        result = _run_cli_with_user("test_reader", subcommand="recent", flag="cloud")
+        assert "Lao Tzu: Tao Te Ching" in result.stdout
+        assert "☁️" in result.stdout
+        assert "The Pragmatic Programmer" not in result.stdout
+
+    @pytest.mark.skip(reason="Implementation pending")
+    def it_shows_only_local_books_when_flag_is_local():
+        """List local books
+        when: I run "bookminder list recent --flag local"
+        then:
+          - I see only books downloaded locally
+          - Each book shows: Title, Author, Progress %, Content Type, Sample status, and
+            Cloud status
+        """
+        pass
+
