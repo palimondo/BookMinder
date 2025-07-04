@@ -96,7 +96,10 @@
 - **Tests**:
   - Write tests first; focus on behavior, not implementation
   - Use `pytest-describe` syntax (`describe_...`/`it_...`) with descriptive names stating context and behavior
-  - Do not add docstrings in specs files as the function names are self-documenting
+  - Docstring conventions:
+    - Keep docstrings in skipped/pending tests as specifications to implement
+    - Remove docstrings from implemented tests - the code IS the specification
+    - Test names and assertions should tell the complete story without docstrings
   - Do not add comments in specs files that merely restate what the code is doing
   - Name spec files as `<module_name>_spec.py` following BDD conventions
   - Use `pytest --spec` to generate readable documentation from test structure
@@ -165,6 +168,21 @@ Before committing, verify:
 - Monitor token usage during development
 - Maintain TODO.md as a living document of progress and priorities
 </session_workflow>
+
+<backlog_management>
+## Backlog Management
+- User stories are defined as YAML files in the `stories/` directory
+- Stories are organized by story map columns (e.g., `discover/`, `decide/`, `deliver/`)
+- TODO.md provides a high-level overview with stories listed in suggested implementation order
+- Story file names should be descriptive and action-oriented where it makes sense
+- Test naming should flow naturally from story names:
+  - Story: `filter-by-cloud-status.yaml`
+  - Test describe: `describe_bookminder_list_with_filter()` (names the feature/command)
+  - Test it: `it_filters_by_cloud_status()` (concise, matches story name)
+- This creates a natural rhythm in `pytest --spec` output
+- Implementation order in TODO.md should reflect natural feature progression and dependencies
+- Mark stories as partially complete with specific notes about what remains
+</backlog_management>
 
 <git_workflow>
 ## Git Workflow

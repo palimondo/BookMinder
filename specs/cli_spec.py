@@ -111,15 +111,7 @@ def describe_bookminder_list_recent_with_user_parameter():
 
 
 def describe_bookminder_list_with_filter():
-    def it_shows_only_cloud_books_when_filter_is_cloud():
-        """List cloud books
-        when: I run "bookminder list recent --filter cloud"
-        then:
-          - I see only books stored in iCloud (not downloaded locally)
-          - Each book shows: Title, Author, Progress %, Content Type, Sample status, and
-            Cloud status
-          - Cloud status is indicated by "☁️"
-        """
+    def it_filters_by_cloud_status():
         result = _run_cli_with_user("test_reader", subcommand="recent", filter="cloud")
         assert "Lao Tzu: Tao Te Ching" in result.stdout
         assert "☁️" in result.stdout
