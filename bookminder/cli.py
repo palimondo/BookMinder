@@ -28,12 +28,11 @@ def list() -> None:
     help="Examine books for specified user (default: current user)",
 )
 @click.option(
-    "--flag",
+    "--filter",
     default=None,
-    type=click.Choice(["cloud", "local"]),
-    help="Filter books by a specific flag.",
+    help="Filter books by attribute (cloud, !cloud, sample, !sample, etc).",
 )
-def recent(user: str | None, flag: str | None) -> None:
+def recent(user: str | None, filter: str | None) -> None:
     """Show recently read books with progress."""
     # Convert user parameter to Path early
     if user:
@@ -44,7 +43,7 @@ def recent(user: str | None, flag: str | None) -> None:
         user_path = Path.home()
 
     try:
-        books = list_recent_books(user_home=user_path, flag=flag)
+        books = list_recent_books(user_home=user_path, filter=filter)
         if not books:
             click.echo("No books currently being read")
             return

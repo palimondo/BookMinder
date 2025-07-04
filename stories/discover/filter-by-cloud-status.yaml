@@ -5,14 +5,14 @@ story:
 
 acceptance_criteria:
   - scenario: List cloud books
-    when: I run "bookminder list --flag cloud"
+    when: I run "bookminder list --filter cloud"
     then:
       - I see only books stored in iCloud (not downloaded locally)
       - Each book shows: Title, Author, Progress %, Content Type, Sample status, and Cloud status
       - Cloud status is indicated by "☁️"
 
   - scenario: List local books
-    when: I run "bookminder list --flag local"
+    when: I run "bookminder list --filter !cloud"
     then:
       - I see only books downloaded locally
       - Each book shows: Title, Author, Progress %, Content Type, Sample status, and Cloud status

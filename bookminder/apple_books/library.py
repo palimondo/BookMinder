@@ -100,7 +100,7 @@ def find_book_by_title(title: str, user_home: Path) -> Book | None:
     )
 
 
-def list_recent_books(user_home: Path, flag: str | None = None) -> list[Book]:
+def list_recent_books(user_home: Path, filter: str | None = None) -> list[Book]:
     """List recently read books with progress from BKLibrary database."""
     try:
         _books_plist(user_home)  # Call to trigger FileNotFoundError if plist is missing
@@ -118,7 +118,7 @@ def list_recent_books(user_home: Path, flag: str | None = None) -> list[Book]:
             """
 
             params = []
-            if flag == "cloud":
+            if filter == "cloud":
                 query += " AND ZSTATE = ?"
                 params.append(3)
 

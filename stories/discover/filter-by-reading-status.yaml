@@ -5,20 +5,20 @@ story:
 
 acceptance_criteria:
   - scenario: List finished books
-    when: I run "bookminder list --status finished"
+    when: I run "bookminder list --filter finished"
     then:
       - I see only books marked as complete
       - Each book shows: Title, Author, (Finished) status
       - (Finished) status takes precedence over progress percentage
 
   - scenario: List unread books
-    when: I run "bookminder list --status unread"
+    when: I run "bookminder list --filter unread"
     then:
       - I see only books with 0% reading progress and not marked as finished
       - Each book shows: Title, Author, (Unread) status
 
   - scenario: List books in progress
-    when: I run "bookminder list --status in-progress"
+    when: I run "bookminder list --filter in-progress"
     then:
       - I see only books with 1-99% reading progress and not marked as finished
       - Each book shows: Title, Author, Progress %
