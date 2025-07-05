@@ -259,9 +259,14 @@ Shows up to 10 books currently being read, sorted by recent activity. The number
 #### Previous Section
 Mixed collection of all previously accessed books with various states.
 
-![Previous Section - List View](ui/apple/Previous%20list.jpg)
-![Previous Section - List View Page 2](ui/apple/Previous%20list%20p2.jpg)
 ![Previous Section - Tile View](ui/apple/Previous%20tiles.jpg)
+
+<table>
+<tr>
+<td><img src="ui/apple/Previous%20list.jpg" alt="Previous Section - List View"></td>
+<td><img src="ui/apple/Previous%20list%20p2.jpg" alt="Previous Section - List View Page 2"></td>
+</tr>
+</table>
 
 **Partial Progress Books**:
 - Tiny Experiments - Anne-Laure Le Cunff (1%) Book • Sample
@@ -308,8 +313,9 @@ Achievement-focused view showing only completed books:
 #### Series Collections
 Apple Books groups books by series, showing both owned and unowned titles. Series pages can be accessed even if only one book from the series is owned. Unowned books show with price buttons:
 
-![Series - Hainish](ui/apple/Series%20-%20Hainish.jpg)
-![Series - The Baroque Cycle](ui/apple/Series%20-%20The%20Baroque%20Cycle.jpg)
+| Hainish Series | The Baroque Cycle |
+|:--------------:|:-----------------:|
+| ![Series - Hainish](ui/apple/Series%20-%20Hainish.jpg) | ![Series - The Baroque Cycle](ui/apple/Series%20-%20The%20Baroque%20Cycle.jpg) |
 
 **Key Discovery**: This UI provides visual evidence that `ZSTATE = 5` in the database represents series entities and unowned books within a series.
 
