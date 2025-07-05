@@ -185,7 +185,7 @@ This project emphasizes disciplined engineering, minimal and simple solutions, a
     - If documenting or testing a sequence of commands, verify them in a fresh shell session to ensure they work correctly from a clean state.
 - **Focus on Requirements**: Ensure all changes directly address a stated requirement or an agreed-upon improvement. Avoid speculative or "nice-to-have" additions unless specifically requested.
 - **Agent Self-Correction**: If a subtask fails or an approach doesn't work, the agent should analyze the failure, potentially revise its plan or approach, and retry. Documenting these iterations can be helpful.
-- **Instruction Synchronization**: These instructions are duplicated in CLAUDE.md for use with Claude AI specifically. When updating these instructions, always ask the user if changes should be applied to both AGENTS.md and CLAUDE.md.
+- **Instruction Synchronization**: These instructions are duplicated in CLAUDE.md and GEMINI.md for use with other agentic coding systems. When updating these instructions, always ask the user if changes should be applied to CLAUDE.md, AGENTS.md, and GEMINI.md.
 
 ## Slash Commands
 
