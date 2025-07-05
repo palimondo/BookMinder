@@ -507,12 +507,22 @@ This information was discovered through systematic investigation:
 - **Multiple versions**: User might have multiple BKLibrary databases
 
 ### Sample Book Handling
+
+**Important Discovery**: Samples do NOT track reading progress percentage (ZREADINGPROGRESS remains 0.0). Instead:
+- Reading positions are stored as annotations (type 3) in `AEAnnotation_v10312011_1727_local.sqlite`
+- This allows position syncing between devices without progress tracking
+- Progress % may briefly appear for cloud samples but disappears when downloaded
+
 ```sql
--- Get samples separately as they behave differently
+-- Get downloaded samples (ZISSAMPLE = 1)
 SELECT * FROM ZBKLIBRARYASSET 
 WHERE ZISSAMPLE = 1 
-AND ZREADINGPROGRESS > 0
 ORDER BY ZLASTOPENDATE DESC;
+
+-- Get cloud samples not yet downloaded (ZSTATE = 6)
+SELECT * FROM ZBKLIBRARYASSET 
+WHERE ZSTATE = 6 
+ORDER BY ZTITLE;
 ```
 
 ### Content Filtering Strategies
@@ -593,8 +603,10 @@ Additional properties that can apply to any content type or reading status.
     -   *Mapping:* `BKLibrary.sqlite` where `ZSTATE` indicates cloud/local status.
     -   *Verified ZSTATE Mappings:*
         - `ZSTATE = 3`: **Cloud Book**. The book is stored in iCloud.
-        - `ZSTATE = 6`: **Cloud Sample**. The book is a sample stored in iCloud.
-        - `ZSTATE = 1`: **Local Book**. The book is stored on the device. This includes local samples (where `ZISSAMPLE = 1`).
+        - `ZSTATE = 6`: **Cloud Sample (Not Downloaded)**. Sample added to library/wishlist but not downloaded yet. Shows in "My Samples" on Mac and "In Your Library" as Sample on iOS. Has no ZKIND, ZPATH, or reading progress until downloaded.
+        - `ZSTATE = 1`: **Local Book**. The book is stored on the device. This includes:
+            - Regular downloaded books
+            - Downloaded samples (where `ZISSAMPLE = 1`)
         - `ZSTATE = 5`: **Series Entity / Unowned Series Book**. This `ZSTATE` value is associated with:
             - The **series entity itself** (e.g., "Hainish"), where `ZTITLE` matches the series name.
             - **Unowned books within a series** (e.g., "Five Ways to Forgiveness"), where `ZTITLE` is the individual book title.
