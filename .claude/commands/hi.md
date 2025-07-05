@@ -7,8 +7,8 @@ allowed-tools: Bash(tree:*), Bash(pytest:*), Bash(git log:*), Bash(git status:*)
 
 First, let me check the project structure and current state:
 
-tree -h -I '__pycache__|claude-dev-log-diary' .
-!`tree -h -I '__pycache__|claude-dev-log-diary' .`
+tree -h -I '__pycache__|claude-dev-log-diary|Library' . # Library folders in `fixture/users` ommitted for brevity
+!`tree -h -I '__pycache__|claude-dev-log-diary|Library' .`
 
 pytest --spec
 !`pytest --spec`
