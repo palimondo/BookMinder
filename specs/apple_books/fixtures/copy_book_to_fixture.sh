@@ -5,10 +5,10 @@
 
 set -e
 
-USERNAME=$1
+FIXTURE_USER=$1
 BOOK_TITLE=$2
 
-if [[ -z "$USERNAME" || -z "$BOOK_TITLE" ]]; then
+if [[ -z "$FIXTURE_USER" || -z "$BOOK_TITLE" ]]; then
   echo "Usage: $0 <username> \"<book_title>\""
   exit 1
 fi
@@ -22,11 +22,11 @@ if [[ ! -f "$REAL_DB_PATH" ]]; then
     exit 1
 fi
 
-FIXTURE_DIR="$PROJECT_ROOT/$BKLIBRARY_FIXTURE_SUBPATH/$USERNAME/$BKLIBRARY_USER_SUBPATH"
+FIXTURE_DIR="$PROJECT_ROOT/$BKLIBRARY_FIXTURE_SUBPATH/$FIXTURE_USER/$BKLIBRARY_USER_SUBPATH"
 # Dynamically find the fixture DB, just like the python code does.
 FIXTURE_DB_PATH=$(find "$FIXTURE_DIR" -name "BKLibrary-*.sqlite" | head -n 1)
 if [[ ! -f "$FIXTURE_DB_PATH" ]]; then
-    echo "Error: Fixture database for user '$USERNAME' not found. Please create it first with create_fixture.sh"
+    echo "Error: Fixture database for user '$FIXTURE_USER' not found. Please create it first with create_fixture.sh"
     exit 1
 fi
 
@@ -39,13 +39,16 @@ if [[ -z "$COLUMNS_EXCL_PK" ]]; then
 fi
 
 # --- Core Copy Logic ---
-echo "Copying \"$BOOK_TITLE\" to fixture for user \"$USERNAME\"..."
+echo "Copying \"$BOOK_TITLE\" to fixture for user \"$FIXTURE_USER\"..."
+
+# Escape single quotes in book title for SQL (double them for SQL)
+ESCAPED_BOOK_TITLE="${BOOK_TITLE//\'/''}"
 
 # Use ATTACH DATABASE for a robust, cross-database copy.
 sqlite3 "$FIXTURE_DB_PATH" \
   "ATTACH DATABASE '$REAL_DB_PATH' AS real_db; \
    INSERT INTO ZBKLIBRARYASSET ($COLUMNS_EXCL_PK) \
-   SELECT $COLUMNS_EXCL_PK FROM real_db.ZBKLIBRARYASSET WHERE ZTITLE = '$BOOK_TITLE'; \
+   SELECT $COLUMNS_EXCL_PK FROM real_db.ZBKLIBRARYASSET WHERE ZTITLE = '$ESCAPED_BOOK_TITLE'; \
    DETACH DATABASE real_db;"
 
 echo "✔ Successfully copied \"$BOOK_TITLE\" to fixture."

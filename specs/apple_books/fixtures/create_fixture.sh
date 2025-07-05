@@ -5,8 +5,8 @@
 
 set -e
 
-USERNAME=$1
-if [[ -z "$USERNAME" ]]; then
+FIXTURE_USER=$1
+if [[ -z "$FIXTURE_USER" ]]; then
   echo "Usage: $0 <username>"
   exit 1
 fi
@@ -22,12 +22,12 @@ if [[ ! -f "$REAL_DB_PATH" ]]; then
     exit 1
 fi
 
-FIXTURE_DIR="$PROJECT_ROOT/$BKLIBRARY_FIXTURE_SUBPATH/$USERNAME/$BKLIBRARY_USER_SUBPATH"
+FIXTURE_DIR="$PROJECT_ROOT/$BKLIBRARY_FIXTURE_SUBPATH/$FIXTURE_USER/$BKLIBRARY_USER_SUBPATH"
 # Use a consistent, predictable name for the fixture database.
 FIXTURE_DB_PATH="$FIXTURE_DIR/BKLibrary-fixture.sqlite"
 
 # --- Main Logic ---
-echo "Creating new fixture for user: $USERNAME"
+echo "Creating new fixture for user: $FIXTURE_USER"
 
 mkdir -p "$FIXTURE_DIR"
 
