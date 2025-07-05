@@ -237,8 +237,11 @@ Apple Books organizes content in the Home screen with distinct sections that cor
 
 ### Detailed Section Analysis
 
-#### Continue Section (10 books visible)
-Books currently being read, sorted by recent activity. All show percentage progress:
+#### Continue Section
+Shows up to 10 books currently being read, sorted by recent activity. The number of books displayed appears to depend on recency of reading activity. All show percentage progress:
+
+![Continue Section - Page 1](ui/apple/Continue%20(recent)%20p1.jpg)
+![Continue Section - Page 2](ui/apple/Continue%20(recent)%20p2.jpg)
 
 | Title | Author | Progress | Type | Cloud |
 |-------|--------|----------|------|-------|
@@ -290,14 +293,30 @@ Mixed collection of all previously accessed books with various states.
 - Postman - Technopoly - Neil Postman PDF
 - For The Win - Cory Doctorow Book
 
-#### Books Read This Year Section (4 books)
+#### Books Read This Year Section
 Achievement-focused view showing only completed books:
+
+![Books Read This Year](ui/apple/Books%20Read%20This%20Year.jpg)
+
 - Attack Surface - Cory Doctorow
 - Red Team Blues - Cory Doctorow
 - Chip War - Chris Miller
 - The Diamond Age - Neal Stephenson
 
 **Status**: "Yearly Goal Achieved - 4 books finished. Keep reading!"
+
+#### Series Collections
+Apple Books groups books by series, showing both owned and unowned titles. Series pages can be accessed even if only one book from the series is owned. Unowned books show with price buttons:
+
+![Series - Hainish](ui/apple/Series%20-%20Hainish.jpg)
+![Series - The Baroque Cycle](ui/apple/Series%20-%20The%20Baroque%20Cycle.jpg)
+
+**Key Discovery**: This UI provides visual evidence that `ZSTATE = 5` in the database represents series entities and unowned books within a series.
+
+#### Want to Read Section
+Books displayed for future reading. Appears to be composed of books with 0% progress and any samples:
+
+![Want to Read](ui/apple/Want%20to%20Read.jpg)
 
 ### Database to UI Mapping
 
