@@ -46,3 +46,39 @@ When implementing EPUB parsing features:
 1. Replace empty placeholder with minimal valid EPUB
 2. Include only necessary structure (mimetype, META-INF/container.xml, content.opf, toc.ncx)
 3. Keep file size minimal while maintaining validity
+
+## SQLite Database Fixture Management
+
+To ensure test fixtures accurately reflect real-world Apple Books data, there are shell scripts to copy complete book entries from your main Apple Books database to test fixture databases. This method is robust as it directly transfers data between two SQLite databases with identical schemas.
+
+The fixture management scripts located in `specs/apple_books/fixtures/` specifically handle the BKLibrary SQLite database fixtures:
+
+### create_fixture.sh
+This script creates a fresh, empty BKLibrary test fixture database for a specified user. It extracts the schema from your real Apple Books database to ensure consistency.
+
+```bash
+./specs/apple_books/fixtures/create_fixture.sh <username>
+```
+
+Example:
+```bash
+./specs/apple_books/fixtures/create_fixture.sh test_reader
+```
+
+This will create a `BKLibrary-fixture.sqlite` file within the `test_reader` user's fixture directory.
+
+### copy_book_to_fixture.sh
+After creating a fixture database, this script allows you to copy specific book entries from your real Apple Books BKLibrary database into the newly created fixture database. It dynamically extracts all column names to ensure a complete and accurate copy.
+
+```bash
+./specs/apple_books/fixtures/copy_book_to_fixture.sh <username> "<book_title>"
+```
+
+Example:
+```bash
+./specs/apple_books/fixtures/copy_book_to_fixture.sh test_reader "The Left Hand of Darkness"
+```
+
+Both scripts utilize `_common.sh` for shared path definitions.
+
+This process ensures that your SQLite database test fixtures are isolated, reproducible, and accurately reflect the structure and data of your live Apple Books BKLibrary database.

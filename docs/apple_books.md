@@ -207,34 +207,9 @@ except sqlite3.OperationalError as e:
         pass
 ```
 
-### Copying Book Entries to Test Fixtures
+### Test Fixtures
 
-To ensure test fixtures accurately reflect real-world data and simplify test case creation, you can copy complete book entries from your main Apple Books database to a test fixture database. This method is robust as it directly transfers data between two SQLite databases with identical schemas.
-
-The fixture management involves two primary scripts located in `specs/apple_books/fixtures/`:
-
-1.  **`create_fixture.sh`**: This script creates a fresh, empty test fixture database for a specified user. It extracts the schema from your real Apple Books database to ensure consistency.
-    ```zsh
-    ./specs/apple_books/fixtures/create_fixture.sh <username>
-    ```
-    Example:
-    ```zsh
-    ./specs/apple_books/fixtures/create_fixture.sh test_reader
-    ```
-    This will create a `BKLibrary-fixture.sqlite` file within the `test_reader` user's fixture directory.
-
-2.  **`copy_book_to_fixture.sh`**: After creating a fixture, this script allows you to copy specific book entries from your real Apple Books database into the newly created fixture database. It dynamically extracts all column names to ensure a complete and accurate copy.
-    ```zsh
-    ./specs/apple_books/fixtures/copy_book_to_fixture.sh <username> "<book_title>"
-    ```
-    Example:
-    ```zsh
-    ./specs/apple_books/fixtures/copy_book_to_fixture.sh test_reader "The Left Hand of Darkness"
-    ```
-
-Both scripts utilize `_common.sh` for shared path definitions.
-
-This process ensures that your test fixtures are isolated, reproducible, and accurately reflect the structure and data of your live Apple Books environment.
+For information on creating and managing test fixtures (including Books.plist, EPUB files, and SQLite databases), see [test_fixtures.md](test_fixtures.md).
 
 
 ## Apple Books UI Analysis
@@ -281,9 +256,9 @@ Books currently being read, sorted by recent activity. All show percentage progr
 #### Previous Section
 Mixed collection of all previously accessed books with various states.
 
-![Previous Section - List View](Previous%20list.jpg)
-![Previous Section - List View Page 2](Previous%20list%20p2.jpg)
-![Previous Section - Tile View](Previous%20tiles.jpg)
+![Previous Section - List View](ui/apple/Previous%20list.jpg)
+![Previous Section - List View Page 2](ui/apple/Previous%20list%20p2.jpg)
+![Previous Section - Tile View](ui/apple/Previous%20tiles.jpg)
 
 **Partial Progress Books**:
 - Tiny Experiments - Anne-Laure Le Cunff (1%) Book • Sample
