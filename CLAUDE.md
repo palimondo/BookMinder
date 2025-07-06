@@ -35,7 +35,7 @@
    - Measure progress through working, tested features
 </implementation_process>
 
-<anti_patterns>
+<anti-patterns>
 ## Anti-patterns to Avoid
 - Premature optimization
 - Large untested implementations
@@ -45,7 +45,7 @@
 - Prioritizing implementation over working tests
 - Creating files that don't serve immediate requirements
 - Adding unnecessary comments or docstrings
-</anti_patterns>
+</anti-patterns>
 
 <package_structure>
 ## Python Package Structure
