@@ -110,3 +110,12 @@ def describe_list_all_books():
             assert book["is_sample"] is True, (
                 f"Expected {book['title']} to be marked as sample"
             )
+
+    def it_filters_books_by_sample_status():
+        sample_books = list_all_books(TEST_HOME, filter="sample")
+
+        sample_titles = {book["title"] for book in sample_books}
+        expected_samples = {"Snow Crash", "Tiny Experiments", "What's Our Problem?"}
+
+        assert sample_titles == expected_samples, \
+            f"Expected {expected_samples}, got {sample_titles}"
