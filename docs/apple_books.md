@@ -508,6 +508,10 @@ This information was discovered through systematic investigation:
 
 ### Sample Book Handling
 
+**Sample Lifecycle:**
+1. A user adds a sample to their library from the store. The book appears with `ZSTATE=6` and `ZISSAMPLE=0`. It is a "Cloud Sample" that is not yet downloaded.
+2. When the user opens or downloads this sample, the database record is updated to `ZSTATE=1` and `ZISSAMPLE=1`, reflecting its new status as a "Local Sample".
+
 **Important Discovery**: Samples do NOT track reading progress percentage (ZREADINGPROGRESS remains 0.0). Instead:
 - Reading positions are stored as annotations (type 3) in `AEAnnotation_v10312011_1727_local.sqlite`
 - This allows position syncing between devices without progress tracking
@@ -597,8 +601,9 @@ Describes the user's progress through the content. This is a critical aspect for
 
 Additional properties that can apply to any content type or reading status.
 
--   **Sample:** A preview version of a book.
-    -   *Mapping:* `BKLibrary.sqlite` where `ZISSAMPLE = 1`.
+-   **Sample:** A preview version of a book, which can exist in a downloaded or not-downloaded state.
+    -   *Mapping:* A book is considered a sample if `ZSTATE = 6` (a cloud sample not yet downloaded) OR `ZISSAMPLE = 1` (a downloaded sample). This composite check is necessary to correctly identify all sample types.
+    -   *Note:* The `ZISSAMPLE` flag alone is not a reliable indicator. We have confirmed cases (e.g., "Snow Crash") where a book is a sample in the UI but has `ZISSAMPLE = 0` in the database, being identified instead by its `ZSTATE` of `6`.
 -   **Cloud:** The book is stored in iCloud and not fully downloaded locally.
     -   *Mapping:* `BKLibrary.sqlite` where `ZSTATE` indicates cloud/local status.
     -   *Verified ZSTATE Mappings:*
