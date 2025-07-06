@@ -100,39 +100,51 @@ def find_book_by_title(title: str, user_home: Path) -> Book | None:
     )
 
 
+def _query_books(
+    user_home: Path,
+    where_clause: str = "",
+    params: tuple = (),
+    limit: int | None = None,
+) -> list[Book]:
+    """Query books from BKLibrary database with optional WHERE clause."""
+    _books_plist(user_home)
+    db_file = _get_bklibrary_db_file(user_home)
+
+    with sqlite3.connect(db_file) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        query = f"""
+            SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE, ZSTATE
+            FROM ZBKLIBRARYASSET
+            {where_clause}
+            ORDER BY ZLASTOPENDATE DESC
+        """
+
+        if limit:
+            query += f" LIMIT {limit}"
+
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+
+        return [_row_to_book(row) for row in rows]
+
+
 def list_recent_books(user_home: Path, filter: str | None = None) -> list[Book]:
     """List recently read books with progress from BKLibrary database."""
     try:
-        _books_plist(user_home)  # Call to trigger FileNotFoundError if plist is missing
+        where_parts = ["WHERE ZREADINGPROGRESS > 0"]
+        params = []
 
-        db_file = _get_bklibrary_db_file(user_home)
+        if filter == "cloud":
+            where_parts.append("AND ZSTATE = ?")
+            params.append(3)
+        elif filter == "!cloud":
+            where_parts.append("AND ZSTATE != ?")
+            params.append(3)
 
-        with sqlite3.connect(db_file) as conn:
-            conn.row_factory = sqlite3.Row  # Enable column access by name
-            cursor = conn.cursor()
-
-            query = """
-                SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE, ZSTATE
-                FROM ZBKLIBRARYASSET
-                WHERE ZREADINGPROGRESS > 0
-            """
-
-            params = []
-            if filter == "cloud":
-                query += " AND ZSTATE = ?"
-                params.append(3)
-            elif filter == "!cloud":
-                query += " AND ZSTATE != ?"
-                params.append(3)
-
-            query += " ORDER BY ZLASTOPENDATE DESC LIMIT 10"
-
-            cursor.execute(query, tuple(params))
-            rows = cursor.fetchall()
-
-            books = [_row_to_book(row) for row in rows]
-
-            return books
+        where_clause = " ".join(where_parts)
+        return _query_books(user_home, where_clause, tuple(params), limit=10)
     except FileNotFoundError as e:
         raise BookminderError(f"Error accessing Apple Books files: {e}") from e
     except sqlite3.Error as e:
@@ -141,22 +153,4 @@ def list_recent_books(user_home: Path, filter: str | None = None) -> list[Book]:
 
 def list_all_books(user_home: Path, filter: str | None = None) -> list[Book]:
     """List all books from BKLibrary database."""
-    _books_plist(user_home)
-    db_file = _get_bklibrary_db_file(user_home)
-
-    with sqlite3.connect(db_file) as conn:
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-
-        query = """
-            SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE, ZSTATE
-            FROM ZBKLIBRARYASSET
-            ORDER BY ZLASTOPENDATE DESC
-        """
-
-        cursor.execute(query)
-        rows = cursor.fetchall()
-
-        books = [_row_to_book(row) for row in rows]
-
-        return books
+    return _query_books(user_home)

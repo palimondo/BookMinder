@@ -7,7 +7,7 @@ from typing import Any
 import click
 
 from bookminder import BookminderError
-from bookminder.apple_books.library import list_all_books, list_recent_books
+from bookminder.apple_books.library import Book, list_all_books, list_recent_books
 
 
 @click.group()
@@ -39,17 +39,30 @@ def list() -> None:
     pass
 
 
-@list.command()
-@with_common_list_options
-def recent(user: str | None, filter: str | None) -> None:
-    """Show recently read books with progress."""
-    # Convert user parameter to Path early
+def _get_user_path(user: str | None) -> Path:
+    """Convert user parameter to Path."""
     if user:
         user_path = Path(user)
         if not user_path.is_absolute():
             user_path = Path(f"/Users/{user}")
     else:
         user_path = Path.home()
+    return user_path
+
+
+def _format_book_output(book: Book) -> str:
+    """Format book dictionary for CLI output."""
+    progress = book.get("reading_progress_percentage")
+    progress_str = f" ({progress}%)" if progress is not None else ""
+    cloud_str = " ☁️" if book.get("is_cloud") else ""
+    return f"{book['title']} - {book['author']}{progress_str}{cloud_str}"
+
+
+@list.command()
+@with_common_list_options
+def recent(user: str | None, filter: str | None) -> None:
+    """Show recently read books with progress."""
+    user_path = _get_user_path(user)
 
     try:
         books = list_recent_books(user_home=user_path, filter=filter)
@@ -58,10 +71,7 @@ def recent(user: str | None, filter: str | None) -> None:
             return
 
         for book in books:
-            progress = book.get("reading_progress_percentage")
-            progress_str = f" ({progress}%)" if progress is not None else ""
-            cloud_str = " ☁️" if book.get("is_cloud") else ""
-            click.echo(f"{book['title']} - {book['author']}{progress_str}{cloud_str}")
+            click.echo(_format_book_output(book))
 
     except BookminderError as e:
         click.echo(f"{e}")
@@ -71,18 +81,8 @@ def recent(user: str | None, filter: str | None) -> None:
 @with_common_list_options
 def all(user: str | None, filter: str | None) -> None:
     """Show all books in your library."""
-    # Convert user parameter to Path early
-    if user:
-        user_path = Path(user)
-        if not user_path.is_absolute():
-            user_path = Path(f"/Users/{user}")
-    else:
-        user_path = Path.home()
-
+    user_path = _get_user_path(user)
     books = list_all_books(user_home=user_path, filter=filter)
 
     for book in books:
-        progress = book.get("reading_progress_percentage")
-        progress_str = f" ({progress}%)" if progress is not None else ""
-        cloud_str = " ☁️" if book.get("is_cloud") else ""
-        click.echo(f"{book['title']} - {book['author']}{progress_str}{cloud_str}")
+        click.echo(_format_book_output(book))
