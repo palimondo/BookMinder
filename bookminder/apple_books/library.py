@@ -60,7 +60,7 @@ def _row_to_book(row: sqlite3.Row) -> Book:
         path="",  # Path requires Books.plist correlation with ZASSETID
         updated=_apple_timestamp_to_datetime(row["ZLASTOPENDATE"]),
         reading_progress_percentage=int(row["ZREADINGPROGRESS"] * 100),
-        is_cloud=row["ZSTATE"] == 3,
+        is_cloud=row["ZSTATE"] in (3, 6),
         is_sample=row["ZSTATE"] == 6 or row["ZISSAMPLE"] == 1,
     )
 

@@ -142,6 +142,8 @@ def describe_bookminder_list_all_command():
         for line in output_lines:
             assert " • Sample" in line, f"Expected sample indicator in: {line}"
 
+        assert " • Sample ☁️" in result.stdout, \
+            "Sample indicator should appear before Cloud"
         assert "Extreme Programming Explained" not in result.stdout
 
     @pytest.mark.skip(reason="Implement after basic list all works")

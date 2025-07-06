@@ -54,9 +54,9 @@ def _format_book_output(book: Book) -> str:
     """Format book dictionary for CLI output."""
     progress = book.get("reading_progress_percentage")
     progress_str = f" ({progress}%)" if progress is not None else ""
-    cloud_str = " ☁️" if book.get("is_cloud") else ""
     sample_str = " • Sample" if book.get("is_sample") else ""
-    return f"{book['title']} - {book['author']}{progress_str}{cloud_str}{sample_str}"
+    cloud_str = " ☁️" if book.get("is_cloud") else ""
+    return f"{book['title']} - {book['author']}{progress_str}{sample_str}{cloud_str}"
 
 
 @list.command()

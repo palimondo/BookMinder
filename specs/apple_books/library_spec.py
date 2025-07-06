@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from bookminder.apple_books.library import (
+    _row_to_book,
     find_book_by_title,
     list_all_books,
     list_books,
@@ -8,6 +9,38 @@ from bookminder.apple_books.library import (
 )
 
 TEST_HOME = Path(__file__).parent / "fixtures/users/test_reader"
+
+
+def row_stub(**overrides):
+    """Create a dict stub for sqlite3.Row with minimal defaults."""
+    defaults = {
+        "ZTITLE": "Title",
+        "ZAUTHOR": "Author",
+        "ZLASTOPENDATE": 0.0,
+        "ZREADINGPROGRESS": 0.0,
+        "ZSTATE": 1,
+        "ZISSAMPLE": 0,
+    }
+    return {**defaults, **overrides}  # type: ignore[return-value]
+
+
+def describe_row_to_book():
+    def it_correctly_identifies_cloud_and_sample_states():
+        book = _row_to_book(row_stub(ZSTATE=1, ZISSAMPLE=0))
+        assert book.get("is_cloud") is False
+        assert book.get("is_sample") is False
+
+        book = _row_to_book(row_stub(ZSTATE=1, ZISSAMPLE=1))
+        assert book.get("is_cloud") is False
+        assert book.get("is_sample") is True
+
+        book = _row_to_book(row_stub(ZSTATE=3, ZISSAMPLE=0))
+        assert book.get("is_cloud") is True
+        assert book.get("is_sample") is False
+
+        book = _row_to_book(row_stub(ZSTATE=6, ZISSAMPLE=0))
+        assert book.get("is_cloud") is True
+        assert book.get("is_sample") is True
 
 
 def describe_list_books():
