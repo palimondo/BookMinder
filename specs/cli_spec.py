@@ -133,9 +133,16 @@ def describe_bookminder_list_all_command():
         assert "Snow Crash" in result.stdout
         assert "Tiny Experiments" in result.stdout
 
-    @pytest.mark.skip(reason="Implement after basic list all works")
     def it_filters_by_sample_status():
-        pass
+        result = _run_cli_with_user("test_reader", subcommand="all", filter="sample")
+
+        output_lines = [line for line in result.stdout.strip().split('\n') if line]
+        assert len(output_lines) >= 3, "Expected at least 3 sample books"
+
+        for line in output_lines:
+            assert " • Sample" in line, f"Expected sample indicator in: {line}"
+
+        assert "Extreme Programming Explained" not in result.stdout
 
     @pytest.mark.skip(reason="Implement after basic list all works")
     def it_excludes_samples_when_filter_is_not_sample():

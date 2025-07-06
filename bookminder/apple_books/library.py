@@ -46,6 +46,7 @@ class Book(TypedDict):
     updated: datetime.datetime
     reading_progress_percentage: NotRequired[int]
     is_cloud: NotRequired[bool]
+    is_sample: NotRequired[bool]
 
 
 def _apple_timestamp_to_datetime(timestamp: float) -> datetime.datetime:
@@ -60,6 +61,7 @@ def _row_to_book(row: sqlite3.Row) -> Book:
         updated=_apple_timestamp_to_datetime(row["ZLASTOPENDATE"]),
         reading_progress_percentage=int(row["ZREADINGPROGRESS"] * 100),
         is_cloud=row["ZSTATE"] == 3,
+        is_sample=row["ZSTATE"] == 6 or row["ZISSAMPLE"] == 1,
     )
 
 
@@ -115,7 +117,7 @@ def _query_books(
         cursor = conn.cursor()
 
         query = f"""
-            SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE, ZSTATE
+            SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE, ZSTATE, ZISSAMPLE
             FROM ZBKLIBRARYASSET
             {where_clause}
             ORDER BY ZLASTOPENDATE DESC
@@ -153,4 +155,7 @@ def list_recent_books(user_home: Path, filter: str | None = None) -> list[Book]:
 
 def list_all_books(user_home: Path, filter: str | None = None) -> list[Book]:
     """List all books from BKLibrary database."""
-    return _query_books(user_home)
+    return _query_books(
+        user_home,
+        "WHERE (ZSTATE = 6 OR ZISSAMPLE = 1)" if filter == "sample" else ""
+    )

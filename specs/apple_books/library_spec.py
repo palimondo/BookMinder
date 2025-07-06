@@ -63,3 +63,17 @@ def describe_list_all_books():
         assert "Snow Crash" in titles  # Cloud sample
         assert "Tiny Experiments" in titles  # Local sample
         # TODO: finished book
+
+    def it_includes_sample_status_in_book_data():
+        books = list_all_books(TEST_HOME)
+
+        sample_books = [
+            b for b in books if b["title"] in ["Snow Crash", "Tiny Experiments"]
+        ]
+        assert len(sample_books) == 2, "Expected to find both sample books"
+
+        for book in sample_books:
+            assert "is_sample" in book, f"Expected is_sample field in {book['title']}"
+            assert book["is_sample"] is True, (
+                f"Expected {book['title']} to be marked as sample"
+            )
