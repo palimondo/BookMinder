@@ -2,6 +2,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 
 def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=None):
     if use_fixture:
@@ -121,4 +123,21 @@ def describe_bookminder_list_with_filter():
         result = _run_cli_with_user("test_reader", subcommand="recent", filter="!cloud")
         assert len(result.stdout) > 0
         assert "☁️" not in result.stdout
+
+
+def describe_bookminder_list_all_command():
+    def it_shows_all_books_in_library():
+        result = _run_cli_with_user("test_reader", subcommand="all")
+        # Should show books with and without progress
+        assert "Extreme Programming Explained" in result.stdout
+        assert "Snow Crash" in result.stdout
+        assert "Tiny Experiments" in result.stdout
+
+    @pytest.mark.skip(reason="Implement after basic list all works")
+    def it_filters_by_sample_status():
+        pass
+
+    @pytest.mark.skip(reason="Implement after basic list all works")
+    def it_excludes_samples_when_filter_is_not_sample():
+        pass
 

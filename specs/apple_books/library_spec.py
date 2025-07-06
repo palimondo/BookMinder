@@ -2,6 +2,7 @@ from pathlib import Path
 
 from bookminder.apple_books.library import (
     find_book_by_title,
+    list_all_books,
     list_books,
     list_recent_books,
 )
@@ -47,3 +48,18 @@ def describe_list_recent_books():
             assert "reading_progress_percentage" in book, (
                 f"Book missing reading_progress_percentage: {book}"
             )
+
+
+def describe_list_all_books():
+    def it_returns_all_books_in_library():
+        books = list_all_books(TEST_HOME)
+
+        assert len(books) > 3, "Expected more than 3 books in test fixture"
+
+        # Check we have books with different states
+        titles = [book["title"] for book in books]
+        assert "Extreme Programming Explained" in titles  # Local book with progress
+        assert "Lao Tzu: Tao Te Ching" in titles  # Cloud book with progress
+        assert "Snow Crash" in titles  # Cloud sample
+        assert "Tiny Experiments" in titles  # Local sample
+        # TODO: finished book

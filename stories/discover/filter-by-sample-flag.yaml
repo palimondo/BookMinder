@@ -5,14 +5,14 @@ story:
 
 acceptance_criteria:
   - scenario: List sample books
-    when: I run "bookminder list --filter sample"
+    when: I run "bookminder list all --filter sample"
     then:
       - I see only books marked as samples
       - Each book shows: Title, Author, Progress %, Content Type, Sample status, and Cloud status
       - Sample status is indicated by "Sample"
 
   - scenario: List non-sample books
-    when: I run "bookminder list --filter !sample"
+    when: I run "bookminder list all --filter !sample"
     then:
       - I see only books not marked as samples
       - Each book shows: Title, Author, Progress %, Content Type, Sample status, and Cloud status
