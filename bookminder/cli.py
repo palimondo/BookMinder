@@ -1,7 +1,6 @@
 """BookMinder CLI interface."""
 
 from collections.abc import Callable
-from pathlib import Path
 from typing import Any
 
 import click
@@ -39,17 +38,6 @@ def list_cmd() -> None:
     pass
 
 
-def _get_user_path(user: str | None) -> Path:
-    """Convert user parameter to Path."""
-    if user:
-        user_path = Path(user)
-        if not user_path.is_absolute():
-            user_path = Path(f"/Users/{user}")
-    else:
-        user_path = Path.home()
-    return user_path
-
-
 def format(book: Book) -> str:
     """Format book dictionary for CLI output."""
     progress = book.get("reading_progress_percentage")
@@ -70,10 +58,8 @@ def format_book_list(books: list[Book], empty_message: str = "No books found") -
 @with_common_list_options
 def recent(user: str | None, filter: str | None) -> None:
     """Show recently read books with progress."""
-    user_path = _get_user_path(user)
-
     try:
-        books = list_recent_books(user_home=user_path, filter=filter)
+        books = list_recent_books(user=user, filter=filter)
         click.echo(format_book_list(
             books, empty_message="No books currently being read"
         ))
@@ -85,6 +71,8 @@ def recent(user: str | None, filter: str | None) -> None:
 @with_common_list_options
 def all(user: str | None, filter: str | None) -> None:
     """Show all books in your library."""
-    user_path = _get_user_path(user)
-    books = list_all_books(user_home=user_path, filter=filter)
-    click.echo(format_book_list(books))
+    try:
+        books = list_all_books(user=user, filter=filter)
+        click.echo(format_book_list(books))
+    except BookminderError as e:
+        click.echo(f"{e}")

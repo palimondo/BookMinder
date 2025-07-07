@@ -49,6 +49,17 @@ class Book(TypedDict):
     is_sample: NotRequired[bool]
 
 
+def _get_user_path(user: str | None) -> Path:
+    """Convert user parameter to Path."""
+    if user:
+        user_path = Path(user)
+        if not user_path.is_absolute():
+            user_path = Path(f"/Users/{user}")
+    else:
+        user_path = Path.home()
+    return user_path
+
+
 def _apple_timestamp_to_datetime(timestamp: float) -> datetime.datetime:
     return APPLE_EPOCH + datetime.timedelta(seconds=timestamp)
 
@@ -132,8 +143,9 @@ def _query_books(
         return [_row_to_book(row) for row in rows]
 
 
-def list_recent_books(user_home: Path, filter: str | None = None) -> list[Book]:
+def list_recent_books(user: str | None = None, filter: str | None = None) -> list[Book]:
     """List recently read books with progress from BKLibrary database."""
+    user_home = _get_user_path(user)
     try:
         where_parts = ["WHERE ZREADINGPROGRESS > 0"]
         params = []
@@ -153,8 +165,9 @@ def list_recent_books(user_home: Path, filter: str | None = None) -> list[Book]:
         raise BookminderError(f"Error reading Apple Books database: {e}") from e
 
 
-def list_all_books(user_home: Path, filter: str | None = None) -> list[Book]:
+def list_all_books(user: str | None = None, filter: str | None = None) -> list[Book]:
     """List all books from BKLibrary database."""
+    user_home = _get_user_path(user)
     return _query_books(
         user_home,
         "WHERE (ZSTATE = 6 OR ZISSAMPLE = 1)" if filter == "sample" else ""

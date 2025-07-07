@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from bookminder.apple_books.library import (
+    _get_user_path,
     _row_to_book,
     find_book_by_title,
     list_all_books,
@@ -22,6 +23,21 @@ def row_stub(**overrides):
         "ZISSAMPLE": 0,
     }
     return {**defaults, **overrides}  # type: ignore[return-value]
+
+
+def describe_get_user_path():
+    def it_returns_home_path_when_user_is_none():
+        result = _get_user_path(None)
+        assert result == Path.home()
+
+    def it_converts_simple_username_to_users_path():
+        result = _get_user_path("bob")
+        assert result == Path("/Users/bob")
+
+    def it_preserves_absolute_paths_for_fixtures():
+        fixture_path = str(TEST_HOME)
+        result = _get_user_path(fixture_path)
+        assert result == Path(fixture_path)
 
 
 def describe_row_to_book():
