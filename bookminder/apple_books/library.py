@@ -41,9 +41,9 @@ class Book(TypedDict):
     """Book metadata from Apple Books library."""
 
     title: str
-    path: str
     author: str
-    updated: datetime.datetime
+    path: NotRequired[str]
+    updated: NotRequired[datetime.datetime]
     reading_progress_percentage: NotRequired[int]
     is_cloud: NotRequired[bool]
     is_sample: NotRequired[bool]

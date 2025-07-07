@@ -9,8 +9,6 @@ def describe_format_book_output():
         book = Book(
             title="Test Book",
             author="Test Author",
-            path="",
-            updated=None,
         )
         result = _format_book_output(book)
         assert result == "Test Book - Test Author"
@@ -19,8 +17,6 @@ def describe_format_book_output():
         book = Book(
             title="Test Book",
             author="Test Author",
-            path="",
-            updated=None,
             reading_progress_percentage=42,
         )
         result = _format_book_output(book)
@@ -30,8 +26,6 @@ def describe_format_book_output():
         book = Book(
             title="Test Book",
             author="Test Author",
-            path="",
-            updated=None,
             is_sample=True,
         )
         result = _format_book_output(book)
@@ -41,8 +35,6 @@ def describe_format_book_output():
         book = Book(
             title="Test Book",
             author="Test Author",
-            path="",
-            updated=None,
             is_cloud=True,
         )
         result = _format_book_output(book)
@@ -52,8 +44,6 @@ def describe_format_book_output():
         book = Book(
             title="Test Book",
             author="Test Author",
-            path="",
-            updated=None,
             reading_progress_percentage=42,
             is_sample=True,
             is_cloud=True,
@@ -65,8 +55,6 @@ def describe_format_book_output():
         book = Book(
             title="Test Book",
             author="Test Author",
-            path="",
-            updated=None,
             is_sample=True,
             is_cloud=True,
         )
