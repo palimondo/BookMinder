@@ -13,6 +13,9 @@ tree -h -I '__pycache__|claude-dev-log-diary|Library' . # Library folders in `fi
 pytest --spec
 !`pytest --spec`
 
+pytest --cov=bookminder --cov-report=term-missing
+!`pytest --cov=bookminder --cov-report=term-missing`
+
 Now I'll read the key documentation:
 
 @docs/apple_books.md

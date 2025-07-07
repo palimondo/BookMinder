@@ -33,8 +33,8 @@ def with_common_list_options(func: Callable[..., Any]) -> Callable[..., Any]:
 
 
 # This is a test comment to trigger pre-commit hooks.
-@main.group()
-def list() -> None:
+@main.group(name="list")
+def list_cmd() -> None:
     """List books from your library."""
     pass
 
@@ -59,7 +59,14 @@ def _format_book_output(book: Book) -> str:
     return f"{book['title']} - {book['author']}{progress_str}{sample_str}{cloud_str}"
 
 
-@list.command()
+def format_book_list(books: list[Book], empty_message: str = "No books found") -> str:
+    """Format a list of books for display."""
+    if not books:
+        return empty_message
+    return "\n".join(_format_book_output(book) for book in books)
+
+
+@list_cmd.command()
 @with_common_list_options
 def recent(user: str | None, filter: str | None) -> None:
     """Show recently read books with progress."""
@@ -67,18 +74,14 @@ def recent(user: str | None, filter: str | None) -> None:
 
     try:
         books = list_recent_books(user_home=user_path, filter=filter)
-        if not books:
-            click.echo("No books currently being read")
-            return
-
-        for book in books:
-            click.echo(_format_book_output(book))
-
+        click.echo(format_book_list(
+            books, empty_message="No books currently being read"
+        ))
     except BookminderError as e:
         click.echo(f"{e}")
 
 
-@list.command()
+@list_cmd.command()
 @with_common_list_options
 def all(user: str | None, filter: str | None) -> None:
     """Show all books in your library."""
