@@ -13,23 +13,18 @@ def _book(**kwargs):
 
 def describe_format_book_output():
     def it_formats_book_with_no_attributes():
-        book = _book()
-        result = _format_book_output(book)
-        assert result == "Test Book - Test Author"
+        assert _format_book_output(_book()) == "Test Book - Test Author"
 
     def it_formats_book_with_progress():
-        book = _book(reading_progress_percentage=42)
-        result = _format_book_output(book)
+        result = _format_book_output(_book(reading_progress_percentage=42))
         assert result == "Test Book - Test Author (42%)"
 
     def it_formats_book_with_sample_status():
-        book = _book(is_sample=True)
-        result = _format_book_output(book)
+        result = _format_book_output(_book(is_sample=True))
         assert result == "Test Book - Test Author • Sample"
 
     def it_formats_book_with_cloud_status():
-        book = _book(is_cloud=True)
-        result = _format_book_output(book)
+        result = _format_book_output(_book(is_cloud=True))
         assert result == "Test Book - Test Author ☁️"
 
     def it_formats_book_with_all_attributes():
@@ -42,8 +37,7 @@ def describe_format_book_output():
         assert result == "Test Book - Test Author (42%) • Sample ☁️"
 
     def it_ensures_sample_indicator_appears_before_cloud():
-        book = _book(is_sample=True, is_cloud=True)
-        result = _format_book_output(book)
+        result = _format_book_output(_book(is_sample=True, is_cloud=True))
         assert result.index("• Sample") < result.index("☁️")
 
 
