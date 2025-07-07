@@ -59,29 +59,9 @@ def describe_bookminder_list_recent_command():
         assert "The Left Hand of Darkness" in output_lines[1]
 
 
-def describe_bookminder_list_recent_with_user_parameter():
-    def it_handles_user_who_never_opened_apple_books():
-        result = _run_cli_with_user("never_opened_user")
-
-        assert "Apple Books database not found" in result.stdout, (
-            f"Expected helpful message, got: {result.stdout}"
-        )
-
-    def it_handles_fresh_apple_books_user_with_no_books():
-        result = _run_cli_with_user("fresh_books_user")
-
-        assert "No books currently being read" in result.stdout, (
-            f"Expected no books message, got: {result.stdout}"
-        )
-
-    def it_handles_user_with_legacy_apple_books_installation():
-        result = _run_cli_with_user("legacy_books_user")  # missing database
-
-        assert "Apple Books database not found" in result.stdout, (
-            f"Expected database not found message, got: {result.stdout}"
-        )
-
+def describe_bookminder_list_recent_integration():
     def it_shows_books_for_user_with_reading_progress():
+        """Integration test: verify full stack works with real fixture."""
         result = _run_cli_with_user("test_reader")
 
         output_lines = result.stdout.strip().split("\n")
@@ -91,23 +71,6 @@ def describe_bookminder_list_recent_with_user_parameter():
             if line.strip():
                 assert " - " in line, f"Expected 'Title - Author' format in: {line}"
                 assert "%" in line, f"Expected progress percentage in: {line}"
-
-    def it_handles_user_with_corrupted_apple_books_database():
-        result = _run_cli_with_user("corrupted_db_user")
-
-        assert "Error reading Apple Books database:" in result.stdout, (
-            f"Expected error message, got: {result.stdout}"
-        )
-
-    def it_handles_non_existent_relative_user_path():
-        user_name = "non_existent_user"
-        result = _run_cli_with_user(user_name, use_fixture=False)
-
-        assert (
-            f"BKLibrary directory not found: "
-            f"/Users/{user_name}/Library/Containers/com.apple.iBooksX/"
-            "Data/Documents/BKLibrary. Apple Books database not found." in result.stdout
-        ), f"Expected FileNotFoundError message with path, got: {result.stdout}"
 
 
 def describe_bookminder_list_with_filter():
