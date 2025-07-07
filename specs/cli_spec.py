@@ -113,3 +113,36 @@ def describe_bookminder_list_all_command():
     def it_excludes_samples_when_filter_is_not_sample():
         pass
 
+
+def describe_cli_error_boundary():
+    """Verify CLI properly handles errors from library layer."""
+
+    def it_displays_library_errors_without_stack_traces():
+        from unittest.mock import patch
+
+        from click.testing import CliRunner
+
+        from bookminder import BookminderError
+        from bookminder.cli import main
+
+        runner = CliRunner()
+        error_message = "Something went wrong in the library"
+
+        # Test that recent command handles library errors gracefully
+        with patch('bookminder.cli.list_recent_books') as mock:
+            mock.side_effect = BookminderError(error_message)
+            result = runner.invoke(main, ['list', 'recent'])
+
+        assert result.exit_code == 0  # No crash
+        assert error_message in result.output
+        assert "Traceback" not in result.output  # No stack trace leaked
+
+        # Test that all command handles library errors gracefully
+        with patch('bookminder.cli.list_all_books') as mock:
+            mock.side_effect = BookminderError(error_message)
+            result = runner.invoke(main, ['list', 'all'])
+
+        assert result.exit_code == 0  # No crash
+        assert error_message in result.output
+        assert "Traceback" not in result.output  # No stack trace leaked
+
