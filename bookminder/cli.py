@@ -50,7 +50,7 @@ def _get_user_path(user: str | None) -> Path:
     return user_path
 
 
-def _format_book_output(book: Book) -> str:
+def format(book: Book) -> str:
     """Format book dictionary for CLI output."""
     progress = book.get("reading_progress_percentage")
     progress_str = f" ({progress}%)" if progress is not None else ""
@@ -63,7 +63,7 @@ def format_book_list(books: list[Book], empty_message: str = "No books found") -
     """Format a list of books for display."""
     if not books:
         return empty_message
-    return "\n".join(_format_book_output(book) for book in books)
+    return "\n".join(format(book) for book in books)
 
 
 @list_cmd.command()
@@ -87,6 +87,4 @@ def all(user: str | None, filter: str | None) -> None:
     """Show all books in your library."""
     user_path = _get_user_path(user)
     books = list_all_books(user_home=user_path, filter=filter)
-
-    for book in books:
-        click.echo(_format_book_output(book))
+    click.echo(format_book_list(books))

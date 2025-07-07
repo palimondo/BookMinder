@@ -1,7 +1,7 @@
 """Tests for CLI formatting functions."""
 
 from bookminder.apple_books.library import Book
-from bookminder.cli import _format_book_output, format_book_list
+from bookminder.cli import format, format_book_list
 
 
 def _book(**kwargs):
@@ -11,20 +11,20 @@ def _book(**kwargs):
     return Book(**defaults)
 
 
-def describe_format_book_output():
+def describe_format():
     def it_formats_book_with_no_attributes():
-        assert _format_book_output(_book()) == "Test Book - Test Author"
+        assert format(_book()) == "Test Book - Test Author"
 
     def it_formats_book_with_progress():
-        result = _format_book_output(_book(reading_progress_percentage=42))
+        result = format(_book(reading_progress_percentage=42))
         assert result == "Test Book - Test Author (42%)"
 
     def it_formats_book_with_sample_status():
-        result = _format_book_output(_book(is_sample=True))
+        result = format(_book(is_sample=True))
         assert result == "Test Book - Test Author • Sample"
 
     def it_formats_book_with_cloud_status():
-        result = _format_book_output(_book(is_cloud=True))
+        result = format(_book(is_cloud=True))
         assert result == "Test Book - Test Author ☁️"
 
     def it_formats_book_with_all_attributes():
@@ -33,12 +33,8 @@ def describe_format_book_output():
             is_sample=True,
             is_cloud=True,
         )
-        result = _format_book_output(book)
+        result = format(book)
         assert result == "Test Book - Test Author (42%) • Sample ☁️"
-
-    def it_ensures_sample_indicator_appears_before_cloud():
-        result = _format_book_output(_book(is_sample=True, is_cloud=True))
-        assert result.index("• Sample") < result.index("☁️")
 
 
 def describe_format_book_list():
