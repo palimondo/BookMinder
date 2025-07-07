@@ -4,46 +4,36 @@ from bookminder.apple_books.library import Book
 from bookminder.cli import _format_book_output, format_book_list
 
 
+def _book(**kwargs):
+    """Create a test book with default values."""
+    defaults = {"title": "Test Book", "author": "Test Author"}
+    defaults.update(kwargs)
+    return Book(**defaults)
+
+
 def describe_format_book_output():
     def it_formats_book_with_no_attributes():
-        book = Book(
-            title="Test Book",
-            author="Test Author",
-        )
+        book = _book()
         result = _format_book_output(book)
         assert result == "Test Book - Test Author"
 
     def it_formats_book_with_progress():
-        book = Book(
-            title="Test Book",
-            author="Test Author",
-            reading_progress_percentage=42,
-        )
+        book = _book(reading_progress_percentage=42)
         result = _format_book_output(book)
         assert result == "Test Book - Test Author (42%)"
 
     def it_formats_book_with_sample_status():
-        book = Book(
-            title="Test Book",
-            author="Test Author",
-            is_sample=True,
-        )
+        book = _book(is_sample=True)
         result = _format_book_output(book)
         assert result == "Test Book - Test Author • Sample"
 
     def it_formats_book_with_cloud_status():
-        book = Book(
-            title="Test Book",
-            author="Test Author",
-            is_cloud=True,
-        )
+        book = _book(is_cloud=True)
         result = _format_book_output(book)
         assert result == "Test Book - Test Author ☁️"
 
     def it_formats_book_with_all_attributes():
-        book = Book(
-            title="Test Book",
-            author="Test Author",
+        book = _book(
             reading_progress_percentage=42,
             is_sample=True,
             is_cloud=True,
@@ -52,12 +42,7 @@ def describe_format_book_output():
         assert result == "Test Book - Test Author (42%) • Sample ☁️"
 
     def it_ensures_sample_indicator_appears_before_cloud():
-        book = Book(
-            title="Test Book",
-            author="Test Author",
-            is_sample=True,
-            is_cloud=True,
-        )
+        book = _book(is_sample=True, is_cloud=True)
         result = _format_book_output(book)
         assert result.index("• Sample") < result.index("☁️")
 
@@ -73,15 +58,15 @@ def describe_format_book_list():
 
     def it_formats_single_book():
         books = [
-            Book(title="Book 1", author="Author 1", path="", updated=None),
+            Book(title="Book 1", author="Author 1"),
         ]
         result = format_book_list(books)
         assert result == "Book 1 - Author 1"
 
     def it_formats_multiple_books():
         books = [
-            Book(title="Book 1", author="Author 1", path="", updated=None),
-            Book(title="Book 2", author="Author 2", path="", updated=None),
+            Book(title="Book 1", author="Author 1"),
+            Book(title="Book 2", author="Author 2"),
         ]
         result = format_book_list(books)
         assert result == "Book 1 - Author 1\nBook 2 - Author 2"
@@ -91,22 +76,16 @@ def describe_format_book_list():
             Book(
                 title="Book 1",
                 author="Author 1",
-                path="",
-                updated=None,
                 reading_progress_percentage=50,
             ),
             Book(
                 title="Book 2",
                 author="Author 2",
-                path="",
-                updated=None,
                 is_sample=True,
             ),
             Book(
                 title="Book 3",
                 author="Author 3",
-                path="",
-                updated=None,
                 is_cloud=True,
             ),
         ]
