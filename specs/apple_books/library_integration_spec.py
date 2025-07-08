@@ -8,7 +8,7 @@ from bookminder import BookminderError
 from bookminder.apple_books.library import list_all_books, list_recent_books
 
 # Path to test fixtures
-FIXTURE_PATH = Path(__file__).parent / "fixtures" / "users"
+FIXTURE_PATH = (Path(__file__).parent / "fixtures" / "users").absolute()
 
 
 def describe_library_edge_cases():
@@ -16,7 +16,10 @@ def describe_library_edge_cases():
         """User has iBooksX container but no BKAgentService container."""
         with pytest.raises(BookminderError) as e:
             list_recent_books(FIXTURE_PATH / "never_opened_user")
-        assert "Apple Books database not found" in str(e.value)
+        error_msg = str(e.value)
+        assert "Apple Books database not found" in error_msg
+        assert "No BKLibrary database found in:" in error_msg
+        assert "iBooksX/Data/Documents/BKLibrary" in error_msg
 
     def it_handles_fresh_apple_books_user_with_no_books():
         """User opened Apple Books but has no books in library."""
@@ -27,7 +30,10 @@ def describe_library_edge_cases():
         """User has Books.plist but missing BKLibrary database."""
         with pytest.raises(BookminderError) as e:
             list_recent_books(FIXTURE_PATH / "legacy_books_user")
-        assert "Apple Books database not found" in str(e.value)
+        error_msg = str(e.value)
+        assert "Apple Books database not found" in error_msg
+        assert "BKLibrary directory not found:" in error_msg
+        assert "iBooksX/Data/Documents/BKLibrary" in error_msg
 
     def it_handles_user_with_corrupted_apple_books_database():
         """Database file exists but is corrupted."""
