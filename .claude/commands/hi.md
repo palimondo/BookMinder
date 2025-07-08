@@ -10,11 +10,8 @@ First, let me check the project structure and current state:
 tree -h -I '__pycache__|claude-dev-log-diary|Library' . # Library folders in `fixture/users` ommitted for brevity
 !`tree -h -I '__pycache__|claude-dev-log-diary|Library' .`
 
-pytest --spec
-!`pytest --spec`
-
-pytest --cov=bookminder --cov-report=term-missing
-!`pytest --cov=bookminder --cov-report=term-missing`
+pytest --spec  --cov=bookminder --cov-report=term-missing
+!`pytest --spec  --cov=bookminder --cov-report=term-missing`
 
 Now I'll read the key documentation:
 
