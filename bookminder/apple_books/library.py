@@ -78,12 +78,6 @@ def _row_to_book(row: sqlite3.Row) -> Book:
 
 def _read_books_plist(user_home: Path) -> list[dict[str, Any]]:
     books_plist = _books_plist(user_home)
-    if not books_plist.exists():
-        raise BookminderError(
-            f"Books.plist not found: {books_plist}. "
-            "Apple Books not found. Has it been opened on this account?"
-        )
-
     with open(books_plist, "rb") as f:
         plist_data = plistlib.load(f)
     books = plist_data.get("Books", [])
@@ -159,8 +153,6 @@ def list_recent_books(user: str | None = None, filter: str | None = None) -> lis
 
         where_clause = " ".join(where_parts)
         return _query_books(user_home, where_clause, tuple(params), limit=10)
-    except FileNotFoundError as e:
-        raise BookminderError(f"Error accessing Apple Books files: {e}") from e
     except sqlite3.Error as e:
         raise BookminderError(f"Error reading Apple Books database: {e}") from e
 
