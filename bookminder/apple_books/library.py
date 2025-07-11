@@ -114,7 +114,6 @@ def _query_books(
     limit: int | None = None,
 ) -> list[Book]:
     """Query books from BKLibrary database with optional WHERE clause."""
-    _books_plist(user_home)
     db_file = _get_bklibrary_db_file(user_home)
 
     with sqlite3.connect(db_file) as conn:
