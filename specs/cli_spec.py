@@ -77,14 +77,12 @@ def describe_bookminder_list_recent_integration():
 def describe_bookminder_list_with_filter():
     def it_filters_by_cloud_status(runner):
         with patch('bookminder.cli.list_recent_books') as mock_list_recent:
-            mock_list_recent.return_value = []
             runner.invoke(main, ['list', 'recent', '--filter', 'cloud'])
 
         mock_list_recent.assert_called_once_with(user=None, filter='cloud')
 
     def it_excludes_cloud_books_when_filter_is_not_cloud(runner):
         with patch('bookminder.cli.list_recent_books') as mock_list_recent:
-            mock_list_recent.return_value = []
             runner.invoke(main, ['list', 'recent', '--filter', '!cloud'])
 
         mock_list_recent.assert_called_once_with(user=None, filter='!cloud')
