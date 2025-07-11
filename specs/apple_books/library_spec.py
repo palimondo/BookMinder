@@ -98,6 +98,22 @@ def describe_list_recent_books():
                 f"Book missing reading_progress_percentage: {book}"
             )
 
+    def it_filters_by_cloud_status():
+        cloud_books = list_recent_books(TEST_HOME, filter="cloud")
+        assert len(cloud_books) > 0, "Expected to find cloud books"
+
+        for book in cloud_books:
+            assert book.get("is_cloud") is True, f"Expected cloud book: {book['title']}"
+
+    def it_excludes_cloud_books_with_not_cloud_filter():
+        non_cloud_books = list_recent_books(TEST_HOME, filter="!cloud")
+        assert len(non_cloud_books) > 0, "Expected to find non-cloud books"
+
+        for book in non_cloud_books:
+            assert book.get("is_cloud") is not True, (
+                f"Expected non-cloud book: {book['title']}"
+            )
+
 
 def describe_list_all_books():
     def it_returns_all_books_in_library():

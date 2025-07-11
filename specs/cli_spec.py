@@ -75,13 +75,12 @@ def describe_bookminder_list_recent_integration():
 
 
 def describe_bookminder_list_with_filter():
-    def it_filters_by_cloud_status():
-        result = _run_cli_with_user("test_reader", subcommand="recent", filter="cloud")
-        assert "Lao Tzu: Tao Te Ching" in result.stdout
-        assert "☁️" in result.stdout
-        # Should not show local books
-        assert "Extreme Programming Explained" not in result.stdout
-        assert "The Left Hand of Darkness" not in result.stdout
+    def it_filters_by_cloud_status(runner):
+        with patch('bookminder.cli.list_recent_books') as mock_list_recent:
+            mock_list_recent.return_value = []
+            runner.invoke(main, ['list', 'recent', '--filter', 'cloud'])
+
+        mock_list_recent.assert_called_once_with(user=None, filter='cloud')
 
     def it_excludes_cloud_books_when_filter_is_not_cloud():
         result = _run_cli_with_user("test_reader", subcommand="recent", filter="!cloud")
