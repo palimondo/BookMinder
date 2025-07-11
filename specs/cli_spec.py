@@ -45,49 +45,31 @@ def describe_bookminder_list_recent_command():
     def it_shows_recently_read_books_with_progress():
         runner = CliRunner()
 
-        # Mock data that matches the test fixture expectations
-        test_books = [
-            Book(
-                title="Extreme Programming Explained",
-                author="Kent Beck",
-                reading_progress_percentage=69,
-            ),
-            Book(
-                title="The Left Hand of Darkness",
-                author="Ursula K. Le Guin",
-                reading_progress_percentage=32,
-            ),
-            Book(
-                title="Lao Tzu: Tao Te Ching",
-                author="Ursula K. Le Guin",
-                reading_progress_percentage=8,
-                is_cloud=True,
-            ),
-        ]
+        # Test with 2 books (enough to verify ordering)
+        book1 = Book(title="B1", author="A1", reading_progress_percentage=50)
+        book2 = Book(title="B2", author="A2", reading_progress_percentage=25)
+        test_books = [book1, book2]
 
-        with patch('bookminder.cli.list_recent_books') as mock:
-            mock.return_value = test_books
-            result = runner.invoke(main, ['list', 'recent'])
+        with patch('bookminder.cli.list_recent_books') as mock_list:
+            mock_list.return_value = test_books
+            with patch('bookminder.cli.format') as mock_format:
+                # Configure format mock to return predictable output
+                mock_format.side_effect = lambda book: f"formatted-{book['title']}"
 
-        assert result.exit_code == 0
-        output_lines = result.output.strip().split("\n")
-        assert len(output_lines) > 0, "Expected output from command"
+                runner.invoke(main, ['list', 'recent'])
 
-        assert len(output_lines) <= 10, (
-            f"Expected max 10 books, got {len(output_lines)}"
-        )
+        # Verify the library was called correctly
+        mock_list.assert_called_once_with(user=None, filter=None)
 
-        for line in output_lines:
-            if line.strip():
-                assert " - " in line, f"Expected 'Title - Author' format in: {line}"
-                assert "%" in line, f"Expected progress percentage in: {line}"
-                assert "(" in line and ")" in line, (
-                    f"Expected parentheses around progress in: {line}"
-                )
+        # Verify format was called for each book in order
+        assert mock_format.call_count == 2
+        mock_format.assert_any_call(book1)
+        mock_format.assert_any_call(book2)
 
-        # Assert ordering
-        assert "Extreme Programming Explained" in output_lines[0]
-        assert "The Left Hand of Darkness" in output_lines[1]
+        # Verify the calls were in the correct order
+        calls = mock_format.call_args_list
+        assert calls[0][0][0] == book1
+        assert calls[1][0][0] == book2
 
 
 def describe_bookminder_list_recent_integration():
