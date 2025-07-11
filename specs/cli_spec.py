@@ -11,6 +11,11 @@ from bookminder.apple_books.library import Book
 from bookminder.cli import main
 
 
+@pytest.fixture
+def runner():
+    return CliRunner()
+
+
 def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=None):
     if use_fixture:
         user_arg = str(Path(__file__).parent / "apple_books/fixtures/users" / user_name)
@@ -42,10 +47,9 @@ def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=
 
 
 def describe_bookminder_list_recent_command():
-    def it_shows_recently_read_books_with_progress():
-        runner = CliRunner()
-        book1 = Book(title="B1", author="A1", reading_progress_percentage=50)
-        book2 = Book(title="B2", author="A2", reading_progress_percentage=25)
+    def it_shows_recently_read_books_with_progress(runner):
+        book1 = Book(title="B1", author="A1")
+        book2 = Book(title="B2", author="A2")
 
         with patch('bookminder.cli.list_recent_books') as mock_list_recent, \
              patch('bookminder.cli.format') as mock_format:
@@ -114,14 +118,7 @@ def describe_bookminder_list_all_command():
 def describe_cli_error_boundary():
     """Verify CLI properly handles errors from library layer."""
 
-    def it_displays_library_errors_without_stack_traces():
-        from unittest.mock import patch
-
-        from click.testing import CliRunner
-
-        from bookminder.cli import main
-
-        runner = CliRunner()
+    def it_displays_library_errors_without_stack_traces(runner):
         error_message = "Something went wrong in the library"
 
         # Test that recent command handles library errors gracefully
