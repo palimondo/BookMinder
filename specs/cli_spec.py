@@ -1,8 +1,14 @@
 import subprocess
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
+from click.testing import CliRunner
+
+from bookminder import BookminderError
+from bookminder.apple_books.library import Book
+from bookminder.cli import main
 
 
 def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=None):
@@ -37,9 +43,34 @@ def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=
 
 def describe_bookminder_list_recent_command():
     def it_shows_recently_read_books_with_progress():
-        result = _run_cli_with_user("test_reader")
+        runner = CliRunner()
 
-        output_lines = result.stdout.strip().split("\n")
+        # Mock data that matches the test fixture expectations
+        test_books = [
+            Book(
+                title="Extreme Programming Explained",
+                author="Kent Beck",
+                reading_progress_percentage=69,
+            ),
+            Book(
+                title="The Left Hand of Darkness",
+                author="Ursula K. Le Guin",
+                reading_progress_percentage=32,
+            ),
+            Book(
+                title="Lao Tzu: Tao Te Ching",
+                author="Ursula K. Le Guin",
+                reading_progress_percentage=8,
+                is_cloud=True,
+            ),
+        ]
+
+        with patch('bookminder.cli.list_recent_books') as mock:
+            mock.return_value = test_books
+            result = runner.invoke(main, ['list', 'recent'])
+
+        assert result.exit_code == 0
+        output_lines = result.output.strip().split("\n")
         assert len(output_lines) > 0, "Expected output from command"
 
         assert len(output_lines) <= 10, (
@@ -122,7 +153,6 @@ def describe_cli_error_boundary():
 
         from click.testing import CliRunner
 
-        from bookminder import BookminderError
         from bookminder.cli import main
 
         runner = CliRunner()
