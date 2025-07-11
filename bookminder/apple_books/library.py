@@ -107,6 +107,21 @@ def find_book_by_title(title: str, user_home: Path) -> Book | None:
     )
 
 
+def _build_books_query(where_clause: str = "", limit: int | None = None) -> str:
+    """Build SQL query for fetching books from BKLibrary database."""
+    query = f"""
+        SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE, ZSTATE, ZISSAMPLE
+        FROM ZBKLIBRARYASSET
+        {where_clause}
+        ORDER BY ZLASTOPENDATE DESC
+    """
+
+    if limit:
+        query += f" LIMIT {limit}"
+
+    return query
+
+
 def _query_books(
     user_home: Path,
     where_clause: str = "",
@@ -120,16 +135,7 @@ def _query_books(
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
-        query = f"""
-            SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE, ZSTATE, ZISSAMPLE
-            FROM ZBKLIBRARYASSET
-            {where_clause}
-            ORDER BY ZLASTOPENDATE DESC
-        """
-
-        if limit:
-            query += f" LIMIT {limit}"
-
+        query = _build_books_query(where_clause, limit)
         cursor.execute(query, params)
         rows = cursor.fetchall()
 

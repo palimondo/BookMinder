@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from bookminder.apple_books.library import (
+    _build_books_query,
     _get_user_path,
     _row_to_book,
     find_book_by_title,
@@ -38,6 +39,30 @@ def describe_get_user_path():
         fixture_path = str(TEST_HOME)
         result = _get_user_path(fixture_path)
         assert result == Path(fixture_path)
+
+
+def describe_build_books_query():
+    def it_includes_required_columns_for_book_attributes():
+        query = _build_books_query()
+
+        # Verify all required columns are present
+        assert "ZTITLE" in query, "Query must include ZTITLE for book title"
+        assert "ZAUTHOR" in query, "Query must include ZAUTHOR for book author"
+        assert "ZREADINGPROGRESS" in query, \
+            "Query must include ZREADINGPROGRESS for reading percentage"
+        assert "ZLASTOPENDATE" in query, \
+            "Query must include ZLASTOPENDATE for updated timestamp"
+        assert "ZSTATE" in query, "Query must include ZSTATE for cloud/sample status"
+        assert "ZISSAMPLE" in query, \
+            "Query must include ZISSAMPLE for sample identification"
+
+    def it_applies_where_clause_and_limit():
+        query = _build_books_query("WHERE ZREADINGPROGRESS > 0", limit=5)
+
+        assert "WHERE ZREADINGPROGRESS > 0" in query
+        assert "LIMIT 5" in query
+        assert query.index("WHERE") < query.index("ORDER BY")
+        assert query.index("ORDER BY") < query.index("LIMIT")
 
 
 def describe_row_to_book():
