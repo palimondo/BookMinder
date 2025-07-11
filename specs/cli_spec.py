@@ -44,32 +44,16 @@ def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=
 def describe_bookminder_list_recent_command():
     def it_shows_recently_read_books_with_progress():
         runner = CliRunner()
-
-        # Test with 2 books (enough to verify ordering)
         book1 = Book(title="B1", author="A1", reading_progress_percentage=50)
         book2 = Book(title="B2", author="A2", reading_progress_percentage=25)
-        test_books = [book1, book2]
 
-        with patch('bookminder.cli.list_recent_books') as mock_list:
-            mock_list.return_value = test_books
-            with patch('bookminder.cli.format') as mock_format:
-                # Configure format mock to return predictable output
-                mock_format.side_effect = lambda book: f"formatted-{book['title']}"
+        with patch('bookminder.cli.list_recent_books') as mock_list_recent, \
+             patch('bookminder.cli.format') as mock_format:
+            mock_list_recent.return_value = [book1, book2]
+            runner.invoke(main, ['list', 'recent'])
 
-                runner.invoke(main, ['list', 'recent'])
-
-        # Verify the library was called correctly
-        mock_list.assert_called_once_with(user=None, filter=None)
-
-        # Verify format was called for each book in order
-        assert mock_format.call_count == 2
-        mock_format.assert_any_call(book1)
-        mock_format.assert_any_call(book2)
-
-        # Verify the calls were in the correct order
-        calls = mock_format.call_args_list
-        assert calls[0][0][0] == book1
-        assert calls[1][0][0] == book2
+        mock_list_recent.assert_called_once_with(user=None, filter=None)
+        assert mock_format.call_args_list == [((book1,),), ((book2,),)]
 
 
 def describe_bookminder_list_recent_integration():
