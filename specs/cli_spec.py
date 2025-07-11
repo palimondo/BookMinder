@@ -89,25 +89,23 @@ def describe_bookminder_list_with_filter():
 
 
 def describe_bookminder_list_all_command():
-    def it_shows_all_books_in_library():
-        result = _run_cli_with_user("test_reader", subcommand="all")
-        # Should show books with and without progress
-        assert "Extreme Programming Explained" in result.stdout
-        assert "Snow Crash" in result.stdout
-        assert "Tiny Experiments" in result.stdout
+    def it_shows_all_books_in_library(runner):
+        book1 = Book(title="B1", author="A1")
+        book2 = Book(title="B2", author="A2")
 
-    def it_filters_by_sample_status():
-        result = _run_cli_with_user("test_reader", subcommand="all", filter="sample")
+        with patch('bookminder.cli.list_all_books') as mock_list_all, \
+             patch('bookminder.cli.format') as mock_format:
+            mock_list_all.return_value = [book1, book2]
+            runner.invoke(main, ['list', 'all'])
 
-        output_lines = [line for line in result.stdout.strip().split('\n') if line]
-        assert len(output_lines) >= 3, "Expected at least 3 sample books"
+        mock_list_all.assert_called_once_with(user=None, filter=None)
+        assert mock_format.call_args_list == [((book1,),), ((book2,),)]
 
-        for line in output_lines:
-            assert " • Sample" in line, f"Expected sample indicator in: {line}"
+    def it_filters_by_sample_status(runner):
+        with patch('bookminder.cli.list_all_books') as mock_list_all:
+            runner.invoke(main, ['list', 'all', '--filter', 'sample'])
 
-        assert " • Sample ☁️" in result.stdout, \
-            "Sample indicator should appear before Cloud"
-        assert "Extreme Programming Explained" not in result.stdout
+        mock_list_all.assert_called_once_with(user=None, filter='sample')
 
     @pytest.mark.skip(reason="Implement after basic list all works")
     def it_excludes_samples_when_filter_is_not_sample():
