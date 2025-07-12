@@ -185,6 +185,34 @@ Before committing, verify:
 - This creates a natural rhythm in `pytest --spec` output
 - Implementation order in TODO.md should reflect natural feature progression and dependencies
 - Mark stories as partially complete with specific notes about what remains
+
+### Story Card Structure
+Each story card is a YAML file with the following structure:
+
+```yaml
+story:
+  as_a: <user role>
+  i_want: <what they want to achieve>
+  so_that: <why they want it>
+status: <current status of the story>
+
+acceptance_criteria:
+  - scenario: <scenario description>
+    when: <precondition or action>
+    then: <expected outcome>
+    # Optional: and, given, but clauses as needed
+```
+
+### Status Field
+The `status` field is mandatory for each story card and indicates its current state. Possible values include:
+
+- `backlog`: The story is defined but not yet started
+- `in_progress`: Development has begun
+- `done`: The story is fully implemented, tested, and deployed
+- `reopened`: Previously done story that needs further refinement or implementation changes
+- `research`: For research stories, indicating active investigation
+
+This system ensures clarity, machine-readability, and granular progress tracking for each story.
 </backlog_management>
 
 <git_workflow>

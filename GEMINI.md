@@ -141,9 +141,8 @@ The `status` field is mandatory for each story card and indicates its current st
 
 -   `backlog`: The story is defined but not yet started.
 -   `in_progress`: Development has begun.
--   `in_review`: Code is complete and awaiting review/testing.
--   `completed`: The story is fully implemented, tested, and deployed.
--   `on_hold`: Development is paused.
+-   `done`: The story is fully implemented, tested, and deployed.
+-   `reopened`: Previously done story that needs further refinement or implementation changes.
 -   `research`: For research stories, indicating active investigation.
 
 This system ensures clarity, machine-readability, and granular progress tracking for each story.
