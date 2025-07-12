@@ -5,18 +5,20 @@ Detailed user stories and acceptance criteria are managed as YAML story cards
 in the `stories/` directory, following the format defined in `vision.md`.
 
 ## Completed Features
-- **List Recently Read Books via CLI:** (See `stories/discover/list-recent-books.yaml`)
+- **List Recently Read Books via CLI:** (See `stories/discover/list-recent-books.yaml`) [REOPENED: needs to include samples]
 - **Handle Diverse User Environments:** (See `stories/discover/handle-user-environments.yaml`)
 - **ZSTATE Values for Cloud Status:** (Research completed, mapping updated in `docs/apple_books.md`)
 - **Filter by Cloud Status:** (See `stories/discover/filter-by-cloud-status.yaml`)
 - **Documentation Cleanup:** Removed retrospective AI meta-docs (commit eea59e3)
 
+## In Progress
+- **Filter by Sample Flag:** (See `stories/discover/filter-by-sample-flag.yaml`) - Implementing !sample filter
+
 ## Current Backlog (Stories in `stories/` directory)
 
 ### Discover Column
-- `stories/discover/filter-by-sample-flag.yaml`
-- `stories/discover/filter-by-multiple-criteria.yaml`
 - `stories/discover/filter-by-reading-status.yaml`
+- `stories/discover/filter-by-multiple-criteria.yaml`
 - `stories/discover/list-recent-books-enhanced.yaml`
 - `stories/discover/pagination.yaml`
 
