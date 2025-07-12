@@ -2,6 +2,7 @@ story:
   as_a: reader using Apple Books
   i_want: to paginate through large lists of books
   so_that: the output is manageable in the command line
+status: backlog
 
 acceptance_criteria:
   - scenario: List books with a limit

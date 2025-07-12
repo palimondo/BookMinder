@@ -2,6 +2,7 @@ story:
   as_a: reader using Apple Books
   i_want: to filter my book list by reading status
   so_that: I can quickly find books based on my reading habits
+status: backlog
 
 acceptance_criteria:
   - scenario: List finished books

@@ -2,6 +2,7 @@ story:
   as_a: reader using Apple Books
   i_want: to see additional properties for recently read books
   so_that: I have more context about my reading list
+status: backlog
 
 acceptance_criteria:
   - scenario: Show recently read books with enhanced properties

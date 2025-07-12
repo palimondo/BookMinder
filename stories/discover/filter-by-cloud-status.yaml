@@ -2,6 +2,7 @@ story:
   as_a: reader using Apple Books
   i_want: to filter my book list by cloud status
   so_that: I can easily find or exclude books stored in iCloud
+status: done
 
 acceptance_criteria:
   - scenario: List cloud books

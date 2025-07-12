@@ -2,6 +2,7 @@ story:
   as_a: reader using Apple Books
   i_want: to combine multiple filters
   so_that: I can narrow down my book list to exactly what I'm looking for
+status: backlog
 
 acceptance_criteria:
   - scenario: Combine cloud and sample filters

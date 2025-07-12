@@ -3,6 +3,7 @@ story:
   as_a: reader using Apple Books
   i_want: to see my recently opened books matching Apple's Continue section
   so_that: I can quickly check what I'm actively reading or exploring
+status: reopened
 
 acceptance_criteria:
   - scenario: Show recently opened books including samples

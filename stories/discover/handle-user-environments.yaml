@@ -2,6 +2,7 @@ story:
   as_a: user of BookMinder and a system administrator
   i_want: to access and understand the state of various Apple Books libraries via the CLI
   so_that: I can troubleshoot issues, manage shared devices, and receive clear, graceful feedback without the tool crashing.
+status: done
 
 acceptance_criteria:
   - scenario: Access a user's active library
