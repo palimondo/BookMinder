@@ -238,7 +238,24 @@ Apple Books organizes content in the Home screen with distinct sections that cor
 ### Detailed Section Analysis
 
 #### Continue Section
-Shows up to 10 books currently being read, sorted by recent activity. The number of books displayed appears to depend on recency of reading activity. All show percentage progress:
+Shows recently opened books that are either in progress or samples. See [Database Query](#continue-section--recent-reading-activity) for implementation details.
+
+**Behavior**:
+- Limited to ~10 most recent items
+- May apply recency cutoff (observed ~7 days, needs further investigation)
+- Sorted by last opened date (most recent first)
+
+**Includes**:
+- Books in progress (not finished, with reading progress > 0%)
+- Recently opened samples (both cloud and downloaded)
+
+**Excludes**:
+- Finished books (shown with "Finished" + checkmark in other sections)
+- Books with 0% progress (unless they are samples)
+
+**Display format**:
+- Regular books: Show actual percentage (1%-99%)
+- Samples: Show "Sample" label (we ignore Apple's "1%" quirk for cloud samples)
 
 ![Continue Section - Page 1](ui/apple/Continue%20(recent)%20p1.jpg)
 ![Continue Section - Page 2](ui/apple/Continue%20(recent)%20p2.jpg)
@@ -330,10 +347,16 @@ Books displayed for future reading. Appears to be composed of books with 0% prog
 **Database Query**:
 ```sql
 SELECT * FROM ZBKLIBRARYASSET 
-WHERE ZREADINGPROGRESS > 0 AND ZREADINGPROGRESS < 1.0
+WHERE (
+    (ZREADINGPROGRESS > 0 AND ZISFINISHED = 0)  -- Books in progress
+    OR ZSTATE = 6                                -- Cloud samples  
+    OR ZISSAMPLE = 1                             -- Downloaded samples
+)
 ORDER BY ZLASTOPENDATE DESC 
 LIMIT 10;
 ```
+
+**Note**: Apple may apply additional recency filtering beyond the LIMIT 10.
 
 #### Previous Section = All Library Content
 **Database Query**:
