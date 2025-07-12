@@ -1,13 +1,23 @@
 # stories/discover/list-recent-books.yaml
 story:
   as_a: reader using Apple Books
-  i_want: to see my recently read books via command line
-  so_that: I can quickly check what I'm actively reading
+  i_want: to see my recently opened books matching Apple's Continue section
+  so_that: I can quickly check what I'm actively reading or exploring
 
 acceptance_criteria:
-  - scenario: Show recently read books
+  - scenario: Show recently opened books including samples
     when: I run "bookminder list recent"
     then:
-      - I see up to 10 books
-      - Each book shows: Title, Author, Progress %
-      - Books are ordered by last read date (newest first)
+      - I see up to 10 books matching Apple's Continue section
+      - Includes books with reading progress (1-99%)
+      - Includes recently opened samples
+      - Each book shows: Title, Author, Progress % or "Sample"
+      - Books are ordered by last opened date (newest first)
+      - Excludes finished books (marked as complete)
+      - Applies recency cutoff (~7 days)
+
+notes:
+  - Replicates Apple Books Continue section for consistency with UI
+  - Important for MCP integration - agents see what users see in the app
+  - Samples show "Sample" label instead of progress percentage
+  - Cloud samples should show cloud indicator alongside Sample label

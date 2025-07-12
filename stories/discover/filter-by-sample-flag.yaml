@@ -4,15 +4,21 @@ story:
   so_that: I can easily find or exclude sample books
 
 acceptance_criteria:
-  - scenario: List sample books
-    when: I run "bookminder list all --filter sample"
+  - scenario: Show only samples
+    when: I run "bookminder list [any] --filter sample"
     then:
       - I see only books marked as samples
-      - Each book shows: Title, Author, Progress %, Content Type, Sample status, and Cloud status
-      - Sample status is indicated by "Sample"
+      - Sample books show "Sample" instead of progress percentage
+      - Results respect the base command's scope (all books vs recent books)
 
-  - scenario: List non-sample books
-    when: I run "bookminder list all --filter !sample"
+  - scenario: Exclude samples
+    when: I run "bookminder list [any] --filter !sample"
     then:
-      - I see only books not marked as samples
-      - Each book shows: Title, Author, Progress %, Content Type, Sample status, and Cloud status
+      - I see only regular books (not samples)
+      - Books show their actual reading progress if applicable
+      - Results respect the base command's scope
+
+notes:
+  - Sample filter applies consistently to any list command
+  - Filters narrow down the results of the base command
+  - "[any] represents: all, recent, or future list commands"
