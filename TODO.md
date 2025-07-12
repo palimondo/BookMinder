@@ -13,6 +13,7 @@ in the `stories/` directory, following the format defined in `vision.md`.
 
 ## In Progress
 - **Filter by Sample Flag:** (See `stories/discover/filter-by-sample-flag.yaml`) - Implementing !sample filter
+- **Validate Filter Values:** (See `stories/discover/validate-filter-values.yaml`) - Adding validation for invalid filters
 
 ## Current Backlog (Stories in `stories/` directory)
 

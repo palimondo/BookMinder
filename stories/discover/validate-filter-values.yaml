@@ -1,0 +1,20 @@
+story:
+  as_a: reader using BookMinder CLI
+  i_want: clear error messages when I use invalid filter values
+  so_that: I understand what filters are available and can correct my mistakes
+status: in_progress
+
+acceptance_criteria:
+  - scenario: Invalid filter value
+    when: I run "bookminder list --filter foo"
+    then:
+      - I see an error message: "Invalid filter: 'foo'"
+      - I see a list of valid filters
+      - The command exits with non-zero status
+
+notes:
+  - Validation happens at CLI boundary (ports & adapters pattern)
+  - Valid filters: cloud, !cloud, sample, !sample
+  - Future filters to add: finished, unread, in-progress, book, pdf
+  - Error messages should be helpful and list available options
+  - Multiple filter validation will be added with filter-by-multiple-criteria story
