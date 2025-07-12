@@ -404,12 +404,12 @@ Use these specific books to validate database queries match UI display:
 
 ### UI Behavior Insights
 
-1. **Continue section prioritizes active reading** (1-99% progress, recent activity)
+1. **Continue section shows active reading AND recently opened samples** (with ~7 day recency cutoff)
 2. **Previous section shows reading history** (all states, sorted by last access)
 3. **Cloud status affects availability** but not progress tracking
-4. **Sample books can show progress** but are marked distinctly
+4. **Sample display quirk**: Cloud samples show fake "1%" progress, downloaded samples show "Sample" label
 5. **PDF documents integrate seamlessly** with book progress tracking
-6. **Finished books appear in multiple sections** (Previous + Year view)
+6. **Finished books appear in multiple sections** (Previous + Year view, but never in Continue)
 7. **Zero progress books still appear in Previous** if accessed before
 
 ## Implementation Strategy for "Recent Books"
