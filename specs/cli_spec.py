@@ -136,3 +136,13 @@ def describe_cli_error_boundary():
         assert error_message in result.output
         assert "Traceback" not in result.output  # No stack trace leaked
 
+    def it_validates_filter_values_and_shows_helpful_error(runner):
+        with patch('bookminder.apple_books.library.SUPPORTED_FILTERS', {'foo', 'bar'}):
+            result = runner.invoke(main, ['list', 'all', '--filter', 'baz'])
+
+            assert result.exit_code == 1
+            assert "Invalid filter: 'baz'" in result.output
+            assert "Valid filters:" in result.output
+            assert "foo" in result.output
+            assert "bar" in result.output
+
