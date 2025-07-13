@@ -184,3 +184,12 @@ def describe_list_all_books():
 
         assert sample_titles == expected_samples, \
             f"Expected {expected_samples}, got {sample_titles}"
+
+    def it_excludes_samples_with_not_sample_filter():
+        books = list_all_books(TEST_HOME, filter="!sample")
+
+        for book in books:
+            assert book["is_sample"] is False, \
+                f"Found sample book in !sample filter: {book['title']}"
+
+        assert len(books) > 0, "Expected non-sample books to exist"

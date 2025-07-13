@@ -167,7 +167,11 @@ def list_recent_books(user: str | None = None, filter: str | None = None) -> lis
 def list_all_books(user: str | None = None, filter: str | None = None) -> list[Book]:
     """List all books from BKLibrary database."""
     user_home = _get_user_path(user)
-    return _query_books(
-        user_home,
-        "WHERE (ZSTATE = 6 OR ZISSAMPLE = 1)" if filter == "sample" else ""
-    )
+
+    where_clause = ""
+    if filter == "sample":
+        where_clause = "WHERE (ZSTATE = 6 OR ZISSAMPLE = 1)"
+    elif filter == "!sample":
+        where_clause = "WHERE ZSTATE != 6 AND (ZISSAMPLE != 1 OR ZISSAMPLE IS NULL)"
+
+    return _query_books(user_home, where_clause)

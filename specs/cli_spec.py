@@ -116,9 +116,16 @@ def describe_bookminder_list_all_command():
 
         mock_list_all.assert_called_once_with(user=None, filter='sample')
 
-    @pytest.mark.skip(reason="Implement after basic list all works")
-    def it_excludes_samples_when_filter_is_not_sample():
-        pass
+    def it_excludes_samples_when_filter_is_not_sample(runner):
+        regular_book = Book(title="Regular Book", author="Author", is_sample=False)
+
+        with patch('bookminder.cli.list_all_books') as mock_list:
+            mock_list.return_value = [regular_book]
+            result = runner.invoke(main, ['list', 'all', '--filter', '!sample'])
+
+            mock_list.assert_called_once_with(user=None, filter="!sample")
+            assert "Regular Book" in result.output
+            assert "Sample Book" not in result.output
 
 
 def describe_cli_error_boundary():
