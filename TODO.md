@@ -11,9 +11,9 @@ in the `stories/` directory, following the format defined in `vision.md`.
 - **Filter by Cloud Status:** (See `stories/discover/filter-by-cloud-status.yaml`)
 - **Documentation Cleanup:** Removed retrospective AI meta-docs (commit eea59e3)
 - **Validate Filter Values:** (See `stories/discover/validate-filter-values.yaml`)
+- **Filter by Sample Flag:** (See `stories/discover/filter-by-sample-flag.yaml`)
 
 ## In Progress
-- **Filter by Sample Flag:** (See `stories/discover/filter-by-sample-flag.yaml`) - Implementing !sample filter
 
 ## Current Backlog (Stories in `stories/` directory)
 
