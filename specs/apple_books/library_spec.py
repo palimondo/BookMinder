@@ -147,6 +147,20 @@ def describe_list_recent_books():
                 f"Expected non-cloud book: {book['title']}"
             )
 
+    def it_filters_by_sample_status():
+        sample_books = list_recent_books(TEST_HOME, filter="sample")
+
+        for book in sample_books:
+            assert book.get("is_sample") is True, \
+                f"Expected sample book: {book['title']}"
+
+    def it_excludes_samples_with_not_sample_filter():
+        non_sample_books = list_recent_books(TEST_HOME, filter="!sample")
+
+        for book in non_sample_books:
+            assert book.get("is_sample") is False, \
+                f"Found sample book in !sample filter: {book['title']}"
+
 
 def describe_list_all_books():
     def it_returns_all_books_in_library():

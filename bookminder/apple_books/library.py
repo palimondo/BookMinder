@@ -157,6 +157,12 @@ def list_recent_books(user: str | None = None, filter: str | None = None) -> lis
         elif filter == "!cloud":
             where_parts.append("AND ZSTATE != ?")
             params.append(3)
+        elif filter == "sample":
+            where_parts.append("AND (ZSTATE = 6 OR ZISSAMPLE = 1)")
+        elif filter == "!sample":
+            where_parts.append(
+                "AND ZSTATE != 6 AND (ZISSAMPLE != 1 OR ZISSAMPLE IS NULL)"
+            )
 
         where_clause = " ".join(where_parts)
         return _query_books(user_home, where_clause, tuple(params), limit=10)
