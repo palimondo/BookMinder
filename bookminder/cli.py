@@ -6,7 +6,12 @@ from typing import Any
 import click
 
 from bookminder import BookminderError
-from bookminder.apple_books.library import Book, list_all_books, list_recent_books
+from bookminder.apple_books.library import (
+    SUPPORTED_FILTERS,
+    Book,
+    list_all_books,
+    list_recent_books,
+)
 
 
 @click.group()
@@ -71,6 +76,12 @@ def recent(user: str | None, filter: str | None) -> None:
 @with_common_list_options
 def all(user: str | None, filter: str | None) -> None:
     """Show all books in your library."""
+    if filter and filter not in SUPPORTED_FILTERS:
+        raise click.ClickException(
+            f"Invalid filter: '{filter}'\n"
+            f"Valid filters: {', '.join(sorted(SUPPORTED_FILTERS))}"
+        )
+
     try:
         books = list_all_books(user=user, filter=filter)
         click.echo(format_book_list(books))

@@ -11,6 +11,8 @@ from bookminder import BookminderError
 APPLE_EPOCH = datetime.datetime(2001, 1, 1, tzinfo=datetime.UTC)
 APPLE_CONTAINERS = "Library/Containers/com.apple"
 
+SUPPORTED_FILTERS = {"dummy"}
+
 
 def _books_plist(user_home: Path) -> Path:
     return (

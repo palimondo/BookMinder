@@ -135,7 +135,7 @@ def describe_cli_error_boundary():
         assert "Traceback" not in result.output
 
     def it_validates_filter_values_and_shows_helpful_error(runner):
-        with patch('bookminder.apple_books.library.SUPPORTED_FILTERS', {'foo', 'bar'}):
+        with patch('bookminder.cli.SUPPORTED_FILTERS', {'foo', 'bar'}):
             result = runner.invoke(main, ['list', 'all', '--filter', 'baz'])
 
             assert result.exit_code == 1
