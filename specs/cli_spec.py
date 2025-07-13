@@ -118,23 +118,21 @@ def describe_cli_error_boundary():
     def it_displays_library_errors_without_stack_traces(runner):
         error_message = "Something went wrong in the library"
 
-        # Test that recent command handles library errors gracefully
         with patch('bookminder.cli.list_recent_books') as mock:
             mock.side_effect = BookminderError(error_message)
             result = runner.invoke(main, ['list', 'recent'])
 
-        assert result.exit_code == 0  # No crash
+        assert result.exit_code == 0
         assert error_message in result.output
-        assert "Traceback" not in result.output  # No stack trace leaked
+        assert "Traceback" not in result.output
 
-        # Test that all command handles library errors gracefully
         with patch('bookminder.cli.list_all_books') as mock:
             mock.side_effect = BookminderError(error_message)
             result = runner.invoke(main, ['list', 'all'])
 
-        assert result.exit_code == 0  # No crash
+        assert result.exit_code == 0
         assert error_message in result.output
-        assert "Traceback" not in result.output  # No stack trace leaked
+        assert "Traceback" not in result.output
 
     def it_validates_filter_values_and_shows_helpful_error(runner):
         with patch('bookminder.apple_books.library.SUPPORTED_FILTERS', {'foo', 'bar'}):
