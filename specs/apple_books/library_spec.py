@@ -18,7 +18,7 @@ def describe_supported_filters():
         from bookminder.apple_books.library import SUPPORTED_FILTERS
 
         assert isinstance(SUPPORTED_FILTERS, set)
-        assert len(SUPPORTED_FILTERS) > 0
+        assert SUPPORTED_FILTERS == {"cloud", "!cloud", "sample", "!sample"}
 
 
 def row_stub(**overrides):
