@@ -10,10 +10,10 @@ in the `stories/` directory, following the format defined in `vision.md`.
 - **ZSTATE Values for Cloud Status:** (Research completed, mapping updated in `docs/apple_books.md`)
 - **Filter by Cloud Status:** (See `stories/discover/filter-by-cloud-status.yaml`)
 - **Documentation Cleanup:** Removed retrospective AI meta-docs (commit eea59e3)
+- **Validate Filter Values:** (See `stories/discover/validate-filter-values.yaml`)
 
 ## In Progress
 - **Filter by Sample Flag:** (See `stories/discover/filter-by-sample-flag.yaml`) - Implementing !sample filter
-- **Validate Filter Values:** (See `stories/discover/validate-filter-values.yaml`) - Adding validation for invalid filters
 
 ## Current Backlog (Stories in `stories/` directory)
 
