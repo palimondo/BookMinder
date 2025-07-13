@@ -23,13 +23,6 @@ in the `stories/` directory, following the format defined in `vision.md`.
 - `stories/discover/list-recent-books-enhanced.yaml`
 - `stories/discover/pagination.yaml`
 
-## Key TDD Lessons Learned
-- **Violation**: We added error handling WITHOUT tests first (violated TDD)
-- **Violation**: We retrofitted tests for coverage (Coverage-Driven Development, not TDD)
-- **Success**: Real data analysis helped remove unnecessary defensive code
-- **Success**: 100% coverage achieved, but through wrong approach
-- **Lesson**: Write acceptance tests for error cases FIRST
-
 ## Future Features (High-Level)
 1. MCP server interface
 2. Extract highlights with context
