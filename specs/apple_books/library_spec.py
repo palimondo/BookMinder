@@ -13,6 +13,14 @@ from bookminder.apple_books.library import (
 TEST_HOME = Path(__file__).parent / "fixtures/users/test_reader"
 
 
+def describe_supported_filters():
+    def it_exports_supported_filter_values():
+        from bookminder.apple_books.library import SUPPORTED_FILTERS
+
+        assert isinstance(SUPPORTED_FILTERS, set)
+        assert len(SUPPORTED_FILTERS) > 0
+
+
 def row_stub(**overrides):
     """Create a dict stub for sqlite3.Row with minimal defaults."""
     defaults = {
