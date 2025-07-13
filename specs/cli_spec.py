@@ -47,6 +47,15 @@ def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=
 
 
 def describe_bookminder_list_recent_command():
+    def it_validates_filter_values(runner):
+        result = runner.invoke(main, ['list', 'recent', '--filter', 'invalid'])
+
+        assert result.exit_code == 1
+        assert "Invalid filter: 'invalid'" in result.output
+        assert "Valid filters:" in result.output
+
+
+def describe_bookminder_list_recent_command_with_fixtures():
     def it_shows_recently_read_books_with_progress(runner):
         book1 = Book(title="B1", author="A1")
         book2 = Book(title="B2", author="A2")

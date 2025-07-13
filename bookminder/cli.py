@@ -20,6 +20,15 @@ def main() -> None:
     pass
 
 
+def validate_filter(filter_value: str | None) -> None:
+    """Validate filter value against supported filters."""
+    if filter_value and filter_value not in SUPPORTED_FILTERS:
+        raise click.ClickException(
+            f"Invalid filter: '{filter_value}'\n"
+            f"Valid filters: {', '.join(sorted(SUPPORTED_FILTERS))}"
+        )
+
+
 # Common options for list commands
 def with_common_list_options(func: Callable[..., Any]) -> Callable[..., Any]:
     """Add common options to list subcommands."""
@@ -63,6 +72,8 @@ def format_book_list(books: list[Book], empty_message: str = "No books found") -
 @with_common_list_options
 def recent(user: str | None, filter: str | None) -> None:
     """Show recently read books with progress."""
+    validate_filter(filter)
+
     try:
         books = list_recent_books(user=user, filter=filter)
         click.echo(format_book_list(
@@ -76,11 +87,7 @@ def recent(user: str | None, filter: str | None) -> None:
 @with_common_list_options
 def all(user: str | None, filter: str | None) -> None:
     """Show all books in your library."""
-    if filter and filter not in SUPPORTED_FILTERS:
-        raise click.ClickException(
-            f"Invalid filter: '{filter}'\n"
-            f"Valid filters: {', '.join(sorted(SUPPORTED_FILTERS))}"
-        )
+    validate_filter(filter)
 
     try:
         books = list_all_books(user=user, filter=filter)
