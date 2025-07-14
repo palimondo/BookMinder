@@ -82,6 +82,31 @@ def describe_bookminder_list_recent_integration():
                 assert " - " in line, f"Expected 'Title - Author' format in: {line}"
                 assert "%" in line, f"Expected progress percentage in: {line}"
 
+    def it_filters_recent_books_by_sample_status():
+        """Integration test: verify sample filter works for recent command."""
+        result = _run_cli_with_user("test_reader", filter="sample")
+
+        output = result.stdout.strip()
+        # Sample books may not have reading progress, resulting in empty list
+        if output and "No books" not in output:
+            for line in output.split("\n"):
+                if line.strip():
+                    assert "Sample" in line, f"Expected 'Sample' indicator in: {line}"
+
+    def it_excludes_samples_from_recent_books():
+        """Integration test: verify !sample filter works for recent command."""
+        result = _run_cli_with_user("test_reader", filter="!sample")
+
+        output = result.stdout.strip()
+        assert len(output) > 0, "Expected non-sample books with reading progress"
+
+        for line in output.split("\n"):
+            if line.strip():
+                assert "Sample" not in line, \
+                    f"Found 'Sample' in filtered output: {line}"
+                assert " - " in line, f"Expected 'Title - Author' format in: {line}"
+                assert "%" in line, f"Expected progress percentage in: {line}"
+
 
 def describe_bookminder_list_with_filter():
     def it_filters_by_cloud_status(runner):
