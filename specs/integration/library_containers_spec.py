@@ -8,7 +8,9 @@ from bookminder import BookminderError
 from bookminder.apple_books.library import list_all_books, list_recent_books
 
 # Path to test fixtures
-FIXTURE_PATH = (Path(__file__).parent / "fixtures" / "users").absolute()
+FIXTURE_PATH = (
+    Path(__file__).parent.parent / "apple_books" / "fixtures" / "users"
+).absolute()
 
 
 def describe_library_edge_cases():
