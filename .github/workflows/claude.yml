@@ -36,7 +36,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0  # Full history for git operations
+      
+      - name: Configure git
+        run: |
+          git config --global user.name "Claude[bot]"
+          git config --global user.email "claude-bot@anthropic.com"
 
       - name: Run Claude Code
         id: claude
@@ -58,7 +63,7 @@ jobs:
           # assignee_trigger: "claude-bot"
           
           # Optional: Allow Claude to run specific commands
-          allowed_tools: "Bash(pytest),Bash(ruff check),Bash(ruff format),Bash(mypy .),Bash(pre-commit run --all-files)"
+          allowed_tools: "Bash(*)"
           
           # Optional: Add custom instructions for Claude to customize its behavior for your project
           custom_instructions: |
