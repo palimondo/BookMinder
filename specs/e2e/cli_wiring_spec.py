@@ -5,7 +5,8 @@ from pathlib import Path
 
 def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=None):
     if use_fixture:
-        user_arg = str(Path(__file__).parent / "apple_books/fixtures/users" / user_name)
+        fixture_path = Path(__file__).parent.parent / "apple_books/fixtures/users"
+        user_arg = str(fixture_path / user_name)
     else:
         user_arg = user_name
 
@@ -26,7 +27,7 @@ def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=
         command,
         capture_output=True,
         text=True,
-        cwd=Path(__file__).parent.parent,
+        cwd=Path(__file__).parent.parent.parent,
     )
     assert result.returncode == 0, \
         f"Expected exit code 0, got {result.returncode}: {result.stderr}"
