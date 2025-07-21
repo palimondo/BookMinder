@@ -14,7 +14,7 @@ from bookminder.apple_books.library import (
 
 # Path to test fixtures
 FIXTURE_PATH = (
-    Path(__file__).parent.parent / "apple_books" / "fixtures" / "users"
+    Path(__file__).parent / "apple_books" / "fixtures" / "users"
 ).absolute()
 
 

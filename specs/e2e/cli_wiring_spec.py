@@ -5,7 +5,8 @@ from pathlib import Path
 
 def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=None):
     if use_fixture:
-        fixture_path = Path(__file__).parent.parent / "apple_books/fixtures/users"
+        integration_dir = Path(__file__).parent.parent / "integration"
+        fixture_path = integration_dir / "apple_books/fixtures/users"
         user_arg = str(fixture_path / user_name)
     else:
         user_arg = user_name
