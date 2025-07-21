@@ -63,7 +63,23 @@ jobs:
           # assignee_trigger: "claude-bot"
           
           # Optional: Allow Claude to run specific commands
-          allowed_tools: "Bash(*:*)"
+          allowed_tools: |
+            Bash(git:*),
+            Bash(uv:*),
+            Bash(python:*),
+            Bash(python3:*),
+            Bash(pytest:*),
+            Bash(ruff:*),
+            Bash(mypy:*),
+            Bash(pre-commit:*),
+            Bash(source:*),
+            Bash(ls:*),
+            Bash(cat:*),
+            Bash(echo:*),
+            Bash(pwd:*),
+            Bash(cd:*),
+            Bash(pip:*),
+            Bash(which:*)
           
           # Optional: Add custom instructions for Claude to customize its behavior for your project
           custom_instructions: |
