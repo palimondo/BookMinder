@@ -84,6 +84,13 @@ jobs:
           
           # Optional: Allow Claude to run specific commands
           allowed_tools: |
+            Bash(git add:*),
+            Bash(git commit:*),
+            Bash(git commit -m:*),
+            Bash(git push:*),
+            Bash(git status:*),
+            Bash(git diff:*),
+            Bash(git log:*),
             Bash(git:*),
             Bash(uv:*),
             Bash(python:*),
