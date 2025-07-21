@@ -38,6 +38,26 @@ jobs:
         with:
           fetch-depth: 0  # Full history for git operations
       
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Set up environment with uv
+        run: |
+          uv venv
+          echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv pip install -e ".[dev]"
+      
       - name: Configure git
         run: |
           git config --global user.name "Claude[bot]"
@@ -87,6 +107,12 @@ jobs:
             Ensure all code follows ruff formatting and passes mypy type checking
             Write tests following the describe/it pattern with pytest
             Respect the test organization: unit/, integration/, acceptance/, e2e/
+            
+            The environment is pre-configured with:
+            - Python 3.13 with uv package manager
+            - Virtual environment activated in .venv
+            - All dev dependencies installed via 'uv pip install -e ".[dev]"'
+            - You can run pytest, ruff, mypy, and pre-commit directly
           
           # Optional: Custom environment variables for Claude
           # claude_env: |
