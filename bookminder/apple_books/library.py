@@ -11,7 +11,9 @@ from bookminder import BookminderError
 APPLE_EPOCH = datetime.datetime(2001, 1, 1, tzinfo=datetime.UTC)
 APPLE_CONTAINERS = "Library/Containers/com.apple"
 
-SUPPORTED_FILTERS = {"cloud", "!cloud", "sample", "!sample"}
+SUPPORTED_FILTERS = {
+    "cloud", "!cloud", "sample", "!sample", "finished", "unread", "in-progress"
+}
 
 
 def _books_plist(user_home: Path) -> Path:
@@ -161,6 +163,15 @@ def list_recent_books(user: str | None = None, filter: str | None = None) -> lis
             where_parts.append("AND (ZSTATE = 6 OR ZISSAMPLE = 1)")
         elif filter == "!sample":
             where_parts.append("AND ZSTATE != 6 AND ZISSAMPLE != 1")
+        elif filter == "finished":
+            where_parts.append("AND ZREADINGPROGRESS = ?")
+            params.append(1)
+        elif filter == "unread":
+            where_parts.append("AND ZREADINGPROGRESS = ?")
+            params.append(0)
+        elif filter == "in-progress":
+            where_parts.append("AND ZREADINGPROGRESS > ? AND ZREADINGPROGRESS < ?")
+            params.extend([0, 1])
 
         where_clause = " ".join(where_parts)
         return _query_books(user_home, where_clause, tuple(params), limit=10)
@@ -173,9 +184,20 @@ def list_all_books(user: str | None = None, filter: str | None = None) -> list[B
     user_home = _get_user_path(user)
 
     where_clause = ""
+    params = []
+
     if filter == "sample":
         where_clause = "WHERE (ZSTATE = 6 OR ZISSAMPLE = 1)"
     elif filter == "!sample":
         where_clause = "WHERE ZSTATE != 6 AND ZISSAMPLE != 1"
+    elif filter == "finished":
+        where_clause = "WHERE ZREADINGPROGRESS = ?"
+        params = [1]
+    elif filter == "unread":
+        where_clause = "WHERE ZREADINGPROGRESS = ?"
+        params = [0]
+    elif filter == "in-progress":
+        where_clause = "WHERE ZREADINGPROGRESS > ? AND ZREADINGPROGRESS < ?"
+        params = [0, 1]
 
-    return _query_books(user_home, where_clause)
+    return _query_books(user_home, where_clause, tuple(params))

@@ -55,7 +55,17 @@ def list_cmd() -> None:
 def format(book: Book) -> str:
     """Format book dictionary for CLI output."""
     progress = book.get("reading_progress_percentage")
-    progress_str = f" ({progress}%)" if progress is not None else ""
+
+    # Format reading status with priority: (Finished) > (Unread) > percentage
+    if progress == 100:
+        progress_str = " (Finished)"
+    elif progress == 0:
+        progress_str = " (Unread)"
+    elif progress is not None:
+        progress_str = f" ({progress}%)"
+    else:
+        progress_str = ""
+
     sample_str = " • Sample" if book.get("is_sample") else ""
     cloud_str = " ☁️" if book.get("is_cloud") else ""
     return f"{book['title']} - {book['author']}{progress_str}{sample_str}{cloud_str}"
