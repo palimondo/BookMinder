@@ -128,3 +128,30 @@ def describe_bookminder_acceptance():
             mock_list.assert_called_once_with(user=None, filter="!sample")
             assert "Regular Book - Regular Author (50%)" in result.output
             assert "Sample" not in result.output
+
+
+def describe_bookminder_list_with_reading_status_filter():
+    def it_filters_by_finished_status(runner):
+        """List finished books - scenario from filter-by-reading-status story."""
+        finished_book = Book(
+            title="Finished Book",
+            author="Book Author",
+            is_finished=True,
+        )
+
+        with patch('bookminder.cli.list_all_books') as mock_list:
+            mock_list.return_value = [finished_book]
+            result = runner.invoke(main, ['list', 'all', '--filter', 'finished'])
+
+            mock_list.assert_called_once_with(user=None, filter="finished")
+            assert "Finished Book - Book Author (Finished)" in result.output
+
+    @pytest.mark.skip("TODO: implement unread filter")
+    def it_filters_by_unread_status(runner):
+        """List unread books - scenario from filter-by-reading-status story."""
+        pass
+
+    @pytest.mark.skip("TODO: implement in-progress filter")
+    def it_filters_by_in_progress_status(runner):
+        """List books in progress - scenario from filter-by-reading-status story."""
+        pass
