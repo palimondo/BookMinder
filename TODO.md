@@ -12,13 +12,13 @@ in the `stories/` directory, following the format defined in `vision.md`.
 - **Documentation Cleanup:** Removed retrospective AI meta-docs (commit eea59e3)
 - **Validate Filter Values:** (See `stories/discover/validate-filter-values.yaml`)
 - **Filter by Sample Flag:** (See `stories/discover/filter-by-sample-flag.yaml`)
+- **Filter by Reading Status:** (See `stories/discover/filter-by-reading-status.yaml`)
 
 ## In Progress
 
 ## Current Backlog (Stories in `stories/` directory)
 
 ### Discover Column
-- `stories/discover/filter-by-reading-status.yaml`
 - `stories/discover/filter-by-multiple-criteria.yaml`
 - `stories/discover/list-recent-books-enhanced.yaml`
 - `stories/discover/pagination.yaml`
