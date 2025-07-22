@@ -162,7 +162,18 @@ def describe_bookminder_list_with_reading_status_filter():
             mock_list.assert_called_once_with(user=None, filter="unread")
             assert "Unread Book - Book Author (Unread)" in result.output
 
-    @pytest.mark.skip("TODO: implement in-progress filter")
     def it_filters_by_in_progress_status(runner):
         """List books in progress - scenario from filter-by-reading-status story."""
-        pass
+        in_progress_book = Book(
+            title="In Progress Book",
+            author="Book Author",
+            reading_progress_percentage=45,
+            is_finished=False,
+        )
+
+        with patch('bookminder.cli.list_all_books') as mock_list:
+            mock_list.return_value = [in_progress_book]
+            result = runner.invoke(main, ['list', 'all', '--filter', 'in-progress'])
+
+            mock_list.assert_called_once_with(user=None, filter="in-progress")
+            assert "In Progress Book - Book Author (45%)" in result.output
