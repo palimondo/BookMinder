@@ -185,5 +185,7 @@ def list_all_books(user: str | None = None, filter: str | None = None) -> list[B
         where_clause = "WHERE ZSTATE != 6 AND ZISSAMPLE != 1"
     elif filter == "finished":
         where_clause = "WHERE ZISFINISHED = 1"
+    elif filter == "unread":
+        where_clause = "WHERE ZREADINGPROGRESS = 0 AND ZISFINISHED = 0"
 
     return _query_books(user_home, where_clause)
