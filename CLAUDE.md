@@ -67,7 +67,7 @@ pre-commit install
 - Status field required: backlog, in_progress, done, reopened, research
 
 ### Git Workflow  
-- Two commits per BDD cycle: after GREEN, after REFACTOR
+- Commits per BDD cycle: after RED, after GREEN, after REFACTOR
 - Descriptive commit messages explaining WHY
 - Stage files explicitly by name (avoid `git add .`)
 - Use `git mv` for tracked file moves
