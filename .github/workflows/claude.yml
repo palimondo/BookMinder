@@ -125,4 +125,11 @@ jobs:
           # Optional: Custom environment variables for Claude
           # claude_env: |
           #   NODE_ENV: test
+      
+      # Workaround for issue #262: Claude forgets to push branches
+      # https://github.com/anthropics/claude-code-action/issues/262
+      - name: Push branch if Claude made commits
+        if: always() && steps.claude.outcome == 'success'
+        run: |
+          git push -u origin HEAD || echo "Push failed (may already be pushed)"
 
