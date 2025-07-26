@@ -245,7 +245,15 @@ class SessionExplorer:
                         # Show full first line of user message
                         lines = text.split('\n')
                         first_line = lines[0]
-                        multiline = ' [...]' if len(lines) > 1 else ''
+                        if len(lines) > 1:
+                            # Show last line too for context
+                            last_line = lines[-1].strip()
+                            if last_line and last_line != first_line:
+                                multiline = f' [...] {last_line}'
+                            else:
+                                multiline = ' [...]'
+                        else:
+                            multiline = ''
                         print(f"[{item['seq']}] > {first_line}{multiline}")
                     elif tool_results:
                         # This is a tool result message
@@ -258,7 +266,15 @@ class SessionExplorer:
                             # Show actual tool results
                             lines = content.split('\n')
                             first_line = lines[0]
-                            multiline = ' [...]' if len(lines) > 1 else ''
+                            if len(lines) > 1:
+                                # Show last line too for context
+                                last_line = lines[-1].strip()
+                                if last_line and last_line != first_line:
+                                    multiline = f' [...] {last_line}'
+                                else:
+                                    multiline = ' [...]'
+                            else:
+                                multiline = ''
                             print(f"[{item['seq']}] ⎿  {first_line}{multiline}")
                     else:
                         # Empty user message (rare but possible)
@@ -270,7 +286,15 @@ class SessionExplorer:
                     if text:
                         lines = text.split('\n')
                         first_line = lines[0]
-                        multiline = ' [...]' if len(lines) > 1 else ''
+                        if len(lines) > 1:
+                            # Show last line too for context
+                            last_line = lines[-1].strip()
+                            if last_line and last_line != first_line:
+                                multiline = f' [...] {last_line}'
+                            else:
+                                multiline = ' [...]'
+                        else:
+                            multiline = ''
                         print(f"[{item['seq']}] • {first_line}{multiline}")
                     elif tools:
                         print(f"[{item['seq']}] • [Used tools: {', '.join(tools)}]")
