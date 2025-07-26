@@ -90,17 +90,25 @@ class SessionExplorer:
                 # Track user messages
                 content = obj.get('message', {}).get('content', [])
                 user_text = []
+                tool_results = []
                 
                 if isinstance(content, list):
                     for item in content:
-                        if isinstance(item, dict) and item.get('type') == 'text':
-                            user_text.append(item.get('text', ''))
+                        if isinstance(item, dict):
+                            if item.get('type') == 'text':
+                                user_text.append(item.get('text', ''))
+                            elif item.get('type') == 'tool_result':
+                                tool_results.append({
+                                    'tool_use_id': item.get('tool_use_id', ''),
+                                    'content': item.get('content', '')
+                                })
                         elif isinstance(item, str):
                             user_text.append(item)
                 
                 self.messages.append({
                     'type': 'user',
                     'text': '\n'.join(user_text) if user_text else '',
+                    'tool_results': tool_results,
                     'timestamp': obj.get('timestamp', '')
                 })
         
@@ -187,10 +195,16 @@ class SessionExplorer:
                 msg = item['data']
                 if msg['type'] == 'user':
                     text = msg.get('text', '')
+                    tool_results = msg.get('tool_results', [])
+                    
                     if text:
                         # Show first line of user message
                         first_line = text.split('\n')[0][:60]
                         print(f"[{item['seq']}] USER: {first_line}{'...' if len(text) > 60 else ''}")
+                    elif tool_results:
+                        # This is a tool result message
+                        result_preview = tool_results[0].get('content', '')[:50]
+                        print(f"[{item['seq']}] TOOL RESULT: {result_preview}...")
                     else:
                         # Empty user message (rare but possible)
                         print(f"[{item['seq']}] USER: [empty]")
