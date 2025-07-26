@@ -30,20 +30,27 @@ def run_gh_command(command: list[str]) -> str:
 
 
 def get_workflow_runs(limit: int = 20) -> list[dict]:
-    """Fetch recent workflow runs for the Claude Code workflow."""
+    """Fetch recent workflow runs for both Claude Code workflows."""
     print(f"Fetching {limit} recent workflow runs...")
-
-    # Get workflow runs as JSON
-    output = run_gh_command([
-        'gh', 'run', 'list',
-        '--workflow=claude.yml',
-        '--status=success',
-        '--json',
-        'databaseId,number,status,conclusion,createdAt,headBranch,event,displayTitle',
-        '--limit', str(limit)
-    ])
-
-    return json.loads(output)  # type: ignore[no-any-return]
+    
+    all_runs = []
+    
+    # Get runs from both workflows
+    for workflow in ['claude.yml', 'claude-code-review.yml']:
+        output = run_gh_command([
+            'gh', 'run', 'list',
+            f'--workflow={workflow}',
+            '--status=success',
+            '--json',
+            'databaseId,number,status,conclusion,createdAt,headBranch,event,displayTitle',
+            '--limit', str(limit)
+        ])
+        runs = json.loads(output)
+        all_runs.extend(runs)
+    
+    # Sort by createdAt descending and limit
+    all_runs.sort(key=lambda x: x['createdAt'], reverse=True)
+    return all_runs[:limit]
 
 
 def get_workflow_logs(run_id: str) -> str:
