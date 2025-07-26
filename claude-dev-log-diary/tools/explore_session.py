@@ -117,6 +117,26 @@ class SessionExplorer:
                 path = params.get('path', '.')
                 if pattern:
                     print(f' "{pattern}" in {path}', end='')
+            elif tc['name'] == 'TodoWrite':
+                todos = params.get('todos', [])
+                if todos:
+                    # Count todo statuses
+                    status_counts = defaultdict(int)
+                    for todo in todos:
+                        status = todo.get('status', 'unknown')
+                        status_counts[status] += 1
+                    
+                    # Format summary
+                    total = len(todos)
+                    status_parts = []
+                    for status in ['completed', 'in_progress', 'pending']:
+                        if status in status_counts:
+                            status_parts.append(f"{status_counts[status]} {status}")
+                    
+                    if status_parts:
+                        print(f" Updated {total} todos ({', '.join(status_parts)})", end='')
+                    else:
+                        print(f" Updated {total} todos", end='')
             
             print()
     
