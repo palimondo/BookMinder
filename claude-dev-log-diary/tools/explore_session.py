@@ -112,6 +112,11 @@ class SessionExplorer:
                 path = params.get('file_path', '')
                 if path:
                     print(f" ← {path.split('/')[-1]}", end='')
+            elif tc['name'] == 'Grep':
+                pattern = params.get('pattern', '')
+                path = params.get('path', '.')
+                if pattern:
+                    print(f' "{pattern}" in {path}', end='')
             
             print()
     
