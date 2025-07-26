@@ -29,24 +29,51 @@ class SessionExplorer:
                 message = obj.get('message', {})
                 content = message.get('content', [])
                 
+                # Track assistant messages
+                assistant_text = []
+                tool_uses = []
+                
                 if isinstance(content, list):
                     for item in content:
-                        if isinstance(item, dict) and item.get('type') == 'tool_use':
-                            tool_name = item.get('name', '')
-                            if not tool_name.startswith('mcp__'):
-                                self.tool_calls.append({
-                                    'name': tool_name,
-                                    'id': item.get('id', ''),
-                                    'parameters': item.get('input', {}),
-                                    'timestamp': message.get('timestamp', '')
-                                })
+                        if isinstance(item, dict):
+                            if item.get('type') == 'text':
+                                assistant_text.append(item.get('text', ''))
+                            elif item.get('type') == 'tool_use':
+                                tool_name = item.get('name', '')
+                                if not tool_name.startswith('mcp__'):
+                                    tool_uses.append(tool_name)
+                                    self.tool_calls.append({
+                                        'name': tool_name,
+                                        'id': item.get('id', ''),
+                                        'parameters': item.get('input', {}),
+                                        'timestamp': obj.get('timestamp', '')
+                                    })
+                
+                # Store assistant message with text and tool summary
+                if assistant_text or tool_uses:
+                    self.messages.append({
+                        'type': 'assistant',
+                        'text': '\n'.join(assistant_text) if assistant_text else None,
+                        'tools': tool_uses,
+                        'timestamp': obj.get('timestamp', '')
+                    })
             
             elif obj.get('type') == 'user':
-                # Track user messages too
+                # Track user messages
+                content = obj.get('message', {}).get('content', [])
+                user_text = []
+                
+                if isinstance(content, list):
+                    for item in content:
+                        if isinstance(item, dict) and item.get('type') == 'text':
+                            user_text.append(item.get('text', ''))
+                        elif isinstance(item, str):
+                            user_text.append(item)
+                
                 self.messages.append({
                     'type': 'user',
-                    'content': obj.get('message', {}).get('content', ''),
-                    'timestamp': obj.get('message', {}).get('timestamp', '')
+                    'text': '\n'.join(user_text) if user_text else '',
+                    'timestamp': obj.get('timestamp', '')
                 })
         
         print(f"Found {len(self.tool_calls)} tool calls\n")
@@ -140,6 +167,43 @@ class SessionExplorer:
                 if pattern.lower() in cmd.lower():
                     print(f"{i+1:3}. {cmd[:100]}...")
     
+    def show_conversation(self, start=None, end=None):
+        """Display conversation between user and assistant."""
+        print("\n=== CONVERSATION ===")
+        
+        messages = self.messages[start-1:end] if start and end else self.messages
+        
+        for i, msg in enumerate(messages, start=start or 1):
+            if msg['type'] == 'user':
+                print(f"\n[{i}] USER:")
+                if msg.get('text'):
+                    # Indent user text
+                    lines = msg['text'].split('\n')
+                    for line in lines[:10]:  # Show first 10 lines
+                        print(f"    {line}")
+                    if len(lines) > 10:
+                        print(f"    ... ({len(lines)-10} more lines)")
+            
+            elif msg['type'] == 'assistant':
+                print(f"\n[{i}] CLAUDE:")
+                if msg.get('text'):
+                    # Show assistant's text response
+                    lines = msg['text'].split('\n')
+                    for line in lines[:20]:  # Show more lines for assistant
+                        print(f"    {line}")
+                    if len(lines) > 20:
+                        print(f"    ... ({len(lines)-20} more lines)")
+                
+                # Show tool usage summary
+                if msg.get('tools'):
+                    tool_summary = defaultdict(int)
+                    for tool in msg['tools']:
+                        tool_summary[tool] += 1
+                    
+                    tools_str = ', '.join([f"{tool}({count})" if count > 1 else tool 
+                                          for tool, count in tool_summary.items()])
+                    print(f"    [Used tools: {tools_str}]")
+    
     def export_range(self, start, end, output_file, include_filters=None, exclude_filters=None):
         """Export a range of tool calls with optional Tool(glob) filtering."""
         selected = self.tool_calls[start-1:end]
@@ -222,17 +286,33 @@ class SessionExplorer:
 
 def find_session_file(identifier):
     """Find session file by any substring match."""
-    github_dir = Path(__file__).parent.parent / 'github'
+    import subprocess
     
     # If it's already a valid path, return as-is
     if Path(identifier).exists():
         return identifier
     
-    # Search for any file containing the identifier
+    # Search directories in order of preference
+    search_dirs = [
+        Path(__file__).parent.parent / 'github',
+        Path.home() / '.claude' / 'projects'
+    ]
+    
     matches = []
-    for jsonl_file in github_dir.glob('*.jsonl'):
-        if identifier in jsonl_file.name:
-            matches.append(jsonl_file)
+    
+    # Use ripgrep to find files containing the identifier
+    for search_dir in search_dirs:
+        if search_dir.exists():
+            result = subprocess.run(
+                ['rg', '--files', '.', '--glob', '*.jsonl'],
+                cwd=str(search_dir),
+                capture_output=True,
+                text=True
+            )
+            if result.returncode == 0:
+                for line in result.stdout.strip().split('\n'):
+                    if line and identifier in line:
+                        matches.append(search_dir / line)
     
     if not matches:
         raise FileNotFoundError(f"No session file found containing '{identifier}'")
@@ -243,9 +323,12 @@ def find_session_file(identifier):
     # Multiple matches - let user choose
     print(f"Found {len(matches)} matches for '{identifier}':")
     for i, match in enumerate(matches):
-        # Show the match with the identifier highlighted
-        name = match.name
-        print(f"  {i+1}. {name}")
+        # Show relative path from search directory
+        for search_dir in search_dirs:
+            if search_dir in match.parents:
+                rel_path = match.relative_to(search_dir.parent)
+                print(f"  {i+1}. {rel_path}")
+                break
     
     choice = input("Select (1-N): ")
     return str(matches[int(choice)-1])
@@ -258,6 +341,8 @@ def main():
     parser.add_argument('--git', '-g', action='store_true', help='Show git operations')
     parser.add_argument('--files', '-f', action='store_true', help='Show file changes')
     parser.add_argument('--created', '-c', action='store_true', help='Show created files')
+    parser.add_argument('--conversation', nargs='?', const='all', metavar='RANGE',
+                        help='Show conversation (e.g., --conversation, --conversation 1-50)')
     parser.add_argument('--search', help='Search bash commands')
     parser.add_argument('--export', nargs=3, metavar=('START', 'END', 'OUTPUT'), 
                         help='Export tool calls from START to END')
@@ -270,7 +355,7 @@ def main():
     
     # Default to showing summary if no options
     if not any([args.summary, args.timeline, args.git, args.files, 
-                args.created, args.search, args.export]):
+                args.created, args.conversation, args.search, args.export]):
         args.summary = True
     
     # Resolve the session file
@@ -300,6 +385,17 @@ def main():
     
     if args.search:
         explorer.search_commands(args.search)
+    
+    if args.conversation:
+        if args.conversation == 'all':
+            explorer.show_conversation()
+        else:
+            # Parse range like "1-50"
+            if '-' in args.conversation:
+                start, end = map(int, args.conversation.split('-'))
+                explorer.show_conversation(start, end)
+            else:
+                print(f"Invalid range format: {args.conversation}. Use format like '1-50'")
     
     if args.export:
         start, end, output = args.export
