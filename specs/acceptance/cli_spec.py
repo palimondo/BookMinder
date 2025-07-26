@@ -156,7 +156,6 @@ def describe_reading_status_filtering():
         assert result.exit_code == 0
         assert "Finished Book - Author Name (Finished)" in result.output
 
-    @pytest.mark.skip("Next scenario")
     def it_lists_unread_books(runner):
         """Scenario: List unread books
         When: I run "bookminder list --filter unread"
@@ -164,7 +163,21 @@ def describe_reading_status_filtering():
           - I see only books with 0% reading progress and not marked as finished
           - Each book shows: Title, Author, (Unread) status
         """
-        pass
+        unread_book = Book(
+            title="Unread Book",
+            author="Author Name",
+            reading_progress_percentage=0,
+            is_finished=False,
+            is_unread=True,
+        )
+
+        with patch('bookminder.cli.list_all_books') as mock_list:
+            mock_list.return_value = [unread_book]
+            result = runner.invoke(main, ['list', 'all', '--filter', 'unread'])
+
+        mock_list.assert_called_once_with(user=None, filter="unread")
+        assert result.exit_code == 0
+        assert "Unread Book - Author Name (Unread)" in result.output
 
     @pytest.mark.skip("Next scenario")
     def it_lists_books_in_progress(runner):
