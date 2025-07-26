@@ -179,7 +179,6 @@ def describe_reading_status_filtering():
         assert result.exit_code == 0
         assert "Unread Book - Author Name (Unread)" in result.output
 
-    @pytest.mark.skip("Next scenario")
     def it_lists_books_in_progress(runner):
         """Scenario: List books in progress
         When: I run "bookminder list --filter in-progress"
@@ -187,4 +186,18 @@ def describe_reading_status_filtering():
           - I see only books with 1-99% reading progress and not marked as finished
           - Each book shows: Title, Author, Progress %
         """
-        pass
+        in_progress_book = Book(
+            title="In Progress Book",
+            author="Author Name",
+            reading_progress_percentage=45,
+            is_finished=False,
+            is_unread=False,
+        )
+
+        with patch('bookminder.cli.list_all_books') as mock_list:
+            mock_list.return_value = [in_progress_book]
+            result = runner.invoke(main, ['list', 'all', '--filter', 'in-progress'])
+
+        mock_list.assert_called_once_with(user=None, filter="in-progress")
+        assert result.exit_code == 0
+        assert "In Progress Book - Author Name (45%)" in result.output
