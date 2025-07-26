@@ -46,4 +46,7 @@ def describe_bookminder_integration():
         for line in output_lines:
             if line.strip():
                 assert " - " in line, f"Expected 'Title - Author' format in: {line}"
-                assert "%" in line, f"Expected progress percentage in: {line}"
+                # Books can show either progress percentage or (Finished) status
+                assert ("%" in line or "(Finished)" in line), (
+                    f"Expected progress or finished status in: {line}"
+                )
