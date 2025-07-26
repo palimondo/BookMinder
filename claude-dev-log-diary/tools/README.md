@@ -27,6 +27,8 @@ Features:
 - Proper timestamps (file creation = session start, modification = session end)
 - Structured filenames: `YYYYMMDD-HHMM-{issue|pr}-N_run-{id}_session-{id}.jsonl`
 
+**Planned**: Fetch by issue/PR number by finding Claude's sticky comment with the run ID
+
 ### explore_session.py
 Interactive CLI for analyzing and exporting Claude sessions.
 
