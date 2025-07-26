@@ -8,7 +8,8 @@ set -euo pipefail
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-GITHUB_DIR="${SCRIPT_DIR}/github"
+# Create github directory in parent (claude-dev-log-diary)
+GITHUB_DIR="${SCRIPT_DIR}/../github"
 
 # AWK script for extracting content and metadata
 AWK_SCRIPT='

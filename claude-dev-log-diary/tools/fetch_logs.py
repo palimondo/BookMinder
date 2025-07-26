@@ -366,8 +366,8 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    # Setup base directory
-    base_dir = Path(__file__).parent
+    # Setup base directory (parent of tools directory)
+    base_dir = Path(__file__).parent.parent
 
     if args.run_id:
         # Archive specific run
