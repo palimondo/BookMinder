@@ -93,6 +93,7 @@ class SessionExplorer:
                 tool_results = []
                 is_slash_command = False
                 slash_command = ''
+                is_meta = obj.get('isMeta', False)
                 
                 # Handle string content (slash commands)
                 if isinstance(content, str):
@@ -129,6 +130,7 @@ class SessionExplorer:
                     'tool_results': tool_results,
                     'is_slash_command': is_slash_command,
                     'slash_command': slash_command,
+                    'is_meta': is_meta,
                     'timestamp': obj.get('timestamp', '')
                 })
         
@@ -218,8 +220,12 @@ class SessionExplorer:
                     tool_results = msg.get('tool_results', [])
                     is_slash = msg.get('is_slash_command', False)
                     slash_cmd = msg.get('slash_command', '')
+                    is_meta = msg.get('is_meta', False)
                     
-                    if is_slash and slash_cmd:
+                    if is_meta and text.startswith('Caveat:'):
+                        # Show caveat message (meta)
+                        print(f"[{item['seq']}] [META] {text[:50]}...")
+                    elif is_slash and slash_cmd:
                         # Show slash command
                         print(f"[{item['seq']}] > /{slash_cmd}")
                     elif text == '[Interrupted by user]':
