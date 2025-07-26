@@ -191,6 +191,9 @@ class SessionExplorer:
                         # Show first line of user message
                         first_line = text.split('\n')[0][:60]
                         print(f"[{item['seq']}] USER: {first_line}{'...' if len(text) > 60 else ''}")
+                    else:
+                        # Empty user message (rare but possible)
+                        print(f"[{item['seq']}] USER: [empty]")
                 elif msg['type'] == 'assistant':
                     # Show assistant text or tool usage
                     text = msg.get('text', '')
@@ -200,6 +203,9 @@ class SessionExplorer:
                         print(f"[{item['seq']}] CLAUDE: {first_line}{'...' if len(text) > 60 else ''}")
                     elif tools:
                         print(f"[{item['seq']}] CLAUDE: [Used tools: {', '.join(tools)}]")
+                    else:
+                        # Empty assistant message (rare but possible)
+                        print(f"[{item['seq']}] CLAUDE: [empty]")
             
             elif item['type'] == 'tool':
                 tc = item['data']
