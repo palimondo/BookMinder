@@ -222,6 +222,16 @@ class SessionExplorer:
                     slash_cmd = msg.get('slash_command', '')
                     is_meta = msg.get('is_meta', False)
                     
+                    # Check if this is an internal message to skip
+                    if tool_results and tool_results[0].get('content', ''):
+                        content = tool_results[0].get('content', '')
+                        if any(phrase in content for phrase in [
+                            "Todos have been modified successfully",
+                            "completed successfully"  # System messages
+                        ]):
+                            # Skip these internal messages entirely
+                            continue
+                    
                     if is_meta and text.startswith('Caveat:'):
                         # Show caveat message (meta)
                         print(f"[{item['seq']}] [META] {text[:50]}...")
@@ -240,10 +250,16 @@ class SessionExplorer:
                     elif tool_results:
                         # This is a tool result message
                         content = tool_results[0].get('content', '')
-                        lines = content.split('\n')
-                        first_line = lines[0]
-                        multiline = ' [...]' if len(lines) > 1 else ''
-                        print(f"[{item['seq']}] ⎿  {first_line}{multiline}")
+                        
+                        # Handle interrupted tools specially
+                        if "doesn't want to proceed" in content:
+                            print(f"[{item['seq']}] ⎿  [Tool rejected]")
+                        else:
+                            # Show actual tool results
+                            lines = content.split('\n')
+                            first_line = lines[0]
+                            multiline = ' [...]' if len(lines) > 1 else ''
+                            print(f"[{item['seq']}] ⎿  {first_line}{multiline}")
                     else:
                         # Empty user message (rare but possible)
                         print(f"[{item['seq']}] > [empty]")
