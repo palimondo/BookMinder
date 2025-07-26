@@ -98,7 +98,6 @@ class SessionExplorer:
                 if isinstance(content, str):
                     if '<command-name>' in content and '<command-message>' in content:
                         # Extract slash command
-                        import re
                         match = re.search(r'<command-message>([^<]+)</command-message>', content)
                         if match:
                             slash_command = match.group(1)
