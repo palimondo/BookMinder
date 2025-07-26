@@ -13,6 +13,34 @@ from collections import defaultdict
 
 from parse_claude_jsonl import parse_jsonl_objects
 
+
+def parse_range(range_str, total_items):
+    """Parse range string into start and end indices.
+    
+    Args:
+        range_str: Range string like "1-50", "-50", "50-"
+        total_items: Total number of items for bounds checking
+        
+    Returns:
+        tuple: (start_idx, end_idx) as 0-based indices
+    """
+    if '-' not in range_str:
+        raise ValueError(f"Invalid range format: {range_str}. Use format like '1-50' or '-50'")
+    
+    parts = range_str.split('-', 1)
+    
+    if parts[0] == '':  # Format: "-N" (last N items)
+        n = int(parts[1])
+        return max(0, total_items - n), total_items
+    elif parts[1] == '':  # Format: "N-" (from N to end)
+        start = int(parts[0]) - 1  # Convert to 0-based
+        return start, total_items
+    else:  # Format: "M-N"
+        start = int(parts[0]) - 1  # Convert to 0-based
+        end = int(parts[1])
+        return start, min(end, total_items)
+
+
 class SessionExplorer:
     def __init__(self, jsonl_file):
         self.jsonl_file = jsonl_file
@@ -128,15 +156,24 @@ class SessionExplorer:
         for tool, count in sorted(tool_counts.items(), key=lambda x: -x[1]):
             print(f"  {tool:15} {count:3}")
     
-    def show_timeline(self, filter_type='all'):
+    def show_timeline(self, filter_type='all', start=None, end=None):
         """Show timeline of events.
         
         Args:
             filter_type: 'all' (default), 'tools', 'conversation', or specific tool name
+            start: Starting index (1-based, inclusive)
+            end: Ending index (1-based, inclusive)
         """
         print("\n=== TIMELINE ===")
         
-        for item in self.timeline:
+        # Apply range filtering
+        items = self.timeline
+        if start is not None or end is not None:
+            start_idx = (start - 1) if start else 0
+            end_idx = end if end else len(items)
+            items = items[start_idx:end_idx]
+        
+        for item in items:
             # Apply filtering
             if filter_type == 'tools' and item['type'] != 'tool':
                 continue
@@ -431,7 +468,8 @@ def main():
     parser = argparse.ArgumentParser(description='Explore Claude session logs')
     parser.add_argument('jsonl', help='Session file or any unique substring (issue-13, run ID, date, etc.)')
     parser.add_argument('--summary', '-s', action='store_true', help='Show summary')
-    parser.add_argument('--timeline', '-t', help='Show timeline (optionally filter by tool)')
+    parser.add_argument('--timeline', '-t', nargs='?', const='all', 
+                        help='Show timeline (e.g., --timeline, --timeline tools, --timeline 1-50)')
     parser.add_argument('--git', '-g', action='store_true', help='Show git operations')
     parser.add_argument('--files', '-f', action='store_true', help='Show file changes')
     parser.add_argument('--created', '-c', action='store_true', help='Show created files')
@@ -466,8 +504,18 @@ def main():
     
     if args.timeline is not None:
         # Handle the different timeline modes
-        filter_type = args.timeline if args.timeline else 'all'
-        explorer.show_timeline(filter_type)
+        timeline_arg = args.timeline if args.timeline != True else 'all'
+        
+        # Check if it's a range
+        if '-' in timeline_arg:
+            try:
+                start_idx, end_idx = parse_range(timeline_arg, len(explorer.timeline))
+                explorer.show_timeline('all', start_idx + 1, end_idx)  # Convert to 1-based
+            except ValueError as e:
+                print(f"Error: {e}")
+        else:
+            # It's a filter type (all, tools, conversation, or tool name)
+            explorer.show_timeline(timeline_arg)
     
     if args.git:
         explorer.show_git_operations()
@@ -485,12 +533,12 @@ def main():
         if args.conversation == 'all':
             explorer.show_conversation()
         else:
-            # Parse range like "1-50"
-            if '-' in args.conversation:
-                start, end = map(int, args.conversation.split('-'))
-                explorer.show_conversation(start, end)
-            else:
-                print(f"Invalid range format: {args.conversation}. Use format like '1-50'")
+            # Parse range using utility function
+            try:
+                start_idx, end_idx = parse_range(args.conversation, len(explorer.messages))
+                explorer.show_conversation(start_idx + 1, end_idx)  # Convert back to 1-based for method
+            except ValueError as e:
+                print(f"Error: {e}")
     
     if args.export:
         start, end, output = args.export
