@@ -7,7 +7,6 @@ Archive of Claude Code sessions for BookMinder development, preserving both GitH
 - `day-*.md` - Console transcripts from Claude Code sessions (manual copy from terminal)
 - `github/*.jsonl` - JSONL extracted from GitHub Actions Claude Code runs
 - `tools/` - Suite of tools for fetching, exploring, and replaying Claude sessions
-- `reconstruct.jq` - JQ script to recreate console format from JSONL files
 
 ## Tools
 
@@ -34,7 +33,7 @@ python tools/explore_session.py issue-13 --export 1 46 - \
 
 When terminal crashes without saving transcript:
 ```bash
-jq -r -f reconstruct.jq ~/.claude/projects/-Users-palimondo-Developer-BookMinder/SESSION_ID.jsonl
+jq -r -f tools/reconstruct.jq ~/.claude/projects/-Users-palimondo-Developer-BookMinder/SESSION_ID.jsonl
 ```
 
 ## Future Vision: Intelligence System

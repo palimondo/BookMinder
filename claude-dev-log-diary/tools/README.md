@@ -62,6 +62,13 @@ python explore_session.py issue-13 --export 1 46 - --include "Edit,Write"
 ### parse_claude_jsonl.py
 Multi-line JSONL parser used by explore_session.py. Handles Claude's complex JSON format where objects span multiple lines.
 
+### reconstruct.jq
+JQ script to recreate console format from local Claude session JSONL files. Useful when terminal crashes without saving transcript:
+
+```bash
+jq -r -f reconstruct.jq ~/.claude/projects/-Users-palimondo-Developer-BookMinder/SESSION_ID.jsonl
+```
+
 ## Replay Workflow
 
 The key insight: Claude's Task tool can run explore_session.py directly and execute the extracted tool calls.
