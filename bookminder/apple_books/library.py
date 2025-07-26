@@ -11,7 +11,9 @@ from bookminder import BookminderError
 APPLE_EPOCH = datetime.datetime(2001, 1, 1, tzinfo=datetime.UTC)
 APPLE_CONTAINERS = "Library/Containers/com.apple"
 
-SUPPORTED_FILTERS = {"cloud", "!cloud", "sample", "!sample"}
+SUPPORTED_FILTERS = {
+    "cloud", "!cloud", "sample", "!sample", "finished", "unread", "in-progress"
+}
 
 
 def _books_plist(user_home: Path) -> Path:
@@ -49,6 +51,7 @@ class Book(TypedDict):
     reading_progress_percentage: NotRequired[int]
     is_cloud: NotRequired[bool]
     is_sample: NotRequired[bool]
+    is_finished: NotRequired[bool]
 
 
 def _get_user_path(user: str | None) -> Path:
@@ -75,6 +78,7 @@ def _row_to_book(row: sqlite3.Row) -> Book:
         reading_progress_percentage=int(row["ZREADINGPROGRESS"] * 100),
         is_cloud=row["ZSTATE"] in (3, 6),
         is_sample=row["ZSTATE"] == 6 or row["ZISSAMPLE"] == 1,
+        is_finished=row["ZDATEFINISHED"] is not None or row["ZREADINGPROGRESS"] == 1.0,
     )
 
 
@@ -112,7 +116,8 @@ def find_book_by_title(title: str, user_home: Path) -> Book | None:
 def _build_books_query(where_clause: str = "", limit: int | None = None) -> str:
     """Build SQL query for fetching books from BKLibrary database."""
     query = f"""
-        SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE, ZSTATE, ZISSAMPLE
+        SELECT ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE, ZSTATE, ZISSAMPLE,
+               ZDATEFINISHED
         FROM ZBKLIBRARYASSET
         {where_clause}
         ORDER BY ZLASTOPENDATE DESC
@@ -177,5 +182,14 @@ def list_all_books(user: str | None = None, filter: str | None = None) -> list[B
         where_clause = "WHERE (ZSTATE = 6 OR ZISSAMPLE = 1)"
     elif filter == "!sample":
         where_clause = "WHERE ZSTATE != 6 AND ZISSAMPLE != 1"
+    elif filter == "finished":
+        where_clause = "WHERE (ZDATEFINISHED IS NOT NULL OR ZREADINGPROGRESS = 1.0)"
+    elif filter == "unread":
+        where_clause = "WHERE ZREADINGPROGRESS = 0 AND ZDATEFINISHED IS NULL"
+    elif filter == "in-progress":
+        where_clause = (
+            "WHERE ZREADINGPROGRESS > 0 AND ZREADINGPROGRESS < 1.0 "
+            "AND ZDATEFINISHED IS NULL"
+        )
 
     return _query_books(user_home, where_clause)
