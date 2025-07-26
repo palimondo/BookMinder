@@ -52,6 +52,7 @@ class Book(TypedDict):
     is_cloud: NotRequired[bool]
     is_sample: NotRequired[bool]
     is_finished: NotRequired[bool]
+    is_unread: NotRequired[bool]
 
 
 def _get_user_path(user: str | None) -> Path:
@@ -79,6 +80,7 @@ def _row_to_book(row: sqlite3.Row) -> Book:
         is_cloud=row["ZSTATE"] in (3, 6),
         is_sample=row["ZSTATE"] == 6 or row["ZISSAMPLE"] == 1,
         is_finished=row["ZDATEFINISHED"] is not None or row["ZREADINGPROGRESS"] == 1.0,
+        is_unread=row["ZREADINGPROGRESS"] == 0 and row["ZDATEFINISHED"] is None,
     )
 
 

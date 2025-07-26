@@ -54,9 +54,11 @@ def list_cmd() -> None:
 
 def format(book: Book) -> str:
     """Format book dictionary for CLI output."""
-    # (Finished) status takes precedence over progress percentage
+    # Status precedence: (Finished) > (Unread) > Progress %
     if book.get("is_finished"):
         status_str = " (Finished)"
+    elif book.get("is_unread"):
+        status_str = " (Unread)"
     else:
         progress = book.get("reading_progress_percentage")
         status_str = f" ({progress}%)" if progress is not None else ""
