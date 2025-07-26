@@ -151,3 +151,27 @@ Complete output without truncation.
 - Console formatting follows patterns from reconstruct.jq
 - Backward compatibility not required - clean breaks acceptable
 - Each phase should be tested and committed independently
+
+## Edge Cases to Handle
+
+Based on reconstruct.jq analysis, these cases need special handling:
+
+1. **Slash Commands**: User messages with `<command-name>` and `<command-message>` tags
+   - Format as `> /command-name` in timeline
+   - Example: `/expert-council`, `/compact`
+
+2. **Bash Command Invocation**: Direct bash commands using `!command` syntax
+   - Not currently handled in reconstruct.jq
+   - Should display as `> !command` in timeline
+
+3. **Context Loading**: Using `@filename` to load file context
+   - Not currently handled in reconstruct.jq  
+   - Should display as `> @filename` in timeline
+
+4. **Empty Protocol Messages**: Empty user messages that are protocol artifacts
+   - Often appear at session start or between assistant responses
+   - Currently shown as `[empty]` but could be hidden in default view
+
+5. **Interrupted Requests**: Messages containing "[Request interrupted by user"
+   - reconstruct.jq skips these
+   - Should be handled gracefully in timeline
