@@ -77,6 +77,44 @@ class SessionExplorer:
                 })
         
         print(f"Found {len(self.tool_calls)} tool calls\n")
+        
+        # Build unified timeline
+        self._build_timeline()
+    
+    def _build_timeline(self):
+        """Build a unified timeline of all events (messages and tool calls)."""
+        self.timeline = []
+        
+        # Add all messages with their sequence numbers
+        msg_index = 0
+        for msg in self.messages:
+            self.timeline.append({
+                'seq': msg_index + 1,
+                'type': 'message',
+                'subtype': msg['type'],  # 'user' or 'assistant'
+                'data': msg,
+                'timestamp': msg.get('timestamp', '')
+            })
+            msg_index += 1
+        
+        # Add all tool calls with their sequence numbers
+        tool_index = 0
+        for tc in self.tool_calls:
+            self.timeline.append({
+                'seq': tool_index + 1,
+                'type': 'tool',
+                'subtype': tc['name'],
+                'data': tc,
+                'timestamp': tc.get('timestamp', '')
+            })
+            tool_index += 1
+        
+        # Sort by timestamp to get chronological order
+        self.timeline.sort(key=lambda x: x['timestamp'])
+        
+        # Reassign sequence numbers after sorting
+        for i, item in enumerate(self.timeline):
+            item['seq'] = i + 1
     
     def show_summary(self):
         """Show session summary."""
@@ -90,55 +128,86 @@ class SessionExplorer:
         for tool, count in sorted(tool_counts.items(), key=lambda x: -x[1]):
             print(f"  {tool:15} {count:3}")
     
-    def show_timeline(self, tool_filter=None):
-        """Show timeline of tool calls."""
+    def show_timeline(self, filter_type='all'):
+        """Show timeline of events.
+        
+        Args:
+            filter_type: 'all' (default), 'tools', 'conversation', or specific tool name
+        """
         print("\n=== TIMELINE ===")
-        for i, tc in enumerate(self.tool_calls):
-            if tool_filter and tc['name'] != tool_filter:
+        
+        for item in self.timeline:
+            # Apply filtering
+            if filter_type == 'tools' and item['type'] != 'tool':
+                continue
+            elif filter_type == 'conversation' and item['type'] != 'message':
+                continue
+            elif filter_type not in ['all', 'tools', 'conversation'] and item['type'] == 'tool' and item['subtype'] != filter_type:
                 continue
             
-            print(f"{i+1:3}. {tc['name']:12}", end='')
+            # Format based on type
+            if item['type'] == 'message':
+                msg = item['data']
+                if msg['type'] == 'user':
+                    text = msg.get('text', '')
+                    if text:
+                        # Show first line of user message
+                        first_line = text.split('\n')[0][:60]
+                        print(f"[{item['seq']}] USER: {first_line}{'...' if len(text) > 60 else ''}")
+                elif msg['type'] == 'assistant':
+                    # Show assistant text or tool usage
+                    text = msg.get('text', '')
+                    tools = msg.get('tools', [])
+                    if text:
+                        first_line = text.split('\n')[0][:60]
+                        print(f"[{item['seq']}] CLAUDE: {first_line}{'...' if len(text) > 60 else ''}")
+                    elif tools:
+                        print(f"[{item['seq']}] CLAUDE: [Used tools: {', '.join(tools)}]")
             
-            # Show relevant parameter based on tool type
-            params = tc['parameters']
-            if tc['name'] in ['Edit', 'Write', 'MultiEdit']:
-                path = params.get('file_path', '')
-                if path:
-                    print(f" → {path.split('/')[-1]}", end='')
-            elif tc['name'] == 'Bash':
-                cmd = params.get('command', '')[:50]
-                print(f" $ {cmd}...", end='')
-            elif tc['name'] == 'Read':
-                path = params.get('file_path', '')
-                if path:
-                    print(f" ← {path.split('/')[-1]}", end='')
-            elif tc['name'] == 'Grep':
-                pattern = params.get('pattern', '')
-                path = params.get('path', '.')
-                if pattern:
-                    print(f' "{pattern}" in {path}', end='')
-            elif tc['name'] == 'TodoWrite':
-                todos = params.get('todos', [])
-                if todos:
-                    # Count todo statuses
-                    status_counts = defaultdict(int)
-                    for todo in todos:
-                        status = todo.get('status', 'unknown')
-                        status_counts[status] += 1
-                    
-                    # Format summary
-                    total = len(todos)
-                    status_parts = []
-                    for status in ['completed', 'in_progress', 'pending']:
-                        if status in status_counts:
-                            status_parts.append(f"{status_counts[status]} {status}")
-                    
-                    if status_parts:
-                        print(f" Updated {total} todos ({', '.join(status_parts)})", end='')
-                    else:
-                        print(f" Updated {total} todos", end='')
-            
-            print()
+            elif item['type'] == 'tool':
+                tc = item['data']
+                print(f"[{item['seq']}] {tc['name']:12}", end='')
+                
+                # Show relevant parameter based on tool type
+                params = tc['parameters']
+                if tc['name'] in ['Edit', 'Write', 'MultiEdit']:
+                    path = params.get('file_path', '')
+                    if path:
+                        print(f" → {path.split('/')[-1]}", end='')
+                elif tc['name'] == 'Bash':
+                    cmd = params.get('command', '')[:50]
+                    print(f" $ {cmd}...", end='')
+                elif tc['name'] == 'Read':
+                    path = params.get('file_path', '')
+                    if path:
+                        print(f" ← {path.split('/')[-1]}", end='')
+                elif tc['name'] == 'Grep':
+                    pattern = params.get('pattern', '')
+                    path = params.get('path', '.')
+                    if pattern:
+                        print(f' "{pattern}" in {path}', end='')
+                elif tc['name'] == 'TodoWrite':
+                    todos = params.get('todos', [])
+                    if todos:
+                        # Count todo statuses
+                        status_counts = defaultdict(int)
+                        for todo in todos:
+                            status = todo.get('status', 'unknown')
+                            status_counts[status] += 1
+                        
+                        # Format summary
+                        total = len(todos)
+                        status_parts = []
+                        for status in ['completed', 'in_progress', 'pending']:
+                            if status in status_counts:
+                                status_parts.append(f"{status_counts[status]} {status}")
+                        
+                        if status_parts:
+                            print(f" Updated {total} todos ({', '.join(status_parts)})", end='')
+                        else:
+                            print(f" Updated {total} todos", end='')
+                
+                print()
     
     def show_git_operations(self):
         """Show all git operations."""
@@ -396,8 +465,9 @@ def main():
         explorer.show_summary()
     
     if args.timeline is not None:
-        tool_filter = args.timeline if args.timeline else None
-        explorer.show_timeline(tool_filter)
+        # Handle the different timeline modes
+        filter_type = args.timeline if args.timeline else 'all'
+        explorer.show_timeline(filter_type)
     
     if args.git:
         explorer.show_git_operations()
