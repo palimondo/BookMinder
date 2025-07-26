@@ -236,11 +236,11 @@ class SessionExplorer:
                         # Show caveat message (meta)
                         print(f"[{item['seq']}] [META] {text[:50]}...")
                     elif is_slash and slash_cmd:
-                        # Show slash command
-                        print(f"[{item['seq']}] > /{slash_cmd}")
+                        # Show slash command (no prefix - it's a command)
+                        print(f"[{item['seq']}] /{slash_cmd}")
                     elif text == '[Interrupted by user]':
-                        # Show interrupted request
-                        print(f"[{item['seq']}] > [Interrupted by user]")
+                        # Show interrupted request (no prefix - it's a protocol message)
+                        print(f"[{item['seq']}] [Interrupted by user]")
                     elif text:
                         # Show full first line of user message
                         lines = text.split('\n')
