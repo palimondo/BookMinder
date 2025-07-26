@@ -204,7 +204,7 @@ class SessionExplorer:
                     elif tool_results:
                         # This is a tool result message
                         result_preview = tool_results[0].get('content', '')[:50]
-                        print(f"[{item['seq']}] TOOL RESULT: {result_preview}...")
+                        print(f"[{item['seq']}] ⎿  {result_preview}...")
                     else:
                         # Empty user message (rare but possible)
                         print(f"[{item['seq']}] USER: [empty]")
