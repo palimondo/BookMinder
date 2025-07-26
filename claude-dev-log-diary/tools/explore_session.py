@@ -198,28 +198,35 @@ class SessionExplorer:
                     tool_results = msg.get('tool_results', [])
                     
                     if text:
-                        # Show first line of user message
-                        first_line = text.split('\n')[0][:60]
-                        print(f"[{item['seq']}] USER: {first_line}{'...' if len(text) > 60 else ''}")
+                        # Show full first line of user message
+                        lines = text.split('\n')
+                        first_line = lines[0]
+                        multiline = ' [...]' if len(lines) > 1 else ''
+                        print(f"[{item['seq']}] > {first_line}{multiline}")
                     elif tool_results:
                         # This is a tool result message
-                        result_preview = tool_results[0].get('content', '')[:50]
-                        print(f"[{item['seq']}] ⎿  {result_preview}...")
+                        content = tool_results[0].get('content', '')
+                        lines = content.split('\n')
+                        first_line = lines[0]
+                        multiline = ' [...]' if len(lines) > 1 else ''
+                        print(f"[{item['seq']}] ⎿  {first_line}{multiline}")
                     else:
                         # Empty user message (rare but possible)
-                        print(f"[{item['seq']}] USER: [empty]")
+                        print(f"[{item['seq']}] > [empty]")
                 elif msg['type'] == 'assistant':
                     # Show assistant text or tool usage
                     text = msg.get('text', '')
                     tools = msg.get('tools', [])
                     if text:
-                        first_line = text.split('\n')[0][:60]
-                        print(f"[{item['seq']}] CLAUDE: {first_line}{'...' if len(text) > 60 else ''}")
+                        lines = text.split('\n')
+                        first_line = lines[0]
+                        multiline = ' [...]' if len(lines) > 1 else ''
+                        print(f"[{item['seq']}] • {first_line}{multiline}")
                     elif tools:
-                        print(f"[{item['seq']}] CLAUDE: [Used tools: {', '.join(tools)}]")
+                        print(f"[{item['seq']}] • [Used tools: {', '.join(tools)}]")
                     else:
                         # Empty assistant message (rare but possible)
-                        print(f"[{item['seq']}] CLAUDE: [empty]")
+                        print(f"[{item['seq']}] • [empty]")
             
             elif item['type'] == 'tool':
                 tc = item['data']
