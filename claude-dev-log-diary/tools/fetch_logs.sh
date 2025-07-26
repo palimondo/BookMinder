@@ -174,19 +174,19 @@ get_workflow_runs() {
     info "Fetching $limit recent workflow runs..." >&2
     
     # Get runs from both workflows and combine them
-    {
+    (
         run_gh run list \
             --workflow=claude.yml \
             --status=success \
             --json 'databaseId,number,status,conclusion,createdAt,headBranch,event,displayTitle' \
             --limit "$limit"
-        echo ","
+        
         run_gh run list \
             --workflow=claude-code-review.yml \
             --status=success \
             --json 'databaseId,number,status,conclusion,createdAt,headBranch,event,displayTitle' \
             --limit "$limit"
-    } | jq -s 'add | sort_by(.createdAt) | reverse | .[:'"$limit"']'
+    ) | jq -s 'flatten | sort_by(.createdAt) | reverse | .[:'"$limit"']'
 }
 
 # Get workflow logs
