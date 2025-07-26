@@ -128,3 +128,50 @@ def describe_bookminder_acceptance():
             mock_list.assert_called_once_with(user=None, filter="!sample")
             assert "Regular Book - Regular Author (50%)" in result.output
             assert "Sample" not in result.output
+
+
+def describe_reading_status_filtering():
+    """Filter by Reading Status Story - ATDD Implementation."""
+
+    def it_lists_finished_books(runner):
+        """Scenario: List finished books
+        When: I run "bookminder list --filter finished"
+        Then:
+          - I see only books marked as complete
+          - Each book shows: Title, Author, (Finished) status
+          - (Finished) status takes precedence over progress percentage
+        """
+        finished_book = Book(
+            title="Finished Book",
+            author="Author Name",
+            reading_progress_percentage=100,
+            is_finished=True,
+        )
+
+        with patch('bookminder.cli.list_all_books') as mock_list:
+            mock_list.return_value = [finished_book]
+            result = runner.invoke(main, ['list', 'all', '--filter', 'finished'])
+
+        mock_list.assert_called_once_with(user=None, filter="finished")
+        assert result.exit_code == 0
+        assert "Finished Book - Author Name (Finished)" in result.output
+
+    @pytest.mark.skip("Next scenario")
+    def it_lists_unread_books(runner):
+        """Scenario: List unread books
+        When: I run "bookminder list --filter unread"
+        Then:
+          - I see only books with 0% reading progress and not marked as finished
+          - Each book shows: Title, Author, (Unread) status
+        """
+        pass
+
+    @pytest.mark.skip("Next scenario")
+    def it_lists_books_in_progress(runner):
+        """Scenario: List books in progress
+        When: I run "bookminder list --filter in-progress"
+        Then:
+          - I see only books with 1-99% reading progress and not marked as finished
+          - Each book shows: Title, Author, Progress %
+        """
+        pass
