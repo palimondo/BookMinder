@@ -1,126 +1,98 @@
-# Claude Session Replay Tools (Work in Progress)
+# Claude Session Tools
 
-**Status**: These tools are work in progress and require proper development process to complete due to their complexity.
+Tools for fetching, exploring, and replaying Claude Code sessions from GitHub Actions.
 
-## What We Currently Have
+## Core Tools
 
-### 1. `replay_claude_session.py` - Universal Replay Tool (Incomplete)
-- **Purpose**: Parse and replay any Claude session from JSONL logs
-- **Current state**:
-  - Has basic structure with ToolCall, ToolResult, and Commit dataclasses
-  - Has `--start` and `--end` parameters for commit ranges
-  - Has dry-run mode support
-- **Issues**:
-  - JSONL parsing is broken (doesn't handle multi-line JSON format)
-  - Execution part is just a placeholder
-  - No actual tool implementation
+### fetch_logs.py / fetch_logs.sh
+Download Claude Code sessions from GitHub Actions workflow logs.
 
-### 2. `parse_claude_jsonl.py` - JSONL Parser
-- **Purpose**: Extract tool calls from Claude's multi-line JSONL format
-- **Current state**:
-  - Correctly handles multi-line JSON objects
-  - Extracts tool calls and groups them by commits
-  - Good for viewing/analyzing sessions
-- **Issues**:
-  - Read-only, no execution capability
-  - Hardcoded to skip MCP tools
-
-### 3. `extract_tool_calls.py` - Alternative Parser
-- **Purpose**: Extract tool calls with different output format
-- **Current state**:
-  - Attempts line-by-line JSON parsing
-  - Groups edits by commits
-- **Issues**:
-  - Doesn't work with multi-line JSONL format
-  - Assumes incorrect JSON structure
-
-### 4. `extract_commits.sh` - Bash Extractor
-- **Purpose**: Quick extraction using grep/sed
-- **Current state**:
-  - Fast extraction of commits and file modifications
-  - Good for quick overview
-- **Issues**:
-  - No execution capability
-  - Limited to pattern matching
-
-## Universal Replay Tool Design
-
-### Goals
-Create a tool that can replay any Claude session with fine-grained control over what gets executed.
-
-### Proposed Usage
 ```bash
-replay_claude_session.py <jsonl_file> [options]
+# Fetch recent runs (default: 20)
+python fetch_logs.py
+./fetch_logs.sh
 
-Options:
-  --start-tool N      Start from tool call N (1-based)
-  --end-tool M        End at tool call M (inclusive)
-  --start-commit N    Start from commit N
-  --end-commit M      End at commit M  
-  --only-commits      Only replay git commits (skip intermediate edits)
-  --skip-tests        Don't run tests between commits
-  --dry-run          Show what would be done (default)
-  --execute          Actually run the commands
-  --interactive      Confirm each action
-  --filter TOOL      Only replay specific tools (Edit, Write, Bash, etc)
-  --after TIMESTAMP   Start after specific timestamp
-  --before TIMESTAMP  End before specific timestamp
+# Fetch more runs
+python fetch_logs.py --limit 50
+
+# Fetch specific run
+python fetch_logs.py --run-id 16434195166
+
+# Include raw logs for debugging
+python fetch_logs.py --save-raw-logs
 ```
 
-### Key Features Needed
+Features:
+- Automatic deduplication (skips already downloaded runs)
+- Proper timestamps (file creation = session start, modification = session end)
+- Structured filenames: `YYYYMMDD-HHMM-{issue|pr}-N_run-{id}_session-{id}.jsonl`
 
-1. **Robust JSONL Parsing**
-   - Handle multi-line JSON objects
-   - Extract all tool calls with metadata
-   - Build index of tool calls by number, type, and timestamp
-   - Group related tool calls (e.g., edits before commits)
+### explore_session.py
+Interactive CLI for analyzing and exporting Claude sessions.
 
-2. **Tool Execution Engine**
-   - Implement actual execution for each tool type:
-     - `Edit`: Apply text replacements to files
-     - `Write`: Create/overwrite files
-     - `MultiEdit`: Apply multiple edits in sequence
-     - `Bash`: Execute shell commands
-     - `Task`: Special handling to pass ranges to sub-agents
-   - Respect CLAUDE.md rules (e.g., explicit file staging)
+#### Session Discovery
+Find sessions by any substring:
+```bash
+python explore_session.py issue-13  # Finds matching JSONL in github/
+python explore_session.py run-1648  # Match by run ID
+python explore_session.py 20250723 # Match by date
+```
 
-3. **Replay Control**
-   - Support multiple range selection methods
-   - Allow filtering by tool type
-   - Interactive mode for confirmation
-   - Rollback capability on failure
+#### Interactive Exploration
+```bash
+python explore_session.py issue-13 --summary      # Tool usage summary
+python explore_session.py issue-13 --timeline Edit # Show all edits
+python explore_session.py issue-13 --git          # Show git operations
+python explore_session.py issue-13 --files        # Show file changes
+```
 
-4. **Safety Features**
-   - Dry-run by default
-   - Backup modified files
-   - Validate tool calls before execution
-   - Check git status before operations
+#### Tool(glob) Filtering
+Uses Claude Code's permission syntax:
+```bash
+# Export specific tools with patterns
+python explore_session.py issue-13 --export 1 46 - \
+  --include "Edit(*/specs/**),Bash(git add *),Bash(git commit *)"
 
-### Implementation Challenges
+# Short form for all operations of a type
+python explore_session.py issue-13 --export 1 46 - --include "Edit,Write"
+```
 
-1. **JSONL Format**: The logs use multi-line JSON, not standard JSONL
-2. **Tool Diversity**: Each tool has different parameters and behaviors
-3. **State Management**: Tracking what's been executed and handling failures
-4. **Task Tool**: Requires special handling to launch agents with ranges
-5. **Performance**: Large session logs (500KB+) need efficient parsing
+### parse_claude_jsonl.py
+Multi-line JSONL parser used by explore_session.py. Handles Claude's complex JSON format where objects span multiple lines.
 
-### Development Process Required
+## Replay Workflow
 
-Due to the complexity, this tool requires:
-1. **Proper specifications** following ATDD practices
-2. **Test-driven development** with comprehensive test coverage
-3. **Incremental implementation** starting with basic features
-4. **Integration testing** with real session logs
+The key insight: Claude's Task tool can run explore_session.py directly and execute the extracted tool calls.
 
-## Next Steps
+1. **Identify commit boundaries**:
+   ```bash
+   python explore_session.py issue-13 --git | grep commit
+   ```
 
-1. Create proper story YAML file for the replay tool
-2. Design test scenarios covering various use cases
-3. Implement following TDD practices per CLAUDE.md
-4. Consider using existing parsing from `parse_claude_jsonl.py` as base
+2. **Export filtered chunk**:
+   ```bash
+   python explore_session.py issue-13 --export 1 46 - \
+     --include "Edit(*/specs/**),Edit(*/bookminder/**),Bash(git add *),Bash(git commit *)"
+   ```
 
-## Notes
+3. **Task delegation example**:
+   ```
+   Execute this command to get tool calls, then replay them exactly:
+   
+   python claude-dev-log-diary/tools/explore_session.py issue-13 --export 38 40 - --include "Edit" 2>/dev/null
+   
+   Important:
+   - Run the command above to get 2 Edit operations
+   - Parse the JSON output 
+   - Execute each Edit exactly as specified in the JSON
+   ```
 
-- The immediate need (recreating issue #13 branch) is handled by the hardcoded `replay_issue_13.py`
-- These tools were created during exploratory work to understand the log format
-- Future implementation should follow BookMinder's development standards
+This preserves exact fidelity - Claude uses its own Edit/Write/Bash tools rather than any custom replay logic.
+
+## Design Philosophy
+
+- Composable Unix-style tools
+- Direct integration with Claude's Task tool
+- Uses familiar glob patterns and Claude Code's permission syntax
+- No complex replay logic - let Claude execute its own tools
+- Tools work together: fetch → explore → replay

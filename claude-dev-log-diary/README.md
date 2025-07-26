@@ -6,38 +6,28 @@ Archive of Claude Code sessions for BookMinder development, preserving both GitH
 
 - `day-*.md` - Console transcripts from Claude Code sessions (manual copy from terminal)
 - `github/*.jsonl` - JSONL extracted from GitHub Actions Claude Code runs
+- `tools/` - Suite of tools for fetching, exploring, and replaying Claude sessions
 - `reconstruct.jq` - JQ script to recreate console format from JSONL files
-- `fetch_logs.py` - Python script to extract JSONL from GitHub Actions logs
-- `fetch_logs.sh` - Bash script to extract JSONL from GitHub Actions logs
 
-## Fetching GitHub Logs
+## Tools
 
-Both Python and Bash scripts provide identical functionality:
+See [tools/README.md](tools/README.md) for detailed documentation of:
+- **fetch_logs.py/sh** - Download sessions from GitHub Actions
+- **explore_session.py** - Analyze and export sessions with filtering
+- **parse_claude_jsonl.py** - Parse multi-line JSONL format
 
+Quick start:
 ```bash
-# Fetch recent runs (default: 20)
-python fetch_logs.py
-# or
-./fetch_logs.sh
+# Fetch recent sessions
+python tools/fetch_logs.py
 
-# Fetch more runs
-python fetch_logs.py --limit 50
-./fetch_logs.sh --limit 50
+# Explore a session
+python tools/explore_session.py issue-13 --summary
 
-# Fetch specific run
-python fetch_logs.py --run-id 16434195166
-./fetch_logs.sh --run-id 16434195166
-
-# Include raw logs for debugging failed extractions
-python fetch_logs.py --save-raw-logs
-./fetch_logs.sh --save-raw-logs
+# Export specific tool calls for replay
+python tools/explore_session.py issue-13 --export 1 46 - \
+  --include "Edit(*/specs/**),Bash(git add *),Bash(git commit *)"
 ```
-
-### Features
-
-- **Automatic deduplication**: Scripts skip already downloaded runs
-- **Proper timestamps**: File creation time = session start, modification time = session end
-- **Structured filenames**: `YYYYMMDD-HHMM-{issue|pr}-N_run-{id}_session-{id}.jsonl`
 - **Handles both log formats**: Works with old "Run Claude Code" and new "UNKNOWN STEP" formats
 
 ## Reconstructing Console Output
