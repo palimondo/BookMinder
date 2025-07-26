@@ -91,12 +91,31 @@ class SessionExplorer:
                 content = obj.get('message', {}).get('content', [])
                 user_text = []
                 tool_results = []
+                is_slash_command = False
+                slash_command = ''
                 
-                if isinstance(content, list):
+                # Handle string content (slash commands)
+                if isinstance(content, str):
+                    if '<command-name>' in content and '<command-message>' in content:
+                        # Extract slash command
+                        import re
+                        match = re.search(r'<command-message>([^<]+)</command-message>', content)
+                        if match:
+                            slash_command = match.group(1)
+                            is_slash_command = True
+                    else:
+                        user_text.append(content)
+                        
+                elif isinstance(content, list):
                     for item in content:
                         if isinstance(item, dict):
                             if item.get('type') == 'text':
-                                user_text.append(item.get('text', ''))
+                                text = item.get('text', '')
+                                # Check for interrupted requests
+                                if '[Request interrupted by user' in text:
+                                    user_text.append('[Interrupted by user]')
+                                else:
+                                    user_text.append(text)
                             elif item.get('type') == 'tool_result':
                                 tool_results.append({
                                     'tool_use_id': item.get('tool_use_id', ''),
@@ -109,6 +128,8 @@ class SessionExplorer:
                     'type': 'user',
                     'text': '\n'.join(user_text) if user_text else '',
                     'tool_results': tool_results,
+                    'is_slash_command': is_slash_command,
+                    'slash_command': slash_command,
                     'timestamp': obj.get('timestamp', '')
                 })
         
@@ -196,8 +217,16 @@ class SessionExplorer:
                 if msg['type'] == 'user':
                     text = msg.get('text', '')
                     tool_results = msg.get('tool_results', [])
+                    is_slash = msg.get('is_slash_command', False)
+                    slash_cmd = msg.get('slash_command', '')
                     
-                    if text:
+                    if is_slash and slash_cmd:
+                        # Show slash command
+                        print(f"[{item['seq']}] > /{slash_cmd}")
+                    elif text == '[Interrupted by user]':
+                        # Show interrupted request
+                        print(f"[{item['seq']}] > [Interrupted by user]")
+                    elif text:
                         # Show full first line of user message
                         lines = text.split('\n')
                         first_line = lines[0]
