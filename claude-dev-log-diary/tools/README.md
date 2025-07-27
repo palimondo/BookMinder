@@ -50,14 +50,14 @@ python explore_session.py issue-13 -t +20         # Show first 20 items
 python explore_session.py issue-13 -t -30         # Show last 30 items
 
 # Virtual entities (NEW!)
-python explore_session.py issue-13 -t -m          # Show all messages
-python explore_session.py issue-13 -t -u          # Show user messages only
+python explore_session.py issue-13 -t -M          # Show all messages
+python explore_session.py issue-13 -t -U          # Show user messages only
 python explore_session.py issue-13 -t -a          # Show assistant messages
 python explore_session.py issue-13 -t -T          # Show all tools
 python explore_session.py issue-13 -t -T --no-tool-results  # Tools without output
 
 # Combining filters
-python explore_session.py issue-13 -t -m -x User  # Assistant messages only
+python explore_session.py issue-13 -t -M -x User  # Assistant messages only
 python explore_session.py issue-13 -t -i Message,Read  # Messages and Read operations
 
 # Traditional shortcuts
@@ -135,7 +135,7 @@ This tool helps analyze Claude Code's behavior and debug issues:
 
 ```bash
 # "What did the user actually ask for?"
-explore_session.py issue-13 -t -u                    # User messages only
+explore_session.py issue-13 -t -U                    # User messages only
 
 # "What was Claude's interpretation?" 
 explore_session.py issue-13 -t -a                    # Assistant responses

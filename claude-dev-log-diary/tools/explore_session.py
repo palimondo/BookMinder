@@ -526,6 +526,7 @@ class SessionExplorer:
         if filter_type == 'tools':
             filtered_items = [item for item in self.filter_timeline(indices) if item['type'] == 'tool']
         elif filter_type not in ['all', 'tools']:
+            # filter_type is a specific tool name (e.g., 'Edit', 'Bash')
             include_filters = [filter_type]
             filtered_items = self.filter_timeline(indices, include_filters)
         else:
@@ -847,6 +848,7 @@ class SessionExplorer:
             include_filters = None
             filtered_items = [item for item in self.filter_timeline(indices) if item['type'] == 'tool']
         elif filter_type not in ['all', 'tools']:
+            # filter_type is a specific tool name (e.g., 'Edit', 'Bash')
             include_filters = [filter_type]
             filtered_items = self.filter_timeline(indices, include_filters)
         else:
@@ -1202,23 +1204,23 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument('session', help='Session file or any unique substring (issue-13, run ID, date, etc.)')
-    parser.add_argument('--summary', '-s', action='store_true', help='Show summary')
-    parser.add_argument('--timeline', '-t', action='store_true',
+    parser.add_argument('-s', '--summary', action='store_true', help='Show summary')
+    parser.add_argument('-t', '--timeline', action='store_true',
                         help='Show timeline')
-    parser.add_argument('--git', '-g', action='store_true', help='Show git operations')
-    parser.add_argument('--files', '-f', action='store_true', help='Show file changes (summary of edits per file)')
-    parser.add_argument('--created', '-c', action='store_true', help='Show created files')
-    parser.add_argument('--search', help='Full text search across all content')
+    parser.add_argument('-g', '--git', action='store_true', help='Show git operations')
+    parser.add_argument('-f', '--files', action='store_true', help='Show file changes (summary of edits per file)')
+    parser.add_argument('-c', '--created', action='store_true', help='Show created files')
+    parser.add_argument('-S', '--search', help='Full text search across all content (simple substring match)')
     parser.add_argument('--export-json', nargs=2, metavar=('RANGE', 'OUTPUT'), 
                         help='Export tool calls in RANGE as JSON to FILE. RANGE can be: 5 (single), 1-50 (range), +10 (first 10), -20 (last 20)')
     parser.add_argument('--json', action='store_true',
                         help='Output timeline as JSON array to stdout (use with -t/--timeline)')
     parser.add_argument('--jsonl', action='store_true',
                         help='Output timeline as JSONL (newline-delimited JSON) to stdout (use with -t/--timeline)')
-    parser.add_argument('--include', '-i', metavar='FILTERS',
+    parser.add_argument('-i', '--include', metavar='FILTERS',
                         help='Include filters: tools (Edit,Bash(git *)) or '
                              'virtual entities (Message,Tool,User,Assistant)')
-    parser.add_argument('--exclude', '-x', metavar='FILTERS',
+    parser.add_argument('-x', '--exclude', metavar='FILTERS',
                         help='Exclude filters: tools or virtual entities')
     parser.add_argument('--truncated', action='store_true',
                         help='Show truncated console-style output (3-line preview)')
@@ -1238,9 +1240,9 @@ def main():
                         help='Show NUM lines before and after each match')
     
     # Virtual entity shortcuts
-    parser.add_argument('-m', dest='include_message', action='store_true',
+    parser.add_argument('-M', dest='include_message', action='store_true',
                         help='Include all messages (shortcut for -i Message)')
-    parser.add_argument('-u', dest='include_user', action='store_true',
+    parser.add_argument('-U', dest='include_user', action='store_true',
                         help='Include user messages (shortcut for -i User)')
     parser.add_argument('-a', dest='include_assistant', action='store_true',
                         help='Include assistant messages (shortcut for -i Assistant)')
@@ -1359,8 +1361,22 @@ def main():
         explorer.show_created_files()
     
     if args.search:
+        # Parse indices if provided to filter search results
+        indices = None
+        if args.indices:
+            try:
+                indices = parse_indices(args.indices, len(explorer.timeline))
+            except ValueError as e:
+                print(f"Error: {e}")
+                sys.exit(1)
+        
         # Search and show results with context
         matches = explorer.search_timeline(args.search)
+        
+        # Filter matches by indices if provided
+        if indices is not None:
+            matches = [m for m in matches if m in indices]
+        
         if matches:
             print(f"Found {len(matches)} matches for '{args.search}':")
             
@@ -1386,7 +1402,10 @@ def main():
                 after_context=after_context
             )
         else:
-            print(f"No matches found for '{args.search}'")
+            if indices is not None:
+                print(f"No matches found for '{args.search}' in the specified range")
+            else:
+                print(f"No matches found for '{args.search}'")
     
     if args.export_json:
         range_str, output = args.export_json
