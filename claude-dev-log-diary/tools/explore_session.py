@@ -519,15 +519,13 @@ class SessionExplorer:
         """Show timeline with specific indices.
         
         Args:
-            filter_type: 'all' (default), 'tools', 'conversation', or specific tool name
+            filter_type: 'all' (default), 'tools', or specific tool name
             indices: List of 0-based indices to show (if None, show all)
             display_mode: 'compact' (default), 'truncated', or 'full'
         """
         if filter_type == 'tools':
             filtered_items = [item for item in self.filter_timeline(indices) if item['type'] == 'tool']
-        elif filter_type == 'conversation':
-            filtered_items = [item for item in self.filter_timeline(indices) if item['type'] == 'message']
-        elif filter_type not in ['all', 'tools', 'conversation']:
+        elif filter_type not in ['all', 'tools']:
             include_filters = [filter_type]
             filtered_items = self.filter_timeline(indices, include_filters)
         else:
@@ -832,7 +830,7 @@ class SessionExplorer:
         """Show timeline of events.
         
         Args:
-            filter_type: 'all' (default), 'tools', 'conversation', or specific tool name
+            filter_type: 'all' (default), 'tools', or specific tool name
             start: Starting index (1-based, inclusive)
             end: Ending index (1-based, inclusive)
             display_mode: 'compact' (default), 'truncated', or 'full'
@@ -848,9 +846,7 @@ class SessionExplorer:
         if filter_type == 'tools':
             include_filters = None
             filtered_items = [item for item in self.filter_timeline(indices) if item['type'] == 'tool']
-        elif filter_type == 'conversation':
-            filtered_items = [item for item in self.filter_timeline(indices) if item['type'] == 'message']
-        elif filter_type not in ['all', 'tools', 'conversation']:
+        elif filter_type not in ['all', 'tools']:
             include_filters = [filter_type]
             filtered_items = self.filter_timeline(indices, include_filters)
         else:
@@ -898,17 +894,8 @@ class SessionExplorer:
             for item in filtered_items:
                 self._display_timeline_item(item, display_mode, show_numbers)
     
-    def show_git_operations(self):
-        """Show all git operations. DEPRECATED: Use -t --include 'Bash(git *)' instead."""
-        print("Note: --git is now a shortcut for: -t --include 'Bash(git *)'")
-    
     def show_file_changes(self):
-        """Show all file modifications.
-        
-        DEPRECATED: Use --timeline --include "Edit,Write,MultiEdit" instead.
-        """
-        print("Note: --files is deprecated. Use --timeline --include \"Edit,Write,MultiEdit\" instead.")
-        
+        """Show all file modifications grouped by file."""
         filtered_items = self.filter_timeline(include_filters=['Edit', 'Write', 'MultiEdit'])
         
         file_changes = defaultdict(list)
@@ -928,12 +915,15 @@ class SessionExplorer:
     
     def show_created_files(self):
         """Show files created with Write tool."""
-        for i, tc in enumerate(self.tool_calls):
-            if tc['name'] == 'Write':
+        filtered_items = self.filter_timeline(include_filters=['Write'])
+        
+        for item in filtered_items:
+            if item['type'] == 'tool':
+                tc = item['data']
                 path = tc['parameters'].get('file_path', '')
                 content = tc['parameters'].get('content', '')
                 if path:
-                    print(f"\n{i+1}. {path.split('/')[-1]}")
+                    print(f"\n[{item['seq']}] {path.split('/')[-1]}")
                     lines = content.split('\n')[:5]
                     for line in lines:
                         print(f"   {line[:60]}...")
@@ -988,15 +978,6 @@ class SessionExplorer:
         
         return matches
     
-    def show_conversation(self, start=None, end=None):
-        """Display conversation between user and assistant.
-        
-        DEPRECATED: Use --timeline conversation instead.
-        This method is kept for backward compatibility.
-        """
-        print("Note: --conversation is deprecated. Use -t -m (or --timeline --include Message)")
-        
-        self.show_timeline('conversation', start, end, display_mode='compact')
     
     def export_range(self, start, end, output_file, include_filters=None, exclude_filters=None):
         """Export a range of tool calls with optional Tool(glob) filtering."""
@@ -1227,8 +1208,6 @@ def main():
     parser.add_argument('--git', '-g', action='store_true', help='Show git operations')
     parser.add_argument('--files', '-f', action='store_true', help='Show file changes (summary of edits per file)')
     parser.add_argument('--created', '-c', action='store_true', help='Show created files')
-    parser.add_argument('--conversation', action='store_true',
-                        help='Show conversation messages')
     parser.add_argument('--search', help='Full text search across all content')
     parser.add_argument('--export-json', nargs=2, metavar=('RANGE', 'OUTPUT'), 
                         help='Export tool calls in RANGE as JSON to FILE. RANGE can be: 5 (single), 1-50 (range), +10 (first 10), -20 (last 20)')
@@ -1284,7 +1263,7 @@ def main():
     
     # Default to summary if no action specified
     if not any([args.summary, args.timeline, args.git, args.files, 
-                args.created, args.conversation, args.search, args.export_json,
+                args.created, args.search, args.export_json,
                 implicit_timeline]):
         args.summary = True
     
@@ -1408,20 +1387,6 @@ def main():
             )
         else:
             print(f"No matches found for '{args.search}'")
-    
-    if args.conversation:
-        if args.indices:
-            try:
-                indices = parse_indices(args.indices, len(explorer.timeline))
-                print("Note: --conversation is deprecated. Use -t -m (or --timeline --include Message)")
-                filtered_items = explorer.filter_timeline(indices)
-                for item in filtered_items:
-                    if item['type'] == 'message':
-                        explorer._display_timeline_item(item, 'compact')
-            except ValueError as e:
-                print(f"Error: {e}")
-        else:
-            explorer.show_conversation()
     
     if args.export_json:
         range_str, output = args.export_json
