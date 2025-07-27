@@ -43,14 +43,12 @@ def parse_range(range_str, total_items):
     Returns:
         tuple: (start_idx, end_idx) as 0-based indices
     """
-    # Handle single positive number as specific index
     if range_str.isdigit():
         n = int(range_str) - 1  # Convert to 0-based
         if n >= total_items:
             raise ValueError(f"Index {range_str} out of range (max {total_items})")
         return n, n + 1
     
-    # Handle +N for first N items (head)
     if range_str.startswith('+') and range_str[1:].isdigit():
         n = int(range_str[1:])
         return 0, min(n, total_items)
@@ -60,13 +58,13 @@ def parse_range(range_str, total_items):
     
     parts = range_str.split('-', 1)
     
-    if parts[0] == '':  # Format: "-N" (last N items)
+    if parts[0] == '':
         n = int(parts[1])
         return max(0, total_items - n), total_items
-    elif parts[1] == '':  # Format: "N-" (from N to end)
+    elif parts[1] == '':
         start = int(parts[0]) - 1  # Convert to 0-based
         return start, total_items
-    else:  # Format: "M-N"
+    else:
         start = int(parts[0]) - 1  # Convert to 0-based
         end = int(parts[1])
         return start, min(end, total_items)
@@ -81,14 +79,12 @@ class SessionExplorer:
     
     def _parse_session(self):
         """Parse the session file."""
-        # Silent parsing - summary will show the session file
         
         for obj in parse_jsonl_objects(self.jsonl_file):
             if obj.get('type') == 'assistant' and 'message' in obj:
                 message = obj.get('message', {})
                 content = message.get('content', [])
                 
-                # Track assistant messages
                 assistant_text = []
                 tool_uses = []
                 
@@ -108,7 +104,6 @@ class SessionExplorer:
                                         'timestamp': obj.get('timestamp')
                                     })
                 
-                # Store assistant message with text and tool summary
                 if assistant_text or tool_uses:
                     self.messages.append({
                         'type': 'assistant',
@@ -118,7 +113,6 @@ class SessionExplorer:
                     })
             
             elif obj.get('type') == 'user':
-                # Track user messages
                 content = obj.get('message', {}).get('content', [])
                 user_text = []
                 tool_results = []
@@ -126,10 +120,8 @@ class SessionExplorer:
                 slash_command = ''
                 is_meta = obj.get('isMeta', False)
                 
-                # Handle string content (slash commands)
                 if isinstance(content, str):
                     if '<command-name>' in content and '<command-message>' in content:
-                        # Extract slash command
                         match = re.search(r'<command-message>([^<]+)</command-message>', content)
                         if match:
                             slash_command = match.group(1)
@@ -142,7 +134,6 @@ class SessionExplorer:
                         if isinstance(item, dict):
                             if item.get('type') == 'text':
                                 text = item.get('text', '')
-                                # Check for interrupted requests
                                 if '[Request interrupted by user' in text:
                                     user_text.append('[Interrupted by user]')
                                 else:
@@ -165,9 +156,6 @@ class SessionExplorer:
                     'timestamp': obj.get('timestamp', '')
                 })
         
-        # Don't print redundant message during parsing
-        
-        # Build unified timeline
         self._build_timeline()
     
     def _format_truncated_output(self, text, max_lines=3):
@@ -196,7 +184,6 @@ class SessionExplorer:
         """Build a unified timeline of all events (messages and tool calls)."""
         self.timeline = []
         
-        # Add all messages with their sequence numbers
         msg_index = 0
         for msg in self.messages:
             self.timeline.append({
@@ -208,7 +195,6 @@ class SessionExplorer:
             })
             msg_index += 1
         
-        # Add all tool calls with their sequence numbers
         tool_index = 0
         for tc in self.tool_calls:
             self.timeline.append({
@@ -220,16 +206,13 @@ class SessionExplorer:
             })
             tool_index += 1
         
-        # Sort by timestamp to get chronological order
         self.timeline.sort(key=lambda x: x['timestamp'] or '')
         
-        # Reassign sequence numbers after sorting
         for i, item in enumerate(self.timeline):
             item['seq'] = i + 1
     
     def show_summary(self):
         """Show session summary in YAML-style hierarchy."""
-        # Count tool calls by type
         tool_counts = defaultdict(int)
         git_operations = 0
         git_commits = 0
@@ -243,7 +226,6 @@ class SessionExplorer:
                     if 'git commit' in cmd:
                         git_commits += 1
         
-        # Count messages more accurately
         user_inputs = 0
         tool_results = 0
         assistant_text = 0
@@ -264,7 +246,6 @@ class SessionExplorer:
                 if m.get('tools'):
                     assistant_tools += 1
         
-        # Count files modified
         files_modified = set()
         for tc in self.tool_calls:
             if tc['name'] in ['Edit', 'MultiEdit', 'Write']:
@@ -272,17 +253,14 @@ class SessionExplorer:
                 if path:
                     files_modified.add(path)
         
-        # Get session time metadata
         timestamps = [item['timestamp'] for item in self.timeline if item.get('timestamp')]
         if timestamps:
-            # Parse ISO timestamps
             from datetime import datetime
             try:
                 start_time = datetime.fromisoformat(timestamps[0].replace('Z', '+00:00'))
                 end_time = datetime.fromisoformat(timestamps[-1].replace('Z', '+00:00'))
                 duration = end_time - start_time
                 
-                # Format duration nicely
                 hours, remainder = divmod(duration.seconds, 3600)
                 minutes, seconds = divmod(remainder, 60)
                 if hours > 0:
@@ -296,7 +274,6 @@ class SessionExplorer:
         else:
             start_time = end_time = duration_str = None
         
-        # Print YAML-style output
         print(f"Session: {Path(self.jsonl_file).name}")
         print()
         if start_time and end_time:
@@ -312,7 +289,6 @@ class SessionExplorer:
         print(f"    Text responses: {assistant_text}")
         print(f"    Tool invocations: {len(self.tool_calls)}")
         
-        # Print tool breakdown with proper indentation
         for tool, count in sorted(tool_counts.items(), key=lambda x: -x[1]):
             print(f"      {tool}: {count}")
             if tool == 'Bash' and git_operations > 0:
@@ -325,12 +301,35 @@ class SessionExplorer:
         if user_interruptions > 0:
             print(f"User interruptions: {user_interruptions}")
     
+    def _matches_timeline_filter(self, item, filter_str):
+        """Check if a timeline item matches a filter string."""
+        filter_type, entity_name, pattern = self._parse_filter(filter_str)
+        
+        if not filter_type:
+            return False
+        
+        if filter_type == 'virtual':
+            if entity_name == 'message' and item['type'] == 'message':
+                return True
+            elif entity_name == 'tool' and item['type'] == 'tool':
+                return True
+            elif entity_name == 'user' and item['type'] == 'message':
+                return item['data']['type'] == 'user'
+            elif entity_name == 'assistant' and item['type'] == 'message':
+                return item['data']['type'] == 'assistant'
+        
+        elif filter_type == 'tool' and item['type'] == 'tool':
+            tool_call = item['data']
+            return self._matches_filter(tool_call, entity_name, pattern)
+        
+        return False
+    
     def filter_timeline(self, indices=None, include_filters=None, exclude_filters=None, include_tool_results=True):
         """Filter timeline based on indices and include/exclude filters.
         
         Args:
             indices: List of 0-based indices to show (if None, show all)
-            include_filters: List of filter strings (e.g. ["Bash(git *)", "Edit"])
+            include_filters: List of filter strings (e.g. ["Bash(git *)", "Edit", "Message"])
             exclude_filters: List of filter strings
             include_tool_results: When filtering for tools, also include their results (default: True)
             
@@ -340,52 +339,30 @@ class SessionExplorer:
         filtered_items = []
         
         for i, item in enumerate(self.timeline):
-            # Skip if not in requested indices
             if indices is not None and i not in indices:
                 continue
             
-            # For tool items, apply include/exclude filters
-            if item['type'] == 'tool':
-                # Extract just the tool calls for filtering
-                tool_call = item['data']
-                if include_filters or exclude_filters:
-                    # Use existing _apply_filters logic
-                    filtered_tools = self._apply_filters([tool_call], include_filters, exclude_filters)
-                    if not filtered_tools:
+            # Check includes - must match at least one
+            if include_filters:
+                # Special handling for tool results
+                is_tool_result = (item['type'] == 'message' and 
+                                item['data'].get('tool_results', []))
+                
+                if is_tool_result:
+                    # Include tool results if flag is set and previous item was a tool
+                    if include_tool_results and i > 0 and filtered_items and filtered_items[-1]['type'] == 'tool':
+                        pass  # Include this tool result
+                    else:
+                        continue
+                else:
+                    # Check if item matches any include filter
+                    if not any(self._matches_timeline_filter(item, f) for f in include_filters):
                         continue
             
-            # For message items, check if we should include them
-            elif item['type'] == 'message':
-                msg = item['data']
-                # Check if this is a tool result message
-                is_tool_result = msg.get('tool_results', [])
-                
-                # If only tool filters specified, optionally include tool results
-                if include_filters:
-                    # Include tool results when filtering for tools if flag is set
-                    if is_tool_result and include_tool_results:
-                        # Check if the previous item was an included tool
-                        if i > 0 and filtered_items and filtered_items[-1]['type'] == 'tool':
-                            # Include this tool result
-                            pass
-                        else:
-                            continue
-                    elif is_tool_result and not include_tool_results:
-                        # Skip tool results when flag is False
-                        continue
-                    else:
-                        # Check if any filter explicitly includes messages/conversation
-                        message_included = any(f.lower() in ['message', 'messages', 'conversation'] 
-                                             for f in include_filters)
-                        if not message_included:
-                            continue
-                
-                # Check excludes for messages
-                if exclude_filters:
-                    message_excluded = any(f.lower() in ['message', 'messages', 'conversation'] 
-                                         for f in exclude_filters)
-                    if message_excluded:
-                        continue
+            # Check excludes - must not match any
+            if exclude_filters:
+                if any(self._matches_timeline_filter(item, f) for f in exclude_filters):
+                    continue
             
             filtered_items.append(item)
         
@@ -407,15 +384,12 @@ class SessionExplorer:
             json_output: Output as JSON array to stdout
             jsonl_output: Output as JSONL (newline-delimited JSON) to stdout
         """
-        # Parse filters
         include_list = include_filters.split(',') if include_filters else None
         exclude_list = exclude_filters.split(',') if exclude_filters else None
         
-        # Use centralized filtering
         filtered_items = self.filter_timeline(indices, include_list, exclude_list, include_tool_results)
         
         if json_output or jsonl_output:
-            # Convert timeline items to JSON-serializable format
             json_items = []
             for item in filtered_items:
                 json_item = {
@@ -440,27 +414,20 @@ class SessionExplorer:
                     }
                 
                 if jsonl_output:
-                    # Output as JSONL (one JSON object per line)
                     json.dump(json_item, sys.stdout)
                     sys.stdout.write('\n')
                 else:
                     json_items.append(json_item)
             
             if json_output:
-                # Output as JSON array
                 json.dump(json_items, sys.stdout, indent=2)
                 sys.stdout.write('\n')
         else:
-            # Regular display
-            if display_mode not in ['truncated', 'full']:
-                print("\n=== TIMELINE ===")
             
-            # Determine if we should show numbers
             # Show numbers when: 1) filtering is applied or 2) not showing full timeline or 3) force flag or 4) full mode
             has_filtering = indices or include_list or exclude_list
             show_numbers = (display_mode == 'truncated' and (has_filtering or force_show_numbers)) or display_mode == 'full'
             
-            # Display the filtered items
             for item in filtered_items:
                 self._display_timeline_item(item, display_mode, show_numbers)
     
@@ -472,29 +439,20 @@ class SessionExplorer:
             indices: List of 0-based indices to show (if None, show all)
             display_mode: 'compact' (default), 'truncated', or 'full'
         """
-        if display_mode not in ['truncated', 'full']:
-            print("\n=== TIMELINE ===")
-        
-        # Use centralized filtering based on filter_type
         if filter_type == 'tools':
-            # Show only tools
             filtered_items = [item for item in self.filter_timeline(indices) if item['type'] == 'tool']
         elif filter_type == 'conversation':
-            # Show only messages
             filtered_items = [item for item in self.filter_timeline(indices) if item['type'] == 'message']
         elif filter_type not in ['all', 'tools', 'conversation']:
-            # Specific tool filter
             include_filters = [filter_type]
             filtered_items = self.filter_timeline(indices, include_filters)
         else:
-            # Show all
             filtered_items = self.filter_timeline(indices)
         
         # Show numbers in truncated mode when filtering or always in full mode
         has_filtering = filter_type != 'all' or indices
         show_numbers = (display_mode == 'truncated' and has_filtering) or display_mode == 'full'
         
-        # Show the filtered items
         for item in filtered_items:
             self._display_timeline_item(item, display_mode, show_numbers)
     
@@ -522,14 +480,11 @@ class SessionExplorer:
                 elif text == '[Interrupted by user]':
                     print(f"{prefix}> [Request interrupted by user]")
                 elif text and not tool_results:
-                    # Regular user message
                     print(f"{prefix}> {text}")
                 elif tool_results:
-                    # This is a tool result - format like reconstruct.jq
                     for result in tool_results:
                         content = result.get('content', '')
                         
-                        # Skip internal messages
                         if any(phrase in content for phrase in [
                             "Todos have been modified successfully",
                             "completed successfully"
@@ -539,9 +494,7 @@ class SessionExplorer:
                         print("  ⎿  Waiting…\n")
                         
                         if content:
-                            # Check if this is a todo result
                             if self._is_todo_result(content):
-                                # Parse and format todo items
                                 self._format_todo_result_truncated(content)
                             else:
                                 if display_mode == 'full':
@@ -555,7 +508,6 @@ class SessionExplorer:
                                     for line in truncated.split('\n'):
                                         print(f"  ⎿  {line}")
                         else:
-                            # Empty result
                             print("  ⎿  (No content)")
                         print()  # Extra newline after tool results
             
@@ -577,14 +529,12 @@ class SessionExplorer:
                 slash_cmd = msg.get('slash_command', '')
                 is_meta = msg.get('is_meta', False)
                 
-                # Check if this is an internal message to skip
                 if tool_results and tool_results[0].get('content', ''):
                     content = tool_results[0].get('content', '')
                     if any(phrase in content for phrase in [
                         "Todos have been modified successfully",
-                        "completed successfully"  # System messages
+"completed successfully"
                     ]):
-                        # Skip these internal messages entirely
                         return
                 
                 if is_meta and text.startswith('Caveat:'):
@@ -611,12 +561,9 @@ class SessionExplorer:
                         multiline = ''
                     print(f"[{item['seq']}] > {first_line}{multiline}")
                 elif tool_results:
-                    # This is a tool result message
                     content = tool_results[0].get('content', '')
                     
-                    # Handle case where content might be a list or dict
                     if isinstance(content, list):
-                        # Extract text from list of content items
                         texts = []
                         for item in content:
                             if isinstance(item, dict) and 'text' in item:
@@ -627,11 +574,9 @@ class SessionExplorer:
                     elif isinstance(content, dict):
                         content = content.get('text', str(content))
                     
-                    # Handle interrupted tools specially
                     if "doesn't want to proceed" in content:
                         print(f"[{item['seq']}] ⎿  [Tool rejected]")
                     else:
-                        # Show actual tool results
                         lines = content.split('\n')
                         first_line = lines[0]
                         if len(lines) > 1:
@@ -645,7 +590,6 @@ class SessionExplorer:
                             multiline = ''
                         print(f"[{item['seq']}] ⎿  {first_line}{multiline}")
                 else:
-                    # Empty user message (rare but possible)
                     print(f"[{item['seq']}] > [empty]")
             elif msg['type'] == 'assistant':
                 # Show assistant text or tool usage
@@ -665,7 +609,6 @@ class SessionExplorer:
                         multiline = ''
                     print(f"[{item['seq']}] ⏺ {first_line}{multiline}")
                 elif tools:
-                    # Skip tool-only messages in compact mode - tools appear separately
                     pass
                 else:
                     print(f"[{item['seq']}] ⏺ [No content]")
@@ -684,8 +627,6 @@ class SessionExplorer:
                 elif tool_name == 'TodoRead':
                     print(f"{prefix}⏺ Read Todos")
                 else:
-                    # Standard format: ToolName(parameter)
-                    # Extract the main parameter based on common patterns
                     param_str = ""
                     if 'command' in params:
                         param_str = params['command']
@@ -702,7 +643,6 @@ class SessionExplorer:
                     elif 'description' in params:
                         param_str = params['description']
                     else:
-                        # Use first string parameter or convert to string
                         for v in params.values():
                             if isinstance(v, str):
                                 param_str = v
@@ -710,9 +650,7 @@ class SessionExplorer:
                         if not param_str and params:
                             param_str = str(list(params.values())[0])
                     
-                    # In full mode, show complete parameters
                     if display_mode == 'full' and 'command' in params:
-                        # For commands, show full command
                         print(f"{prefix}⏺ {tool_name}({params['command']})")
                     else:
                         print(f"{prefix}⏺ {tool_name}({param_str})")
@@ -721,13 +659,11 @@ class SessionExplorer:
                 if tool_name == 'TodoWrite':
                     todos = params.get('todos', [])
                     if todos:
-                        # Count todo statuses
                         status_counts = defaultdict(int)
                         for todo in todos:
                             status = todo.get('status', 'unknown')
                             status_counts[status] += 1
                         
-                        # Format summary
                         total = len(todos)
                         status_parts = []
                         for status in ['completed', 'in_progress', 'pending']:
@@ -771,7 +707,6 @@ class SessionExplorer:
                 elif tool_name == 'Bash':
                     # Special format for Bash: $ command
                     command = params.get('command', '')
-                    # Take first line for multi-line commands
                     command = command.split('\n')[0]
                     print(f"[{item['seq']}] ⏺ Bash: $ {command}")
                 elif tool_name in ['Edit', 'Write', 'MultiEdit']:
@@ -783,11 +718,9 @@ class SessionExplorer:
                     file_path = params.get('file_path', '')
                     print(f"[{item['seq']}] ⏺ Read: ← {file_path}")
                 else:
-                    # Generic format for other tools
                     param_str = ""
                     if 'command' in params:
                         param_str = params['command']
-                        # Take first line for multi-line commands
                         param_str = param_str.split('\n')[0]
                     elif 'file_path' in params:
                         param_str = params['file_path']
@@ -802,7 +735,6 @@ class SessionExplorer:
                     elif 'description' in params:
                         param_str = params['description']
                     else:
-                        # Use first string parameter or convert to string
                         for v in params.values():
                             if isinstance(v, str):
                                 param_str = v
@@ -823,31 +755,24 @@ class SessionExplorer:
             json_output: Output as JSON array to stdout
             jsonl_output: Output as JSONL (newline-delimited JSON) to stdout
         """
-        # Convert start/end to indices for filter_timeline
         indices = None
         if start is not None or end is not None:
             start_idx = (start - 1) if start else 0
             end_idx = end if end else len(self.timeline)
             indices = list(range(start_idx, end_idx))
         
-        # Use centralized filtering based on filter_type
         if filter_type == 'tools':
-            # Show only tools
             include_filters = None
             filtered_items = [item for item in self.filter_timeline(indices) if item['type'] == 'tool']
         elif filter_type == 'conversation':
-            # Show only messages
             filtered_items = [item for item in self.filter_timeline(indices) if item['type'] == 'message']
         elif filter_type not in ['all', 'tools', 'conversation']:
-            # Specific tool filter
             include_filters = [filter_type]
             filtered_items = self.filter_timeline(indices, include_filters)
         else:
-            # Show all
             filtered_items = self.filter_timeline(indices)
         
         if json_output or jsonl_output:
-            # Convert timeline items to JSON-serializable format
             json_items = []
             for item in filtered_items:
                 json_item = {
@@ -872,35 +797,26 @@ class SessionExplorer:
                     }
                 
                 if jsonl_output:
-                    # Output as JSONL (one JSON object per line)
                     json.dump(json_item, sys.stdout)
                     sys.stdout.write('\n')
                 else:
                     json_items.append(json_item)
             
             if json_output:
-                # Output as JSON array
                 json.dump(json_items, sys.stdout, indent=2)
                 sys.stdout.write('\n')
         else:
-            # Regular display
-            if display_mode not in ['truncated', 'full']:
-                print("\n=== TIMELINE ===")
             
-            # Determine if we should show numbers
             # Show numbers when filtering is applied (not showing full timeline) or in full mode
             has_filtering = filter_type != 'all' or indices is not None
             show_numbers = (display_mode == 'truncated' and has_filtering) or display_mode == 'full'
             
-            # Display using the centralized display method
             for item in filtered_items:
                 self._display_timeline_item(item, display_mode, show_numbers)
     
     def show_git_operations(self):
         """Show all git operations. DEPRECATED: Use -t --include 'Bash(git *)' instead."""
         print("Note: --git is now a shortcut for: -t --include 'Bash(git *)'")
-        # This method is kept for backward compatibility but the main logic
-        # is now handled through the timeline filtering
     
     def show_file_changes(self):
         """Show all file modifications.
@@ -909,10 +825,8 @@ class SessionExplorer:
         """
         print("Note: --files is deprecated. Use --timeline --include \"Edit,Write,MultiEdit\" instead.")
         
-        # Use centralized filtering to get file editing tools
         filtered_items = self.filter_timeline(include_filters=['Edit', 'Write', 'MultiEdit'])
         
-        # Group by file path
         file_changes = defaultdict(list)
         for item in filtered_items:
             if item['type'] == 'tool':
@@ -920,7 +834,6 @@ class SessionExplorer:
                 path = tc['parameters'].get('file_path', 'unknown')
                 file_changes[path].append((item['seq'], tc['name']))
         
-        # Display grouped by file
         for path, changes in sorted(file_changes.items()):
             display_path = path.split('/')[-1] if '/' in path else path
             print(f"\n{display_path}: {len(changes)} changes")
@@ -937,7 +850,6 @@ class SessionExplorer:
                 content = tc['parameters'].get('content', '')
                 if path:
                     print(f"\n{i+1}. {path.split('/')[-1]}")
-                    # Show first few lines
                     lines = content.split('\n')[:5]
                     for line in lines:
                         print(f"   {line[:60]}...")
@@ -958,20 +870,17 @@ class SessionExplorer:
         DEPRECATED: Use --timeline conversation instead.
         This method is kept for backward compatibility.
         """
-        print("Note: --conversation is deprecated. Use --timeline conversation instead.")
+        print("Note: --conversation is deprecated. Use -t -m (or --timeline --include Message)")
         
-        # Convert to timeline display
         self.show_timeline('conversation', start, end, display_mode='compact')
     
     def export_range(self, start, end, output_file, include_filters=None, exclude_filters=None):
         """Export a range of tool calls with optional Tool(glob) filtering."""
         selected = self.tool_calls[start-1:end]
         
-        # Apply filters if provided
         if include_filters or exclude_filters:
             selected = self._apply_filters(selected, include_filters, exclude_filters)
         
-        # Output to file or stdout
         if output_file == '-':
             json.dump(selected, sys.stdout, indent=2)
             sys.stdout.write('\n')
@@ -980,8 +889,45 @@ class SessionExplorer:
                 json.dump(selected, f, indent=2)
             print(f"\nExported {len(selected)} tool calls to {output_file}")
     
+    def _parse_filter(self, filter_str):
+        """Parse filter string supporting both tools and virtual entities.
+        
+        Formats:
+        - Virtual entities: Message, Tool, User, Assistant
+        - Tool filters: Edit, Bash(git *), Read(*.py)
+        
+        Returns:
+            tuple: (filter_type, entity_name, pattern)
+            filter_type: 'virtual' or 'tool'
+            entity_name: Name of entity/tool
+            pattern: Optional pattern for tools
+        """
+        # Virtual entities (case-insensitive)
+        virtual_entities = {
+            'message': 'message',
+            'messages': 'message',
+            'tool': 'tool', 
+            'tools': 'tool',
+            'user': 'user',
+            'assistant': 'assistant'
+        }
+        
+        filter_lower = filter_str.lower()
+        if filter_lower in virtual_entities:
+            return 'virtual', virtual_entities[filter_lower], None
+        
+        # Tool filters - use existing parser
+        match = re.match(r'(\w+)\((.*)\)', filter_str)
+        if match:
+            return 'tool', match.group(1), match.group(2)
+        elif re.match(r'^\w+$', filter_str):
+            return 'tool', filter_str, None
+        
+        return None, None, None
+    
     def _parse_tool_filter(self, filter_str):
         """Parse 'Tool' or 'Tool(pattern)' format."""
+        # Keep for backward compatibility
         match = re.match(r'(\w+)\((.*)\)', filter_str)
         if match:
             return match.group(1), match.group(2)
@@ -994,28 +940,22 @@ class SessionExplorer:
         if tool_call['name'] != tool_name:
             return False
         
-        # If no pattern specified, match all
         if not pattern:
             return True
         
         params = tool_call.get('parameters', {})
         
-        # For file operations, match against file_path
         if tool_name in ['Edit', 'Write', 'MultiEdit', 'Read']:
             file_path = params.get('file_path', '')
             return fnmatch.fnmatch(file_path, pattern)
         
-        # For Bash, match against command
         elif tool_name == 'Bash':
             command = params.get('command', '')
-            # Handle exact match or glob patterns
             if '*' in pattern:
                 return fnmatch.fnmatch(command, pattern)
             else:
-                # Exact match (like Claude Code's "Bash(npm run build)")
                 return command == pattern
         
-        # For Grep, match against pattern parameter
         elif tool_name == 'Grep':
             grep_pattern = params.get('pattern', '')
             return fnmatch.fnmatch(grep_pattern, pattern)
@@ -1027,7 +967,6 @@ class SessionExplorer:
         filtered = []
         
         for tc in tool_calls:
-            # Check includes - must match at least one
             if include_filters:
                 included = False
                 for inc_filter in include_filters:
@@ -1038,7 +977,6 @@ class SessionExplorer:
                 if not included:
                     continue
             
-            # Check excludes - must not match any
             if exclude_filters:
                 excluded = False
                 for exc_filter in exclude_filters:
@@ -1055,8 +993,6 @@ class SessionExplorer:
     
     def _is_todo_result(self, content):
         """Check if content appears to be a todo result."""
-        # Look for patterns that indicate todo items
-        # Common patterns: "☐", "☒", "◐", "(P0)", "(P1)", "(P2)"
         todo_patterns = ['☐', '☒', '◐', '(P0)', '(P1)', '(P2)']
         return any(pattern in content for pattern in todo_patterns)
     
@@ -1068,14 +1004,10 @@ class SessionExplorer:
         ◐ In progress task (P1) 
         ☐ Pending task (P2)
         """
-        # Check if this is the standard "Todos have been modified" message
         if "Todos have been modified successfully" in content:
-            # Parse the actual todo list from the current todo state
-            # For now, just show the success message
             print("  ⎿  ☒ Todos updated successfully")
             return
             
-        # Parse todo items from the content
         lines = content.strip().split('\n')
         formatted_lines = []
         
@@ -1084,17 +1016,13 @@ class SessionExplorer:
             if not line:
                 continue
                 
-            # Check if this looks like a todo item with checkbox symbols
             if any(symbol in line for symbol in ['☐', '☒', '◐']):
-                # This is a todo item - add proper spacing
                 formatted_lines.append(f"     {line}")
             else:
-                # Regular line - might be a header or other content
                 formatted_lines.append(f"     {line}")
         
-        # Print with the tool result indicator only on the first line
         if formatted_lines:
-            print(f"  ⎿  {formatted_lines[0][5:]}")  # Remove the 5 spaces from first line
+            print(f"  ⎿  {formatted_lines[0][5:]}")
             for line in formatted_lines[1:]:
                 print(line)
 
@@ -1102,11 +1030,9 @@ def find_session_file(identifier):
     """Find session file by any substring match."""
     import subprocess
     
-    # If it's already a valid path, return as-is
     if Path(identifier).exists():
         return identifier
     
-    # Search directories in order of preference
     search_dirs = [
         Path(__file__).parent.parent / 'github',
         Path.home() / '.claude' / 'projects'
@@ -1114,7 +1040,6 @@ def find_session_file(identifier):
     
     matches = []
     
-    # Use ripgrep to find files containing the identifier
     for search_dir in search_dirs:
         if search_dir.exists():
             result = subprocess.run(
@@ -1134,10 +1059,8 @@ def find_session_file(identifier):
     if len(matches) == 1:
         return str(matches[0])
     
-    # Multiple matches - let user choose
     print(f"Found {len(matches)} matches for '{identifier}':")
     for i, match in enumerate(matches):
-        # Show relative path from search directory
         for search_dir in search_dirs:
             if search_dir in match.parents:
                 rel_path = match.relative_to(search_dir.parent)
@@ -1154,9 +1077,11 @@ def main():
                '  %(prog)s session.jsonl                    # Show summary\n'
                '  %(prog)s session.jsonl -t                 # Show full timeline\n'
                '  %(prog)s session.jsonl -t 10-20           # Show timeline items 10-20\n'
-               '  %(prog)s session.jsonl -t --include "Bash(git *)"  # Show git operations\n'
-               '  %(prog)s session.jsonl --git              # Shortcut for git operations\n'
-               '  %(prog)s session.jsonl --files            # Show file edits summary\n',
+               '  %(prog)s session.jsonl -t -m              # Show all messages\n'
+               '  %(prog)s session.jsonl -t -u              # Show user messages only\n'
+               '  %(prog)s session.jsonl -t -T --no-tool-results  # Show tools without output\n'
+               '  %(prog)s session.jsonl -t -i "Bash(git *)"  # Show git operations\n'
+               '  %(prog)s session.jsonl --git              # Shortcut for git operations\n',
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument('session', help='Session file or any unique substring (issue-13, run ID, date, etc.)')
@@ -1175,12 +1100,11 @@ def main():
                         help='Output timeline as JSON array to stdout (use with -t/--timeline)')
     parser.add_argument('--jsonl', action='store_true',
                         help='Output timeline as JSONL (newline-delimited JSON) to stdout (use with -t/--timeline)')
-    parser.add_argument('--include', metavar='FILTERS',
-                        help='Include only tools matching filters, comma-separated. '
-                             'Follows Claude Code syntax: "Edit,Bash(git add *)"')
-    parser.add_argument('--exclude', metavar='FILTERS',
-                        help='Exclude tools matching filters, comma-separated. '
-                             'Follows Claude Code syntax: "TodoWrite,Bash(npm test:*)"')
+    parser.add_argument('--include', '-i', metavar='FILTERS',
+                        help='Include filters: tools (Edit,Bash(git *)) or '
+                             'virtual entities (Message,Tool,User,Assistant)')
+    parser.add_argument('--exclude', '-x', metavar='FILTERS',
+                        help='Exclude filters: tools or virtual entities')
     parser.add_argument('--truncated', action='store_true',
                         help='Show truncated console-style output (3-line preview)')
     parser.add_argument('--full', action='store_true',
@@ -1189,17 +1113,26 @@ def main():
                         help='When filtering for tools, exclude their results (default: include results)')
     parser.add_argument('--show-numbers', action='store_true',
                         help='Show sequence numbers in truncated mode even without filtering')
+    
+    # Virtual entity shortcuts
+    parser.add_argument('-m', dest='include_message', action='store_true',
+                        help='Include all messages (shortcut for -i Message)')
+    parser.add_argument('-u', dest='include_user', action='store_true',
+                        help='Include user messages (shortcut for -i User)')
+    parser.add_argument('-a', dest='include_assistant', action='store_true',
+                        help='Include assistant messages (shortcut for -i Assistant)')
+    parser.add_argument('-T', dest='include_tool', action='store_true',
+                        help='Include all tools (shortcut for -i Tool)')
+    
     parser.add_argument('indices', nargs='*', 
                         help='Indices/ranges: 5 (item 5), +10 (first 10), -20 (last 20), 10-30 (range)')
     
     args = parser.parse_args()
     
-    # Default to showing summary if no options
     if not any([args.summary, args.timeline, args.git, args.files, 
                 args.created, args.conversation, args.search, args.export_json]):
         args.summary = True
     
-    # Resolve the session file
     try:
         jsonl_file = find_session_file(args.session)
     except FileNotFoundError as e:
@@ -1212,7 +1145,6 @@ def main():
         explorer.show_summary()
     
     if args.timeline:
-        # Determine display mode
         display_mode = 'compact'
         if args.truncated:
             display_mode = 'truncated'
@@ -1220,33 +1152,44 @@ def main():
             display_mode = 'full'
         
         # Parse indices if provided
+        indices = None
         if args.indices:
             try:
                 indices = parse_indices(args.indices, len(explorer.timeline))
-                explorer.show_timeline_with_filters(indices, display_mode, 
-                                                    args.include, args.exclude,
-                                                    not args.no_tool_results,
-                                                    args.show_numbers,
-                                                    args.json, args.jsonl)
             except ValueError as e:
                 print(f"Error: {e}")
-        else:
-            # Show all items
-            explorer.show_timeline_with_filters(None, display_mode,
-                                              args.include, args.exclude,
-                                              not args.no_tool_results,
-                                              args.show_numbers,
-                                              args.json, args.jsonl)
+                sys.exit(1)
+        
+        # Build include filters from shortcuts
+        include_filters = []
+        if args.include:
+            include_filters.extend(args.include.split(','))
+        if args.include_message:
+            include_filters.append('Message')
+        if args.include_user:
+            include_filters.append('User')
+        if args.include_assistant:
+            include_filters.append('Assistant')
+        if args.include_tool:
+            include_filters.append('Tool')
+        
+        # Join filters back into comma-separated string
+        include_str = ','.join(include_filters) if include_filters else None
+        
+        # Use show_timeline_with_filters for all timeline operations
+        explorer.show_timeline_with_filters(indices, display_mode,
+                                          include_str, args.exclude,
+                                          not args.no_tool_results,
+                                          args.show_numbers,
+                                          args.json, args.jsonl)
     
     if args.git:
-        # --git is a shortcut for --timeline --include "Bash(git *)"
         display_mode = 'compact'
         if args.truncated:
             display_mode = 'truncated'
         elif args.full:
             display_mode = 'full'
             
-        # Parse indices if provided
         if args.indices:
             try:
                 indices = parse_indices(args.indices, len(explorer.timeline))
@@ -1273,15 +1216,11 @@ def main():
         explorer.search_commands(args.search)
     
     if args.conversation:
-        # --conversation is deprecated, but handle it for backward compatibility
         if args.indices:
             try:
                 indices = parse_indices(args.indices, len(explorer.timeline))
-                # Convert conversation to timeline with indices
-                print("\n=== CONVERSATION ===")
-                print("Note: --conversation is deprecated. Use --timeline conversation instead.")
+                print("Note: --conversation is deprecated. Use -t -m (or --timeline --include Message)")
                 filtered_items = explorer.filter_timeline(indices)
-                # Only show message items
                 for item in filtered_items:
                     if item['type'] == 'message':
                         explorer._display_timeline_item(item, 'compact')
@@ -1292,12 +1231,9 @@ def main():
     
     if args.export_json:
         range_str, output = args.export_json
-        # Parse the range using our consistent syntax
         start_idx, end_idx = parse_range(range_str, len(explorer.tool_calls))
-        # Split comma-separated filters
         include_filters = args.include.split(',') if args.include else None
         exclude_filters = args.exclude.split(',') if args.exclude else None
-        # Export using 1-based indices for the export_range method
         explorer.export_range(start_idx + 1, end_idx, output, 
                             include_filters=include_filters,
                             exclude_filters=exclude_filters)

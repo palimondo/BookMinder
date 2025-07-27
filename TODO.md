@@ -15,6 +15,15 @@ in the `stories/` directory, following the format defined in `vision.md`.
 
 ## In Progress
 
+### Filter Implementation Restoration
+- **Issue:** After commit 6f786cc, ATDD practice wasn't followed properly
+- **Action:** Manually restore proper ATDD discipline to re-establish gold standard of specs and implementation
+- **Stories that need proper ATDD reimplementation:**
+  - `stories/discover/validate-filter-values.yaml`
+  - `stories/discover/filter-by-sample-flag.yaml` 
+  - `stories/discover/filter-by-reading-status.yaml`
+- **Goal:** Create exemplar specifications that demonstrate correct ATDD approach
+
 ## Current Backlog (Stories in `stories/` directory)
 
 ### Discover Column

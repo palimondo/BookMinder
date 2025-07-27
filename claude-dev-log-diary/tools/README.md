@@ -42,21 +42,61 @@ python explore_session.py 20250723 # Match by date
 
 #### Interactive Exploration
 ```bash
-python explore_session.py issue-13 --summary      # Tool usage summary
-python explore_session.py issue-13 --timeline Edit # Show all edits
+# Basic exploration
+python explore_session.py issue-13 -s             # Show summary (default)
+python explore_session.py issue-13 -t             # Show full timeline
+python explore_session.py issue-13 -t 10-20       # Show timeline items 10-20
+python explore_session.py issue-13 -t +20         # Show first 20 items
+python explore_session.py issue-13 -t -30         # Show last 30 items
+
+# Virtual entities (NEW!)
+python explore_session.py issue-13 -t -m          # Show all messages
+python explore_session.py issue-13 -t -u          # Show user messages only
+python explore_session.py issue-13 -t -a          # Show assistant messages
+python explore_session.py issue-13 -t -T          # Show all tools
+python explore_session.py issue-13 -t -T --no-tool-results  # Tools without output
+
+# Combining filters
+python explore_session.py issue-13 -t -m -x User  # Assistant messages only
+python explore_session.py issue-13 -t -i Message,Read  # Messages and Read operations
+
+# Traditional shortcuts
 python explore_session.py issue-13 --git          # Show git operations
-python explore_session.py issue-13 --files        # Show file changes
+python explore_session.py issue-13 --files        # Show file changes summary
 ```
 
-#### Tool(glob) Filtering
-Uses Claude Code's permission syntax:
+#### Advanced Filtering
+Virtual entities and tool patterns:
 ```bash
-# Export specific tools with patterns
-python explore_session.py issue-13 --export 1 46 - \
-  --include "Edit(*/specs/**),Bash(git add *),Bash(git commit *)"
+# Virtual entities: Message, Tool, User, Assistant
+python explore_session.py issue-13 -t -i Message  # All messages
+python explore_session.py issue-13 -t -i Tool     # All tools
+python explore_session.py issue-13 -t -i User,Assistant  # All messages
 
-# Short form for all operations of a type
-python explore_session.py issue-13 --export 1 46 - --include "Edit,Write"
+# Tool patterns (Claude Code syntax)
+python explore_session.py issue-13 -t -i "Bash(git *)"     # Git commands
+python explore_session.py issue-13 -t -i "Edit(*.py)"      # Python edits
+python explore_session.py issue-13 -t -i "Read(*test*)"    # Reading test files
+
+# Export with filters
+python explore_session.py issue-13 --export-json 1-46 output.json \
+  -i "Edit(*/specs/**),Bash(git add *),Bash(git commit *)"
+```
+
+#### Display Modes
+```bash
+# Compact mode (default) - one line per item
+python explore_session.py issue-13 -t
+
+# Truncated mode - 3-line preview (like Claude console)
+python explore_session.py issue-13 -t --truncated
+
+# Full mode - complete output
+python explore_session.py issue-13 -t --full
+
+# JSON output for piping
+python explore_session.py issue-13 -t --json | jq '.[] | select(.type=="tool")'
+python explore_session.py issue-13 -t --jsonl | grep '"type":"message"'
 ```
 
 ### parse_claude_jsonl.py
@@ -67,6 +107,35 @@ JQ script to recreate console format from local Claude session JSONL files. Usef
 
 ```bash
 jq -r -f reconstruct.jq ~/.claude/projects/-Users-palimondo-Developer-BookMinder/SESSION_ID.jsonl
+```
+
+## Session Analysis Use Cases
+
+This tool helps analyze Claude Code's behavior and debug issues:
+
+```bash
+# "What did the user actually ask for?"
+explore_session.py issue-13 -t -u                    # User messages only
+
+# "What was Claude's interpretation?" 
+explore_session.py issue-13 -t -a                    # Assistant responses
+
+# "What tools did Claude use (without the noise)?"
+explore_session.py issue-13 -t -T --no-tool-results  # Actions without output
+
+# "Did Claude understand the error messages?"
+explore_session.py issue-13 -t -a -i Tool            # Responses + tool results
+
+# "What files did Claude read repeatedly?"
+explore_session.py issue-13 -t -i Read --json | \
+  jq -r '.[] | select(.type=="tool") | .tool.parameters.file_path' | \
+  sort | uniq -c | sort -n
+
+# "Show the conversation around a specific error"
+explore_session.py issue-13 -t 140-160 -m            # Messages in range
+
+# "What happened after the user interrupted?"
+explore_session.py issue-13 -t | grep -B5 -A5 "interrupted"
 ```
 
 ## Replay Workflow
@@ -80,15 +149,15 @@ The key insight: Claude's Task tool can run explore_session.py directly and exec
 
 2. **Export filtered chunk**:
    ```bash
-   python explore_session.py issue-13 --export 1 46 - \
-     --include "Edit(*/specs/**),Edit(*/bookminder/**),Bash(git add *),Bash(git commit *)"
+   python explore_session.py issue-13 --export-json 1-46 - \
+     -i "Edit(*/specs/**),Edit(*/bookminder/**),Bash(git add *),Bash(git commit *)"
    ```
 
 3. **Task delegation example**:
    ```
    Execute this command to get tool calls, then replay them exactly:
    
-   python claude-dev-log-diary/tools/explore_session.py issue-13 --export 38 40 - --include "Edit" 2>/dev/null
+   python claude-dev-log-diary/tools/explore_session.py issue-13 --export-json 38-40 - -i Edit 2>/dev/null
    
    Important:
    - Run the command above to get 2 Edit operations
