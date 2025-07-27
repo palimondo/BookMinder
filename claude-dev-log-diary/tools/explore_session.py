@@ -393,7 +393,8 @@ class SessionExplorer:
     
     def show_timeline_with_filters(self, indices=None, display_mode='compact', 
                                     include_filters=None, exclude_filters=None,
-                                    include_tool_results=True, force_show_numbers=False):
+                                    include_tool_results=True, force_show_numbers=False,
+                                    json_output=False, jsonl_output=False):
         """Show timeline with indices and include/exclude filters.
         
         Args:
@@ -403,10 +404,9 @@ class SessionExplorer:
             exclude_filters: Comma-separated filter string
             include_tool_results: Whether to include tool results when filtering
             force_show_numbers: Force showing sequence numbers in truncated mode
+            json_output: Output as JSON array to stdout
+            jsonl_output: Output as JSONL (newline-delimited JSON) to stdout
         """
-        if display_mode != 'truncated':
-            print("\n=== TIMELINE ===")
-        
         # Parse filters
         include_list = include_filters.split(',') if include_filters else None
         exclude_list = exclude_filters.split(',') if exclude_filters else None
@@ -414,14 +414,55 @@ class SessionExplorer:
         # Use centralized filtering
         filtered_items = self.filter_timeline(indices, include_list, exclude_list, include_tool_results)
         
-        # Determine if we should show numbers in truncated mode
-        # Show numbers when: 1) filtering is applied or 2) not showing full timeline or 3) force flag
-        has_filtering = indices or include_list or exclude_list
-        show_numbers = display_mode == 'truncated' and (has_filtering or force_show_numbers)
-        
-        # Display the filtered items
-        for item in filtered_items:
-            self._display_timeline_item(item, display_mode, show_numbers)
+        if json_output or jsonl_output:
+            # Convert timeline items to JSON-serializable format
+            json_items = []
+            for item in filtered_items:
+                json_item = {
+                    'seq': item['seq'],
+                    'type': item['type'],
+                    'timestamp': item.get('timestamp')
+                }
+                if item['type'] == 'message':
+                    msg = item['data']
+                    json_item['message'] = {
+                        'type': msg['type'],
+                        'text': msg.get('text'),
+                        'tool_results': msg.get('tool_results'),
+                        'is_slash_command': msg.get('is_slash_command'),
+                        'slash_command': msg.get('slash_command')
+                    }
+                elif item['type'] == 'tool':
+                    tc = item['data']
+                    json_item['tool'] = {
+                        'name': tc['name'],
+                        'parameters': tc.get('parameters', {})
+                    }
+                
+                if jsonl_output:
+                    # Output as JSONL (one JSON object per line)
+                    json.dump(json_item, sys.stdout)
+                    sys.stdout.write('\n')
+                else:
+                    json_items.append(json_item)
+            
+            if json_output:
+                # Output as JSON array
+                json.dump(json_items, sys.stdout, indent=2)
+                sys.stdout.write('\n')
+        else:
+            # Regular display
+            if display_mode not in ['truncated', 'full']:
+                print("\n=== TIMELINE ===")
+            
+            # Determine if we should show numbers
+            # Show numbers when: 1) filtering is applied or 2) not showing full timeline or 3) force flag or 4) full mode
+            has_filtering = indices or include_list or exclude_list
+            show_numbers = (display_mode == 'truncated' and (has_filtering or force_show_numbers)) or display_mode == 'full'
+            
+            # Display the filtered items
+            for item in filtered_items:
+                self._display_timeline_item(item, display_mode, show_numbers)
     
     def show_timeline_indices(self, filter_type='all', indices=None, display_mode='compact'):
         """Show timeline with specific indices.
@@ -431,7 +472,7 @@ class SessionExplorer:
             indices: List of 0-based indices to show (if None, show all)
             display_mode: 'compact' (default), 'truncated', or 'full'
         """
-        if display_mode != 'truncated':
+        if display_mode not in ['truncated', 'full']:
             print("\n=== TIMELINE ===")
         
         # Use centralized filtering based on filter_type
@@ -449,9 +490,9 @@ class SessionExplorer:
             # Show all
             filtered_items = self.filter_timeline(indices)
         
-        # Show numbers in truncated mode when filtering
+        # Show numbers in truncated mode when filtering or always in full mode
         has_filtering = filter_type != 'all' or indices
-        show_numbers = display_mode == 'truncated' and has_filtering
+        show_numbers = (display_mode == 'truncated' and has_filtering) or display_mode == 'full'
         
         # Show the filtered items
         for item in filtered_items:
@@ -467,7 +508,7 @@ class SessionExplorer:
         """
         if item['type'] == 'message':
             msg = item['data']
-            if msg['type'] == 'user' and display_mode == 'truncated':
+            if msg['type'] == 'user' and display_mode in ['truncated', 'full']:
                 # Truncated mode - reconstruct.jq style
                 text = msg.get('text', '')
                 tool_results = msg.get('tool_results', [])
@@ -475,7 +516,7 @@ class SessionExplorer:
                 slash_cmd = msg.get('slash_command', '')
                 
                 # Handle different user message types
-                prefix = f"[{item['seq']}] " if show_numbers else ""
+                prefix = f"[{item['seq']}] " if show_numbers or display_mode == 'full' else ""
                 if is_slash and slash_cmd:
                     print(f"{prefix}> /{slash_cmd}")
                 elif text == '[Interrupted by user]':
@@ -503,24 +544,29 @@ class SessionExplorer:
                                 # Parse and format todo items
                                 self._format_todo_result_truncated(content)
                             else:
-                                # Format the output with truncation
-                                truncated = self._format_truncated_output(content, 3)
-                                # Indent each line
-                                for line in truncated.split('\n'):
-                                    print(f"  ⎿  {line}")
+                                if display_mode == 'full':
+                                    # Full mode: show complete output
+                                    for line in content.split('\n'):
+                                        print(f"  ⎿  {line}")
+                                else:
+                                    # Truncated mode: show first 3 lines
+                                    truncated = self._format_truncated_output(content, 3)
+                                    # Indent each line
+                                    for line in truncated.split('\n'):
+                                        print(f"  ⎿  {line}")
                         else:
                             # Empty result
                             print("  ⎿  (No content)")
                         print()  # Extra newline after tool results
             
-            elif msg['type'] == 'assistant' and display_mode == 'truncated':
-                # Assistant messages in truncated mode
+            elif msg['type'] == 'assistant' and display_mode in ['truncated', 'full']:
+                # Assistant messages in truncated/full mode
                 text = msg.get('text', '')
                 tools = msg.get('tools', [])
                 
                 if text:
-                    # Show full assistant text (reconstruct.jq shows all of it)
-                    prefix = f"[{item['seq']}] " if show_numbers else ""
+                    # Show full assistant text
+                    prefix = f"[{item['seq']}] " if show_numbers or display_mode == 'full' else ""
                     print(f"{prefix}⏺ {text}\n")
                 # Tool uses are handled separately as 'tool' items
                 
@@ -568,6 +614,19 @@ class SessionExplorer:
                     # This is a tool result message
                     content = tool_results[0].get('content', '')
                     
+                    # Handle case where content might be a list or dict
+                    if isinstance(content, list):
+                        # Extract text from list of content items
+                        texts = []
+                        for item in content:
+                            if isinstance(item, dict) and 'text' in item:
+                                texts.append(item['text'])
+                            else:
+                                texts.append(str(item))
+                        content = '\n'.join(texts)
+                    elif isinstance(content, dict):
+                        content = content.get('text', str(content))
+                    
                     # Handle interrupted tools specially
                     if "doesn't want to proceed" in content:
                         print(f"[{item['seq']}] ⎿  [Tool rejected]")
@@ -606,8 +665,8 @@ class SessionExplorer:
                         multiline = ''
                     print(f"[{item['seq']}] ⏺ {first_line}{multiline}")
                 elif tools:
-                    # List tools used (tools is a list of strings)
-                    print(f"[{item['seq']}] ⏺ [Used tools: {', '.join(tools)}]")
+                    # Skip tool-only messages in compact mode - tools appear separately
+                    pass
                 else:
                     print(f"[{item['seq']}] ⏺ [No content]")
         
@@ -617,9 +676,9 @@ class SessionExplorer:
             tool_name = tc['name']
             params = tc.get('parameters', {})
             
-            if display_mode == 'truncated':
-                # Truncated mode matches reconstruct.jq format exactly
-                prefix = f"[{item['seq']}] " if show_numbers else ""
+            if display_mode in ['truncated', 'full']:
+                # Truncated/Full mode matches reconstruct.jq format
+                prefix = f"[{item['seq']}] " if show_numbers or display_mode == 'full' else ""
                 if tool_name == 'TodoWrite':
                     print(f"{prefix}⏺ Update Todos")
                 elif tool_name == 'TodoRead':
@@ -651,7 +710,12 @@ class SessionExplorer:
                         if not param_str and params:
                             param_str = str(list(params.values())[0])
                     
-                    print(f"{prefix}⏺ {tool_name}({param_str})")
+                    # In full mode, show complete parameters
+                    if display_mode == 'full' and 'command' in params:
+                        # For commands, show full command
+                        print(f"{prefix}⏺ {tool_name}({params['command']})")
+                    else:
+                        print(f"{prefix}⏺ {tool_name}({param_str})")
             else:
                 # Compact mode - same as truncated but with sequence number and special TodoWrite handling
                 if tool_name == 'TodoWrite':
@@ -748,7 +812,7 @@ class SessionExplorer:
                     
                     print(f"[{item['seq']}] ⏺ {tool_name}({param_str})")
     
-    def show_timeline(self, filter_type='all', start=None, end=None, display_mode='compact'):
+    def show_timeline(self, filter_type='all', start=None, end=None, display_mode='compact', json_output=False, jsonl_output=False):
         """Show timeline of events.
         
         Args:
@@ -756,10 +820,9 @@ class SessionExplorer:
             start: Starting index (1-based, inclusive)
             end: Ending index (1-based, inclusive)
             display_mode: 'compact' (default), 'truncated', or 'full'
+            json_output: Output as JSON array to stdout
+            jsonl_output: Output as JSONL (newline-delimited JSON) to stdout
         """
-        if display_mode != 'truncated':
-            print("\n=== TIMELINE ===")
-        
         # Convert start/end to indices for filter_timeline
         indices = None
         if start is not None or end is not None:
@@ -783,18 +846,58 @@ class SessionExplorer:
             # Show all
             filtered_items = self.filter_timeline(indices)
         
-        # Determine if we should show numbers in truncated mode
-        # Show numbers when filtering is applied (not showing full timeline)
-        has_filtering = filter_type != 'all' or indices is not None
-        show_numbers = display_mode == 'truncated' and has_filtering
-        
-        # Display using the centralized display method
-        for item in filtered_items:
-            self._display_timeline_item(item, display_mode, show_numbers)
+        if json_output or jsonl_output:
+            # Convert timeline items to JSON-serializable format
+            json_items = []
+            for item in filtered_items:
+                json_item = {
+                    'seq': item['seq'],
+                    'type': item['type'],
+                    'timestamp': item.get('timestamp')
+                }
+                if item['type'] == 'message':
+                    msg = item['data']
+                    json_item['message'] = {
+                        'type': msg['type'],
+                        'text': msg.get('text'),
+                        'tool_results': msg.get('tool_results'),
+                        'is_slash_command': msg.get('is_slash_command'),
+                        'slash_command': msg.get('slash_command')
+                    }
+                elif item['type'] == 'tool':
+                    tc = item['data']
+                    json_item['tool'] = {
+                        'name': tc['name'],
+                        'parameters': tc.get('parameters', {})
+                    }
+                
+                if jsonl_output:
+                    # Output as JSONL (one JSON object per line)
+                    json.dump(json_item, sys.stdout)
+                    sys.stdout.write('\n')
+                else:
+                    json_items.append(json_item)
+            
+            if json_output:
+                # Output as JSON array
+                json.dump(json_items, sys.stdout, indent=2)
+                sys.stdout.write('\n')
+        else:
+            # Regular display
+            if display_mode not in ['truncated', 'full']:
+                print("\n=== TIMELINE ===")
+            
+            # Determine if we should show numbers
+            # Show numbers when filtering is applied (not showing full timeline) or in full mode
+            has_filtering = filter_type != 'all' or indices is not None
+            show_numbers = (display_mode == 'truncated' and has_filtering) or display_mode == 'full'
+            
+            # Display using the centralized display method
+            for item in filtered_items:
+                self._display_timeline_item(item, display_mode, show_numbers)
     
     def show_git_operations(self):
         """Show all git operations. DEPRECATED: Use -t --include 'Bash(git *)' instead."""
-        print("\n=== GIT OPERATIONS ===")
         print("Note: --git is now a shortcut for: -t --include 'Bash(git *)'")
         # This method is kept for backward compatibility but the main logic
         # is now handled through the timeline filtering
@@ -804,7 +907,6 @@ class SessionExplorer:
         
         DEPRECATED: Use --timeline --include "Edit,Write,MultiEdit" instead.
         """
-        print("\n=== FILE CHANGES ===")
         print("Note: --files is deprecated. Use --timeline --include \"Edit,Write,MultiEdit\" instead.")
         
         # Use centralized filtering to get file editing tools
@@ -829,7 +931,6 @@ class SessionExplorer:
     
     def show_created_files(self):
         """Show files created with Write tool."""
-        print("\n=== FILES CREATED ===")
         for i, tc in enumerate(self.tool_calls):
             if tc['name'] == 'Write':
                 path = tc['parameters'].get('file_path', '')
@@ -845,7 +946,6 @@ class SessionExplorer:
     
     def search_commands(self, pattern):
         """Search bash commands for pattern."""
-        print(f"\n=== BASH COMMANDS CONTAINING '{pattern}' ===")
         for i, tc in enumerate(self.tool_calls):
             if tc['name'] == 'Bash':
                 cmd = tc['parameters'].get('command', '')
@@ -858,7 +958,6 @@ class SessionExplorer:
         DEPRECATED: Use --timeline conversation instead.
         This method is kept for backward compatibility.
         """
-        print("\n=== CONVERSATION ===")
         print("Note: --conversation is deprecated. Use --timeline conversation instead.")
         
         # Convert to timeline display
@@ -1060,7 +1159,7 @@ def main():
                '  %(prog)s session.jsonl --files            # Show file edits summary\n',
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument('jsonl', help='Session file or any unique substring (issue-13, run ID, date, etc.)')
+    parser.add_argument('session', help='Session file or any unique substring (issue-13, run ID, date, etc.)')
     parser.add_argument('--summary', '-s', action='store_true', help='Show summary')
     parser.add_argument('--timeline', '-t', action='store_true',
                         help='Show timeline')
@@ -1071,7 +1170,11 @@ def main():
                         help='Show conversation messages')
     parser.add_argument('--search', help='Search bash commands')
     parser.add_argument('--export-json', nargs=2, metavar=('RANGE', 'OUTPUT'), 
-                        help='Export tool calls in RANGE as JSON. RANGE can be: 5 (single), 1-50 (range), +10 (first 10), -20 (last 20)')
+                        help='Export tool calls in RANGE as JSON to FILE. RANGE can be: 5 (single), 1-50 (range), +10 (first 10), -20 (last 20)')
+    parser.add_argument('--json', action='store_true',
+                        help='Output timeline as JSON array to stdout (use with -t/--timeline)')
+    parser.add_argument('--jsonl', action='store_true',
+                        help='Output timeline as JSONL (newline-delimited JSON) to stdout (use with -t/--timeline)')
     parser.add_argument('--include', metavar='FILTERS',
                         help='Include only tools matching filters, comma-separated. '
                              'Follows Claude Code syntax: "Edit,Bash(git add *)"')
@@ -1080,12 +1183,12 @@ def main():
                              'Follows Claude Code syntax: "TodoWrite,Bash(npm test:*)"')
     parser.add_argument('--truncated', action='store_true',
                         help='Show truncated console-style output (3-line preview)')
+    parser.add_argument('--full', action='store_true',
+                        help='Show full output without truncation')
     parser.add_argument('--no-tool-results', action='store_true',
                         help='When filtering for tools, exclude their results (default: include results)')
     parser.add_argument('--show-numbers', action='store_true',
                         help='Show sequence numbers in truncated mode even without filtering')
-    parser.add_argument('--full', action='store_true',
-                        help='Show full output without truncation')
     parser.add_argument('indices', nargs='*', 
                         help='Indices/ranges: 5 (item 5), +10 (first 10), -20 (last 20), 10-30 (range)')
     
@@ -1098,7 +1201,7 @@ def main():
     
     # Resolve the session file
     try:
-        jsonl_file = find_session_file(args.jsonl)
+        jsonl_file = find_session_file(args.session)
     except FileNotFoundError as e:
         print(f"Error: {e}")
         sys.exit(1)
@@ -1123,7 +1226,8 @@ def main():
                 explorer.show_timeline_with_filters(indices, display_mode, 
                                                     args.include, args.exclude,
                                                     not args.no_tool_results,
-                                                    args.show_numbers)
+                                                    args.show_numbers,
+                                                    args.json, args.jsonl)
             except ValueError as e:
                 print(f"Error: {e}")
         else:
@@ -1131,7 +1235,8 @@ def main():
             explorer.show_timeline_with_filters(None, display_mode,
                                               args.include, args.exclude,
                                               not args.no_tool_results,
-                                              args.show_numbers)
+                                              args.show_numbers,
+                                              args.json, args.jsonl)
     
     if args.git:
         # --git is a shortcut for --timeline --include "Bash(git *)"
@@ -1155,7 +1260,8 @@ def main():
             explorer.show_timeline_with_filters(None, display_mode,
                                               "Bash(git *)", args.exclude,
                                               not args.no_tool_results,
-                                              args.show_numbers)
+                                              args.show_numbers,
+                                              args.json, args.jsonl)
     
     if args.files:
         explorer.show_file_changes()

@@ -157,6 +157,8 @@ Instead of `--export-json START-END FILE`, consider:
 ### Features
 1. ✅ --git shortcut implementation
 2. ✅ Include/exclude filtering with glob patterns
+3. ✅ --no-tool-results flag to control result inclusion
+4. ✅ --show-numbers flag to force line numbers in truncated mode
 
 ## Implementation Phases
 
@@ -171,31 +173,33 @@ Instead of `--export-json START-END FILE`, consider:
 3. ✅ Show "(No content)" for empty tool results
 4. ✅ Proper truncation format (removed interactive-only text)
 
-### Phase 2: Enhanced Tool Parameters
-1. Add Grep parameter display (pattern and path)
-2. Add TodoWrite parameter display with todo formatting
-3. Add parameters for remaining tools (LS, Glob, Task, etc.)
-4. Test and commit each addition
+### Phase 2: Enhanced Tool Parameters (✅ COMPLETED)
+1. ✅ Add Grep parameter display: "pattern" in path
+2. ✅ Add TodoWrite parameter display with status counts
+3. ✅ Add parameters for all tools (LS, Glob, Task, WebFetch, WebSearch)
+4. ✅ Add special symbols for Bash ($), Edit/Write (→), Read (←)
+5. ✅ Refactor --files to use centralized filtering
 
-### Phase 3: Unified Timeline Structure
-1. Create data structure merging tools and conversation chronologically
-2. Update show_timeline to handle 'all', 'tools', 'conversation' modes
-3. Maintain backward compatibility
+### Phase 3: Unified Timeline Structure (✅ MOSTLY COMPLETE)
+1. ✅ Create data structure merging tools and conversation chronologically
+2. ✅ Update show_timeline to handle 'all', 'tools', 'conversation' modes
+3. ✅ Maintain backward compatibility
 
-### Phase 4: Consistent Range Handling
-1. Create parse_range utility: handles "START-END" and "-N" formats
-2. Update all commands to use consistent syntax
-3. Change export from "START END OUTPUT" to "START-END OUTPUT"
+### Phase 4: Consistent Range Handling (✅ COMPLETED)
+1. ✅ parse_range utility already exists: handles "5", "1-50", "+10", "-20"
+2. ✅ All commands use consistent free parameter syntax
+3. ✅ Changed export from "START END OUTPUT" to "RANGE OUTPUT"
 
-### Phase 5: Polish & Redesign
-1. Implement --full mode for complete output
-2. Consider redesigning export:
-   - Option A: `--json` as display format to stdout
-   - Option B: Keep --export-json but clarify it's for files
-   - Evaluate JSONL vs JSON array output
+### Phase 5: Polish & Redesign (✅ COMPLETED)
+1. ✅ Implement --full mode for complete output
+2. ✅ Redesigned export:
+   - Added `--json` as display format to stdout (JSON array)
+   - Added `--jsonl` as display format to stdout (newline-delimited JSON)
+   - Kept `--export-json` for writing to files
+   - Both JSON and JSONL formats supported
 3. ✅ Implement --git as shortcut (already done)
-4. Implement --files as shortcut
-5. Add support for todo result formatting with checkboxes
+4. ✅ Implement --files as shortcut (uses centralized filtering)
+5. ✅ Add support for todo result formatting with checkboxes
 
 ## Examples After Implementation
 
@@ -211,6 +215,12 @@ Instead of `--export-json START-END FILE`, consider:
 
 # Show last 50 conversation items
 ./explore_session.py issue-13 --timeline conversation -50
+
+# Export as JSON array to stdout
+./explore_session.py session.jsonl --timeline --json | jq '.[].tool.name' | sort | uniq -c
+
+# Stream as JSONL for processing
+./explore_session.py session.jsonl --timeline --jsonl --include "Edit" | jq -r '.tool.parameters.file_path'
 ```
 
 ## Notes
