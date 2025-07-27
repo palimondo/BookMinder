@@ -190,7 +190,7 @@ class SessionExplorer:
         # Show first max_lines lines and add truncation indicator
         truncated = '\n'.join(lines[:max_lines])
         remaining = len(lines) - max_lines
-        return f"{truncated}\n       … +{remaining} lines (ctrl+r to expand)"
+        return f"{truncated}\n       … +{remaining} lines"
     
     def _build_timeline(self):
         """Build a unified timeline of all events (messages and tool calls)."""

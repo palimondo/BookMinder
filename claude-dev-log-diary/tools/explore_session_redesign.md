@@ -18,13 +18,14 @@ This document captures the planned improvements to explore_session.py based on u
 
 ### Display Issues
 1. **Missing tool parameters**: Grep, TodoWrite, and others show no parameters in timeline
-2. **Compact mode bugs**:
-   - [...] separator only works for user messages, not assistant
-   - Inconsistent bullet symbols (different sizes on different lines)
-3. **Truncated mode bugs**:
-   - Empty tool results show blank line instead of "(No content)"
-   - Missing proper truncation format: "... +X lines (ctrl+r to expand)"
-   - Tool results need proper spacing to match Claude Code output
+2. **Multiline tool output formatting**:
+   - Need proper indentation for tool results
+   - Truncation should show first N lines then "… +X lines"
+   - Empty results should show "(No content)"
+3. **Export format confusion**:
+   - Current --export-json writes to file
+   - Should consider --json as display format to stdout
+   - More Unix-like to use shell redirection
 
 ## Design Principles
 
@@ -38,27 +39,46 @@ This document captures the planned improvements to explore_session.py based on u
 ## Display Modes
 
 ### 1. Compact Mode (Default)
-Single line per item, showing essential information:
+Single line per item, showing essential information with first/last line for context:
 ```
-[1]  USER: Run the tests please
-[2]  CLAUDE: I'll run the tests for you now
-[3]  Bash: pytest
-[4]  Read: test_results.txt
-[5]  CLAUDE: All tests passed successfully!
+[1] > Run the tests please
+[2] ⏺ I'll run the tests for you now
+[3] ⏺ Bash(pytest)
+[4] ⏺ Read(test_results.txt)
+[5] ⏺ All tests passed successfully!
 ```
 
 ### 2. Truncated Mode
-Console-style with 3-line preview (based on reconstruct.jq):
+Console-style with 3-line preview (mimics Claude Code's default console output):
 ```
-[3] ⏺ Bash(pytest)
-    ⎿  ============================= test session starts ======
-       platform darwin -- Python 3.13.5, pytest-8.3.5, pluggy-1.6.0
-       rootdir: /Users/palimondo/Developer/BookMinder
-       … +47 lines
+⏺ I'll run the tests for you now
+
+⏺ Bash(pytest)
+  ⎿  Waiting…
+  
+  ⎿  ============================= test session starts ======
+     platform darwin -- Python 3.13.5, pytest-8.3.5, pluggy-1.6.0
+     rootdir: /Users/palimondo/Developer/BookMinder
+     … +47 lines
+
+⏺ All tests passed successfully!
 ```
 
+Note: The "… +N lines" is sufficient for static logs. Claude Code adds "(ctrl+r to expand)" 
+for interactive use, but we omit this as it's noise in static output.
+
 ### 3. Full Mode
-Complete output without truncation.
+Complete output with rich formatting (markdown, syntax highlighting):
+- Shows complete tool inputs and outputs
+- No truncation of messages
+- Similar to Claude Code's expanded view (ctrl+r)
+
+### 4. JSON Mode (Proposed Redesign)
+Instead of `--export-json START-END FILE`, consider:
+- `--json`: Output filtered timeline as JSONL to stdout
+- Let shell handle redirection: `./explore_session.py SESSION --json > output.jsonl`
+- More Unix-like and composable
+- Removes need for special export command
 
 ## Compact Format Tool Parameters
 
@@ -120,39 +140,36 @@ Complete output without truncation.
 
 ## Completed Work
 
+### Architecture
+1. ✅ Centralized filter_timeline method
+2. ✅ Tool results included when filtering for tools  
+3. ✅ Deprecated show_conversation (uses timeline internally)
+4. ✅ Free parameter syntax for ranges/indices
+
+### Display Fixes
 1. ✅ Basic truncated mode implementation
-2. ✅ Centralized filter_timeline method
-3. ✅ Line numbers in truncated mode when filtering
-4. ✅ Tool results included when filtering for tools
-5. ✅ --git shortcut implementation
-6. ✅ Free parameter syntax for ranges/indices
+2. ✅ Line numbers in truncated mode when filtering
+3. ✅ [...] separator for assistant messages in compact mode
+4. ✅ Consistent ⏺ symbol for all assistant output
+5. ✅ Empty tool results show "(No content)"
+6. ✅ Proper truncation format "… +N lines"
+
+### Features
+1. ✅ --git shortcut implementation
+2. ✅ Include/exclude filtering with glob patterns
 
 ## Implementation Phases
 
-### Phase 0: Architecture Cleanup (CURRENT PRIORITY)
-1. **Separate filtering from display**:
-   - Remove special display logic from filter methods
-   - Make filters only control event selection
-   - Make display modes work consistently regardless of filters
-2. **Consolidate filter logic**:
-   - Single filter_timeline method that all commands use
-   - Remove duplicate filtering code
-   - Clean up message/tool filtering inconsistencies
-3. **Remove special cases**:
-   - --conversation should just filter for messages, not change display
-   - --tools should just filter for tools
-   - Display format should be orthogonal to what's being filtered
+### Phase 0: Architecture Cleanup (✅ COMPLETED)
+1. ✅ Separated filtering from display
+2. ✅ Consolidated filter logic with centralized filter_timeline
+3. ✅ Removed special display logic from show_conversation
 
-### Phase 1: Fix Display Mode Bugs
-1. **Compact mode fixes**:
-   - Add [...] separator for assistant messages (currently only works for user)
-   - Fix inconsistent bullet symbols (use • consistently)
-   - Maintain first/last line display for context
-2. **Truncated mode fixes**:
-   - Show "(No content)" for empty tool results
-   - Implement proper truncation: "... +X lines (ctrl+r to expand)"
-   - Fix spacing to match Claude Code output
-   - Keep line numbers when filtering (already implemented)
+### Phase 1: Display Mode Fixes (✅ COMPLETED)
+1. ✅ Fixed [...] separator for assistant messages
+2. ✅ Fixed ⏺ symbol consistency 
+3. ✅ Show "(No content)" for empty tool results
+4. ✅ Proper truncation format (removed interactive-only text)
 
 ### Phase 2: Enhanced Tool Parameters
 1. Add Grep parameter display (pattern and path)
@@ -170,11 +187,15 @@ Complete output without truncation.
 2. Update all commands to use consistent syntax
 3. Change export from "START END OUTPUT" to "START-END OUTPUT"
 
-### Phase 5: Polish
+### Phase 5: Polish & Redesign
 1. Implement --full mode for complete output
-2. Rename --export to --export-json with better help text
-3. Implement --git and --files as shortcuts
-4. Add support for todo result formatting with checkboxes
+2. Consider redesigning export:
+   - Option A: `--json` as display format to stdout
+   - Option B: Keep --export-json but clarify it's for files
+   - Evaluate JSONL vs JSON array output
+3. ✅ Implement --git as shortcut (already done)
+4. Implement --files as shortcut
+5. Add support for todo result formatting with checkboxes
 
 ## Examples After Implementation
 
