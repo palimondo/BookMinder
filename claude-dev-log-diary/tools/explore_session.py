@@ -81,7 +81,7 @@ class SessionExplorer:
     
     def _parse_session(self):
         """Parse the session file."""
-        print(f"Parsing {Path(self.jsonl_file).name}...")
+        # Silent parsing - summary will show the session file
         
         for obj in parse_jsonl_objects(self.jsonl_file):
             if obj.get('type') == 'assistant' and 'message' in obj:
@@ -165,7 +165,7 @@ class SessionExplorer:
                     'timestamp': obj.get('timestamp', '')
                 })
         
-        print(f"Found {len(self.tool_calls)} tool calls\n")
+        # Don't print redundant message during parsing
         
         # Build unified timeline
         self._build_timeline()
@@ -228,58 +228,72 @@ class SessionExplorer:
             item['seq'] = i + 1
     
     def show_summary(self):
-        """Show session summary."""
+        """Show session summary in YAML-style hierarchy."""
+        # Count tool calls by type
         tool_counts = defaultdict(int)
-        for tc in self.tool_calls:
-            tool_counts[tc['name']] += 1
-        
-        # Count actual user messages (not tool results)
-        actual_user_messages = 0
-        for m in self.messages:
-            if m['type'] == 'user':
-                # Only count if it has actual text or is a slash command
-                if m.get('text') or m.get('is_slash_command'):
-                    actual_user_messages += 1
-        
-        assistant_messages = sum(1 for m in self.messages if m['type'] == 'assistant')
-        
-        # Count file operations more accurately
-        files_modified = set()
+        git_operations = 0
         git_commits = 0
         
+        for tc in self.tool_calls:
+            tool_counts[tc['name']] += 1
+            if tc['name'] == 'Bash':
+                cmd = tc['parameters'].get('command', '')
+                if cmd.startswith('git'):
+                    git_operations += 1
+                    if 'git commit' in cmd:
+                        git_commits += 1
+        
+        # Count messages more accurately
+        user_inputs = 0
+        tool_results = 0
+        assistant_text = 0
+        assistant_tools = 0
+        user_interruptions = 0
+        
+        for m in self.messages:
+            if m['type'] == 'user':
+                if m.get('tool_results'):
+                    tool_results += 1
+                elif m.get('text') or m.get('is_slash_command'):
+                    user_inputs += 1
+                    if '[Interrupted by user]' in m.get('text', ''):
+                        user_interruptions += 1
+            elif m['type'] == 'assistant':
+                if m.get('text'):
+                    assistant_text += 1
+                if m.get('tools'):
+                    assistant_tools += 1
+        
+        # Count files modified
+        files_modified = set()
         for tc in self.tool_calls:
             if tc['name'] in ['Edit', 'MultiEdit', 'Write']:
                 path = tc['parameters'].get('file_path', '')
                 if path:
                     files_modified.add(path)
-            elif tc['name'] == 'Bash':
-                cmd = tc['parameters'].get('command', '')
-                if 'git commit' in cmd:
-                    git_commits += 1
         
-        # Get session metadata
-        if self.messages:
-            first_timestamp = self.messages[0].get('timestamp', '')
-            last_timestamp = self.messages[-1].get('timestamp', '')
-        else:
-            first_timestamp = last_timestamp = 'N/A'
-        
-        print("=== SESSION SUMMARY ===")
-        if self.jsonl_file:
-            print(f"Session: {Path(self.jsonl_file).stem}")
+        # Print YAML-style output
+        print(f"Session: {Path(self.jsonl_file).name}")
+        print()
         print(f"Timeline: {len(self.timeline)} events")
-        print(f"Messages: {actual_user_messages} user, {assistant_messages} assistant")
-        print(f"Tool calls: {len(self.tool_calls)}")
-        if files_modified:
-            print(f"Files modified: {len(files_modified)}")
-        if git_commits:
-            print(f"Git commits: {git_commits}")
+        print(f"  User inputs: {user_inputs}")
+        print(f"  Tool results: {tool_results}")
+        print(f"  Assistant messages: {len([m for m in self.messages if m['type'] == 'assistant'])}")
+        print(f"    Text responses: {assistant_text}")
+        print(f"    Tool invocations: {len(self.tool_calls)}")
         
-        print("\nTool usage:")
+        # Print tool breakdown with proper indentation
         for tool, count in sorted(tool_counts.items(), key=lambda x: -x[1]):
-            print(f"  {tool:15} {count:3}")
+            print(f"      {tool}: {count}")
+            if tool == 'Bash' and git_operations > 0:
+                print(f"        Git operations: {git_operations}")
+                if git_commits > 0:
+                    print(f"          Commits: {git_commits}")
         
-        print("\nUse --help to see available options")
+        print()
+        print(f"Files modified: {len(files_modified)}")
+        if user_interruptions > 0:
+            print(f"User interruptions: {user_interruptions}")
     
     def show_timeline_indices(self, filter_type='all', indices=None, display_mode='compact'):
         """Show timeline with specific indices.
