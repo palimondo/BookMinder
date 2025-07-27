@@ -105,7 +105,7 @@ class SessionExplorer:
                                         'name': tool_name,
                                         'id': item.get('id', ''),
                                         'parameters': item.get('input', {}),
-                                        'timestamp': obj.get('timestamp', '')
+                                        'timestamp': obj.get('timestamp')
                                     })
                 
                 # Store assistant message with text and tool summary
@@ -114,7 +114,7 @@ class SessionExplorer:
                         'type': 'assistant',
                         'text': '\n'.join(assistant_text) if assistant_text else None,
                         'tools': tool_uses,
-                        'timestamp': obj.get('timestamp', '')
+                        'timestamp': obj.get('timestamp')
                     })
             
             elif obj.get('type') == 'user':
@@ -204,7 +204,7 @@ class SessionExplorer:
                 'type': 'message',
                 'subtype': msg['type'],  # 'user' or 'assistant'
                 'data': msg,
-                'timestamp': msg.get('timestamp', '')
+                'timestamp': msg.get('timestamp')
             })
             msg_index += 1
         
@@ -216,12 +216,12 @@ class SessionExplorer:
                 'type': 'tool',
                 'subtype': tc['name'],
                 'data': tc,
-                'timestamp': tc.get('timestamp', '')
+                'timestamp': tc.get('timestamp')
             })
             tool_index += 1
         
         # Sort by timestamp to get chronological order
-        self.timeline.sort(key=lambda x: x['timestamp'])
+        self.timeline.sort(key=lambda x: x['timestamp'] or '')
         
         # Reassign sequence numbers after sorting
         for i, item in enumerate(self.timeline):
@@ -272,9 +272,39 @@ class SessionExplorer:
                 if path:
                     files_modified.add(path)
         
+        # Get session time metadata
+        timestamps = [item['timestamp'] for item in self.timeline if item.get('timestamp')]
+        if timestamps:
+            # Parse ISO timestamps
+            from datetime import datetime
+            try:
+                start_time = datetime.fromisoformat(timestamps[0].replace('Z', '+00:00'))
+                end_time = datetime.fromisoformat(timestamps[-1].replace('Z', '+00:00'))
+                duration = end_time - start_time
+                
+                # Format duration nicely
+                hours, remainder = divmod(duration.seconds, 3600)
+                minutes, seconds = divmod(remainder, 60)
+                if hours > 0:
+                    duration_str = f"{hours}h {minutes}m {seconds}s"
+                elif minutes > 0:
+                    duration_str = f"{minutes}m {seconds}s"
+                else:
+                    duration_str = f"{seconds}s"
+            except:
+                start_time = end_time = duration_str = None
+        else:
+            start_time = end_time = duration_str = None
+        
         # Print YAML-style output
         print(f"Session: {Path(self.jsonl_file).name}")
         print()
+        if start_time and end_time:
+            print("Metadata:")
+            print(f"  Started: {start_time.strftime('%Y-%m-%d %H:%M:%S UTC')}")
+            print(f"  Ended: {end_time.strftime('%Y-%m-%d %H:%M:%S UTC')}")
+            print(f"  Duration: {duration_str}")
+            print()
         print(f"Timeline: {len(self.timeline)} events")
         print(f"  User inputs: {user_inputs}")
         print(f"  Tool results: {tool_results}")
