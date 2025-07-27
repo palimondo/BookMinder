@@ -601,12 +601,12 @@ class SessionExplorer:
                             multiline = ' [...]'
                     else:
                         multiline = ''
-                    print(f"[{item['seq']}] • {first_line}{multiline}")
+                    print(f"[{item['seq']}] ⏺ {first_line}{multiline}")
                 elif tools:
                     # List tools used (tools is a list of strings)
-                    print(f"[{item['seq']}] • [Used tools: {', '.join(tools)}]")
+                    print(f"[{item['seq']}] ⏺ [Used tools: {', '.join(tools)}]")
                 else:
-                    print(f"[{item['seq']}] • [No content]")
+                    print(f"[{item['seq']}] ⏺ [No content]")
         
         elif item['type'] == 'tool':
             # Tool call display
