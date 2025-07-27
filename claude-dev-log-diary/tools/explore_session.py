@@ -139,6 +139,28 @@ class SessionExplorer:
         # Build unified timeline
         self._build_timeline()
     
+    def _format_truncated_output(self, text, max_lines=3):
+        """Format output in truncated style like reconstruct.jq.
+        
+        Args:
+            text: The text to format
+            max_lines: Maximum number of lines to show (default 3)
+            
+        Returns:
+            Formatted string with truncation indicator if needed
+        """
+        if not text:
+            return ""
+            
+        lines = text.split('\n')
+        if len(lines) <= max_lines:
+            return text
+        
+        # Show first max_lines lines and add truncation indicator
+        truncated = '\n'.join(lines[:max_lines])
+        remaining = len(lines) - max_lines
+        return f"{truncated}\n       … +{remaining} lines"
+    
     def _build_timeline(self):
         """Build a unified timeline of all events (messages and tool calls)."""
         self.timeline = []
@@ -186,13 +208,14 @@ class SessionExplorer:
         for tool, count in sorted(tool_counts.items(), key=lambda x: -x[1]):
             print(f"  {tool:15} {count:3}")
     
-    def show_timeline(self, filter_type='all', start=None, end=None):
+    def show_timeline(self, filter_type='all', start=None, end=None, display_mode='compact'):
         """Show timeline of events.
         
         Args:
             filter_type: 'all' (default), 'tools', 'conversation', or specific tool name
             start: Starting index (1-based, inclusive)
             end: Ending index (1-based, inclusive)
+            display_mode: 'compact' (default), 'truncated', or 'full'
         """
         print("\n=== TIMELINE ===")
         
@@ -215,7 +238,53 @@ class SessionExplorer:
             # Format based on type
             if item['type'] == 'message':
                 msg = item['data']
-                if msg['type'] == 'user':
+                if msg['type'] == 'user' and display_mode == 'truncated':
+                    # Truncated mode - reconstruct.jq style (NO sequence numbers)
+                    text = msg.get('text', '')
+                    tool_results = msg.get('tool_results', [])
+                    is_slash = msg.get('is_slash_command', False)
+                    slash_cmd = msg.get('slash_command', '')
+                    
+                    # Handle different user message types
+                    if is_slash and slash_cmd:
+                        print(f"> /{slash_cmd}")
+                    elif text == '[Interrupted by user]':
+                        print("> [Request interrupted by user]")
+                    elif text and not tool_results:
+                        # Regular user message
+                        print(f"> {text}")
+                    elif tool_results:
+                        # This is a tool result - format like reconstruct.jq
+                        for result in tool_results:
+                            content = result.get('content', '')
+                            
+                            # Skip internal messages
+                            if any(phrase in content for phrase in [
+                                "Todos have been modified successfully",
+                                "completed successfully"
+                            ]):
+                                continue
+                                
+                            if content:
+                                print("  ⎿  Waiting…\n")
+                                # Format the output with truncation
+                                truncated = self._format_truncated_output(content, 3)
+                                # Indent each line
+                                for line in truncated.split('\n'):
+                                    print(f"  ⎿  {line}")
+                                print()  # Extra newline after tool results
+                
+                elif msg['type'] == 'assistant' and display_mode == 'truncated':
+                    # Assistant messages in truncated mode
+                    text = msg.get('text', '')
+                    tools = msg.get('tools', [])
+                    
+                    if text:
+                        # Show full assistant text (reconstruct.jq shows all of it)
+                        print(f"⏺ {text}\n")
+                    # Tool uses are handled separately as 'tool' items
+                    
+                elif msg['type'] == 'user':
                     text = msg.get('text', '')
                     tool_results = msg.get('tool_results', [])
                     is_slash = msg.get('is_slash_command', False)
@@ -304,48 +373,87 @@ class SessionExplorer:
             
             elif item['type'] == 'tool':
                 tc = item['data']
-                print(f"[{item['seq']}] {tc['name']:12}", end='')
                 
-                # Show relevant parameter based on tool type
-                params = tc['parameters']
-                if tc['name'] in ['Edit', 'Write', 'MultiEdit']:
-                    path = params.get('file_path', '')
-                    if path:
-                        print(f" → {path.split('/')[-1]}", end='')
-                elif tc['name'] == 'Bash':
-                    cmd = params.get('command', '')[:50]
-                    print(f" $ {cmd}...", end='')
-                elif tc['name'] == 'Read':
-                    path = params.get('file_path', '')
-                    if path:
-                        print(f" ← {path.split('/')[-1]}", end='')
-                elif tc['name'] == 'Grep':
-                    pattern = params.get('pattern', '')
-                    path = params.get('path', '.')
-                    if pattern:
-                        print(f' "{pattern}" in {path}', end='')
-                elif tc['name'] == 'TodoWrite':
-                    todos = params.get('todos', [])
-                    if todos:
-                        # Count todo statuses
-                        status_counts = defaultdict(int)
-                        for todo in todos:
-                            status = todo.get('status', 'unknown')
-                            status_counts[status] += 1
-                        
-                        # Format summary
-                        total = len(todos)
-                        status_parts = []
-                        for status in ['completed', 'in_progress', 'pending']:
-                            if status in status_counts:
-                                status_parts.append(f"{status_counts[status]} {status}")
-                        
-                        if status_parts:
-                            print(f" Updated {total} todos ({', '.join(status_parts)})", end='')
+                if display_mode == 'truncated':
+                    # Console-style output like reconstruct.jq
+                    # Format tool input based on tool type (matching format_tool_input logic)
+                    params = tc['parameters']
+                    param_str = ""
+                    
+                    if tc['name'] == 'TodoWrite':
+                        # Special case for TodoWrite
+                        print("⏺ Update Todos")
+                    elif tc['name'] == 'TodoRead':
+                        # Special case for TodoRead
+                        print("⏺ Read Todos")
+                    else:
+                        # Standard format: ToolName(parameter)
+                        if 'command' in params:
+                            param_str = params['command']
+                        elif 'file_path' in params:
+                            param_str = params['file_path']
+                        elif 'path' in params:
+                            param_str = params['path']
+                        elif 'pattern' in params:
+                            param_str = params['pattern']
                         else:
-                            print(f" Updated {total} todos", end='')
-                
-                print()
+                            # Use first string parameter or convert to string
+                            for v in params.values():
+                                if isinstance(v, str):
+                                    param_str = v
+                                    break
+                            if not param_str and params:
+                                param_str = str(list(params.values())[0])
+                        
+                        print(f"⏺ {tc['name']}({param_str})")
+                    
+                    # Tool results will be shown as part of user messages with tool_result type
+                    # We just show the tool call here
+                    
+                else:
+                    # Compact mode (existing logic)
+                    print(f"[{item['seq']}] {tc['name']:12}", end='')
+                    
+                    # Show relevant parameter based on tool type
+                    params = tc['parameters']
+                    if tc['name'] in ['Edit', 'Write', 'MultiEdit']:
+                        path = params.get('file_path', '')
+                        if path:
+                            print(f" → {path.split('/')[-1]}", end='')
+                    elif tc['name'] == 'Bash':
+                        cmd = params.get('command', '')[:50]
+                        print(f" $ {cmd}...", end='')
+                    elif tc['name'] == 'Read':
+                        path = params.get('file_path', '')
+                        if path:
+                            print(f" ← {path.split('/')[-1]}", end='')
+                    elif tc['name'] == 'Grep':
+                        pattern = params.get('pattern', '')
+                        path = params.get('path', '.')
+                        if pattern:
+                            print(f' "{pattern}" in {path}', end='')
+                    elif tc['name'] == 'TodoWrite':
+                        todos = params.get('todos', [])
+                        if todos:
+                            # Count todo statuses
+                            status_counts = defaultdict(int)
+                            for todo in todos:
+                                status = todo.get('status', 'unknown')
+                                status_counts[status] += 1
+                            
+                            # Format summary
+                            total = len(todos)
+                            status_parts = []
+                            for status in ['completed', 'in_progress', 'pending']:
+                                if status in status_counts:
+                                    status_parts.append(f"{status_counts[status]} {status}")
+                            
+                            if status_parts:
+                                print(f" Updated {total} todos ({', '.join(status_parts)})", end='')
+                            else:
+                                print(f" Updated {total} todos", end='')
+                    
+                    print()
     
     def show_git_operations(self):
         """Show all git operations."""
@@ -583,6 +691,10 @@ def main():
                         help='Include only tools matching filters, comma-separated (e.g., "Edit,Bash(git add *)")')
     parser.add_argument('--exclude', metavar='FILTERS',
                         help='Exclude tools matching filters, comma-separated')
+    parser.add_argument('--truncated', action='store_true',
+                        help='Show truncated console-style output (3-line preview)')
+    parser.add_argument('--full', action='store_true',
+                        help='Show full output without truncation')
     
     args = parser.parse_args()
     
@@ -607,16 +719,23 @@ def main():
         # Handle the different timeline modes
         timeline_arg = args.timeline if args.timeline != True else 'all'
         
+        # Determine display mode
+        display_mode = 'compact'
+        if args.truncated:
+            display_mode = 'truncated'
+        elif args.full:
+            display_mode = 'full'
+        
         # Check if it's a range
         if '-' in timeline_arg:
             try:
                 start_idx, end_idx = parse_range(timeline_arg, len(explorer.timeline))
-                explorer.show_timeline('all', start_idx + 1, end_idx)  # Convert to 1-based
+                explorer.show_timeline('all', start_idx + 1, end_idx, display_mode)  # Convert to 1-based
             except ValueError as e:
                 print(f"Error: {e}")
         else:
             # It's a filter type (all, tools, conversation, or tool name)
-            explorer.show_timeline(timeline_arg)
+            explorer.show_timeline(timeline_arg, display_mode=display_mode)
     
     if args.git:
         explorer.show_git_operations()
