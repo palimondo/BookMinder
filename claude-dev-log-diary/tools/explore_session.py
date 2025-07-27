@@ -37,7 +37,7 @@ def parse_range(range_str, total_items):
     """Parse range string into start and end indices.
     
     Args:
-        range_str: Range string like "5", "+5", "-5", "1-50", "50-"
+        range_str: Range string like "5", "+5", "-5", "1-50", "50-", "50+"
         total_items: Total number of items for bounds checking
         
     Returns:
@@ -53,8 +53,13 @@ def parse_range(range_str, total_items):
         n = int(range_str[1:])
         return 0, min(n, total_items)
     
+    # Handle "60+" format (from 60 onwards)
+    if range_str.endswith('+') and range_str[:-1].isdigit():
+        start = int(range_str[:-1]) - 1  # Convert to 0-based
+        return start, total_items
+    
     if '-' not in range_str:
-        raise ValueError(f"Invalid range format: {range_str}. Use format like '5', '+5', '-5', '1-50'")
+        raise ValueError(f"Invalid range format: {range_str}. Use format like '5', '+5', '-5', '1-50', '50+', '50-'")
     
     parts = range_str.split('-', 1)
     
@@ -301,14 +306,17 @@ class SessionExplorer:
             print(f"  Ended: {end_time.strftime('%Y-%m-%d %H:%M:%S UTC')}")
             print(f"  Duration: {duration_str}")
             print("                            # Use filter params and options below")
-        print("Timeline:                   # to show specific event types:")
-        print(f"  Events: {len(self.timeline):<18} # -t")
-        print(f"  User inputs: {user_inputs:<14} # -u")
-        print(f"  Tool results: {tool_results:<13} # (shown after -T events, use --no-tool-results to exclude)")
-        print(f"  Assistant: {assistant_messages:<16} # -a")
+        # Fixed column position for comments
+        comment_col = 30
+        
+        print(f"Timeline:{' ' * (comment_col - 9)}# to show specific event types:")
+        print(f"  Events: {len(self.timeline)}".ljust(comment_col) + "# -t")
+        print(f"  User inputs: {user_inputs}".ljust(comment_col) + "# -U")
+        print(f"  Tool results: {tool_results}".ljust(comment_col) + "# (shown after -T events, use --no-tool-results to exclude)")
+        print(f"  Assistant: {assistant_messages}".ljust(comment_col) + "# -a")
         print("  Assistant messages:")
-        print(f"    Text: {assistant_text_only:<18} # -a -x Tool")
-        print(f"    Tool: {len(self.tool_calls):<18} # -T")
+        print(f"    Text: {assistant_text_only}".ljust(comment_col) + "# -a -x Tool")
+        print(f"    Tool: {len(self.tool_calls)}".ljust(comment_col) + "# -T")
         
         if self.tool_calls:
             print("    Tool calls:")
@@ -360,7 +368,16 @@ class SessionExplorer:
         print()
         print(f"Files modified: {len(files_modified):<12} # --files")
         if user_interruptions > 0:
-            print(f"User interruptions: {user_interruptions:<8} # --search \"interrupted\" -C 5")
+            print(f"User interruptions: {user_interruptions:<8} # -S \"interrupted\" -C 5")
+        
+        print()
+        print("# Practical debugging examples:")
+        print("# - Find where Claude got confused:")
+        print("#   explore_session.py session.jsonl -S \"error\" -a -C 3")
+        print("# - Show git commits with their edits:")
+        print("#   explore_session.py session.jsonl -i \"Bash(git commit*),Edit\"")
+        print("# - Debug a specific range after user correction:")
+        print("#   explore_session.py session.jsonl -U -A 5 250-300")
     
     def _matches_timeline_filter(self, item, filter_str):
         """Check if a timeline item matches a filter string."""
@@ -827,75 +844,6 @@ class SessionExplorer:
                     
                     print(f"[{item['seq']}] ⏺ {tool_name}({param_str})")
     
-    def show_timeline(self, filter_type='all', start=None, end=None, display_mode='compact', json_output=False, jsonl_output=False):
-        """Show timeline of events.
-        
-        Args:
-            filter_type: 'all' (default), 'tools', or specific tool name
-            start: Starting index (1-based, inclusive)
-            end: Ending index (1-based, inclusive)
-            display_mode: 'compact' (default), 'truncated', or 'full'
-            json_output: Output as JSON array to stdout
-            jsonl_output: Output as JSONL (newline-delimited JSON) to stdout
-        """
-        indices = None
-        if start is not None or end is not None:
-            start_idx = (start - 1) if start else 0
-            end_idx = end if end else len(self.timeline)
-            indices = list(range(start_idx, end_idx))
-        
-        if filter_type == 'tools':
-            include_filters = None
-            filtered_items = [item for item in self.filter_timeline(indices) if item['type'] == 'tool']
-        elif filter_type not in ['all', 'tools']:
-            # filter_type is a specific tool name (e.g., 'Edit', 'Bash')
-            include_filters = [filter_type]
-            filtered_items = self.filter_timeline(indices, include_filters)
-        else:
-            filtered_items = self.filter_timeline(indices)
-        
-        if json_output or jsonl_output:
-            json_items = []
-            for item in filtered_items:
-                json_item = {
-                    'seq': item['seq'],
-                    'type': item['type'],
-                    'timestamp': item.get('timestamp')
-                }
-                if item['type'] == 'message':
-                    msg = item['data']
-                    json_item['message'] = {
-                        'type': msg['type'],
-                        'text': msg.get('text'),
-                        'tool_results': msg.get('tool_results'),
-                        'is_slash_command': msg.get('is_slash_command'),
-                        'slash_command': msg.get('slash_command')
-                    }
-                elif item['type'] == 'tool':
-                    tc = item['data']
-                    json_item['tool'] = {
-                        'name': tc['name'],
-                        'parameters': tc.get('parameters', {})
-                    }
-                
-                if jsonl_output:
-                    json.dump(json_item, sys.stdout)
-                    sys.stdout.write('\n')
-                else:
-                    json_items.append(json_item)
-            
-            if json_output:
-                json.dump(json_items, sys.stdout, indent=2)
-                sys.stdout.write('\n')
-        else:
-            
-            # Show numbers when filtering is applied (not showing full timeline) or in full mode
-            has_filtering = filter_type != 'all' or indices is not None
-            show_numbers = (display_mode == 'truncated' and has_filtering) or display_mode == 'full'
-            
-            for item in filtered_items:
-                self._display_timeline_item(item, display_mode, show_numbers)
-    
     def show_file_changes(self):
         """Show all file modifications grouped by file."""
         filtered_items = self.filter_timeline(include_filters=['Edit', 'Write', 'MultiEdit'])
@@ -1250,7 +1198,7 @@ def main():
                         help='Include all tools (shortcut for -i Tool)')
     
     parser.add_argument('indices', nargs='*', 
-                        help='Indices/ranges: 5 (item 5), +10 (first 10), -20 (last 20), 10-30 (range)')
+                        help='Indices/ranges: 5 (item 5), +10 (first 10), -20 (last 20), 10-30 (range), 60+ (from 60 onwards)')
     
     args = parser.parse_args()
     
@@ -1260,8 +1208,9 @@ def main():
     has_filters = bool(args.include or args.exclude or has_filter_shortcuts)
     has_indices = bool(args.indices)
     
-    # Timeline is implicit when using filters or ranges
-    implicit_timeline = has_filters or has_indices
+    # Timeline is implicit when using filters or ranges (but not with search)
+    # Search handles its own display
+    implicit_timeline = (has_filters or has_indices) and not args.search
     
     # Default to summary if no action specified
     if not any([args.summary, args.timeline, args.git, args.files, 
