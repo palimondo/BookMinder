@@ -1070,8 +1070,8 @@ def main():
     parser.add_argument('--conversation', action='store_true',
                         help='Show conversation messages')
     parser.add_argument('--search', help='Search bash commands')
-    parser.add_argument('--export-json', nargs=3, metavar=('START', 'END', 'OUTPUT'), 
-                        help='Export tool calls from START to END as JSON')
+    parser.add_argument('--export-json', nargs=2, metavar=('RANGE', 'OUTPUT'), 
+                        help='Export tool calls in RANGE as JSON. RANGE can be: 5 (single), 1-50 (range), +10 (first 10), -20 (last 20)')
     parser.add_argument('--include', metavar='FILTERS',
                         help='Include only tools matching filters, comma-separated. '
                              'Follows Claude Code syntax: "Edit,Bash(git add *)"')
@@ -1167,21 +1167,32 @@ def main():
         explorer.search_commands(args.search)
     
     if args.conversation:
+        # --conversation is deprecated, but handle it for backward compatibility
         if args.indices:
             try:
-                indices = parse_indices(args.indices, len(explorer.messages))
-                explorer.show_conversation_indices(indices)
+                indices = parse_indices(args.indices, len(explorer.timeline))
+                # Convert conversation to timeline with indices
+                print("\n=== CONVERSATION ===")
+                print("Note: --conversation is deprecated. Use --timeline conversation instead.")
+                filtered_items = explorer.filter_timeline(indices)
+                # Only show message items
+                for item in filtered_items:
+                    if item['type'] == 'message':
+                        explorer._display_timeline_item(item, 'compact')
             except ValueError as e:
                 print(f"Error: {e}")
         else:
             explorer.show_conversation()
     
     if args.export_json:
-        start, end, output = args.export_json
+        range_str, output = args.export_json
+        # Parse the range using our consistent syntax
+        start_idx, end_idx = parse_range(range_str, len(explorer.tool_calls))
         # Split comma-separated filters
         include_filters = args.include.split(',') if args.include else None
         exclude_filters = args.exclude.split(',') if args.exclude else None
-        explorer.export_range(int(start), int(end), output, 
+        # Export using 1-based indices for the export_range method
+        explorer.export_range(start_idx + 1, end_idx, output, 
                             include_filters=include_filters,
                             exclude_filters=exclude_filters)
 
