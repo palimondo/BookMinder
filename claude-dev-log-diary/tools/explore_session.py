@@ -392,7 +392,8 @@ class SessionExplorer:
         return filtered_items
     
     def show_timeline_with_filters(self, indices=None, display_mode='compact', 
-                                    include_filters=None, exclude_filters=None):
+                                    include_filters=None, exclude_filters=None,
+                                    include_tool_results=True, force_show_numbers=False):
         """Show timeline with indices and include/exclude filters.
         
         Args:
@@ -400,6 +401,8 @@ class SessionExplorer:
             display_mode: 'compact' (default), 'truncated', or 'full'
             include_filters: Comma-separated filter string (e.g. "Bash(git *),Edit")
             exclude_filters: Comma-separated filter string
+            include_tool_results: Whether to include tool results when filtering
+            force_show_numbers: Force showing sequence numbers in truncated mode
         """
         if display_mode != 'truncated':
             print("\n=== TIMELINE ===")
@@ -409,12 +412,12 @@ class SessionExplorer:
         exclude_list = exclude_filters.split(',') if exclude_filters else None
         
         # Use centralized filtering
-        filtered_items = self.filter_timeline(indices, include_list, exclude_list)
+        filtered_items = self.filter_timeline(indices, include_list, exclude_list, include_tool_results)
         
         # Determine if we should show numbers in truncated mode
-        # Show numbers when: 1) filtering is applied or 2) not showing full timeline
+        # Show numbers when: 1) filtering is applied or 2) not showing full timeline or 3) force flag
         has_filtering = indices or include_list or exclude_list
-        show_numbers = display_mode == 'truncated' and has_filtering
+        show_numbers = display_mode == 'truncated' and (has_filtering or force_show_numbers)
         
         # Display the filtered items
         for item in filtered_items:
@@ -1077,6 +1080,10 @@ def main():
                              'Follows Claude Code syntax: "TodoWrite,Bash(npm test:*)"')
     parser.add_argument('--truncated', action='store_true',
                         help='Show truncated console-style output (3-line preview)')
+    parser.add_argument('--no-tool-results', action='store_true',
+                        help='When filtering for tools, exclude their results (default: include results)')
+    parser.add_argument('--show-numbers', action='store_true',
+                        help='Show sequence numbers in truncated mode even without filtering')
     parser.add_argument('--full', action='store_true',
                         help='Show full output without truncation')
     parser.add_argument('indices', nargs='*', 
@@ -1114,13 +1121,17 @@ def main():
             try:
                 indices = parse_indices(args.indices, len(explorer.timeline))
                 explorer.show_timeline_with_filters(indices, display_mode, 
-                                                    args.include, args.exclude)
+                                                    args.include, args.exclude,
+                                                    not args.no_tool_results,
+                                                    args.show_numbers)
             except ValueError as e:
                 print(f"Error: {e}")
         else:
             # Show all items
             explorer.show_timeline_with_filters(None, display_mode,
-                                              args.include, args.exclude)
+                                              args.include, args.exclude,
+                                              not args.no_tool_results,
+                                              args.show_numbers)
     
     if args.git:
         # --git is a shortcut for --timeline --include "Bash(git *)"
@@ -1135,12 +1146,16 @@ def main():
             try:
                 indices = parse_indices(args.indices, len(explorer.timeline))
                 explorer.show_timeline_with_filters(indices, display_mode, 
-                                                    "Bash(git *)", args.exclude)
+                                                    "Bash(git *)", args.exclude,
+                                                    not args.no_tool_results,
+                                                    args.show_numbers)
             except ValueError as e:
                 print(f"Error: {e}")
         else:
             explorer.show_timeline_with_filters(None, display_mode,
-                                              "Bash(git *)", args.exclude)
+                                              "Bash(git *)", args.exclude,
+                                              not args.no_tool_results,
+                                              args.show_numbers)
     
     if args.files:
         explorer.show_file_changes()
