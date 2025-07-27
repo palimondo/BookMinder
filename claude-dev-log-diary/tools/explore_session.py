@@ -95,14 +95,13 @@ class SessionExplorer:
                                 assistant_text.append(item.get('text', ''))
                             elif item.get('type') == 'tool_use':
                                 tool_name = item.get('name', '')
-                                if not tool_name.startswith('mcp__'):
-                                    tool_uses.append(tool_name)
-                                    self.tool_calls.append({
-                                        'name': tool_name,
-                                        'id': item.get('id', ''),
-                                        'parameters': item.get('input', {}),
-                                        'timestamp': obj.get('timestamp')
-                                    })
+                                tool_uses.append(tool_name)
+                                self.tool_calls.append({
+                                    'name': tool_name,
+                                    'id': item.get('id', ''),
+                                    'parameters': item.get('input', {}),
+                                    'timestamp': obj.get('timestamp')
+                                })
                 
                 if assistant_text or tool_uses:
                     self.messages.append({
@@ -213,23 +212,37 @@ class SessionExplorer:
     
     def show_summary(self):
         """Show session summary in YAML-style hierarchy."""
+        # Count tools by name
         tool_counts = defaultdict(int)
+        mcp_tools = defaultdict(lambda: defaultdict(int))
         git_operations = 0
         git_commits = 0
         
         for tc in self.tool_calls:
-            tool_counts[tc['name']] += 1
-            if tc['name'] == 'Bash':
+            tool_name = tc['name']
+            tool_counts[tool_name] += 1
+            
+            # MCP tool detection
+            if tool_name.startswith('mcp__'):
+                parts = tool_name.split('__')
+                if len(parts) >= 2:
+                    server = parts[1]
+                    mcp_tools[server][tool_name] += 1
+            
+            # Git operations
+            elif tool_name == 'Bash':
                 cmd = tc['parameters'].get('command', '')
                 if cmd.startswith('git'):
                     git_operations += 1
                     if 'git commit' in cmd:
                         git_commits += 1
         
+        # Count messages
         user_inputs = 0
         tool_results = 0
-        assistant_text = 0
-        assistant_tools = 0
+        assistant_messages = 0
+        assistant_text_only = 0
+        assistant_with_tools = 0
         user_interruptions = 0
         
         for m in self.messages:
@@ -241,11 +254,15 @@ class SessionExplorer:
                     if '[Interrupted by user]' in m.get('text', ''):
                         user_interruptions += 1
             elif m['type'] == 'assistant':
-                if m.get('text'):
-                    assistant_text += 1
-                if m.get('tools'):
-                    assistant_tools += 1
+                assistant_messages += 1
+                has_text = bool(m.get('text'))
+                has_tools = bool(m.get('tools'))
+                if has_text and not has_tools:
+                    assistant_text_only += 1
+                elif has_tools:
+                    assistant_with_tools += 1
         
+        # Count files modified
         files_modified = set()
         for tc in self.tool_calls:
             if tc['name'] in ['Edit', 'MultiEdit', 'Write']:
@@ -253,6 +270,7 @@ class SessionExplorer:
                 if path:
                     files_modified.add(path)
         
+        # Get timestamps
         timestamps = [item['timestamp'] for item in self.timeline if item.get('timestamp')]
         if timestamps:
             from datetime import datetime
@@ -274,6 +292,7 @@ class SessionExplorer:
         else:
             start_time = end_time = duration_str = None
         
+        # Print formatted output
         print(f"Session: {Path(self.jsonl_file).name}")
         print()
         if start_time and end_time:
@@ -281,25 +300,67 @@ class SessionExplorer:
             print(f"  Started: {start_time.strftime('%Y-%m-%d %H:%M:%S UTC')}")
             print(f"  Ended: {end_time.strftime('%Y-%m-%d %H:%M:%S UTC')}")
             print(f"  Duration: {duration_str}")
-            print()
-        print(f"Timeline: {len(self.timeline)} events")
-        print(f"  User inputs: {user_inputs}")
-        print(f"  Tool results: {tool_results}")
-        print(f"  Assistant messages: {len([m for m in self.messages if m['type'] == 'assistant'])}")
-        print(f"    Text responses: {assistant_text}")
-        print(f"    Tool invocations: {len(self.tool_calls)}")
+            print("                            # Use filter params and options below")
+        print("Timeline:                   # to show specific event types:")
+        print(f"  Events: {len(self.timeline):<18} # -t")
+        print(f"  User inputs: {user_inputs:<14} # -u")
+        print(f"  Tool results: {tool_results:<13} # (shown after -T events, use --no-tool-results to exclude)")
+        print(f"  Assistant: {assistant_messages:<16} # -a")
+        print("  Assistant messages:")
+        print(f"    Text: {assistant_text_only:<18} # -a -x Tool")
+        print(f"    Tool: {len(self.tool_calls):<18} # -T")
         
-        for tool, count in sorted(tool_counts.items(), key=lambda x: -x[1]):
-            print(f"      {tool}: {count}")
-            if tool == 'Bash' and git_operations > 0:
-                print(f"        Git operations: {git_operations}")
-                if git_commits > 0:
-                    print(f"          Commits: {git_commits}")
+        if self.tool_calls:
+            print("    Tool calls:")
+            
+            # Group MCP tools
+            total_mcp = sum(sum(tools.values()) for tools in mcp_tools.values())
+            if total_mcp > 0:
+                print(f"      MCP: {total_mcp:<18} # -i Tool(mcp__*)")
+                print("      MCP tools:")
+                # Sort MCP servers by total count
+                for server, tools in sorted(mcp_tools.items(), 
+                                          key=lambda x: sum(x[1].values()), 
+                                          reverse=True):
+                    server_total = sum(tools.values())
+                    print(f"          {server.title()}: {server_total:<10} # -i Tool(mcp__{server}*)")
+            
+            # Regular tools (non-MCP), sorted by count
+            regular_tools = [(name, count) for name, count in tool_counts.items() 
+                           if not name.startswith('mcp__')]
+            
+            # Identify "other" tools (those with few occurrences)
+            threshold = 3  # Tools with less than this count go to "Other"
+            main_tools = []
+            other_tools = []
+            
+            for name, count in sorted(regular_tools, key=lambda x: -x[1]):
+                if count >= threshold or name in ['Edit', 'Read', 'Bash', 'Write', 'Grep']:
+                    main_tools.append((name, count))
+                else:
+                    other_tools.append((name, count))
+            
+            # Print main tools
+            for tool, count in main_tools:
+                if tool == 'Bash':
+                    print(f"      {tool}: {count:<18} # -i {tool}")
+                    if git_commits > 0:
+                        print("      Git:")
+                        print(f"        Commits: {git_commits:<12} # -i Bash(git commit *)")
+                        print(f"        Operations: {git_operations:<9} # --git")
+                else:
+                    print(f"      {tool}: {count:<18} # -i {tool}")
+            
+            # Print other tools as a group
+            if other_tools:
+                other_count = sum(count for _, count in other_tools)
+                other_names = ','.join(name for name, _ in other_tools)
+                print(f"      Other: {other_count:<17} # -i {other_names}")
         
         print()
-        print(f"Files modified: {len(files_modified)}")
+        print(f"Files modified: {len(files_modified):<12} # --files")
         if user_interruptions > 0:
-            print(f"User interruptions: {user_interruptions}")
+            print(f"User interruptions: {user_interruptions:<8} # --search \"interrupted\" -C 5")
     
     def _matches_timeline_filter(self, item, filter_str):
         """Check if a timeline item matches a filter string."""
@@ -916,10 +977,17 @@ class SessionExplorer:
         if filter_lower in virtual_entities:
             return 'virtual', virtual_entities[filter_lower], None
         
-        # Tool filters - use existing parser
+        # Check for Tool(pattern) syntax specifically
         match = re.match(r'(\w+)\((.*)\)', filter_str)
         if match:
-            return 'tool', match.group(1), match.group(2)
+            entity = match.group(1)
+            pattern = match.group(2)
+            # Tool(pattern) is a special case for matching tool names
+            if entity == 'Tool':
+                return 'tool', 'Tool', pattern
+            else:
+                # Regular tool filters like Bash(git *)
+                return 'tool', entity, pattern
         elif re.match(r'^\w+$', filter_str):
             return 'tool', filter_str, None
         
@@ -937,6 +1005,11 @@ class SessionExplorer:
     
     def _matches_filter(self, tool_call, tool_name, pattern):
         """Check if a tool call matches the filter using glob patterns."""
+        # Special case for "Tool" meta-filter with pattern
+        if tool_name == 'Tool' and pattern:
+            # Match pattern against tool name itself
+            return fnmatch.fnmatch(tool_call['name'], pattern)
+        
         if tool_call['name'] != tool_name:
             return False
         
@@ -1129,8 +1202,19 @@ def main():
     
     args = parser.parse_args()
     
+    # Determine if timeline should be implicit
+    has_filter_shortcuts = any([args.include_message, args.include_user, 
+                               args.include_assistant, args.include_tool])
+    has_filters = bool(args.include or args.exclude or has_filter_shortcuts)
+    has_indices = bool(args.indices)
+    
+    # Timeline is implicit when using filters or ranges
+    implicit_timeline = has_filters or has_indices
+    
+    # Default to summary if no action specified
     if not any([args.summary, args.timeline, args.git, args.files, 
-                args.created, args.conversation, args.search, args.export_json]):
+                args.created, args.conversation, args.search, args.export_json,
+                implicit_timeline]):
         args.summary = True
     
     try:
@@ -1144,7 +1228,8 @@ def main():
     if args.summary:
         explorer.show_summary()
     
-    if args.timeline:
+    # Show timeline if explicit -t or implicit (filters/ranges)
+    if args.timeline or implicit_timeline:
         display_mode = 'compact'
         if args.truncated:
             display_mode = 'truncated'
