@@ -940,13 +940,53 @@ class SessionExplorer:
                     if len(content.split('\n')) > 5:
                         print(f"   ... ({len(content.split('\n'))} total lines)")
     
-    def search_commands(self, pattern):
-        """Search bash commands for pattern."""
-        for i, tc in enumerate(self.tool_calls):
-            if tc['name'] == 'Bash':
-                cmd = tc['parameters'].get('command', '')
-                if pattern.lower() in cmd.lower():
-                    print(f"{i+1:3}. {cmd[:100]}...")
+    def search_timeline(self, pattern, case_sensitive=False):
+        """Full text search across all timeline content.
+        
+        Args:
+            pattern: Text to search for
+            case_sensitive: Whether search is case sensitive (default: False)
+            
+        Returns:
+            List of matching timeline indices (0-based)
+        """
+        matches = []
+        search_pattern = pattern if case_sensitive else pattern.lower()
+        
+        for i, item in enumerate(self.timeline):
+            found = False
+            
+            if item['type'] == 'message':
+                msg = item['data']
+                # Search in message text
+                if msg.get('text'):
+                    text = msg['text'] if case_sensitive else msg['text'].lower()
+                    if search_pattern in text:
+                        found = True
+                
+                # Search in tool results
+                for result in msg.get('tool_results', []):
+                    content = result.get('content', '')
+                    content = content if case_sensitive else content.lower()
+                    if search_pattern in content:
+                        found = True
+                        break
+                        
+            elif item['type'] == 'tool':
+                tc = item['data']
+                # Search in tool parameters
+                params = tc.get('parameters', {})
+                for key, value in params.items():
+                    if isinstance(value, str):
+                        value = value if case_sensitive else value.lower()
+                        if search_pattern in value:
+                            found = True
+                            break
+            
+            if found:
+                matches.append(i)
+        
+        return matches
     
     def show_conversation(self, start=None, end=None):
         """Display conversation between user and assistant.
@@ -1189,7 +1229,7 @@ def main():
     parser.add_argument('--created', '-c', action='store_true', help='Show created files')
     parser.add_argument('--conversation', action='store_true',
                         help='Show conversation messages')
-    parser.add_argument('--search', help='Search bash commands')
+    parser.add_argument('--search', help='Full text search across all content')
     parser.add_argument('--export-json', nargs=2, metavar=('RANGE', 'OUTPUT'), 
                         help='Export tool calls in RANGE as JSON to FILE. RANGE can be: 5 (single), 1-50 (range), +10 (first 10), -20 (last 20)')
     parser.add_argument('--json', action='store_true',
@@ -1340,7 +1380,34 @@ def main():
         explorer.show_created_files()
     
     if args.search:
-        explorer.search_commands(args.search)
+        # Search and show results with context
+        matches = explorer.search_timeline(args.search)
+        if matches:
+            print(f"Found {len(matches)} matches for '{args.search}':")
+            
+            # Handle context arguments
+            before_context = args.before_context or 0
+            after_context = args.after_context or 0
+            if args.context:
+                before_context = args.context
+                after_context = args.context
+            
+            # Convert matches to indices parameter for filter_timeline
+            # and show with context
+            explorer.show_timeline_with_filters(
+                indices=matches, 
+                display_mode='truncated' if args.truncated else ('full' if args.full else 'compact'),
+                include_filters=None,
+                exclude_filters=None,
+                include_tool_results=True,
+                force_show_numbers=True,
+                json_output=args.json,
+                jsonl_output=args.jsonl,
+                before_context=before_context,
+                after_context=after_context
+            )
+        else:
+            print(f"No matches found for '{args.search}'")
     
     if args.conversation:
         if args.indices:
