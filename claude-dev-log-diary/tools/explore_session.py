@@ -675,8 +675,48 @@ class SessionExplorer:
                         print(f"[{item['seq']}] ⏺ TodoWrite: Updated 0 todos")
                 elif tool_name == 'TodoRead':
                     print(f"[{item['seq']}] ⏺ Read Todos")
+                elif tool_name == 'Grep':
+                    # Special format for Grep: "pattern" in path
+                    pattern = params.get('pattern', '')
+                    path = params.get('path', '.')
+                    print(f"[{item['seq']}] ⏺ Grep: \"{pattern}\" in {path}")
+                elif tool_name == 'LS':
+                    # Show path for LS
+                    path = params.get('path', '.')
+                    print(f"[{item['seq']}] ⏺ LS: {path}")
+                elif tool_name == 'Glob':
+                    # Show pattern for Glob
+                    pattern = params.get('pattern', '')
+                    path = params.get('path', '.')
+                    print(f"[{item['seq']}] ⏺ Glob: {pattern} in {path}")
+                elif tool_name == 'Task':
+                    # Show description for Task
+                    description = params.get('description', '')
+                    print(f"[{item['seq']}] ⏺ Task: \"{description}\"")
+                elif tool_name == 'WebFetch':
+                    # Show URL for WebFetch
+                    url = params.get('url', '')
+                    print(f"[{item['seq']}] ⏺ WebFetch: {url}")
+                elif tool_name == 'WebSearch':
+                    # Show query for WebSearch
+                    query = params.get('query', '')
+                    print(f"[{item['seq']}] ⏺ WebSearch: \"{query}\"")
+                elif tool_name == 'Bash':
+                    # Special format for Bash: $ command
+                    command = params.get('command', '')
+                    # Take first line for multi-line commands
+                    command = command.split('\n')[0]
+                    print(f"[{item['seq']}] ⏺ Bash: $ {command}")
+                elif tool_name in ['Edit', 'Write', 'MultiEdit']:
+                    # Special format for file edits: → filename
+                    file_path = params.get('file_path', '')
+                    print(f"[{item['seq']}] ⏺ {tool_name}: → {file_path}")
+                elif tool_name == 'Read':
+                    # Special format for Read: ← filename
+                    file_path = params.get('file_path', '')
+                    print(f"[{item['seq']}] ⏺ Read: ← {file_path}")
                 else:
-                    # Use same parameter extraction logic as truncated mode
+                    # Generic format for other tools
                     param_str = ""
                     if 'command' in params:
                         param_str = params['command']
@@ -757,20 +797,30 @@ class SessionExplorer:
         # is now handled through the timeline filtering
     
     def show_file_changes(self):
-        """Show all file modifications."""
+        """Show all file modifications.
+        
+        DEPRECATED: Use --timeline --include "Edit,Write,MultiEdit" instead.
+        """
         print("\n=== FILE CHANGES ===")
+        print("Note: --files is deprecated. Use --timeline --include \"Edit,Write,MultiEdit\" instead.")
+        
+        # Use centralized filtering to get file editing tools
+        filtered_items = self.filter_timeline(include_filters=['Edit', 'Write', 'MultiEdit'])
+        
+        # Group by file path
         file_changes = defaultdict(list)
-        
-        for i, tc in enumerate(self.tool_calls):
-            if tc['name'] in ['Edit', 'Write', 'MultiEdit']:
+        for item in filtered_items:
+            if item['type'] == 'tool':
+                tc = item['data']
                 path = tc['parameters'].get('file_path', 'unknown')
-                file_changes[path].append((i+1, tc['name']))
+                file_changes[path].append((item['seq'], tc['name']))
         
+        # Display grouped by file
         for path, changes in sorted(file_changes.items()):
             display_path = path.split('/')[-1] if '/' in path else path
             print(f"\n{display_path}: {len(changes)} changes")
             for seq, tool in changes[:5]:  # Show first 5
-                print(f"  {seq:3}. {tool}")
+                print(f"  [{seq}] ⏺ {tool}")
             if len(changes) > 5:
                 print(f"  ... and {len(changes)-5} more")
     
@@ -909,21 +959,42 @@ class SessionExplorer:
         return any(pattern in content for pattern in todo_patterns)
     
     def _format_todo_result_truncated(self, content):
-        """Format todo result content for truncated display."""
+        """Format todo result content for truncated display.
+        
+        Expected format based on Claude Code:
+        ☒ Completed task (P0)
+        ◐ In progress task (P1) 
+        ☐ Pending task (P2)
+        """
+        # Check if this is the standard "Todos have been modified" message
+        if "Todos have been modified successfully" in content:
+            # Parse the actual todo list from the current todo state
+            # For now, just show the success message
+            print("  ⎿  ☒ Todos updated successfully")
+            return
+            
         # Parse todo items from the content
         lines = content.strip().split('\n')
+        formatted_lines = []
+        
         for line in lines:
             line = line.strip()
             if not line:
                 continue
                 
-            # Check if this looks like a todo item
+            # Check if this looks like a todo item with checkbox symbols
             if any(symbol in line for symbol in ['☐', '☒', '◐']):
-                # This is a todo item - format with proper indentation
-                print(f"  ⎿  {line}")
+                # This is a todo item - add proper spacing
+                formatted_lines.append(f"     {line}")
             else:
-                # Regular line
-                print(f"  ⎿  {line}")
+                # Regular line - might be a header or other content
+                formatted_lines.append(f"     {line}")
+        
+        # Print with the tool result indicator only on the first line
+        if formatted_lines:
+            print(f"  ⎿  {formatted_lines[0][5:]}")  # Remove the 5 spaces from first line
+            for line in formatted_lines[1:]:
+                print(line)
 
 def find_session_file(identifier):
     """Find session file by any substring match."""
