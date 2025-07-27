@@ -325,6 +325,78 @@ class SessionExplorer:
         if user_interruptions > 0:
             print(f"User interruptions: {user_interruptions}")
     
+    def filter_timeline(self, indices=None, include_filters=None, exclude_filters=None):
+        """Filter timeline based on indices and include/exclude filters.
+        
+        Args:
+            indices: List of 0-based indices to show (if None, show all)
+            include_filters: List of filter strings (e.g. ["Bash(git *)", "Edit"])
+            exclude_filters: List of filter strings
+            
+        Returns:
+            List of filtered timeline items
+        """
+        filtered_items = []
+        
+        for i, item in enumerate(self.timeline):
+            # Skip if not in requested indices
+            if indices is not None and i not in indices:
+                continue
+            
+            # For tool items, apply include/exclude filters
+            if item['type'] == 'tool':
+                # Extract just the tool calls for filtering
+                tool_call = item['data']
+                if include_filters or exclude_filters:
+                    # Use existing _apply_filters logic
+                    filtered_tools = self._apply_filters([tool_call], include_filters, exclude_filters)
+                    if not filtered_tools:
+                        continue
+            
+            # For message items, check if we should include them
+            elif item['type'] == 'message':
+                # If only tool filters specified, skip messages unless explicitly included
+                if include_filters:
+                    # Check if any filter explicitly includes messages/conversation
+                    message_included = any(f.lower() in ['message', 'messages', 'conversation'] 
+                                         for f in include_filters)
+                    if not message_included:
+                        continue
+                
+                # Check excludes for messages
+                if exclude_filters:
+                    message_excluded = any(f.lower() in ['message', 'messages', 'conversation'] 
+                                         for f in exclude_filters)
+                    if message_excluded:
+                        continue
+            
+            filtered_items.append(item)
+        
+        return filtered_items
+    
+    def show_timeline_with_filters(self, indices=None, display_mode='compact', 
+                                    include_filters=None, exclude_filters=None):
+        """Show timeline with indices and include/exclude filters.
+        
+        Args:
+            indices: List of 0-based indices to show (if None, show all)
+            display_mode: 'compact' (default), 'truncated', or 'full'
+            include_filters: Comma-separated filter string (e.g. "Bash(git *),Edit")
+            exclude_filters: Comma-separated filter string
+        """
+        print("\n=== TIMELINE ===")
+        
+        # Parse filters
+        include_list = include_filters.split(',') if include_filters else None
+        exclude_list = exclude_filters.split(',') if exclude_filters else None
+        
+        # Use centralized filtering
+        filtered_items = self.filter_timeline(indices, include_list, exclude_list)
+        
+        # Display the filtered items
+        for item in filtered_items:
+            self._display_timeline_item(item, display_mode)
+    
     def show_timeline_indices(self, filter_type='all', indices=None, display_mode='compact'):
         """Show timeline with specific indices.
         
@@ -335,22 +407,8 @@ class SessionExplorer:
         """
         print("\n=== TIMELINE ===")
         
-        # Apply filtering first
-        filtered_items = []
-        for i, item in enumerate(self.timeline):
-            # Skip if not in requested indices
-            if indices is not None and i not in indices:
-                continue
-                
-            # Apply type filtering
-            if filter_type == 'tools' and item['type'] != 'tool':
-                continue
-            elif filter_type == 'conversation' and item['type'] != 'message':
-                continue
-            elif filter_type not in ['all', 'tools', 'conversation'] and item['type'] == 'tool' and item['subtype'] != filter_type:
-                continue
-                
-            filtered_items.append(item)
+        # Use centralized filtering
+        filtered_items = self.filter_timeline(filter_type, indices)
         
         # Show the filtered items
         for item in filtered_items:
@@ -358,8 +416,194 @@ class SessionExplorer:
     
     def _display_timeline_item(self, item, display_mode='compact'):
         """Display a single timeline item based on display mode."""
-        # This method will be populated by moving the display logic from show_timeline
-        pass
+        if item['type'] == 'message':
+            msg = item['data']
+            if msg['type'] == 'user' and display_mode == 'truncated':
+                # Truncated mode - reconstruct.jq style (NO sequence numbers)
+                text = msg.get('text', '')
+                tool_results = msg.get('tool_results', [])
+                is_slash = msg.get('is_slash_command', False)
+                slash_cmd = msg.get('slash_command', '')
+                
+                # Handle different user message types
+                if is_slash and slash_cmd:
+                    print(f"> /{slash_cmd}")
+                elif text == '[Interrupted by user]':
+                    print("> [Request interrupted by user]")
+                elif text and not tool_results:
+                    # Regular user message
+                    print(f"> {text}")
+                elif tool_results:
+                    # This is a tool result - format like reconstruct.jq
+                    for result in tool_results:
+                        content = result.get('content', '')
+                        
+                        # Skip internal messages
+                        if any(phrase in content for phrase in [
+                            "Todos have been modified successfully",
+                            "completed successfully"
+                        ]):
+                            continue
+                            
+                        if content:
+                            print("  ⎿  Waiting…\n")
+                            # Format the output with truncation
+                            truncated = self._format_truncated_output(content, 3)
+                            # Indent each line
+                            for line in truncated.split('\n'):
+                                print(f"  ⎿  {line}")
+                            print()  # Extra newline after tool results
+            
+            elif msg['type'] == 'assistant' and display_mode == 'truncated':
+                # Assistant messages in truncated mode
+                text = msg.get('text', '')
+                tools = msg.get('tools', [])
+                
+                if text:
+                    # Show full assistant text (reconstruct.jq shows all of it)
+                    print(f"⏺ {text}\n")
+                # Tool uses are handled separately as 'tool' items
+                
+            elif msg['type'] == 'user':
+                text = msg.get('text', '')
+                tool_results = msg.get('tool_results', [])
+                is_slash = msg.get('is_slash_command', False)
+                slash_cmd = msg.get('slash_command', '')
+                is_meta = msg.get('is_meta', False)
+                
+                # Check if this is an internal message to skip
+                if tool_results and tool_results[0].get('content', ''):
+                    content = tool_results[0].get('content', '')
+                    if any(phrase in content for phrase in [
+                        "Todos have been modified successfully",
+                        "completed successfully"  # System messages
+                    ]):
+                        # Skip these internal messages entirely
+                        return
+                
+                if is_meta and text.startswith('Caveat:'):
+                    # Show caveat message (meta)
+                    print(f"[{item['seq']}] [META] {text[:50]}...")
+                elif is_slash and slash_cmd:
+                    # Show slash command (no prefix - it's a command)
+                    print(f"[{item['seq']}] /{slash_cmd}")
+                elif text == '[Interrupted by user]':
+                    # Show interrupted request (no prefix - it's a protocol message)
+                    print(f"[{item['seq']}] [Interrupted by user]")
+                elif text:
+                    # Show full first line of user message
+                    lines = text.split('\n')
+                    first_line = lines[0]
+                    if len(lines) > 1:
+                        # Show last line too for context
+                        last_line = lines[-1].strip()
+                        if last_line and last_line != first_line:
+                            multiline = f' [...] {last_line}'
+                        else:
+                            multiline = ' [...]'
+                    else:
+                        multiline = ''
+                    print(f"[{item['seq']}] > {first_line}{multiline}")
+                elif tool_results:
+                    # This is a tool result message
+                    content = tool_results[0].get('content', '')
+                    
+                    # Handle interrupted tools specially
+                    if "doesn't want to proceed" in content:
+                        print(f"[{item['seq']}] ⎿  [Tool rejected]")
+                    else:
+                        # Show actual tool results
+                        lines = content.split('\n')
+                        first_line = lines[0]
+                        if len(lines) > 1:
+                            # Show last line too for context
+                            last_line = lines[-1].strip()
+                            if last_line and last_line != first_line:
+                                multiline = f' [...] {last_line}'
+                            else:
+                                multiline = ' [...]'
+                        else:
+                            multiline = ''
+                        print(f"[{item['seq']}] ⎿  {first_line}{multiline}")
+                else:
+                    # Empty user message (rare but possible)
+                    print(f"[{item['seq']}] > [empty]")
+            elif msg['type'] == 'assistant':
+                # Show assistant text or tool usage
+                text = msg.get('text', '')
+                tools = msg.get('tools', [])
+                if text:
+                    lines = text.split('\n')
+                    first_line = lines[0]
+                    multiline = ' [...]' if len(lines) > 1 else ''
+                    print(f"[{item['seq']}] • {first_line}{multiline}")
+                elif tools:
+                    # List tools used (tools is a list of strings)
+                    print(f"[{item['seq']}] • [Used tools: {', '.join(tools)}]")
+                else:
+                    print(f"[{item['seq']}] • [No content]")
+        
+        elif item['type'] == 'tool':
+            # Tool call display
+            tc = item['data']
+            tool_name = tc['name']
+            params = tc.get('parameters', {})
+            
+            if display_mode == 'truncated':
+                # Truncated mode for tool calls (reconstruct.jq style)
+                if tool_name == 'Bash':
+                    cmd = params.get('command', '')
+                    desc = params.get('description', '')
+                    print(f"🛠️  {desc or 'Running command'}")
+                    print(f"$ {cmd}\n")
+                elif tool_name == 'Edit':
+                    file_path = params.get('file_path', '')
+                    print(f"✏️  Editing {file_path}\n")
+                elif tool_name == 'Read':
+                    file_path = params.get('file_path', '')
+                    print(f"📖 Reading {file_path}\n")
+                elif tool_name == 'Write':
+                    file_path = params.get('file_path', '')
+                    print(f"📝 Writing {file_path}\n")
+                elif tool_name == 'TodoWrite':
+                    todos = params.get('todos', [])
+                    print(f"✅ Updating todo list ({len(todos)} items)\n")
+                elif tool_name == 'Grep':
+                    pattern = params.get('pattern', '')
+                    path = params.get('path', '.')
+                    print(f"🔍 Searching for '{pattern}' in {path}\n")
+                else:
+                    # Generic tool display
+                    print(f"🔧 {tool_name}\n")
+            else:
+                # Compact mode
+                if tool_name == 'Bash':
+                    cmd = params.get('command', '')
+                    # Take first line for multi-line commands
+                    first_line = cmd.split('\n')[0]
+                    print(f"[{item['seq']}] 🛠️  {tool_name}: {first_line}")
+                elif tool_name == 'Edit':
+                    file_path = params.get('file_path', '')
+                    old_str = params.get('old_string', '')
+                    # Show first line of old_string
+                    first_line = old_str.split('\n')[0] if old_str else ''
+                    if len(first_line) > 40:
+                        first_line = first_line[:37] + '...'
+                    print(f"[{item['seq']}] ✏️  {tool_name}: {file_path} [{first_line}]")
+                elif tool_name in ['Read', 'Write']:
+                    file_path = params.get('file_path', '')
+                    print(f"[{item['seq']}] 📄 {tool_name}: {file_path}")
+                elif tool_name == 'TodoWrite':
+                    todos = params.get('todos', [])
+                    print(f"[{item['seq']}] ✅ {tool_name}: {len(todos)} todos")
+                elif tool_name == 'Grep':
+                    pattern = params.get('pattern', '')
+                    path = params.get('path', '.')
+                    print(f"[{item['seq']}] 🔍 {tool_name}: '{pattern}' in {path}")
+                else:
+                    # Show first parameter
+                    first_param = list(params.items())[0] if params else ('', '')
+                    print(f"[{item['seq']}] {tool_name}: {first_param[0]}={str(first_param[1])[:40]}")
     
     def show_timeline(self, filter_type='all', start=None, end=None, display_mode='compact'):
         """Show timeline of events.
@@ -609,13 +853,11 @@ class SessionExplorer:
                     print()
     
     def show_git_operations(self):
-        """Show all git operations."""
+        """Show all git operations. DEPRECATED: Use -t --include 'Bash(git *)' instead."""
         print("\n=== GIT OPERATIONS ===")
-        for i, tc in enumerate(self.tool_calls):
-            if tc['name'] == 'Bash':
-                cmd = tc['parameters'].get('command', '')
-                if cmd.startswith('git'):
-                    print(f"{i+1:3}. {cmd[:80]}...")
+        print("Note: --git is now a shortcut for: -t --include 'Bash(git *)'")
+        # This method is kept for backward compatibility but the main logic
+        # is now handled through the timeline filtering
     
     def show_file_changes(self):
         """Show all file modifications."""
@@ -715,34 +957,44 @@ class SessionExplorer:
             print(f"\nExported {len(selected)} tool calls to {output_file}")
     
     def _parse_tool_filter(self, filter_str):
-        """Parse 'Tool' or 'Tool(glob)' format."""
+        """Parse 'Tool' or 'Tool(pattern)' format."""
         match = re.match(r'(\w+)\((.*)\)', filter_str)
         if match:
             return match.group(1), match.group(2)
         elif re.match(r'^\w+$', filter_str):
-            return filter_str, '*'
+            return filter_str, None  # No pattern means match all
         return None, None
     
     def _matches_filter(self, tool_call, tool_name, pattern):
-        """Check if a tool call matches the filter."""
+        """Check if a tool call matches the filter using glob patterns."""
         if tool_call['name'] != tool_name:
             return False
         
-        # If pattern is *, match all
-        if pattern == '*':
+        # If no pattern specified, match all
+        if not pattern:
             return True
         
         params = tool_call.get('parameters', {})
         
         # For file operations, match against file_path
-        if tool_name in ['Edit', 'Write', 'MultiEdit']:
+        if tool_name in ['Edit', 'Write', 'MultiEdit', 'Read']:
             file_path = params.get('file_path', '')
             return fnmatch.fnmatch(file_path, pattern)
         
         # For Bash, match against command
         elif tool_name == 'Bash':
             command = params.get('command', '')
-            return fnmatch.fnmatch(command, pattern)
+            # Handle exact match or glob patterns
+            if '*' in pattern:
+                return fnmatch.fnmatch(command, pattern)
+            else:
+                # Exact match (like Claude Code's "Bash(npm run build)")
+                return command == pattern
+        
+        # For Grep, match against pattern parameter
+        elif tool_name == 'Grep':
+            grep_pattern = params.get('pattern', '')
+            return fnmatch.fnmatch(grep_pattern, pattern)
         
         return False
     
@@ -831,15 +1083,17 @@ def main():
         description='Explore Claude session logs. Shows summary by default.',
         epilog='Examples:\n'
                '  %(prog)s session.jsonl                    # Show summary\n'
-               '  %(prog)s session.jsonl --timeline         # Show full timeline\n'
-               '  %(prog)s session.jsonl --timeline 10-20   # Show timeline items 10-20\n'
+               '  %(prog)s session.jsonl -t                 # Show full timeline\n'
+               '  %(prog)s session.jsonl -t 10-20           # Show timeline items 10-20\n'
+               '  %(prog)s session.jsonl -t --include "Bash(git *)"  # Show git operations\n'
+               '  %(prog)s session.jsonl --git              # Shortcut for git operations\n'
                '  %(prog)s session.jsonl --files            # Show file edits summary\n',
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument('jsonl', help='Session file or any unique substring (issue-13, run ID, date, etc.)')
     parser.add_argument('--summary', '-s', action='store_true', help='Show summary')
-    parser.add_argument('--timeline', '-t', nargs='?', const='all', 
-                        help='Show timeline (e.g., --timeline, --timeline tools)')
+    parser.add_argument('--timeline', '-t', action='store_true',
+                        help='Show timeline')
     parser.add_argument('--git', '-g', action='store_true', help='Show git operations')
     parser.add_argument('--files', '-f', action='store_true', help='Show file changes (summary of edits per file)')
     parser.add_argument('--created', '-c', action='store_true', help='Show created files')
@@ -849,9 +1103,11 @@ def main():
     parser.add_argument('--export-json', nargs=3, metavar=('START', 'END', 'OUTPUT'), 
                         help='Export tool calls from START to END as JSON')
     parser.add_argument('--include', metavar='FILTERS',
-                        help='Include only tools matching filters, comma-separated (e.g., "Edit,Bash(git add *)")')
+                        help='Include only tools matching filters, comma-separated. '
+                             'Follows Claude Code syntax: "Edit,Bash(git add *)"')
     parser.add_argument('--exclude', metavar='FILTERS',
-                        help='Exclude tools matching filters, comma-separated')
+                        help='Exclude tools matching filters, comma-separated. '
+                             'Follows Claude Code syntax: "TodoWrite,Bash(npm test:*)"')
     parser.add_argument('--truncated', action='store_true',
                         help='Show truncated console-style output (3-line preview)')
     parser.add_argument('--full', action='store_true',
@@ -878,10 +1134,7 @@ def main():
     if args.summary:
         explorer.show_summary()
     
-    if args.timeline is not None:
-        # Handle the different timeline modes
-        timeline_arg = args.timeline if args.timeline != True else 'all'
-        
+    if args.timeline:
         # Determine display mode
         display_mode = 'compact'
         if args.truncated:
@@ -893,15 +1146,34 @@ def main():
         if args.indices:
             try:
                 indices = parse_indices(args.indices, len(explorer.timeline))
-                explorer.show_timeline_indices(timeline_arg, indices, display_mode)
+                explorer.show_timeline_with_filters(indices, display_mode, 
+                                                    args.include, args.exclude)
             except ValueError as e:
                 print(f"Error: {e}")
         else:
-            # Show all items with filter
-            explorer.show_timeline(timeline_arg, display_mode=display_mode)
+            # Show all items
+            explorer.show_timeline_with_filters(None, display_mode,
+                                              args.include, args.exclude)
     
     if args.git:
-        explorer.show_git_operations()
+        # --git is a shortcut for --timeline --include "Bash(git *)"
+        display_mode = 'compact'
+        if args.truncated:
+            display_mode = 'truncated'
+        elif args.full:
+            display_mode = 'full'
+            
+        # Parse indices if provided
+        if args.indices:
+            try:
+                indices = parse_indices(args.indices, len(explorer.timeline))
+                explorer.show_timeline_with_filters(indices, display_mode, 
+                                                    "Bash(git *)", args.exclude)
+            except ValueError as e:
+                print(f"Error: {e}")
+        else:
+            explorer.show_timeline_with_filters(None, display_mode,
+                                              "Bash(git *)", args.exclude)
     
     if args.files:
         explorer.show_file_changes()
