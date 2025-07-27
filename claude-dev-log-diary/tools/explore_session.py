@@ -385,7 +385,8 @@ class SessionExplorer:
         
         return False
     
-    def filter_timeline(self, indices=None, include_filters=None, exclude_filters=None, include_tool_results=True):
+    def filter_timeline(self, indices=None, include_filters=None, exclude_filters=None, 
+                       include_tool_results=True, before_context=0, after_context=0):
         """Filter timeline based on indices and include/exclude filters.
         
         Args:
@@ -393,11 +394,14 @@ class SessionExplorer:
             include_filters: List of filter strings (e.g. ["Bash(git *)", "Edit", "Message"])
             exclude_filters: List of filter strings
             include_tool_results: When filtering for tools, also include their results (default: True)
+            before_context: Number of items to show before each match
+            after_context: Number of items to show after each match
             
         Returns:
             List of filtered timeline items
         """
-        filtered_items = []
+        # First pass: find matching items
+        matched_indices = set()
         
         for i, item in enumerate(self.timeline):
             if indices is not None and i not in indices:
@@ -411,28 +415,44 @@ class SessionExplorer:
                 
                 if is_tool_result:
                     # Include tool results if flag is set and previous item was a tool
-                    if include_tool_results and i > 0 and filtered_items and filtered_items[-1]['type'] == 'tool':
-                        pass  # Include this tool result
-                    else:
-                        continue
+                    if include_tool_results and i > 0 and (i-1) in matched_indices:
+                        matched_indices.add(i)
                 else:
                     # Check if item matches any include filter
-                    if not any(self._matches_timeline_filter(item, f) for f in include_filters):
-                        continue
-            
-            # Check excludes - must not match any
-            if exclude_filters:
-                if any(self._matches_timeline_filter(item, f) for f in exclude_filters):
-                    continue
-            
-            filtered_items.append(item)
+                    if any(self._matches_timeline_filter(item, f) for f in include_filters):
+                        # Check excludes before adding
+                        if not exclude_filters or not any(self._matches_timeline_filter(item, f) for f in exclude_filters):
+                            matched_indices.add(i)
+            else:
+                # No include filters, check excludes only
+                if not exclude_filters or not any(self._matches_timeline_filter(item, f) for f in exclude_filters):
+                    matched_indices.add(i)
+        
+        # Second pass: add context lines
+        if before_context > 0 or after_context > 0:
+            context_indices = set()
+            for idx in matched_indices:
+                # Add before context
+                for j in range(max(0, idx - before_context), idx):
+                    context_indices.add(j)
+                # Add after context
+                for j in range(idx + 1, min(len(self.timeline), idx + after_context + 1)):
+                    context_indices.add(j)
+            matched_indices.update(context_indices)
+        
+        # Third pass: build filtered items in order
+        filtered_items = []
+        for i, item in enumerate(self.timeline):
+            if i in matched_indices:
+                filtered_items.append(item)
         
         return filtered_items
     
     def show_timeline_with_filters(self, indices=None, display_mode='compact', 
                                     include_filters=None, exclude_filters=None,
                                     include_tool_results=True, force_show_numbers=False,
-                                    json_output=False, jsonl_output=False):
+                                    json_output=False, jsonl_output=False,
+                                    before_context=0, after_context=0):
         """Show timeline with indices and include/exclude filters.
         
         Args:
@@ -444,11 +464,14 @@ class SessionExplorer:
             force_show_numbers: Force showing sequence numbers in truncated mode
             json_output: Output as JSON array to stdout
             jsonl_output: Output as JSONL (newline-delimited JSON) to stdout
+            before_context: Number of items to show before each match
+            after_context: Number of items to show after each match
         """
         include_list = include_filters.split(',') if include_filters else None
         exclude_list = exclude_filters.split(',') if exclude_filters else None
         
-        filtered_items = self.filter_timeline(indices, include_list, exclude_list, include_tool_results)
+        filtered_items = self.filter_timeline(indices, include_list, exclude_list, 
+                                            include_tool_results, before_context, after_context)
         
         if json_output or jsonl_output:
             json_items = []
@@ -1187,6 +1210,14 @@ def main():
     parser.add_argument('--show-numbers', action='store_true',
                         help='Show sequence numbers in truncated mode even without filtering')
     
+    # Context lines (like grep)
+    parser.add_argument('-A', '--after-context', type=int, metavar='NUM',
+                        help='Show NUM lines after each match')
+    parser.add_argument('-B', '--before-context', type=int, metavar='NUM',
+                        help='Show NUM lines before each match')
+    parser.add_argument('-C', '--context', type=int, metavar='NUM',
+                        help='Show NUM lines before and after each match')
+    
     # Virtual entity shortcuts
     parser.add_argument('-m', dest='include_message', action='store_true',
                         help='Include all messages (shortcut for -i Message)')
@@ -1261,12 +1292,20 @@ def main():
         # Join filters back into comma-separated string
         include_str = ','.join(include_filters) if include_filters else None
         
+        # Handle context arguments
+        before_context = args.before_context or 0
+        after_context = args.after_context or 0
+        if args.context:
+            before_context = args.context
+            after_context = args.context
+        
         # Use show_timeline_with_filters for all timeline operations
         explorer.show_timeline_with_filters(indices, display_mode,
                                           include_str, args.exclude,
                                           not args.no_tool_results,
                                           args.show_numbers,
-                                          args.json, args.jsonl)
+                                          args.json, args.jsonl,
+                                          before_context, after_context)
     
     if args.git:
         display_mode = 'compact'
@@ -1281,7 +1320,9 @@ def main():
                 explorer.show_timeline_with_filters(indices, display_mode, 
                                                     "Bash(git *)", args.exclude,
                                                     not args.no_tool_results,
-                                                    args.show_numbers)
+                                                    args.show_numbers,
+                                                    args.json, args.jsonl,
+                                                    before_context, after_context)
             except ValueError as e:
                 print(f"Error: {e}")
         else:
@@ -1289,7 +1330,8 @@ def main():
                                               "Bash(git *)", args.exclude,
                                               not args.no_tool_results,
                                               args.show_numbers,
-                                              args.json, args.jsonl)
+                                              args.json, args.jsonl,
+                                              before_context, after_context)
     
     if args.files:
         explorer.show_file_changes()
