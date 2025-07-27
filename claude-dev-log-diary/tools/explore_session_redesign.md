@@ -6,18 +6,34 @@ This document captures the planned improvements to explore_session.py based on u
 
 ## Current Issues
 
+### Core Architecture
 1. **Fragmented views**: Timeline shows tools, conversation shows dialogue - no unified view
-2. **Inconsistent range syntax**: Export uses `START END`, conversation uses `START-END`
-3. **Confusing timeline usage**: Requires empty string `""` to show all tools
-4. **Limited filtering**: Range/limit only works on export and conversation
-5. **Missing tool parameters**: Grep, TodoWrite, and others show no parameters in timeline
+2. **Mixed concerns**: Filters change display format instead of just selecting events
+3. **Special cases everywhere**: --conversation, --tools have special display logic
+
+### Syntax & Usability
+1. **Inconsistent range syntax**: Export uses `START END`, conversation uses `START-END`
+2. **Confusing timeline usage**: Requires empty string `""` to show all tools
+3. **Limited filtering**: Range/limit only works on export and conversation
+
+### Display Issues
+1. **Missing tool parameters**: Grep, TodoWrite, and others show no parameters in timeline
+2. **Compact mode bugs**:
+   - [...] separator only works for user messages, not assistant
+   - Inconsistent bullet symbols (different sizes on different lines)
+3. **Truncated mode bugs**:
+   - Empty tool results show blank line instead of "(No content)"
+   - Missing proper truncation format: "... +X lines (ctrl+r to expand)"
+   - Tool results need proper spacing to match Claude Code output
 
 ## Design Principles
 
 - **Unified interface**: Consistent syntax across all commands
+- **Separation of concerns**: Filters control WHAT to show, display modes control HOW
 - **Progressive disclosure**: Compact by default, detailed on demand
 - **Maintain include/exclude duality**: No renaming to "filter"
 - **Incremental implementation**: Small, testable changes
+- **No special cases**: Display modes work the same regardless of filtering
 
 ## Display Modes
 
@@ -102,32 +118,63 @@ Complete output without truncation.
 ./explore_session.py SESSION --export-json 1-50 output.json
 ```
 
+## Completed Work
+
+1. ✅ Basic truncated mode implementation
+2. ✅ Centralized filter_timeline method
+3. ✅ Line numbers in truncated mode when filtering
+4. ✅ Tool results included when filtering for tools
+5. ✅ --git shortcut implementation
+6. ✅ Free parameter syntax for ranges/indices
+
 ## Implementation Phases
 
-### Phase 1: Enhanced Compact Timeline
-1. Add Grep parameter display (pattern and path)
-2. Add TodoWrite parameter display (todo count summary)
-3. Test and commit each addition
+### Phase 0: Architecture Cleanup (CURRENT PRIORITY)
+1. **Separate filtering from display**:
+   - Remove special display logic from filter methods
+   - Make filters only control event selection
+   - Make display modes work consistently regardless of filters
+2. **Consolidate filter logic**:
+   - Single filter_timeline method that all commands use
+   - Remove duplicate filtering code
+   - Clean up message/tool filtering inconsistencies
+3. **Remove special cases**:
+   - --conversation should just filter for messages, not change display
+   - --tools should just filter for tools
+   - Display format should be orthogonal to what's being filtered
 
-### Phase 2: Unified Timeline Structure
+### Phase 1: Fix Display Mode Bugs
+1. **Compact mode fixes**:
+   - Add [...] separator for assistant messages (currently only works for user)
+   - Fix inconsistent bullet symbols (use • consistently)
+   - Maintain first/last line display for context
+2. **Truncated mode fixes**:
+   - Show "(No content)" for empty tool results
+   - Implement proper truncation: "... +X lines (ctrl+r to expand)"
+   - Fix spacing to match Claude Code output
+   - Keep line numbers when filtering (already implemented)
+
+### Phase 2: Enhanced Tool Parameters
+1. Add Grep parameter display (pattern and path)
+2. Add TodoWrite parameter display with todo formatting
+3. Add parameters for remaining tools (LS, Glob, Task, etc.)
+4. Test and commit each addition
+
+### Phase 3: Unified Timeline Structure
 1. Create data structure merging tools and conversation chronologically
 2. Update show_timeline to handle 'all', 'tools', 'conversation' modes
 3. Maintain backward compatibility
 
-### Phase 3: Consistent Range Handling
+### Phase 4: Consistent Range Handling
 1. Create parse_range utility: handles "START-END" and "-N" formats
 2. Update all commands to use consistent syntax
 3. Change export from "START END OUTPUT" to "START-END OUTPUT"
 
-### Phase 4: Display Modes
-1. Implement --truncated mode with console-style formatting
-2. Implement --full mode for complete output
-3. Keep compact as default
-
 ### Phase 5: Polish
-1. Rename --export to --export-json with better help text
-2. Implement --git and --files as shortcuts
-3. Add remaining tool parameters
+1. Implement --full mode for complete output
+2. Rename --export to --export-json with better help text
+3. Implement --git and --files as shortcuts
+4. Add support for todo result formatting with checkboxes
 
 ## Examples After Implementation
 
