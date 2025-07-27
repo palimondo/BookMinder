@@ -190,7 +190,7 @@ class SessionExplorer:
         # Show first max_lines lines and add truncation indicator
         truncated = '\n'.join(lines[:max_lines])
         remaining = len(lines) - max_lines
-        return f"{truncated}\n       … +{remaining} lines"
+        return f"{truncated}\n       … +{remaining} lines (ctrl+r to expand)"
     
     def _build_timeline(self):
         """Build a unified timeline of all events (messages and tool calls)."""
@@ -492,8 +492,9 @@ class SessionExplorer:
                         ]):
                             continue
                             
+                        print("  ⎿  Waiting…\n")
+                        
                         if content:
-                            print("  ⎿  Waiting…\n")
                             # Check if this is a todo result
                             if self._is_todo_result(content):
                                 # Parse and format todo items
@@ -504,7 +505,10 @@ class SessionExplorer:
                                 # Indent each line
                                 for line in truncated.split('\n'):
                                     print(f"  ⎿  {line}")
-                            print()  # Extra newline after tool results
+                        else:
+                            # Empty result
+                            print("  ⎿  (No content)")
+                        print()  # Extra newline after tool results
             
             elif msg['type'] == 'assistant' and display_mode == 'truncated':
                 # Assistant messages in truncated mode
@@ -588,7 +592,15 @@ class SessionExplorer:
                 if text:
                     lines = text.split('\n')
                     first_line = lines[0]
-                    multiline = ' [...]' if len(lines) > 1 else ''
+                    if len(lines) > 1:
+                        # Show last line too for context (same as user messages)
+                        last_line = lines[-1].strip()
+                        if last_line and last_line != first_line:
+                            multiline = f' [...] {last_line}'
+                        else:
+                            multiline = ' [...]'
+                    else:
+                        multiline = ''
                     print(f"[{item['seq']}] • {first_line}{multiline}")
                 elif tools:
                     # List tools used (tools is a list of strings)
@@ -788,41 +800,16 @@ class SessionExplorer:
                     print(f"{i+1:3}. {cmd[:100]}...")
     
     def show_conversation(self, start=None, end=None):
-        """Display conversation between user and assistant."""
+        """Display conversation between user and assistant.
+        
+        DEPRECATED: Use --timeline conversation instead.
+        This method is kept for backward compatibility.
+        """
         print("\n=== CONVERSATION ===")
+        print("Note: --conversation is deprecated. Use --timeline conversation instead.")
         
-        messages = self.messages[start-1:end] if start and end else self.messages
-        
-        for i, msg in enumerate(messages, start=start or 1):
-            if msg['type'] == 'user':
-                print(f"\n[{i}] USER:")
-                if msg.get('text'):
-                    # Indent user text
-                    lines = msg['text'].split('\n')
-                    for line in lines[:10]:  # Show first 10 lines
-                        print(f"    {line}")
-                    if len(lines) > 10:
-                        print(f"    ... ({len(lines)-10} more lines)")
-            
-            elif msg['type'] == 'assistant':
-                print(f"\n[{i}] CLAUDE:")
-                if msg.get('text'):
-                    # Show assistant's text response
-                    lines = msg['text'].split('\n')
-                    for line in lines[:20]:  # Show more lines for assistant
-                        print(f"    {line}")
-                    if len(lines) > 20:
-                        print(f"    ... ({len(lines)-20} more lines)")
-                
-                # Show tool usage summary
-                if msg.get('tools'):
-                    tool_summary = defaultdict(int)
-                    for tool in msg['tools']:
-                        tool_summary[tool] += 1
-                    
-                    tools_str = ', '.join([f"{tool}({count})" if count > 1 else tool 
-                                          for tool, count in tool_summary.items()])
-                    print(f"    [Used tools: {tools_str}]")
+        # Convert to timeline display
+        self.show_timeline('conversation', start, end, display_mode='compact')
     
     def export_range(self, start, end, output_file, include_filters=None, exclude_filters=None):
         """Export a range of tool calls with optional Tool(glob) filtering."""
