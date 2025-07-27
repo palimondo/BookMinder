@@ -233,8 +233,32 @@ class SessionExplorer:
         for tc in self.tool_calls:
             tool_counts[tc['name']] += 1
         
+        # Count messages by type
+        user_messages = sum(1 for m in self.messages if m['type'] == 'user')
+        assistant_messages = sum(1 for m in self.messages if m['type'] == 'assistant')
+        
+        # Count file operations
+        files_edited = set()
+        files_created = set()
+        git_operations = 0
+        
+        for tc in self.tool_calls:
+            if tc['name'] in ['Edit', 'MultiEdit']:
+                files_edited.add(tc['parameters'].get('file_path', ''))
+            elif tc['name'] == 'Write':
+                files_created.add(tc['parameters'].get('file_path', ''))
+            elif tc['name'] == 'Bash':
+                cmd = tc['parameters'].get('command', '')
+                if cmd.startswith('git'):
+                    git_operations += 1
+        
         print("=== SESSION SUMMARY ===")
-        print(f"Total tool calls: {len(self.tool_calls)}")
+        print(f"Messages: {user_messages} user, {assistant_messages} assistant")
+        print(f"Tool calls: {len(self.tool_calls)}")
+        print(f"Files edited: {len(files_edited)}")
+        print(f"Files created: {len(files_created)}")
+        print(f"Git operations: {git_operations}")
+        
         print("\nTool usage:")
         for tool, count in sorted(tool_counts.items(), key=lambda x: -x[1]):
             print(f"  {tool:15} {count:3}")
