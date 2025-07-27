@@ -14,18 +14,49 @@ from collections import defaultdict
 from parse_claude_jsonl import parse_jsonl_objects
 
 
+def parse_indices(args, total_items):
+    """Parse multiple index/range arguments into a list of indices.
+    
+    Args:
+        args: List of strings like ["5", "+10", "-5", "20-30"]
+        total_items: Total number of items for bounds checking
+        
+    Returns:
+        sorted list of unique 0-based indices
+    """
+    indices = set()
+    
+    for arg in args:
+        start, end = parse_range(arg, total_items)
+        indices.update(range(start, end))
+    
+    return sorted(indices)
+
+
 def parse_range(range_str, total_items):
     """Parse range string into start and end indices.
     
     Args:
-        range_str: Range string like "1-50", "-50", "50-"
+        range_str: Range string like "5", "+5", "-5", "1-50", "50-"
         total_items: Total number of items for bounds checking
         
     Returns:
         tuple: (start_idx, end_idx) as 0-based indices
     """
+    # Handle single positive number as specific index
+    if range_str.isdigit():
+        n = int(range_str) - 1  # Convert to 0-based
+        if n >= total_items:
+            raise ValueError(f"Index {range_str} out of range (max {total_items})")
+        return n, n + 1
+    
+    # Handle +N for first N items (head)
+    if range_str.startswith('+') and range_str[1:].isdigit():
+        n = int(range_str[1:])
+        return 0, min(n, total_items)
+    
     if '-' not in range_str:
-        raise ValueError(f"Invalid range format: {range_str}. Use format like '1-50' or '-50'")
+        raise ValueError(f"Invalid range format: {range_str}. Use format like '5', '+5', '-5', '1-50'")
     
     parts = range_str.split('-', 1)
     
@@ -207,6 +238,42 @@ class SessionExplorer:
         print("\nTool usage:")
         for tool, count in sorted(tool_counts.items(), key=lambda x: -x[1]):
             print(f"  {tool:15} {count:3}")
+    
+    def show_timeline_indices(self, filter_type='all', indices=None, display_mode='compact'):
+        """Show timeline with specific indices.
+        
+        Args:
+            filter_type: 'all' (default), 'tools', 'conversation', or specific tool name
+            indices: List of 0-based indices to show (if None, show all)
+            display_mode: 'compact' (default), 'truncated', or 'full'
+        """
+        print("\n=== TIMELINE ===")
+        
+        # Apply filtering first
+        filtered_items = []
+        for i, item in enumerate(self.timeline):
+            # Skip if not in requested indices
+            if indices is not None and i not in indices:
+                continue
+                
+            # Apply type filtering
+            if filter_type == 'tools' and item['type'] != 'tool':
+                continue
+            elif filter_type == 'conversation' and item['type'] != 'message':
+                continue
+            elif filter_type not in ['all', 'tools', 'conversation'] and item['type'] == 'tool' and item['subtype'] != filter_type:
+                continue
+                
+            filtered_items.append(item)
+        
+        # Show the filtered items
+        for item in filtered_items:
+            self._display_timeline_item(item, display_mode)
+    
+    def _display_timeline_item(self, item, display_mode='compact'):
+        """Display a single timeline item based on display mode."""
+        # This method will be populated by moving the display logic from show_timeline
+        pass
     
     def show_timeline(self, filter_type='all', start=None, end=None, display_mode='compact'):
         """Show timeline of events.
@@ -678,15 +745,15 @@ def main():
     parser.add_argument('jsonl', help='Session file or any unique substring (issue-13, run ID, date, etc.)')
     parser.add_argument('--summary', '-s', action='store_true', help='Show summary')
     parser.add_argument('--timeline', '-t', nargs='?', const='all', 
-                        help='Show timeline (e.g., --timeline, --timeline tools, --timeline 1-50)')
+                        help='Show timeline (e.g., --timeline, --timeline tools)')
     parser.add_argument('--git', '-g', action='store_true', help='Show git operations')
-    parser.add_argument('--files', '-f', action='store_true', help='Show file changes')
+    parser.add_argument('--files', '-f', action='store_true', help='Show file changes (summary of edits per file)')
     parser.add_argument('--created', '-c', action='store_true', help='Show created files')
-    parser.add_argument('--conversation', nargs='?', const='all', metavar='RANGE',
-                        help='Show conversation (e.g., --conversation, --conversation 1-50)')
+    parser.add_argument('--conversation', action='store_true',
+                        help='Show conversation messages')
     parser.add_argument('--search', help='Search bash commands')
-    parser.add_argument('--export', nargs=3, metavar=('START', 'END', 'OUTPUT'), 
-                        help='Export tool calls from START to END')
+    parser.add_argument('--export-json', nargs=3, metavar=('START', 'END', 'OUTPUT'), 
+                        help='Export tool calls from START to END as JSON')
     parser.add_argument('--include', metavar='FILTERS',
                         help='Include only tools matching filters, comma-separated (e.g., "Edit,Bash(git add *)")')
     parser.add_argument('--exclude', metavar='FILTERS',
@@ -695,12 +762,14 @@ def main():
                         help='Show truncated console-style output (3-line preview)')
     parser.add_argument('--full', action='store_true',
                         help='Show full output without truncation')
+    parser.add_argument('indices', nargs='*', 
+                        help='Indices/ranges: 5 (item 5), +10 (first 10), -20 (last 20), 10-30 (range)')
     
     args = parser.parse_args()
     
     # Default to showing summary if no options
     if not any([args.summary, args.timeline, args.git, args.files, 
-                args.created, args.conversation, args.search, args.export]):
+                args.created, args.conversation, args.search, args.export_json]):
         args.summary = True
     
     # Resolve the session file
@@ -726,15 +795,15 @@ def main():
         elif args.full:
             display_mode = 'full'
         
-        # Check if it's a range
-        if '-' in timeline_arg:
+        # Parse indices if provided
+        if args.indices:
             try:
-                start_idx, end_idx = parse_range(timeline_arg, len(explorer.timeline))
-                explorer.show_timeline('all', start_idx + 1, end_idx, display_mode)  # Convert to 1-based
+                indices = parse_indices(args.indices, len(explorer.timeline))
+                explorer.show_timeline_indices(timeline_arg, indices, display_mode)
             except ValueError as e:
                 print(f"Error: {e}")
         else:
-            # It's a filter type (all, tools, conversation, or tool name)
+            # Show all items with filter
             explorer.show_timeline(timeline_arg, display_mode=display_mode)
     
     if args.git:
@@ -750,18 +819,17 @@ def main():
         explorer.search_commands(args.search)
     
     if args.conversation:
-        if args.conversation == 'all':
-            explorer.show_conversation()
-        else:
-            # Parse range using utility function
+        if args.indices:
             try:
-                start_idx, end_idx = parse_range(args.conversation, len(explorer.messages))
-                explorer.show_conversation(start_idx + 1, end_idx)  # Convert back to 1-based for method
+                indices = parse_indices(args.indices, len(explorer.messages))
+                explorer.show_conversation_indices(indices)
             except ValueError as e:
                 print(f"Error: {e}")
+        else:
+            explorer.show_conversation()
     
-    if args.export:
-        start, end, output = args.export
+    if args.export_json:
+        start, end, output = args.export_json
         # Split comma-separated filters
         include_filters = args.include.split(',') if args.include else None
         exclude_filters = args.exclude.split(',') if args.exclude else None
