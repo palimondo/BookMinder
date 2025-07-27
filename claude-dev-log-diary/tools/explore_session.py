@@ -325,13 +325,14 @@ class SessionExplorer:
         if user_interruptions > 0:
             print(f"User interruptions: {user_interruptions}")
     
-    def filter_timeline(self, indices=None, include_filters=None, exclude_filters=None):
+    def filter_timeline(self, indices=None, include_filters=None, exclude_filters=None, include_tool_results=True):
         """Filter timeline based on indices and include/exclude filters.
         
         Args:
             indices: List of 0-based indices to show (if None, show all)
             include_filters: List of filter strings (e.g. ["Bash(git *)", "Edit"])
             exclude_filters: List of filter strings
+            include_tool_results: When filtering for tools, also include their results (default: True)
             
         Returns:
             List of filtered timeline items
@@ -355,13 +356,29 @@ class SessionExplorer:
             
             # For message items, check if we should include them
             elif item['type'] == 'message':
-                # If only tool filters specified, skip messages unless explicitly included
+                msg = item['data']
+                # Check if this is a tool result message
+                is_tool_result = msg.get('tool_results', [])
+                
+                # If only tool filters specified, optionally include tool results
                 if include_filters:
-                    # Check if any filter explicitly includes messages/conversation
-                    message_included = any(f.lower() in ['message', 'messages', 'conversation'] 
-                                         for f in include_filters)
-                    if not message_included:
+                    # Include tool results when filtering for tools if flag is set
+                    if is_tool_result and include_tool_results:
+                        # Check if the previous item was an included tool
+                        if i > 0 and filtered_items and filtered_items[-1]['type'] == 'tool':
+                            # Include this tool result
+                            pass
+                        else:
+                            continue
+                    elif is_tool_result and not include_tool_results:
+                        # Skip tool results when flag is False
                         continue
+                    else:
+                        # Check if any filter explicitly includes messages/conversation
+                        message_included = any(f.lower() in ['message', 'messages', 'conversation'] 
+                                             for f in include_filters)
+                        if not message_included:
+                            continue
                 
                 # Check excludes for messages
                 if exclude_filters:
@@ -414,8 +431,20 @@ class SessionExplorer:
         if display_mode != 'truncated':
             print("\n=== TIMELINE ===")
         
-        # Use centralized filtering
-        filtered_items = self.filter_timeline(filter_type, indices)
+        # Use centralized filtering based on filter_type
+        if filter_type == 'tools':
+            # Show only tools
+            filtered_items = [item for item in self.filter_timeline(indices) if item['type'] == 'tool']
+        elif filter_type == 'conversation':
+            # Show only messages
+            filtered_items = [item for item in self.filter_timeline(indices) if item['type'] == 'message']
+        elif filter_type not in ['all', 'tools', 'conversation']:
+            # Specific tool filter
+            include_filters = [filter_type]
+            filtered_items = self.filter_timeline(indices, include_filters)
+        else:
+            # Show all
+            filtered_items = self.filter_timeline(indices)
         
         # Show numbers in truncated mode when filtering
         has_filtering = filter_type != 'all' or indices
