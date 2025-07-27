@@ -78,9 +78,29 @@ python explore_session.py issue-13 -t -i "Bash(git *)"     # Git commands
 python explore_session.py issue-13 -t -i "Edit(*.py)"      # Python edits
 python explore_session.py issue-13 -t -i "Read(*test*)"    # Reading test files
 
+# MCP tool patterns
+python explore_session.py issue-13 -t -i "Tool(mcp__*)"     # All MCP tools
+python explore_session.py issue-13 -t -i "Tool(mcp__memory*)"  # Memory server tools
+
 # Export with filters
 python explore_session.py issue-13 --export-json 1-46 output.json \
   -i "Edit(*/specs/**),Bash(git add *),Bash(git commit *)"
+```
+
+#### Full Text Search
+Search across all timeline content with context:
+```bash
+# Basic search
+python explore_session.py issue-13 --search "error"
+
+# Search with context lines (like grep)
+python explore_session.py issue-13 --search "failed" -C 3  # 3 lines before/after
+python explore_session.py issue-13 --search "test" -B 2    # 2 lines before
+python explore_session.py issue-13 --search "bug" -A 5      # 5 lines after
+
+# Combine with display modes
+python explore_session.py issue-13 --search "TypeError" --truncated
+python explore_session.py issue-13 --search "import" --full
 ```
 
 #### Display Modes
@@ -135,7 +155,13 @@ explore_session.py issue-13 -t -i Read --json | \
 explore_session.py issue-13 -t 140-160 -m            # Messages in range
 
 # "What happened after the user interrupted?"
-explore_session.py issue-13 -t | grep -B5 -A5 "interrupted"
+explore_session.py issue-13 --search "interrupted" -C 5
+
+# "Find all errors and their context"
+explore_session.py issue-13 --search "error" -C 3
+
+# "When did Claude mention tests?"
+explore_session.py issue-13 --search "test" --truncated
 ```
 
 ## Replay Workflow
