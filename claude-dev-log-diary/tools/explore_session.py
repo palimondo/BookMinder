@@ -384,7 +384,8 @@ class SessionExplorer:
             include_filters: Comma-separated filter string (e.g. "Bash(git *),Edit")
             exclude_filters: Comma-separated filter string
         """
-        print("\n=== TIMELINE ===")
+        if display_mode != 'truncated':
+            print("\n=== TIMELINE ===")
         
         # Parse filters
         include_list = include_filters.split(',') if include_filters else None
@@ -393,9 +394,14 @@ class SessionExplorer:
         # Use centralized filtering
         filtered_items = self.filter_timeline(indices, include_list, exclude_list)
         
+        # Determine if we should show numbers in truncated mode
+        # Show numbers when: 1) filtering is applied or 2) not showing full timeline
+        has_filtering = indices or include_list or exclude_list
+        show_numbers = display_mode == 'truncated' and has_filtering
+        
         # Display the filtered items
         for item in filtered_items:
-            self._display_timeline_item(item, display_mode)
+            self._display_timeline_item(item, display_mode, show_numbers)
     
     def show_timeline_indices(self, filter_type='all', indices=None, display_mode='compact'):
         """Show timeline with specific indices.
@@ -405,34 +411,46 @@ class SessionExplorer:
             indices: List of 0-based indices to show (if None, show all)
             display_mode: 'compact' (default), 'truncated', or 'full'
         """
-        print("\n=== TIMELINE ===")
+        if display_mode != 'truncated':
+            print("\n=== TIMELINE ===")
         
         # Use centralized filtering
         filtered_items = self.filter_timeline(filter_type, indices)
         
+        # Show numbers in truncated mode when filtering
+        has_filtering = filter_type != 'all' or indices
+        show_numbers = display_mode == 'truncated' and has_filtering
+        
         # Show the filtered items
         for item in filtered_items:
-            self._display_timeline_item(item, display_mode)
+            self._display_timeline_item(item, display_mode, show_numbers)
     
-    def _display_timeline_item(self, item, display_mode='compact'):
-        """Display a single timeline item based on display mode."""
+    def _display_timeline_item(self, item, display_mode='compact', show_numbers=False):
+        """Display a single timeline item based on display mode.
+        
+        Args:
+            item: Timeline item to display
+            display_mode: 'compact', 'truncated', or 'full'
+            show_numbers: Force showing sequence numbers in truncated mode
+        """
         if item['type'] == 'message':
             msg = item['data']
             if msg['type'] == 'user' and display_mode == 'truncated':
-                # Truncated mode - reconstruct.jq style (NO sequence numbers)
+                # Truncated mode - reconstruct.jq style
                 text = msg.get('text', '')
                 tool_results = msg.get('tool_results', [])
                 is_slash = msg.get('is_slash_command', False)
                 slash_cmd = msg.get('slash_command', '')
                 
                 # Handle different user message types
+                prefix = f"[{item['seq']}] " if show_numbers else ""
                 if is_slash and slash_cmd:
-                    print(f"> /{slash_cmd}")
+                    print(f"{prefix}> /{slash_cmd}")
                 elif text == '[Interrupted by user]':
-                    print("> [Request interrupted by user]")
+                    print(f"{prefix}> [Request interrupted by user]")
                 elif text and not tool_results:
                     # Regular user message
-                    print(f"> {text}")
+                    print(f"{prefix}> {text}")
                 elif tool_results:
                     # This is a tool result - format like reconstruct.jq
                     for result in tool_results:
@@ -447,11 +465,16 @@ class SessionExplorer:
                             
                         if content:
                             print("  ⎿  Waiting…\n")
-                            # Format the output with truncation
-                            truncated = self._format_truncated_output(content, 3)
-                            # Indent each line
-                            for line in truncated.split('\n'):
-                                print(f"  ⎿  {line}")
+                            # Check if this is a todo result
+                            if self._is_todo_result(content):
+                                # Parse and format todo items
+                                self._format_todo_result_truncated(content)
+                            else:
+                                # Format the output with truncation
+                                truncated = self._format_truncated_output(content, 3)
+                                # Indent each line
+                                for line in truncated.split('\n'):
+                                    print(f"  ⎿  {line}")
                             print()  # Extra newline after tool results
             
             elif msg['type'] == 'assistant' and display_mode == 'truncated':
@@ -461,7 +484,8 @@ class SessionExplorer:
                 
                 if text:
                     # Show full assistant text (reconstruct.jq shows all of it)
-                    print(f"⏺ {text}\n")
+                    prefix = f"[{item['seq']}] " if show_numbers else ""
+                    print(f"{prefix}⏺ {text}\n")
                 # Tool uses are handled separately as 'tool' items
                 
             elif msg['type'] == 'user':
@@ -550,60 +574,95 @@ class SessionExplorer:
             params = tc.get('parameters', {})
             
             if display_mode == 'truncated':
-                # Truncated mode for tool calls (reconstruct.jq style)
-                if tool_name == 'Bash':
-                    cmd = params.get('command', '')
-                    desc = params.get('description', '')
-                    print(f"🛠️  {desc or 'Running command'}")
-                    print(f"$ {cmd}\n")
-                elif tool_name == 'Edit':
-                    file_path = params.get('file_path', '')
-                    print(f"✏️  Editing {file_path}\n")
-                elif tool_name == 'Read':
-                    file_path = params.get('file_path', '')
-                    print(f"📖 Reading {file_path}\n")
-                elif tool_name == 'Write':
-                    file_path = params.get('file_path', '')
-                    print(f"📝 Writing {file_path}\n")
-                elif tool_name == 'TodoWrite':
-                    todos = params.get('todos', [])
-                    print(f"✅ Updating todo list ({len(todos)} items)\n")
-                elif tool_name == 'Grep':
-                    pattern = params.get('pattern', '')
-                    path = params.get('path', '.')
-                    print(f"🔍 Searching for '{pattern}' in {path}\n")
+                # Truncated mode matches reconstruct.jq format exactly
+                prefix = f"[{item['seq']}] " if show_numbers else ""
+                if tool_name == 'TodoWrite':
+                    print(f"{prefix}⏺ Update Todos")
+                elif tool_name == 'TodoRead':
+                    print(f"{prefix}⏺ Read Todos")
                 else:
-                    # Generic tool display
-                    print(f"🔧 {tool_name}\n")
+                    # Standard format: ToolName(parameter)
+                    # Extract the main parameter based on common patterns
+                    param_str = ""
+                    if 'command' in params:
+                        param_str = params['command']
+                    elif 'file_path' in params:
+                        param_str = params['file_path']
+                    elif 'path' in params:
+                        param_str = params['path']
+                    elif 'pattern' in params:
+                        param_str = params['pattern']
+                    elif 'query' in params:
+                        param_str = params['query']
+                    elif 'url' in params:
+                        param_str = params['url']
+                    elif 'description' in params:
+                        param_str = params['description']
+                    else:
+                        # Use first string parameter or convert to string
+                        for v in params.values():
+                            if isinstance(v, str):
+                                param_str = v
+                                break
+                        if not param_str and params:
+                            param_str = str(list(params.values())[0])
+                    
+                    print(f"{prefix}⏺ {tool_name}({param_str})")
             else:
-                # Compact mode
-                if tool_name == 'Bash':
-                    cmd = params.get('command', '')
-                    # Take first line for multi-line commands
-                    first_line = cmd.split('\n')[0]
-                    print(f"[{item['seq']}] 🛠️  {tool_name}: {first_line}")
-                elif tool_name == 'Edit':
-                    file_path = params.get('file_path', '')
-                    old_str = params.get('old_string', '')
-                    # Show first line of old_string
-                    first_line = old_str.split('\n')[0] if old_str else ''
-                    if len(first_line) > 40:
-                        first_line = first_line[:37] + '...'
-                    print(f"[{item['seq']}] ✏️  {tool_name}: {file_path} [{first_line}]")
-                elif tool_name in ['Read', 'Write']:
-                    file_path = params.get('file_path', '')
-                    print(f"[{item['seq']}] 📄 {tool_name}: {file_path}")
-                elif tool_name == 'TodoWrite':
+                # Compact mode - same as truncated but with sequence number and special TodoWrite handling
+                if tool_name == 'TodoWrite':
                     todos = params.get('todos', [])
-                    print(f"[{item['seq']}] ✅ {tool_name}: {len(todos)} todos")
-                elif tool_name == 'Grep':
-                    pattern = params.get('pattern', '')
-                    path = params.get('path', '.')
-                    print(f"[{item['seq']}] 🔍 {tool_name}: '{pattern}' in {path}")
+                    if todos:
+                        # Count todo statuses
+                        status_counts = defaultdict(int)
+                        for todo in todos:
+                            status = todo.get('status', 'unknown')
+                            status_counts[status] += 1
+                        
+                        # Format summary
+                        total = len(todos)
+                        status_parts = []
+                        for status in ['completed', 'in_progress', 'pending']:
+                            if status in status_counts:
+                                status_parts.append(f"{status_counts[status]} {status}")
+                        
+                        if status_parts:
+                            print(f"[{item['seq']}] ⏺ TodoWrite: Updated {total} todos ({', '.join(status_parts)})")
+                        else:
+                            print(f"[{item['seq']}] ⏺ TodoWrite: Updated {total} todos")
+                    else:
+                        print(f"[{item['seq']}] ⏺ TodoWrite: Updated 0 todos")
+                elif tool_name == 'TodoRead':
+                    print(f"[{item['seq']}] ⏺ Read Todos")
                 else:
-                    # Show first parameter
-                    first_param = list(params.items())[0] if params else ('', '')
-                    print(f"[{item['seq']}] {tool_name}: {first_param[0]}={str(first_param[1])[:40]}")
+                    # Use same parameter extraction logic as truncated mode
+                    param_str = ""
+                    if 'command' in params:
+                        param_str = params['command']
+                        # Take first line for multi-line commands
+                        param_str = param_str.split('\n')[0]
+                    elif 'file_path' in params:
+                        param_str = params['file_path']
+                    elif 'path' in params:
+                        param_str = params['path']
+                    elif 'pattern' in params:
+                        param_str = params['pattern']
+                    elif 'query' in params:
+                        param_str = params['query']
+                    elif 'url' in params:
+                        param_str = params['url']
+                    elif 'description' in params:
+                        param_str = params['description']
+                    else:
+                        # Use first string parameter or convert to string
+                        for v in params.values():
+                            if isinstance(v, str):
+                                param_str = v
+                                break
+                        if not param_str and params:
+                            param_str = str(list(params.values())[0])
+                    
+                    print(f"[{item['seq']}] ⏺ {tool_name}({param_str})")
     
     def show_timeline(self, filter_type='all', start=None, end=None, display_mode='compact'):
         """Show timeline of events.
@@ -614,243 +673,40 @@ class SessionExplorer:
             end: Ending index (1-based, inclusive)
             display_mode: 'compact' (default), 'truncated', or 'full'
         """
-        print("\n=== TIMELINE ===")
+        if display_mode != 'truncated':
+            print("\n=== TIMELINE ===")
         
-        # Apply range filtering
-        items = self.timeline
+        # Convert start/end to indices for filter_timeline
+        indices = None
         if start is not None or end is not None:
             start_idx = (start - 1) if start else 0
-            end_idx = end if end else len(items)
-            items = items[start_idx:end_idx]
+            end_idx = end if end else len(self.timeline)
+            indices = list(range(start_idx, end_idx))
         
-        for item in items:
-            # Apply filtering
-            if filter_type == 'tools' and item['type'] != 'tool':
-                continue
-            elif filter_type == 'conversation' and item['type'] != 'message':
-                continue
-            elif filter_type not in ['all', 'tools', 'conversation'] and item['type'] == 'tool' and item['subtype'] != filter_type:
-                continue
-            
-            # Format based on type
-            if item['type'] == 'message':
-                msg = item['data']
-                if msg['type'] == 'user' and display_mode == 'truncated':
-                    # Truncated mode - reconstruct.jq style (NO sequence numbers)
-                    text = msg.get('text', '')
-                    tool_results = msg.get('tool_results', [])
-                    is_slash = msg.get('is_slash_command', False)
-                    slash_cmd = msg.get('slash_command', '')
-                    
-                    # Handle different user message types
-                    if is_slash and slash_cmd:
-                        print(f"> /{slash_cmd}")
-                    elif text == '[Interrupted by user]':
-                        print("> [Request interrupted by user]")
-                    elif text and not tool_results:
-                        # Regular user message
-                        print(f"> {text}")
-                    elif tool_results:
-                        # This is a tool result - format like reconstruct.jq
-                        for result in tool_results:
-                            content = result.get('content', '')
-                            
-                            # Skip internal messages
-                            if any(phrase in content for phrase in [
-                                "Todos have been modified successfully",
-                                "completed successfully"
-                            ]):
-                                continue
-                                
-                            if content:
-                                print("  ⎿  Waiting…\n")
-                                # Format the output with truncation
-                                truncated = self._format_truncated_output(content, 3)
-                                # Indent each line
-                                for line in truncated.split('\n'):
-                                    print(f"  ⎿  {line}")
-                                print()  # Extra newline after tool results
-                
-                elif msg['type'] == 'assistant' and display_mode == 'truncated':
-                    # Assistant messages in truncated mode
-                    text = msg.get('text', '')
-                    tools = msg.get('tools', [])
-                    
-                    if text:
-                        # Show full assistant text (reconstruct.jq shows all of it)
-                        print(f"⏺ {text}\n")
-                    # Tool uses are handled separately as 'tool' items
-                    
-                elif msg['type'] == 'user':
-                    text = msg.get('text', '')
-                    tool_results = msg.get('tool_results', [])
-                    is_slash = msg.get('is_slash_command', False)
-                    slash_cmd = msg.get('slash_command', '')
-                    is_meta = msg.get('is_meta', False)
-                    
-                    # Check if this is an internal message to skip
-                    if tool_results and tool_results[0].get('content', ''):
-                        content = tool_results[0].get('content', '')
-                        if any(phrase in content for phrase in [
-                            "Todos have been modified successfully",
-                            "completed successfully"  # System messages
-                        ]):
-                            # Skip these internal messages entirely
-                            continue
-                    
-                    if is_meta and text.startswith('Caveat:'):
-                        # Show caveat message (meta)
-                        print(f"[{item['seq']}] [META] {text[:50]}...")
-                    elif is_slash and slash_cmd:
-                        # Show slash command (no prefix - it's a command)
-                        print(f"[{item['seq']}] /{slash_cmd}")
-                    elif text == '[Interrupted by user]':
-                        # Show interrupted request (no prefix - it's a protocol message)
-                        print(f"[{item['seq']}] [Interrupted by user]")
-                    elif text:
-                        # Show full first line of user message
-                        lines = text.split('\n')
-                        first_line = lines[0]
-                        if len(lines) > 1:
-                            # Show last line too for context
-                            last_line = lines[-1].strip()
-                            if last_line and last_line != first_line:
-                                multiline = f' [...] {last_line}'
-                            else:
-                                multiline = ' [...]'
-                        else:
-                            multiline = ''
-                        print(f"[{item['seq']}] > {first_line}{multiline}")
-                    elif tool_results:
-                        # This is a tool result message
-                        content = tool_results[0].get('content', '')
-                        
-                        # Handle interrupted tools specially
-                        if "doesn't want to proceed" in content:
-                            print(f"[{item['seq']}] ⎿  [Tool rejected]")
-                        else:
-                            # Show actual tool results
-                            lines = content.split('\n')
-                            first_line = lines[0]
-                            if len(lines) > 1:
-                                # Show last line too for context
-                                last_line = lines[-1].strip()
-                                if last_line and last_line != first_line:
-                                    multiline = f' [...] {last_line}'
-                                else:
-                                    multiline = ' [...]'
-                            else:
-                                multiline = ''
-                            print(f"[{item['seq']}] ⎿  {first_line}{multiline}")
-                    else:
-                        # Empty user message (rare but possible)
-                        print(f"[{item['seq']}] > [empty]")
-                elif msg['type'] == 'assistant':
-                    # Show assistant text or tool usage
-                    text = msg.get('text', '')
-                    tools = msg.get('tools', [])
-                    if text:
-                        lines = text.split('\n')
-                        first_line = lines[0]
-                        if len(lines) > 1:
-                            # Show last line too for context
-                            last_line = lines[-1].strip()
-                            if last_line and last_line != first_line:
-                                multiline = f' [...] {last_line}'
-                            else:
-                                multiline = ' [...]'
-                        else:
-                            multiline = ''
-                        print(f"[{item['seq']}] • {first_line}{multiline}")
-                    elif tools:
-                        print(f"[{item['seq']}] • [Used tools: {', '.join(tools)}]")
-                    else:
-                        # Empty assistant message (rare but possible)
-                        print(f"[{item['seq']}] • [empty]")
-            
-            elif item['type'] == 'tool':
-                tc = item['data']
-                
-                if display_mode == 'truncated':
-                    # Console-style output like reconstruct.jq
-                    # Format tool input based on tool type (matching format_tool_input logic)
-                    params = tc['parameters']
-                    param_str = ""
-                    
-                    if tc['name'] == 'TodoWrite':
-                        # Special case for TodoWrite
-                        print("⏺ Update Todos")
-                    elif tc['name'] == 'TodoRead':
-                        # Special case for TodoRead
-                        print("⏺ Read Todos")
-                    else:
-                        # Standard format: ToolName(parameter)
-                        if 'command' in params:
-                            param_str = params['command']
-                        elif 'file_path' in params:
-                            param_str = params['file_path']
-                        elif 'path' in params:
-                            param_str = params['path']
-                        elif 'pattern' in params:
-                            param_str = params['pattern']
-                        else:
-                            # Use first string parameter or convert to string
-                            for v in params.values():
-                                if isinstance(v, str):
-                                    param_str = v
-                                    break
-                            if not param_str and params:
-                                param_str = str(list(params.values())[0])
-                        
-                        print(f"⏺ {tc['name']}({param_str})")
-                    
-                    # Tool results will be shown as part of user messages with tool_result type
-                    # We just show the tool call here
-                    
-                else:
-                    # Compact mode (existing logic)
-                    print(f"[{item['seq']}] {tc['name']:12}", end='')
-                    
-                    # Show relevant parameter based on tool type
-                    params = tc['parameters']
-                    if tc['name'] in ['Edit', 'Write', 'MultiEdit']:
-                        path = params.get('file_path', '')
-                        if path:
-                            print(f" → {path.split('/')[-1]}", end='')
-                    elif tc['name'] == 'Bash':
-                        cmd = params.get('command', '')[:50]
-                        print(f" $ {cmd}...", end='')
-                    elif tc['name'] == 'Read':
-                        path = params.get('file_path', '')
-                        if path:
-                            print(f" ← {path.split('/')[-1]}", end='')
-                    elif tc['name'] == 'Grep':
-                        pattern = params.get('pattern', '')
-                        path = params.get('path', '.')
-                        if pattern:
-                            print(f' "{pattern}" in {path}', end='')
-                    elif tc['name'] == 'TodoWrite':
-                        todos = params.get('todos', [])
-                        if todos:
-                            # Count todo statuses
-                            status_counts = defaultdict(int)
-                            for todo in todos:
-                                status = todo.get('status', 'unknown')
-                                status_counts[status] += 1
-                            
-                            # Format summary
-                            total = len(todos)
-                            status_parts = []
-                            for status in ['completed', 'in_progress', 'pending']:
-                                if status in status_counts:
-                                    status_parts.append(f"{status_counts[status]} {status}")
-                            
-                            if status_parts:
-                                print(f" Updated {total} todos ({', '.join(status_parts)})", end='')
-                            else:
-                                print(f" Updated {total} todos", end='')
-                    
-                    print()
+        # Use centralized filtering based on filter_type
+        if filter_type == 'tools':
+            # Show only tools
+            include_filters = None
+            filtered_items = [item for item in self.filter_timeline(indices) if item['type'] == 'tool']
+        elif filter_type == 'conversation':
+            # Show only messages
+            filtered_items = [item for item in self.filter_timeline(indices) if item['type'] == 'message']
+        elif filter_type not in ['all', 'tools', 'conversation']:
+            # Specific tool filter
+            include_filters = [filter_type]
+            filtered_items = self.filter_timeline(indices, include_filters)
+        else:
+            # Show all
+            filtered_items = self.filter_timeline(indices)
+        
+        # Determine if we should show numbers in truncated mode
+        # Show numbers when filtering is applied (not showing full timeline)
+        has_filtering = filter_type != 'all' or indices is not None
+        show_numbers = display_mode == 'truncated' and has_filtering
+        
+        # Display using the centralized display method
+        for item in filtered_items:
+            self._display_timeline_item(item, display_mode, show_numbers)
     
     def show_git_operations(self):
         """Show all git operations. DEPRECATED: Use -t --include 'Bash(git *)' instead."""
@@ -1028,6 +884,30 @@ class SessionExplorer:
             filtered.append(tc)
         
         return filtered
+    
+    def _is_todo_result(self, content):
+        """Check if content appears to be a todo result."""
+        # Look for patterns that indicate todo items
+        # Common patterns: "☐", "☒", "◐", "(P0)", "(P1)", "(P2)"
+        todo_patterns = ['☐', '☒', '◐', '(P0)', '(P1)', '(P2)']
+        return any(pattern in content for pattern in todo_patterns)
+    
+    def _format_todo_result_truncated(self, content):
+        """Format todo result content for truncated display."""
+        # Parse todo items from the content
+        lines = content.strip().split('\n')
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+                
+            # Check if this looks like a todo item
+            if any(symbol in line for symbol in ['☐', '☒', '◐']):
+                # This is a todo item - format with proper indentation
+                print(f"  ⎿  {line}")
+            else:
+                # Regular line
+                print(f"  ⎿  {line}")
 
 def find_session_file(identifier):
     """Find session file by any substring match."""
