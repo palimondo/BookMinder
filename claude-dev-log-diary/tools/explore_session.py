@@ -529,8 +529,13 @@ class SessionExplorer:
             has_filtering = indices or include_list or exclude_list
             show_numbers = (display_mode == 'truncated' and (has_filtering or force_show_numbers)) or display_mode == 'full'
             
+            prev_seq = None
             for item in filtered_items:
+                # Add visual separator for gaps in sequence
+                if prev_seq is not None and item['seq'] > prev_seq + 1:
+                    print()  # Empty line to show gap
                 self._display_timeline_item(item, display_mode, show_numbers)
+                prev_seq = item['seq']
     
     def show_timeline_indices(self, filter_type='all', indices=None, display_mode='compact'):
         """Show timeline with specific indices.
@@ -553,8 +558,13 @@ class SessionExplorer:
         has_filtering = filter_type != 'all' or indices
         show_numbers = (display_mode == 'truncated' and has_filtering) or display_mode == 'full'
         
+        prev_seq = None
         for item in filtered_items:
+            # Add visual separator for gaps in sequence
+            if prev_seq is not None and item['seq'] > prev_seq + 1:
+                print()  # Empty line to show gap
             self._display_timeline_item(item, display_mode, show_numbers)
+            prev_seq = item['seq']
     
     def _display_timeline_item(self, item, display_mode='compact', show_numbers=False):
         """Display a single timeline item based on display mode.
