@@ -1319,6 +1319,22 @@ def main():
                 print(f"Error: {e}")
                 sys.exit(1)
         
+        # Build include filters from shortcuts and args
+        include_filters = []
+        if args.include:
+            include_filters.extend(args.include.split(','))
+        if args.include_message:
+            include_filters.append('Message')
+        if args.include_user:
+            include_filters.append('User')
+        if args.include_assistant:
+            include_filters.append('Assistant')
+        if args.include_tool:
+            include_filters.append('Tool')
+        
+        # Join filters back into comma-separated string
+        include_str = ','.join(include_filters) if include_filters else None
+        
         # Search and show results with context
         matches = explorer.search_timeline(args.search)
         
@@ -1337,13 +1353,13 @@ def main():
                 after_context = args.context
             
             # Convert matches to indices parameter for filter_timeline
-            # and show with context
+            # and show with context, applying include/exclude filters
             explorer.show_timeline_with_filters(
                 indices=matches, 
                 display_mode='truncated' if args.truncated else ('full' if args.full else 'compact'),
-                include_filters=None,
-                exclude_filters=None,
-                include_tool_results=True,
+                include_filters=include_str,
+                exclude_filters=args.exclude,
+                include_tool_results=not args.no_tool_results,
                 force_show_numbers=True,
                 json_output=args.json,
                 jsonl_output=args.jsonl,
