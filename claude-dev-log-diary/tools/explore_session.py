@@ -233,35 +233,53 @@ class SessionExplorer:
         for tc in self.tool_calls:
             tool_counts[tc['name']] += 1
         
-        # Count messages by type
-        user_messages = sum(1 for m in self.messages if m['type'] == 'user')
+        # Count actual user messages (not tool results)
+        actual_user_messages = 0
+        for m in self.messages:
+            if m['type'] == 'user':
+                # Only count if it has actual text or is a slash command
+                if m.get('text') or m.get('is_slash_command'):
+                    actual_user_messages += 1
+        
         assistant_messages = sum(1 for m in self.messages if m['type'] == 'assistant')
         
-        # Count file operations
-        files_edited = set()
-        files_created = set()
-        git_operations = 0
+        # Count file operations more accurately
+        files_modified = set()
+        git_commits = 0
         
         for tc in self.tool_calls:
-            if tc['name'] in ['Edit', 'MultiEdit']:
-                files_edited.add(tc['parameters'].get('file_path', ''))
-            elif tc['name'] == 'Write':
-                files_created.add(tc['parameters'].get('file_path', ''))
+            if tc['name'] in ['Edit', 'MultiEdit', 'Write']:
+                path = tc['parameters'].get('file_path', '')
+                if path:
+                    files_modified.add(path)
             elif tc['name'] == 'Bash':
                 cmd = tc['parameters'].get('command', '')
-                if cmd.startswith('git'):
-                    git_operations += 1
+                if 'git commit' in cmd:
+                    git_commits += 1
+        
+        # Get session metadata
+        if self.messages:
+            first_timestamp = self.messages[0].get('timestamp', '')
+            last_timestamp = self.messages[-1].get('timestamp', '')
+        else:
+            first_timestamp = last_timestamp = 'N/A'
         
         print("=== SESSION SUMMARY ===")
-        print(f"Messages: {user_messages} user, {assistant_messages} assistant")
+        if self.jsonl_file:
+            print(f"Session: {Path(self.jsonl_file).stem}")
+        print(f"Timeline: {len(self.timeline)} events")
+        print(f"Messages: {actual_user_messages} user, {assistant_messages} assistant")
         print(f"Tool calls: {len(self.tool_calls)}")
-        print(f"Files edited: {len(files_edited)}")
-        print(f"Files created: {len(files_created)}")
-        print(f"Git operations: {git_operations}")
+        if files_modified:
+            print(f"Files modified: {len(files_modified)}")
+        if git_commits:
+            print(f"Git commits: {git_commits}")
         
         print("\nTool usage:")
         for tool, count in sorted(tool_counts.items(), key=lambda x: -x[1]):
             print(f"  {tool:15} {count:3}")
+        
+        print("\nUse --help to see available options")
     
     def show_timeline_indices(self, filter_type='all', indices=None, display_mode='compact'):
         """Show timeline with specific indices.
@@ -765,7 +783,15 @@ def find_session_file(identifier):
     return str(matches[int(choice)-1])
 
 def main():
-    parser = argparse.ArgumentParser(description='Explore Claude session logs')
+    parser = argparse.ArgumentParser(
+        description='Explore Claude session logs. Shows summary by default.',
+        epilog='Examples:\n'
+               '  %(prog)s session.jsonl                    # Show summary\n'
+               '  %(prog)s session.jsonl --timeline         # Show full timeline\n'
+               '  %(prog)s session.jsonl --timeline 10-20   # Show timeline items 10-20\n'
+               '  %(prog)s session.jsonl --files            # Show file edits summary\n',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument('jsonl', help='Session file or any unique substring (issue-13, run ID, date, etc.)')
     parser.add_argument('--summary', '-s', action='store_true', help='Show summary')
     parser.add_argument('--timeline', '-t', nargs='?', const='all', 
