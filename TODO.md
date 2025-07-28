@@ -10,19 +10,10 @@ in the `stories/` directory, following the format defined in `vision.md`.
 - **ZSTATE Values for Cloud Status:** (Research completed, mapping updated in `docs/apple_books.md`)
 - **Filter by Cloud Status:** (See `stories/discover/filter-by-cloud-status.yaml`)
 - **Documentation Cleanup:** Removed retrospective AI meta-docs (commit eea59e3)
-- **Validate Filter Values:** (See `stories/discover/validate-filter-values.yaml`)
-- **Filter by Sample Flag:** (See `stories/discover/filter-by-sample-flag.yaml`)
 
 ## In Progress
-
-### Filter Implementation Restoration
-- **Issue:** After commit 6f786cc, ATDD practice wasn't followed properly
-- **Action:** Manually restore proper ATDD discipline to re-establish gold standard of specs and implementation
-- **Stories that need proper ATDD reimplementation:**
-  - `stories/discover/validate-filter-values.yaml`
-  - `stories/discover/filter-by-sample-flag.yaml` 
-  - `stories/discover/filter-by-reading-status.yaml`
-- **Goal:** Create exemplar specifications that demonstrate correct ATDD approach
+- **Filter by Sample Flag:** (See `stories/discover/filter-by-sample-flag.yaml`) - Implementing !sample filter
+- **Validate Filter Values:** (See `stories/discover/validate-filter-values.yaml`) - Adding validation for invalid filters
 
 ## Current Backlog (Stories in `stories/` directory)
 

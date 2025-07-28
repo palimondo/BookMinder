@@ -1,3 +1,6 @@
+import subprocess
+import sys
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -13,7 +16,38 @@ def runner():
     return CliRunner()
 
 
-def describe_bookminder_list_commands():
+def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=None):
+    if use_fixture:
+        base_path = Path(__file__).parent / "../integration/apple_books/fixtures"
+        user_arg = str(base_path / "users" / user_name)
+    else:
+        user_arg = user_name
+
+    command = [
+        sys.executable,
+        "-m",
+        "bookminder",
+        "list",
+        subcommand,
+        "--user",
+        user_arg,
+    ]
+
+    if filter:
+        command.extend(["--filter", filter])
+
+    result = subprocess.run(
+        command,
+        capture_output=True,
+        text=True,
+        cwd=Path(__file__).parent.parent.parent,
+    )
+    assert result.returncode == 0, \
+        f"Expected exit code 0, got {result.returncode}: {result.stderr}"
+    return result
+
+
+def describe_bookminder_list_recent_command():
     def it_shows_recently_read_books_with_progress(runner):
         book1 = Book(title="B1", author="A1")
         book2 = Book(title="B2", author="A2")
@@ -26,6 +60,36 @@ def describe_bookminder_list_commands():
         mock_list_recent.assert_called_once_with(user=None, filter=None)
         assert mock_format.call_args_list == [((book1,),), ((book2,),)]
 
+
+def describe_bookminder_list_recent_integration():
+    def it_shows_books_for_user_with_reading_progress():
+        """Integration test: verify full stack works with real fixture."""
+        result = _run_cli_with_user("test_reader")
+
+        output_lines = result.stdout.strip().split("\n")
+        assert len(output_lines) > 0, "Expected books in output"
+
+        for line in output_lines:
+            if line.strip():
+                assert " - " in line, f"Expected 'Title - Author' format in: {line}"
+                assert "%" in line, f"Expected progress percentage in: {line}"
+
+
+def describe_bookminder_list_with_filter():
+    def it_filters_by_cloud_status(runner):
+        with patch('bookminder.cli.list_recent_books') as mock_list_recent:
+            runner.invoke(main, ['list', 'recent', '--filter', 'cloud'])
+
+        mock_list_recent.assert_called_once_with(user=None, filter='cloud')
+
+    def it_excludes_cloud_books_when_filter_is_not_cloud(runner):
+        with patch('bookminder.cli.list_recent_books') as mock_list_recent:
+            runner.invoke(main, ['list', 'recent', '--filter', '!cloud'])
+
+        mock_list_recent.assert_called_once_with(user=None, filter='!cloud')
+
+
+def describe_bookminder_list_all_command():
     def it_shows_all_books_in_library(runner):
         book1 = Book(title="B1", author="A1")
         book2 = Book(title="B2", author="A2")
@@ -38,43 +102,20 @@ def describe_bookminder_list_commands():
         mock_list_all.assert_called_once_with(user=None, filter=None)
         assert mock_format.call_args_list == [((book1,),), ((book2,),)]
 
+    def it_filters_by_sample_status(runner):
+        with patch('bookminder.cli.list_all_books') as mock_list_all:
+            runner.invoke(main, ['list', 'all', '--filter', 'sample'])
 
-def describe_bookminder_filter_passthrough():
-    @pytest.mark.parametrize("command,library_function", [
-        ("recent", "list_recent_books"),
-        ("all", "list_all_books"),
-    ])
-    @pytest.mark.parametrize("filter_value", [
-        "cloud", "!cloud", "sample", "!sample"
-    ])
-    def it_passes_filters_to_library_function(
-        command, library_function, filter_value, runner
-    ):
-        with patch(f'bookminder.cli.{library_function}') as mock:
-            runner.invoke(main, ['list', command, '--filter', filter_value])
-        mock.assert_called_once_with(user=None, filter=filter_value)
+        mock_list_all.assert_called_once_with(user=None, filter='sample')
 
-
-def describe_cli_validation():
-    def it_validates_filter_values(runner):
-        result = runner.invoke(main, ['list', 'recent', '--filter', 'invalid'])
-
-        assert result.exit_code == 1
-        assert "Invalid filter: 'invalid'" in result.output
-        assert "Valid filters:" in result.output
-
-    def it_validates_filter_values_and_shows_helpful_error(runner):
-        with patch('bookminder.cli.SUPPORTED_FILTERS', {'foo', 'bar'}):
-            result = runner.invoke(main, ['list', 'all', '--filter', 'baz'])
-
-            assert result.exit_code == 1
-            assert "Invalid filter: 'baz'" in result.output
-            assert "Valid filters:" in result.output
-            assert "foo" in result.output
-            assert "bar" in result.output
+    @pytest.mark.skip(reason="Implement after basic list all works")
+    def it_excludes_samples_when_filter_is_not_sample():
+        pass
 
 
 def describe_cli_error_boundary():
+    """Verify CLI properly handles errors from library layer."""
+
     def it_displays_library_errors_without_stack_traces(runner):
         error_message = "Something went wrong in the library"
 
@@ -94,37 +135,3 @@ def describe_cli_error_boundary():
         assert error_message in result.output
         assert "Traceback" not in result.output
 
-
-def describe_bookminder_acceptance():
-    def it_filters_recent_books_by_sample_status(runner):
-        """Verify sample filter is passed correctly and output is formatted."""
-        sample_book = Book(
-            title="Sample Book",
-            author="Sample Author",
-            reading_progress_percentage=30,
-            is_sample=True,
-        )
-
-        with patch('bookminder.cli.list_recent_books') as mock_list:
-            mock_list.return_value = [sample_book]
-            result = runner.invoke(main, ['list', 'recent', '--filter', 'sample'])
-
-            mock_list.assert_called_once_with(user=None, filter="sample")
-            assert "Sample Book - Sample Author (30%) • Sample" in result.output
-
-    def it_excludes_samples_from_recent_books(runner):
-        """Verify !sample filter is passed correctly and samples are excluded."""
-        regular_book = Book(
-            title="Regular Book",
-            author="Regular Author",
-            reading_progress_percentage=50,
-            is_sample=False,
-        )
-
-        with patch('bookminder.cli.list_recent_books') as mock_list:
-            mock_list.return_value = [regular_book]
-            result = runner.invoke(main, ['list', 'recent', '--filter', '!sample'])
-
-            mock_list.assert_called_once_with(user=None, filter="!sample")
-            assert "Regular Book - Regular Author (50%)" in result.output
-            assert "Sample" not in result.output
