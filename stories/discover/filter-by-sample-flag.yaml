@@ -2,7 +2,7 @@ story:
   as_a: reader using Apple Books
   i_want: to filter my book list by sample status
   so_that: I can easily find or exclude sample books
-status: done
+status: backlog
 
 acceptance_criteria:
   - scenario: Show only samples
