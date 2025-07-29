@@ -11,8 +11,6 @@ from bookminder import BookminderError
 APPLE_EPOCH = datetime.datetime(2001, 1, 1, tzinfo=datetime.UTC)
 APPLE_CONTAINERS = "Library/Containers/com.apple"
 
-SUPPORTED_FILTERS = {"cloud", "!cloud", "sample", "!sample"}
-
 
 def _books_plist(user_home: Path) -> Path:
     return (
@@ -157,10 +155,6 @@ def list_recent_books(user: str | None = None, filter: str | None = None) -> lis
         elif filter == "!cloud":
             where_parts.append("AND ZSTATE != ?")
             params.append(3)
-        elif filter == "sample":
-            where_parts.append("AND (ZSTATE = 6 OR ZISSAMPLE = 1)")
-        elif filter == "!sample":
-            where_parts.append("AND ZSTATE != 6 AND ZISSAMPLE != 1")
 
         where_clause = " ".join(where_parts)
         return _query_books(user_home, where_clause, tuple(params), limit=10)
@@ -171,11 +165,6 @@ def list_recent_books(user: str | None = None, filter: str | None = None) -> lis
 def list_all_books(user: str | None = None, filter: str | None = None) -> list[Book]:
     """List all books from BKLibrary database."""
     user_home = _get_user_path(user)
-
-    where_clause = ""
-    if filter == "sample":
-        where_clause = "WHERE (ZSTATE = 6 OR ZISSAMPLE = 1)"
-    elif filter == "!sample":
-        where_clause = "WHERE ZSTATE != 6 AND ZISSAMPLE != 1"
-
-    return _query_books(user_home, where_clause)
+    return _query_books(
+        user_home, "WHERE (ZSTATE = 6 OR ZISSAMPLE = 1)" if filter == "sample" else ""
+    )
