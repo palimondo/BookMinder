@@ -29,8 +29,9 @@ def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=
         text=True,
         cwd=Path(__file__).parent.parent.parent,
     )
-    assert result.returncode == 0, \
+    assert result.returncode == 0, (
         f"Expected exit code 0, got {result.returncode}: {result.stderr}"
+    )
     return result
 
 

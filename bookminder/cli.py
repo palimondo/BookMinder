@@ -60,9 +60,9 @@ def recent(user: str | None, filter: str | None) -> None:
     """Show recently read books with progress."""
     try:
         books = list_recent_books(user=user, filter=filter)
-        click.echo(format_book_list(
-            books, empty_message="No books currently being read"
-        ))
+        click.echo(
+            format_book_list(books, empty_message="No books currently being read")
+        )
     except BookminderError as e:
         click.echo(f"{e}")
 

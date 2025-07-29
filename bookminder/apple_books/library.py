@@ -166,6 +166,5 @@ def list_all_books(user: str | None = None, filter: str | None = None) -> list[B
     """List all books from BKLibrary database."""
     user_home = _get_user_path(user)
     return _query_books(
-        user_home,
-        "WHERE (ZSTATE = 6 OR ZISSAMPLE = 1)" if filter == "sample" else ""
+        user_home, "WHERE (ZSTATE = 6 OR ZISSAMPLE = 1)" if filter == "sample" else ""
     )

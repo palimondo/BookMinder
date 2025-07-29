@@ -50,13 +50,16 @@ def describe_build_books_query():
         # Verify all required columns are present
         assert "ZTITLE" in query, "Query must include ZTITLE for book title"
         assert "ZAUTHOR" in query, "Query must include ZAUTHOR for book author"
-        assert "ZREADINGPROGRESS" in query, \
+        assert "ZREADINGPROGRESS" in query, (
             "Query must include ZREADINGPROGRESS for reading percentage"
-        assert "ZLASTOPENDATE" in query, \
+        )
+        assert "ZLASTOPENDATE" in query, (
             "Query must include ZLASTOPENDATE for updated timestamp"
+        )
         assert "ZSTATE" in query, "Query must include ZSTATE for cloud/sample status"
-        assert "ZISSAMPLE" in query, \
+        assert "ZISSAMPLE" in query, (
             "Query must include ZISSAMPLE for sample identification"
+        )
 
     def it_applies_where_clause_and_limit():
         query = _build_books_query("WHERE ZREADINGPROGRESS > 0", limit=5)
@@ -176,5 +179,6 @@ def describe_list_all_books():
         sample_titles = {book["title"] for book in sample_books}
         expected_samples = {"Snow Crash", "Tiny Experiments", "What's Our Problem?"}
 
-        assert sample_titles == expected_samples, \
+        assert sample_titles == expected_samples, (
             f"Expected {expected_samples}, got {sample_titles}"
+        )

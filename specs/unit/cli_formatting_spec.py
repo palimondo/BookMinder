@@ -81,8 +81,6 @@ def describe_format_book_list():
         ]
         result = format_book_list(books)
         expected = (
-            "Book 1 - Author 1 (50%)\n"
-            "Book 2 - Author 2 • Sample\n"
-            "Book 3 - Author 3 ☁️"
+            "Book 1 - Author 1 (50%)\nBook 2 - Author 2 • Sample\nBook 3 - Author 3 ☁️"
         )
         assert result == expected
