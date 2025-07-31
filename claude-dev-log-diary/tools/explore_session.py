@@ -294,6 +294,9 @@ class SessionExplorer:
                 has_tools = bool(m.get('tools'))
                 if has_text and not has_tools:
                     assistant_text_only += 1
+                    # Also check for interruptions in assistant messages
+                    if '[Request interrupted by user]' in m.get('text', ''):
+                        user_interruptions += 1
                 elif has_tools:
                     assistant_with_tools += 1
         
@@ -342,6 +345,8 @@ class SessionExplorer:
         print(f"Timeline:{' ' * (comment_col - 9)}# to show specific event types:")
         print(f"  Events: {len(self.timeline)}".ljust(comment_col) + "# -t")
         print(f"  User inputs: {user_inputs}".ljust(comment_col) + "# -U")
+        if user_interruptions > 0:
+            print(f"    Interrupted: {user_interruptions}")
         print(f"  Tool results: {tool_results}".ljust(comment_col) + "# (shown after -T events, use --no-tool-results to exclude)")
         print(f"  Assistant: {assistant_messages}".ljust(comment_col) + "# -a")
         print("  Assistant messages:")
@@ -397,8 +402,6 @@ class SessionExplorer:
         
         print()
         print(f"Files modified: {len(files_modified):<12} # --files")
-        if user_interruptions > 0:
-            print(f"User interruptions: {user_interruptions:<8} # -S \"interrupted\" -C 5")
         
         print()
         print("# Practical debugging examples:")
