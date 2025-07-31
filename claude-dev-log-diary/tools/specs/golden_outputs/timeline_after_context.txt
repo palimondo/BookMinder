@@ -1,0 +1,3 @@
+[10] ⏺ [Tools: Glob]
+[11] ⏺ [Tools: Glob]
+[12] ⎿  /Users/runner/work/BookMinder/BookMinder/CLAUDE.md [...] /Users/runner/work/BookMinder/BookMinder/vision.md

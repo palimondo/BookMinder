@@ -1,0 +1,7 @@
+[1] ⏺ <thinking> The user wants me to test something
+[2] ⏺ I'll help you test this feature.
+[3] ⏺ [Tools: TodoWrite]
+[4] ⏺ TodoWrite: Updated 1 todos (1 pending)
+[5] ⎿  Todos have been modified successfully
+[6] ⏺ [Tools: mcp__github_comment__update_claude_comment]
+[7] ⏺ mcp__github_comment__update_claude_comment(Test comment with multiple lines)

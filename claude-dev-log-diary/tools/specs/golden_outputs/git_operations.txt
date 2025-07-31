@@ -1,0 +1,6 @@
+[85] ⏺ Bash: $ git log --oneline --grep="13" -10
+[86] ⏺ Bash: $ git branch -a | grep -i issue
+
+[91] ⏺ Bash: $ git log --oneline -5
+
+[99] ⏺ Bash: $ git log --oneline -10

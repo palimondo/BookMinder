@@ -1,0 +1,29 @@
+Session: 20250726-1349-pr-14_run-16540466941_session-99def08d-ffb0-4df3-bf17-8159d017252f.jsonl
+
+Timeline:                     # to show specific event types:
+  Events: 105                 # -t
+  User inputs: 0              # -U
+  Tool results: 31            # (shown after -T events, use --no-tool-results to exclude)
+  Assistant: 43               # -a
+  Assistant messages:
+    Text: 2                   # -a -x Tool
+    Tool: 31                  # -T
+    Tool calls:
+      MCP: 4                  # -i Tool(mcp__*)
+      MCP tools:
+          Github_Comment: 4          # -i Tool(mcp__github_comment*)
+      Bash: 13                 # -i Bash
+      Read: 7                  # -i Read
+      Grep: 3                  # -i Grep
+      Glob: 3                  # -i Glob
+      Other: 1                 # -i Task
+
+Files modified: 0            # --files
+
+# Practical debugging examples:
+# - Find where Claude got confused:
+#   explore_session.py session.jsonl -S "error" -a -C 3
+# - Show git commits with their edits:
+#   explore_session.py session.jsonl -i "Bash(git commit*),Edit"
+# - Debug a specific range after user correction:
+#   explore_session.py session.jsonl -U -A 5 250-300

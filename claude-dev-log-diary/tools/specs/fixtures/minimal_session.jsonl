@@ -1,0 +1,5 @@
+{"type": "assistant", "message": {"content": [{"type": "thinking", "thinking": "The user wants me to test something"}]}, "timestamp": "2025-07-30T10:00:00.000Z"}
+{"type": "assistant", "message": {"content": [{"type": "text", "text": "I'll help you test this feature."}]}, "timestamp": "2025-07-30T10:00:01.000Z"}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "TodoWrite", "id": "tool_123", "input": {"todos": [{"id": "1", "content": "Test task", "status": "pending", "priority": "high"}]}}]}, "timestamp": "2025-07-30T10:00:02.000Z"}
+{"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": "tool_123", "content": "Todos have been modified successfully"}]}, "timestamp": "2025-07-30T10:00:03.000Z"}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "mcp__github_comment__update_claude_comment", "id": "tool_456", "input": {"body": "Test comment with\nmultiple\nlines"}}]}, "timestamp": "2025-07-30T10:00:04.000Z"}
