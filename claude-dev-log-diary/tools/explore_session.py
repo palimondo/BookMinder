@@ -135,10 +135,15 @@ class SessionExplorer:
                 
                 if isinstance(content, str):
                     if '<command-name>' in content and '<command-message>' in content:
-                        match = re.search(r'<command-message>([^<]+)</command-message>', content)
-                        if match:
-                            slash_command = match.group(1)
+                        # Extract command name for display
+                        cmd_match = re.search(r'<command-name>([^<]+)</command-name>', content)
+                        msg_match = re.search(r'<command-message>([^<]+)</command-message>', content)
+                        if cmd_match:
+                            slash_command = cmd_match.group(1)
                             is_slash_command = True
+                            # Also store the message part as text
+                            if msg_match:
+                                user_text.append(msg_match.group(1))
                     else:
                         user_text.append(content)
                         
@@ -149,6 +154,15 @@ class SessionExplorer:
                                 text = item.get('text', '')
                                 if '[Request interrupted by user' in text:
                                     user_text.append('[Interrupted by user]')
+                                elif '<command-name>' in text and '<command-message>' in text:
+                                    # Handle slash commands in list format
+                                    cmd_match = re.search(r'<command-name>([^<]+)</command-name>', text)
+                                    msg_match = re.search(r'<command-message>([^<]+)</command-message>', text)
+                                    if cmd_match:
+                                        slash_command = cmd_match.group(1)
+                                        is_slash_command = True
+                                        if msg_match:
+                                            user_text.append(msg_match.group(1))
                                 else:
                                     user_text.append(text)
                             elif item.get('type') == 'tool_result':
@@ -600,7 +614,10 @@ class SessionExplorer:
                 # Handle different user message types
                 prefix = f"[{item['seq']}] " if show_numbers or display_mode == 'full' else ""
                 if is_slash and slash_cmd:
-                    print(f"{prefix}> /{slash_cmd}")
+                    if text:
+                        print(f"{prefix}> /{slash_cmd}: {text}")
+                    else:
+                        print(f"{prefix}> /{slash_cmd}")
                 elif text == '[Interrupted by user]':
                     print(f"{prefix}> [Request interrupted by user]")
                 elif text and not tool_results:
@@ -676,8 +693,11 @@ class SessionExplorer:
                     # Show caveat message (meta)
                     print(f"[{item['seq']}] [META] {text[:50]}...")
                 elif is_slash and slash_cmd:
-                    # Show slash command (no prefix - it's a command)
-                    print(f"[{item['seq']}] /{slash_cmd}")
+                    # Show slash command with message if available
+                    if text:
+                        print(f"[{item['seq']}] > /{slash_cmd}: {text}")
+                    else:
+                        print(f"[{item['seq']}] > /{slash_cmd}")
                 elif text == '[Interrupted by user]':
                     # Show interrupted request (no prefix - it's a protocol message)
                     print(f"[{item['seq']}] [Interrupted by user]")
