@@ -5,9 +5,10 @@ This document summarizes the comprehensive testing effort completed for explore_
 
 ## Test Coverage Achieved: 75%
 
-### Total Tests: 92
+### Total Tests: 101
 - **Characterization Tests**: 67 tests
 - **Unit Tests**: 25 tests
+- **Edge Case Tests**: 9 tests
 
 ## Characterization Test Suites
 
@@ -67,6 +68,13 @@ This document summarizes the comprehensive testing effort completed for explore_
 - Include/exclude combinations
 - Complex filter chains
 
+### 10. Edge Cases (specs/edge_cases_spec.py)
+- Slash command parsing and display
+- Interrupted request handling
+- Empty message handling
+- Thinking block separation
+- Meta message flags
+
 ## Unit Test Coverage
 
 ### 1. Range Parsing (specs/unit_tests_spec.py)
@@ -100,6 +108,8 @@ This document summarizes the comprehensive testing effort completed for explore_
 3. **JSON Export**: Export functionality was broken
 4. **Multiline Display**: Inconsistent truncation formats
 5. **Truncation Consistency**: Fixed 60-char truncation to use [...] pattern
+6. **Slash Command Display**: Fixed parsing to show /command-name format
+7. **Interruption Counting**: Added detection in assistant messages
 
 ## Test Infrastructure
 
@@ -152,4 +162,4 @@ pytest specs/ -v
 
 ## Conclusion
 
-The comprehensive test suite provides confidence for future refactoring and ensures explore_session.py remains stable and reliable. The characterization testing approach successfully captured current behavior while revealing and fixing several bugs.
+The comprehensive test suite with 101 tests provides confidence for future refactoring and ensures explore_session.py remains stable and reliable. The characterization testing approach successfully captured current behavior while revealing and fixing several bugs. Edge case handling has been improved with proper slash command display and interruption tracking.
