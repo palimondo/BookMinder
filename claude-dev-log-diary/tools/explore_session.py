@@ -693,8 +693,19 @@ class SessionExplorer:
                 # (They're noisy and not useful)
                 
                 if is_meta and text.startswith('Caveat:'):
-                    # Show caveat message (meta)
-                    print(f"[{item['seq']}] [META] {text[:50]}...")
+                    # Show caveat message (meta) with consistent truncation
+                    lines = text.split('\n')
+                    first_line = lines[0]
+                    if len(lines) > 1:
+                        last_line = lines[-1].strip()
+                        if last_line and last_line != first_line:
+                            display_text = f'{first_line} [...] {last_line}'
+                        else:
+                            display_text = f'{first_line} [...]'
+                    else:
+                        # Single line - show what we can
+                        display_text = first_line
+                    print(f"[{item['seq']}] [META] {display_text}")
                 elif is_slash and slash_cmd:
                     # Show slash command with message if available
                     if text:
@@ -771,14 +782,12 @@ class SessionExplorer:
                     # Show thinking content
                     lines = thinking.split('\n')
                     first_line = lines[0]
-                    if len(first_line) > 50:
-                        first_line = first_line[:47] + '...'
+                    # Don't truncate thinking - it's usually important
                     print(f"[{item['seq']}] ⏺ <thinking> {first_line}")
                 elif tools:
                     # Show tool invocations
                     tool_summary = ', '.join(tools)
-                    if len(tool_summary) > 50:
-                        tool_summary = tool_summary[:47] + '...'
+                    # Show all tools - they're important context
                     print(f"[{item['seq']}] ⏺ [Tools: {tool_summary}]")
                 else:
                     print(f"[{item['seq']}] ⏺ [No content]")
@@ -929,7 +938,7 @@ class SessionExplorer:
                     
                     # Truncate very long single lines
                     if len(param_display) > 80:
-                        param_display = param_display[:77] + '...'
+                        param_display = param_display[:77] + ' [...]'
                     
                     print(f"[{item['seq']}] ⏺ {tool_name}({param_display})")
     
@@ -963,11 +972,18 @@ class SessionExplorer:
                 content = tc['parameters'].get('content', '')
                 if path:
                     print(f"\n[{item['seq']}] {path.split('/')[-1]}")
-                    lines = content.split('\n')[:5]
-                    for line in lines:
-                        print(f"   {line[:60]}...")
-                    if len(content.split('\n')) > 5:
-                        print(f"   ... ({len(content.split('\n'))} total lines)")
+                    lines = content.split('\n')
+                    # Show first few lines with proper truncation
+                    for i, line in enumerate(lines[:5]):
+                        if i == 0 and len(lines) > 1:
+                            # First line of multiline content
+                            print(f"   {line}")
+                        elif i == 4 and len(lines) > 5:
+                            # Last visible line when there's more
+                            print(f"   [...] ({len(lines)} total lines)")
+                            break
+                        else:
+                            print(f"   {line}")
     
     def search_timeline(self, pattern, case_sensitive=False):
         """Full text search across all timeline content.
