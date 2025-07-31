@@ -889,13 +889,26 @@ class SessionExplorer:
                         if not param_str and params:
                             param_str = str(list(params.values())[0])
                     
-                    # Ensure single line in compact mode - replace newlines with spaces
-                    param_str = param_str.replace('\n', ' ').replace('\r', ' ')
-                    # Truncate if too long
-                    if len(param_str) > 60:
-                        param_str = param_str[:57] + '...'
+                    # Handle multiline parameters consistently with other displays
+                    lines = param_str.split('\n')
+                    first_line = lines[0].strip()
                     
-                    print(f"[{item['seq']}] ⏺ {tool_name}({param_str})")
+                    if len(lines) > 1:
+                        # Show first [...] last pattern like other multiline content
+                        last_line = lines[-1].strip()
+                        if last_line and last_line != first_line:
+                            param_display = f'{first_line} [...] {last_line}'
+                        else:
+                            param_display = f'{first_line} [...]'
+                    else:
+                        # Single line - just use it
+                        param_display = first_line
+                    
+                    # Truncate very long single lines
+                    if len(param_display) > 80:
+                        param_display = param_display[:77] + '...'
+                    
+                    print(f"[{item['seq']}] ⏺ {tool_name}({param_display})")
     
     def show_file_changes(self):
         """Show all file modifications grouped by file."""
