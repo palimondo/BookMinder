@@ -80,24 +80,31 @@ class SessionExplorer:
         self.jsonl_file = jsonl_file
         self.tool_calls = []
         self.messages = []
+        self.raw_objects = []  # Store original JSONL objects
         self._parse_session()
     
     def _parse_session(self):
         """Parse the session file."""
         
         for obj in parse_jsonl_objects(self.jsonl_file):
+            # Store the raw object with its index
+            obj_index = len(self.raw_objects)
+            self.raw_objects.append(obj)
             if obj.get('type') == 'assistant' and 'message' in obj:
                 message = obj.get('message', {})
                 content = message.get('content', [])
                 
                 assistant_text = []
                 tool_uses = []
+                thinking_text = []
                 
                 if isinstance(content, list):
                     for item in content:
                         if isinstance(item, dict):
                             if item.get('type') == 'text':
                                 assistant_text.append(item.get('text', ''))
+                            elif item.get('type') == 'thinking':
+                                thinking_text.append(item.get('thinking', ''))
                             elif item.get('type') == 'tool_use':
                                 tool_name = item.get('name', '')
                                 tool_uses.append(tool_name)
@@ -108,12 +115,14 @@ class SessionExplorer:
                                     'timestamp': obj.get('timestamp')
                                 })
                 
-                if assistant_text or tool_uses:
+                if assistant_text or tool_uses or thinking_text:
                     self.messages.append({
                         'type': 'assistant',
                         'text': '\n'.join(assistant_text) if assistant_text else None,
+                        'thinking': '\n'.join(thinking_text) if thinking_text else None,
                         'tools': tool_uses,
-                        'timestamp': obj.get('timestamp')
+                        'timestamp': obj.get('timestamp'),
+                        'raw_index': obj_index  # Link to raw object
                     })
             
             elif obj.get('type') == 'user':
@@ -157,7 +166,8 @@ class SessionExplorer:
                     'is_slash_command': is_slash_command,
                     'slash_command': slash_command,
                     'is_meta': is_meta,
-                    'timestamp': obj.get('timestamp', '')
+                    'timestamp': obj.get('timestamp', ''),
+                    'raw_index': obj_index  # Link to raw object
                 })
         
         self._build_timeline()
@@ -174,6 +184,11 @@ class SessionExplorer:
         """
         if not text:
             return ""
+        
+        # Handle both string and list inputs
+        if isinstance(text, list):
+            # Join list items as they would appear in output
+            text = '\n'.join(str(item) for item in text)
             
         lines = text.split('\n')
         if len(lines) <= max_lines:
@@ -195,7 +210,8 @@ class SessionExplorer:
                 'type': 'message',
                 'subtype': msg['type'],  # 'user' or 'assistant'
                 'data': msg,
-                'timestamp': msg.get('timestamp')
+                'timestamp': msg.get('timestamp'),
+                'raw_index': msg.get('raw_index')  # Preserve link to raw object
             })
             msg_index += 1
         
@@ -493,26 +509,24 @@ class SessionExplorer:
         if json_output or jsonl_output:
             json_items = []
             for item in filtered_items:
-                json_item = {
-                    'seq': item['seq'],
-                    'type': item['type'],
-                    'timestamp': item.get('timestamp')
-                }
-                if item['type'] == 'message':
-                    msg = item['data']
-                    json_item['message'] = {
-                        'type': msg['type'],
-                        'text': msg.get('text'),
-                        'tool_results': msg.get('tool_results'),
-                        'is_slash_command': msg.get('is_slash_command'),
-                        'slash_command': msg.get('slash_command')
+                # Get the raw JSONL object if available
+                raw_index = item.get('raw_index')
+                if raw_index is not None and raw_index < len(self.raw_objects):
+                    # Output the original JSONL object
+                    json_item = self.raw_objects[raw_index]
+                else:
+                    # Fallback to timeline structure for tool events (they don't have raw objects)
+                    json_item = {
+                        'seq': item['seq'],
+                        'type': item['type'],
+                        'timestamp': item.get('timestamp')
                     }
-                elif item['type'] == 'tool':
-                    tc = item['data']
-                    json_item['tool'] = {
-                        'name': tc['name'],
-                        'parameters': tc.get('parameters', {})
-                    }
+                    if item['type'] == 'tool':
+                        tc = item['data']
+                        json_item['tool'] = {
+                            'name': tc['name'],
+                            'parameters': tc.get('parameters', {})
+                        }
                 
                 if jsonl_output:
                     json.dump(json_item, sys.stdout)
@@ -624,12 +638,28 @@ class SessionExplorer:
             elif msg['type'] == 'assistant' and display_mode in ['truncated', 'full']:
                 # Assistant messages in truncated/full mode
                 text = msg.get('text', '')
+                thinking = msg.get('thinking', '')
                 tools = msg.get('tools', [])
                 
                 if text:
                     # Show full assistant text
                     prefix = f"[{item['seq']}] " if show_numbers or display_mode == 'full' else ""
-                    print(f"{prefix}⏺ {text}\n")
+                    if display_mode == 'full':
+                        print(f"{prefix}⏺ {text}\n")
+                    else:  # truncated
+                        truncated = self._format_truncated_output(text, 3)
+                        for line in truncated.split('\n'):
+                            print(f"{prefix}⏺ {line}")
+                        print()
+                elif thinking:
+                    prefix = f"[{item['seq']}] " if show_numbers or display_mode == 'full' else ""
+                    if display_mode == 'full':
+                        # Show full thinking in full mode
+                        print(f"{prefix}⏺ <thinking>\n{thinking}\n</thinking>\n")
+                    else:  # truncated
+                        # Show abbreviated thinking in truncated mode
+                        truncated = self._format_truncated_output(thinking, 1)
+                        print(f"{prefix}⏺ <thinking> {truncated}\n")
                 # Tool uses are handled separately as 'tool' items
                 
             elif msg['type'] == 'user':
@@ -639,13 +669,8 @@ class SessionExplorer:
                 slash_cmd = msg.get('slash_command', '')
                 is_meta = msg.get('is_meta', False)
                 
-                if tool_results and tool_results[0].get('content', ''):
-                    content = tool_results[0].get('content', '')
-                    if any(phrase in content for phrase in [
-                        "Todos have been modified successfully",
-"completed successfully"
-                    ]):
-                        return
+                # Don't display todo success messages in compact mode
+                # (They're noisy and not useful)
                 
                 if is_meta and text.startswith('Caveat:'):
                     # Show caveat message (meta)
@@ -675,11 +700,11 @@ class SessionExplorer:
                     
                     if isinstance(content, list):
                         texts = []
-                        for item in content:
-                            if isinstance(item, dict) and 'text' in item:
-                                texts.append(item['text'])
+                        for content_item in content:
+                            if isinstance(content_item, dict) and 'text' in content_item:
+                                texts.append(content_item['text'])
                             else:
-                                texts.append(str(item))
+                                texts.append(str(content_item))
                         content = '\n'.join(texts)
                     elif isinstance(content, dict):
                         content = content.get('text', str(content))
@@ -704,6 +729,7 @@ class SessionExplorer:
             elif msg['type'] == 'assistant':
                 # Show assistant text or tool usage
                 text = msg.get('text', '')
+                thinking = msg.get('thinking', '')
                 tools = msg.get('tools', [])
                 if text:
                     lines = text.split('\n')
@@ -718,8 +744,19 @@ class SessionExplorer:
                     else:
                         multiline = ''
                     print(f"[{item['seq']}] ⏺ {first_line}{multiline}")
+                elif thinking:
+                    # Show thinking content
+                    lines = thinking.split('\n')
+                    first_line = lines[0]
+                    if len(first_line) > 50:
+                        first_line = first_line[:47] + '...'
+                    print(f"[{item['seq']}] ⏺ <thinking> {first_line}")
                 elif tools:
-                    pass
+                    # Show tool invocations
+                    tool_summary = ', '.join(tools)
+                    if len(tool_summary) > 50:
+                        tool_summary = tool_summary[:47] + '...'
+                    print(f"[{item['seq']}] ⏺ [Tools: {tool_summary}]")
                 else:
                     print(f"[{item['seq']}] ⏺ [No content]")
         
@@ -852,6 +889,12 @@ class SessionExplorer:
                         if not param_str and params:
                             param_str = str(list(params.values())[0])
                     
+                    # Ensure single line in compact mode - replace newlines with spaces
+                    param_str = param_str.replace('\n', ' ').replace('\r', ' ')
+                    # Truncate if too long
+                    if len(param_str) > 60:
+                        param_str = param_str[:57] + '...'
+                    
                     print(f"[{item['seq']}] ⏺ {tool_name}({param_str})")
     
     def show_file_changes(self):
@@ -940,19 +983,46 @@ class SessionExplorer:
     
     
     def export_range(self, start, end, output_file, include_filters=None, exclude_filters=None):
-        """Export a range of tool calls with optional Tool(glob) filtering."""
-        selected = self.tool_calls[start-1:end]
+        """Export a range of events from timeline with optional filtering."""
+        # Build full timeline
+        timeline = self._build_timeline()
         
-        if include_filters or exclude_filters:
-            selected = self._apply_filters(selected, include_filters, exclude_filters)
+        # Create indices list for the specified range
+        indices = list(range(start, end + 1))
+        
+        # Get filtered items using the same logic as show_timeline_with_filters
+        include_list = include_filters if include_filters else None
+        exclude_list = exclude_filters if exclude_filters else None
+        
+        filtered_items = self.filter_timeline(indices, include_list, exclude_list, 
+                                            include_tool_results=True)
+        
+        # Export raw JSONL objects
+        json_items = []
+        for item in filtered_items:
+            raw_index = item.get('raw_index')
+            if raw_index is not None and raw_index < len(self.raw_objects):
+                # Output the original JSONL object
+                json_items.append(self.raw_objects[raw_index])
+            else:
+                # For tool results (which don't have raw objects), create a minimal representation
+                if item['type'] == 'tool':
+                    tc = item['data']
+                    json_item = {
+                        'type': 'tool',
+                        'name': tc['name'],
+                        'parameters': tc.get('parameters', {}),
+                        'timestamp': item.get('timestamp')
+                    }
+                    json_items.append(json_item)
         
         if output_file == '-':
-            json.dump(selected, sys.stdout, indent=2)
+            json.dump(json_items, sys.stdout, indent=2)
             sys.stdout.write('\n')
         else:
             with open(output_file, 'w') as f:
-                json.dump(selected, f, indent=2)
-            print(f"\nExported {len(selected)} tool calls to {output_file}")
+                json.dump(json_items, f, indent=2)
+            print(f"\nExported {len(json_items)} events to {output_file}")
     
     def _parse_filter(self, filter_str):
         """Parse filter string supporting both tools and virtual entities.
@@ -1293,6 +1363,13 @@ def main():
             display_mode = 'truncated'
         elif args.full:
             display_mode = 'full'
+        
+        # Handle context arguments
+        before_context = args.before_context or 0
+        after_context = args.after_context or 0
+        if args.context:
+            before_context = args.context
+            after_context = args.context
             
         if args.indices:
             try:
