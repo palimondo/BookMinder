@@ -1,0 +1,5 @@
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Write", "id": "tool_1", "input": {"file_path": "/test/new_file.py", "content": "print('hello')"}}]}, "timestamp": "2025-07-30T10:00:00.000Z"}
+{"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": "tool_1", "content": "File created successfully"}]}, "timestamp": "2025-07-30T10:00:01.000Z"}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Edit", "id": "tool_2", "input": {"file_path": "/test/existing.py", "old_string": "foo", "new_string": "bar"}}]}, "timestamp": "2025-07-30T10:00:02.000Z"}
+{"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": "tool_2", "content": "File edited successfully"}]}, "timestamp": "2025-07-30T10:00:03.000Z"}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Write", "id": "tool_3", "input": {"file_path": "/test/another.txt", "content": "test content"}}]}, "timestamp": "2025-07-30T10:00:04.000Z"}
