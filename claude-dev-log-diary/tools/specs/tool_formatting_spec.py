@@ -47,8 +47,8 @@ def create_session_with_tool(tool_name, tool_input):
 class describe_edit_tool_formatting:
     """Test Edit tool display format."""
     
-    def it_shows_arrow_and_filename(self):
-        """Edit should show → symbol and filename."""
+    def it_shows_parenthesis_format(self):
+        """Edit should show Edit(filename) format."""
         session_file = create_session_with_tool("Edit", {
             "file_path": "/path/to/file.py",
             "old_string": "foo",
@@ -57,7 +57,7 @@ class describe_edit_tool_formatting:
         
         try:
             stdout, _ = run_explore_session([session_file, '-t'])
-            assert 'Edit: → /path/to/file.py' in stdout
+            assert 'Edit(/path/to/file.py)' in stdout
         finally:
             Path(session_file).unlink()
     
@@ -72,7 +72,7 @@ class describe_edit_tool_formatting:
         try:
             stdout, _ = run_explore_session([session_file, '-t'])
             # Just verify the basic format is correct
-            assert 'Edit: → /test.py' in stdout
+            assert 'Edit(/test.py)' in stdout
             # The multiline edit display feature may not be implemented yet
         finally:
             Path(session_file).unlink()
@@ -81,15 +81,15 @@ class describe_edit_tool_formatting:
 class describe_bash_tool_formatting:
     """Test Bash tool display format."""
     
-    def it_shows_dollar_and_command(self):
-        """Bash should show $ symbol and command."""
+    def it_shows_parenthesis_format(self):
+        """Bash should show Bash(command) format."""
         session_file = create_session_with_tool("Bash", {
             "command": "git status"
         })
         
         try:
             stdout, _ = run_explore_session([session_file, '-t'])
-            assert 'Bash: $ git status' in stdout
+            assert 'Bash(git status)' in stdout
         finally:
             Path(session_file).unlink()
 
@@ -97,15 +97,15 @@ class describe_bash_tool_formatting:
 class describe_read_tool_formatting:
     """Test Read tool display format."""
     
-    def it_shows_arrow_and_filename(self):
-        """Read should show ← symbol and filename."""
+    def it_shows_parenthesis_format(self):
+        """Read should show Read(filename) format."""
         session_file = create_session_with_tool("Read", {
             "file_path": "/path/to/file.py"
         })
         
         try:
             stdout, _ = run_explore_session([session_file, '-t'])
-            assert 'Read: ← /path/to/file.py' in stdout
+            assert 'Read(/path/to/file.py)' in stdout
         finally:
             Path(session_file).unlink()
 

@@ -675,11 +675,19 @@ class SessionExplorer:
                     prefix = f"[{item['seq']}] " if show_numbers or display_mode == 'full' else ""
                     if display_mode == 'full':
                         # Show full thinking in full mode
-                        print(f"{prefix}⏺ <thinking>\n{thinking}\n</thinking>\n")
+                        print(f"{prefix}✻ Thinking…\n")
+                        for line in thinking.split('\n'):
+                            print(f"  {line}")
+                        print()
                     else:  # truncated
                         # Show abbreviated thinking in truncated mode
-                        truncated = self._format_truncated_output(thinking, 1)
-                        print(f"{prefix}⏺ <thinking> {truncated}\n")
+                        print(f"{prefix}✻ Thinking…\n")
+                        lines = thinking.split('\n')
+                        # Show first 5-6 lines
+                        for i, line in enumerate(lines[:6]):
+                            print(f"  {line}")
+                        if len(lines) > 6:
+                            print(f"  … +{len(lines) - 6} lines")
                 # Tool uses are handled separately as 'tool' items
                 
             elif msg['type'] == 'user':
@@ -782,8 +790,8 @@ class SessionExplorer:
                     # Show thinking content
                     lines = thinking.split('\n')
                     first_line = lines[0]
-                    # Don't truncate thinking - it's usually important
-                    print(f"[{item['seq']}] ⏺ <thinking> {first_line}")
+                    # Show thinking with star symbol in compact mode
+                    print(f"[{item['seq']}] ✻ Thinking…")
                 elif tools:
                     # Show tool invocations
                     tool_summary = ', '.join(tools)
@@ -884,18 +892,18 @@ class SessionExplorer:
                     query = params.get('query', '')
                     print(f"[{item['seq']}] ⏺ WebSearch: \"{query}\"")
                 elif tool_name == 'Bash':
-                    # Special format for Bash: $ command
+                    # Format like Claude Code: Bash(command)
                     command = params.get('command', '')
                     command = command.split('\n')[0]
-                    print(f"[{item['seq']}] ⏺ Bash: $ {command}")
+                    print(f"[{item['seq']}] ⏺ Bash({command})")
                 elif tool_name in ['Edit', 'Write', 'MultiEdit']:
-                    # Special format for file edits: → filename
+                    # Format like Claude Code: Tool(filename)
                     file_path = params.get('file_path', '')
-                    print(f"[{item['seq']}] ⏺ {tool_name}: → {file_path}")
+                    print(f"[{item['seq']}] ⏺ {tool_name}({file_path})")
                 elif tool_name == 'Read':
-                    # Special format for Read: ← filename
+                    # Format like Claude Code: Read(filename)
                     file_path = params.get('file_path', '')
-                    print(f"[{item['seq']}] ⏺ Read: ← {file_path}")
+                    print(f"[{item['seq']}] ⏺ Read({file_path})")
                 else:
                     param_str = ""
                     if 'command' in params:

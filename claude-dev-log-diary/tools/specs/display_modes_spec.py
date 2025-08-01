@@ -32,7 +32,7 @@ class describe_compact_mode:
         assert returncode == 0
         
         # Check specific compact format
-        assert '[1] ⏺ <thinking>' in stdout
+        assert '[1] ✻ Thinking…' in stdout
         assert '[2] ⏺ I\'ll help you test this feature.' in stdout
         assert '[3] ⏺ [Tools: TodoWrite]' in stdout
         assert '[4] ⏺ TodoWrite: Updated 1 todos (1 pending)' in stdout
@@ -71,8 +71,8 @@ class describe_truncated_mode:
         
         assert returncode == 0
         
-        # Should show ⏺ symbols for assistant messages
-        assert '⏺ <thinking>' in stdout
+        # Should show ✻ symbol for thinking
+        assert '✻ Thinking…' in stdout
         assert '⏺ I\'ll help you test this feature.' in stdout
         
         # Should show tool names
@@ -117,10 +117,10 @@ class describe_special_content_types:
     """Test display of special content types."""
     
     def it_displays_thinking_content(self):
-        """Thinking content should be displayed with <thinking> prefix."""
+        """Thinking content should be displayed with ✻ Thinking… in compact mode."""
         stdout, returncode = run_explore_session(['specs/fixtures/minimal_session.jsonl', '-t'])
         
-        assert '<thinking> The user wants me to test something' in stdout
+        assert '✻ Thinking…' in stdout
     
     def it_displays_tool_only_messages(self):
         """Assistant messages with only tools should show tool names."""
