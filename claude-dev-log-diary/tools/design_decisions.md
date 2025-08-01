@@ -56,19 +56,42 @@ This document explains the rationale behind various formatting and design choice
 
 ### Compact Mode (Default)
 **Decision**: One line per event with essential information
+**Format Decisions**:
+- Thinking blocks: `[N] ✻ Thinking…` (not `⏺ <thinking>`)
+- Slash commands: `[N] > /command` (no "is running..." status)
+- Tool allowance: Omitted (not a separate event in transcript)
+- Local bash: `[N] ! command` (not `> <bash-input>`)
+
 **Rationale**:
 - Maximum information density for scanning
 - Fits more events on screen
 - Good for getting overview of session
 - Similar to git log --oneline
+- One line per event (no non-event lines)
 
 ### Truncated Mode
-**Decision**: Show first 3 lines of output with "… +N lines"
+**Decision**: Replicate Claude Code console output exactly (minus interactive elements)
+**Format Specifications**:
+- Remove interactive hints like "(ctrl+r to expand)"
+- Use exact Claude Code formatting for all elements:
+  - Thinking: `✻ Thinking…` on separate line with 2-space indented content
+  - Tools: `⏺ Bash(command)` not `⏺ Bash: $ command`
+  - Slash commands: Single `/` not `//`
+  - Local bash: `!` prefix not `> <bash-input>`
+- Show first 3-6 lines before truncating with "… +N lines"
+- Event numbers: Only show when filtering (to indicate discontinuous fragments)
+
+**Discontinuous Sections**:
+- When filtering or using context (-A/-B/-C), use separators between non-contiguous sections
+- Precedent: grep uses `--` separator, git diff uses `@@` markers
+- Implemented: `--` separator (like grep) between gaps
+- Provides clear visual indication of missing events
+
 **Rationale**:
 - Matches Claude Code's default console display
-- 3 lines usually enough to identify content
-- "… +N lines" clearly indicates more content
-- Removed "(ctrl+r to expand)" as it's not interactive
+- Preserves formatting fidelity for documentation/debugging
+- Separators clarify when viewing filtered/partial results
+- Event numbers only when needed to show gaps
 
 ### Full Mode
 **Decision**: Complete output without truncation

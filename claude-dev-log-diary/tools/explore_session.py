@@ -564,7 +564,7 @@ class SessionExplorer:
             for item in filtered_items:
                 # Add visual separator for gaps in sequence
                 if prev_seq is not None and item['seq'] > prev_seq + 1:
-                    print()  # Empty line to show gap
+                    print("--")  # Separator like grep
                 self._display_timeline_item(item, display_mode, show_numbers)
                 prev_seq = item['seq']
     
@@ -593,7 +593,7 @@ class SessionExplorer:
         for item in filtered_items:
             # Add visual separator for gaps in sequence
             if prev_seq is not None and item['seq'] > prev_seq + 1:
-                print()  # Empty line to show gap
+                print("--")  # Separator like grep
             self._display_timeline_item(item, display_mode, show_numbers)
             prev_seq = item['seq']
     
