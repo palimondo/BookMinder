@@ -175,6 +175,25 @@ This document explains the rationale behind various formatting and design choice
 - Reduces typing (no --range flag needed)
 - Flexible positioning after other options
 
+### Argument Ordering
+**Decision**: Options should come before positional arguments
+**Working**: `explore_session.py -U -a -x Tool session.jsonl +14`
+**Not working**: `explore_session.py session.jsonl -U -a -x Tool +14`
+
+**Rationale**:
+- Standard argparse behavior: once a positional argument is encountered, subsequent arguments are treated as positional
+- Options (flags) should precede positional arguments to avoid parsing ambiguity
+- Pattern: `command [options] session [ranges]`
+
+### Range Filtering Order
+**Decision**: When indices (like +14) are provided, they select from the full timeline first, then apply filters
+**Example**: `+14 -U` means "take first 14 items, then show only User messages from those"
+
+**Rationale**:
+- Predictable behavior: ranges always refer to absolute timeline positions
+- Allows precise selection of timeline segments before filtering
+- Consistent with how array slicing works in programming
+
 ### Shortcut Flags
 **Decision**: Provide -M/-U/-a/-T shortcuts for common filters
 **Rationale**:
