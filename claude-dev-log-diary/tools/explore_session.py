@@ -618,13 +618,44 @@ class SessionExplorer:
                 prefix = f"[{item['seq']}] " if show_numbers or display_mode == 'full' else ""
                 if is_slash and slash_cmd:
                     if text:
-                        print(f"{prefix}> /{slash_cmd}: {text}")
+                        print(f"{prefix}> /{slash_cmd} {text}")
                     else:
                         print(f"{prefix}> /{slash_cmd}")
                 elif text == '[Interrupted by user]':
                     print(f"{prefix}> [Request interrupted by user]")
                 elif text and not tool_results:
-                    print(f"{prefix}> {text}")
+                    # Check for bash command tags in truncated mode
+                    if '<bash-input>' in text:
+                        # Extract bash command
+                        bash_match = re.search(r'<bash-input>([^<]+)</bash-input>', text)
+                        if bash_match:
+                            command = bash_match.group(1)
+                            print(f"{prefix}! {command}")
+                    elif '<bash-stdout>' in text or '<bash-stderr>' in text:
+                        # Extract bash output
+                        stdout_match = re.search(r'<bash-stdout>([^<]*)</bash-stdout>', text)
+                        stderr_match = re.search(r'<bash-stderr>([^<]*)</bash-stderr>', text)
+                        
+                        output_parts = []
+                        if stdout_match and stdout_match.group(1):
+                            output_parts.append(stdout_match.group(1))
+                        if stderr_match and stderr_match.group(1):
+                            output_parts.append(stderr_match.group(1))
+                        
+                        if output_parts:
+                            output = '\n'.join(output_parts)
+                            # Show indented output with proper prefix alignment
+                            indent = "  " if not prefix else " " * len(prefix) + "  "
+                            first = True
+                            for line in output.split('\n'):
+                                if line.strip():
+                                    if first:
+                                        print(f"{indent}⎿  {line}")
+                                        first = False
+                                    else:
+                                        print(f"{indent}   {line}")
+                    else:
+                        print(f"{prefix}> {text}")
                 elif tool_results:
                     for result in tool_results:
                         content = result.get('content', '')
@@ -717,26 +748,52 @@ class SessionExplorer:
                 elif is_slash and slash_cmd:
                     # Show slash command with message if available
                     if text:
-                        print(f"[{item['seq']}] > /{slash_cmd}: {text}")
+                        print(f"[{item['seq']}] > /{slash_cmd} {text}")
                     else:
                         print(f"[{item['seq']}] > /{slash_cmd}")
                 elif text == '[Interrupted by user]':
                     # Show interrupted request (no prefix - it's a protocol message)
                     print(f"[{item['seq']}] [Interrupted by user]")
                 elif text:
-                    # Show full first line of user message
-                    lines = text.split('\n')
-                    first_line = lines[0]
-                    if len(lines) > 1:
-                        # Show last line too for context
-                        last_line = lines[-1].strip()
-                        if last_line and last_line != first_line:
-                            multiline = f' [...] {last_line}'
-                        else:
-                            multiline = ' [...]'
+                    # Check for bash command tags
+                    if '<bash-input>' in text:
+                        # Extract bash command
+                        bash_match = re.search(r'<bash-input>([^<]+)</bash-input>', text)
+                        if bash_match:
+                            command = bash_match.group(1)
+                            print(f"[{item['seq']}] ! {command}")
+                    elif '<bash-stdout>' in text or '<bash-stderr>' in text:
+                        # Extract bash output
+                        stdout_match = re.search(r'<bash-stdout>([^<]*)</bash-stdout>', text)
+                        stderr_match = re.search(r'<bash-stderr>([^<]*)</bash-stderr>', text)
+                        
+                        output_parts = []
+                        if stdout_match and stdout_match.group(1):
+                            output_parts.append(stdout_match.group(1))
+                        if stderr_match and stderr_match.group(1):
+                            output_parts.append(stderr_match.group(1))
+                        
+                        if output_parts:
+                            output = '\n'.join(output_parts)
+                            # Show indented output
+                            for line in output.split('\n'):
+                                if line.strip():
+                                    print(f"  ⎿  {line}")
+                        # Skip empty output
                     else:
-                        multiline = ''
-                    print(f"[{item['seq']}] > {first_line}{multiline}")
+                        # Show full first line of user message
+                        lines = text.split('\n')
+                        first_line = lines[0]
+                        if len(lines) > 1:
+                            # Show last line too for context
+                            last_line = lines[-1].strip()
+                            if last_line and last_line != first_line:
+                                multiline = f' [...] {last_line}'
+                            else:
+                                multiline = ' [...]'
+                        else:
+                            multiline = ''
+                        print(f"[{item['seq']}] > {first_line}{multiline}")
                 elif tool_results:
                     content = tool_results[0].get('content', '')
                     
