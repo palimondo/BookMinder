@@ -844,11 +844,21 @@ class SessionExplorer:
                         multiline = ''
                     print(f"[{item['seq']}] ⏺ {first_line}{multiline}")
                 elif thinking:
-                    # Show thinking content
+                    # Show thinking content with first [...] last pattern
                     lines = thinking.split('\n')
                     first_line = lines[0]
-                    # Show thinking with star symbol in compact mode
-                    print(f"[{item['seq']}] ✻ Thinking…")
+                    
+                    if len(lines) > 1:
+                        # Show last line too for context
+                        last_line = lines[-1].strip()
+                        if last_line and last_line != first_line:
+                            display_text = f'{first_line} [...] {last_line}'
+                        else:
+                            display_text = f'{first_line} [...]'
+                    else:
+                        display_text = first_line
+                    
+                    print(f"[{item['seq']}] ✻ Thinking… {display_text}")
                 elif tools:
                     # Show tool invocations
                     tool_summary = ', '.join(tools)

@@ -31,8 +31,8 @@ class describe_compact_mode:
         
         assert returncode == 0
         
-        # Check specific compact format
-        assert '[1] ✻ Thinking…' in stdout
+        # Check specific compact format - thinking shows first [...] last pattern
+        assert '[1] ✻ Thinking… The user wants me to test something' in stdout
         assert '[2] ⏺ I\'ll help you test this feature.' in stdout
         assert '[3] ⏺ [Tools: TodoWrite]' in stdout
         assert '[4] ⏺ TodoWrite: Updated 1 todos (1 pending)' in stdout
@@ -117,10 +117,10 @@ class describe_special_content_types:
     """Test display of special content types."""
     
     def it_displays_thinking_content(self):
-        """Thinking content should be displayed with ✻ Thinking… in compact mode."""
+        """Thinking content should be displayed with ✻ Thinking… and content in compact mode."""
         stdout, returncode = run_explore_session(['specs/fixtures/minimal_session.jsonl', '-t'])
         
-        assert '✻ Thinking…' in stdout
+        assert '✻ Thinking… The user wants me to test something' in stdout
     
     def it_displays_tool_only_messages(self):
         """Assistant messages with only tools should show tool names."""

@@ -57,10 +57,11 @@ This document explains the rationale behind various formatting and design choice
 ### Compact Mode (Default)
 **Decision**: One line per event with essential information
 **Format Decisions**:
-- Thinking blocks: `[N] ✻ Thinking…` (not `⏺ <thinking>`)
+- Thinking blocks: `[N] ✻ Thinking… first line [...] last line`
 - Slash commands: `[N] > /command` (no "is running..." status)
 - Tool allowance: Omitted (not a separate event in transcript)
 - Local bash: `[N] ! command` (not `> <bash-input>`)
+- Multiline content: Show first and last line with [...] separator
 
 **Rationale**:
 - Maximum information density for scanning
