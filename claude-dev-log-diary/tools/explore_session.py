@@ -10,8 +10,16 @@ import re
 import fnmatch
 from pathlib import Path
 from collections import defaultdict
+import signal
 
 from parse_claude_jsonl import parse_jsonl_objects
+
+# Handle SIGPIPE gracefully when piping to head/tail
+try:
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+except AttributeError:
+    # SIGPIPE doesn't exist on Windows
+    pass
 
 
 def parse_indices(args, total_items):
