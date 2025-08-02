@@ -565,7 +565,7 @@ class SessionExplorer:
                 # Add visual separator for gaps in sequence
                 if prev_seq is not None and item['seq'] > prev_seq + 1:
                     print("--")  # Separator like grep
-                self._display_timeline_item(item, display_mode, show_numbers)
+                self._display_timeline_item(item, display_mode, show_numbers, exclude_list)
                 prev_seq = item['seq']
     
     def show_timeline_indices(self, filter_type='all', indices=None, display_mode='compact'):
@@ -594,16 +594,17 @@ class SessionExplorer:
             # Add visual separator for gaps in sequence
             if prev_seq is not None and item['seq'] > prev_seq + 1:
                 print("--")  # Separator like grep
-            self._display_timeline_item(item, display_mode, show_numbers)
+            self._display_timeline_item(item, display_mode, show_numbers, None)
             prev_seq = item['seq']
     
-    def _display_timeline_item(self, item, display_mode='compact', show_numbers=False):
+    def _display_timeline_item(self, item, display_mode='compact', show_numbers=False, exclude_filters=None):
         """Display a single timeline item based on display mode.
         
         Args:
             item: Timeline item to display
             display_mode: 'compact', 'truncated', or 'full'
             show_numbers: Force showing sequence numbers in truncated mode
+            exclude_filters: List of filters to exclude (e.g., ['Tool'])
         """
         if item['type'] == 'message':
             msg = item['data']
@@ -860,10 +861,15 @@ class SessionExplorer:
                     
                     print(f"[{item['seq']}] ✻ Thinking… {display_text}")
                 elif tools:
-                    # Show tool invocations
-                    tool_summary = ', '.join(tools)
-                    # Show all tools - they're important context
-                    print(f"[{item['seq']}] ⏺ [Tools: {tool_summary}]")
+                    # Check if tools should be excluded
+                    if exclude_filters and 'Tool' in exclude_filters:
+                        # Skip tool announcement when tools are excluded
+                        pass
+                    else:
+                        # Show tool invocations
+                        tool_summary = ', '.join(tools)
+                        # Show all tools - they're important context
+                        print(f"[{item['seq']}] ⏺ [Tools: {tool_summary}]")
                 else:
                     print(f"[{item['seq']}] ⏺ [No content]")
         

@@ -287,6 +287,16 @@ Based on reconstruct.jq analysis, these cases need special handling:
 4. **Multiline Display**: Fixed inconsistent truncation
 5. **Truncation Consistency**: Fixed 60-char truncation to use [...] pattern
 
+## Future Work
+
+### Virtual Session Identifiers
+Add support for special session identifiers to make the tool more intuitive:
+- `now` or `this` - Current active session
+- `latest` - Most recently modified session file
+- Auto-discovery logic to find the appropriate JSONL file
+
+This would enable usage like: `./xs now -S "bug"` to search the current session.
+
 ## Recent Improvements
 
 ### December 2024 Updates
