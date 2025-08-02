@@ -15,7 +15,7 @@ Since there's no PostCompact hook, we use a two-hook system:
 
 ## Installation
 
-Add to your Claude Code settings (`~/.claude/settings.json` or `.claude/settings.json`):
+The hooks are already configured in the project's `.claude/settings.json`:
 
 ```json
 {
@@ -26,7 +26,7 @@ Add to your Claude Code settings (`~/.claude/settings.json` or `.claude/settings
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/claude-dev-log-diary/tools/precompact_flag_hook.py"
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/precompact_flag_hook.py"
           }
         ]
       }
@@ -37,7 +37,7 @@ Add to your Claude Code settings (`~/.claude/settings.json` or `.claude/settings
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/claude-dev-log-diary/tools/pretooluse_context_recovery_hook.py"
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pretooluse_context_recovery_hook.py"
           }
         ]
       }
@@ -46,18 +46,18 @@ Add to your Claude Code settings (`~/.claude/settings.json` or `.claude/settings
 }
 ```
 
+Hook scripts are located in `.claude/hooks/`:
+- `precompact_flag_hook.py` - Sets flag when auto-compaction is imminent
+- `pretooluse_context_recovery_hook.py` - Checks for flag and injects recovery prompt
+
 ## Testing
 
 1. **Manual test of flag system**:
    ```bash
-   # Simulate PreCompact
-   echo '{"trigger": "auto", "session_id": "test123"}' | python precompact_flag_hook.py
+   cd /Users/palimondo/Developer/BookMinder
    
-   # Check flag was created
-   ls -la /tmp/.claude_compaction_*.json
-   
-   # Simulate PreToolUse
-   echo '{"tool": "Bash", "input": {}}' | python pretooluse_context_recovery_hook.py
+   # Run test script
+   python .claude/hooks/test_compaction_hooks.py
    ```
 
 2. **Real test**:

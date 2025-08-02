@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-"""
-PreCompact hook that sets a flag for post-compaction intervention.
-"""
+"""PreCompact hook that sets a flag for post-compaction intervention."""
 import json
 import sys
-import os
 from pathlib import Path
 
+
 # Flag file location - use /tmp with session ID for multi-instance safety
-def get_flag_file(session_id):
+def get_flag_file(session_id: str) -> Path:
     """Get flag file path including session ID."""
     return Path(f"/tmp/.claude_compaction_{session_id[:8]}.json")
 
@@ -30,7 +28,7 @@ if trigger == "auto" and session_id:
         "timestamp": input_data.get("timestamp", "")
     }
     flag_file.write_text(json.dumps(flag_data))
-    
+
     # Log for debugging
     print(f"Set compaction flag at {flag_file}", file=sys.stderr)
 

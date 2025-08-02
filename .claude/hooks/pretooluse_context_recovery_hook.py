@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""
-PreToolUse hook that detects post-compaction state and injects context recovery.
-"""
+"""PreToolUse hook that detects post-compaction state and injects context recovery."""
+import glob
 import json
 import sys
-import glob
 from pathlib import Path
 
 # Flag file pattern - look for any compaction flags
@@ -21,30 +19,31 @@ flag_files = glob.glob(FLAG_PATTERN)
 if flag_files:
     # Process the first flag found (should only be one per session)
     flag_file = Path(flag_files[0])
-    
+
     try:
         flag_data = json.loads(flag_file.read_text())
         session_id = flag_data.get('session_id', 'unknown')
-        
+
         # Delete the flag immediately to prevent repeated triggers
         flag_file.unlink()
-        
+
         # Generate context recovery prompt
         context_prompt = f"""## STOP: Auto-compaction just occurred!
 
 Before rushing into any work, recover context using Task delegation:
 
 ```
-Use Task to analyze session {session_id[:8] if session_id else 'current'} following @claude-dev-log-diary/tools/context_recovery_pattern.md
+Use Task to analyze session {session_id[:8] if session_id else 'current'}
+following @claude-dev-log-diary/tools/context_recovery_pattern.md
 
 Key commands:
-- Timeline overview: xs {session_id[:8]} -t 
+- Timeline overview: xs {session_id[:8]} -t
 - Last todo state: xs {session_id[:8]} -i TodoWrite -C 1 | tail -5
 - Recent decisions: xs {session_id[:8]} -S "decision|approach|should"
 ```
 
 DO NOT proceed with any implementation until context is recovered."""
-        
+
         # Output the prompt
         output = {
             "hookSpecificOutput": {
@@ -55,7 +54,7 @@ DO NOT proceed with any implementation until context is recovered."""
         }
         print(json.dumps(output))
         sys.exit(0)
-        
+
     except Exception as e:
         print(f"Error reading flag file {flag_file}: {e}", file=sys.stderr)
         # Clean up corrupted flag
