@@ -19,7 +19,7 @@ except json.JSONDecodeError as e:
 trigger = input_data.get("trigger", "")
 session_id = input_data.get("session_id", "")
 
-if trigger == "auto" and session_id:
+if trigger in ["auto", "manual"] and session_id:
     # Write flag file with session info
     flag_file = get_flag_file(session_id)
     flag_data = {
