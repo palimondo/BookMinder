@@ -3,11 +3,10 @@
 PostCompact hook for automatic context recovery.
 
 This hook triggers after Claude Code has compacted the conversation.
-It uses the compaction summary to guide context recovery.
+It generates a minimal self-prompt to use Task delegation for context recovery.
 """
 import json
 import sys
-import os
 
 # Read hook input
 try:
@@ -18,46 +17,25 @@ except json.JSONDecodeError as e:
 
 trigger = input_data.get("trigger", "")
 session_id = input_data.get("session_id", "")
-custom_instructions = input_data.get("custom_instructions", "")
+message_index = input_data.get("message_index", "")  # Index where compaction occurred
 
-# For auto-compact, provide context recovery instructions
+# For auto-compact, provide minimal self-prompt
 if trigger == "auto":
-    context_recovery_prompt = """
-## IMPORTANT: Context Recovery Required
+    # Generate minimal self-prompt that instructs Claude to use Task delegation
+    self_prompt = f"""## Auto-compaction detected
 
-The conversation has been auto-compacted due to context limits. To recover critical context:
+Use Task to recover context:
+- Session ID: {session_id[:8] if session_id else 'current'}
+- Compaction point: message {message_index if message_index else 'unknown'}
+- Recovery pattern: @claude-dev-log-diary/tools/context_recovery_pattern.md
 
-1. Use the xs tool to analyze the current session:
-   ```
-   ./xs {session_id} -S "important|critical|TODO|bug|fix"
-   ```
-
-2. Use Task delegation for deep context recovery:
-   ```
-   Task: "Deep context recovery from session {session_id}"
-   ```
-   
-   Follow the pattern in claude-dev-log-diary/tools/context_recovery_pattern.md
-
-3. Check your todo list to understand current work:
-   - Review pending high-priority items
-   - Note what was in_progress before compaction
-
-4. Key areas to investigate:
-   - Recent design decisions
-   - Unresolved bugs or issues
-   - User corrections or redirections
-   - Any "MARK" annotations
-
-Remember: Avoid the post-compaction failure mode of rushing to implementation.
-First understand where you were and what you were doing.
-""".format(session_id=session_id[:8] if session_id else "current")
+Delegate to Task with: xs {session_id} {message_index if message_index else ''}"""
     
-    # Add to context via additionalContext
+    # Return the prompt as additionalContext
     output = {
         "hookSpecificOutput": {
             "hookEventName": "PostCompact",
-            "additionalContext": context_recovery_prompt
+            "additionalContext": self_prompt
         }
     }
     print(json.dumps(output))
