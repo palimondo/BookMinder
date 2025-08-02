@@ -64,9 +64,10 @@ Deep dive into session [ID] to extract full details of design conversations betw
 
 ### Your Mission
 1. **Start by scanning the timeline** to understand the session's flow and structure
-2. **Identify design conversations** - look for patterns where user and assistant discuss approaches, architecture, or implementation strategies
-3. **Extract full details** of these conversations with complete context
-4. **Think carefully between each tool use** about what you've learned and what to explore next
+2. **Check the last todo state** with: `xs session -i TodoWrite -C 1 | tail -5`
+3. **Identify design conversations** - look for patterns where user and assistant discuss approaches, architecture, or implementation strategies
+4. **Extract full details** of these conversations with complete context
+5. **Think carefully between each tool use** about what you've learned and what to explore next
 
 ### Important
 - DO NOT rush to implementation details

@@ -27,9 +27,10 @@ if trigger == "auto":
 Use Task to recover context:
 - Session ID: {session_id[:8] if session_id else 'current'}
 - Compaction point: message {message_index if message_index else 'unknown'}
+- Last todo state: `xs {session_id[:8] if session_id else 'current'} -i TodoWrite -C 1 | tail -5`
 - Recovery pattern: @claude-dev-log-diary/tools/context_recovery_pattern.md
 
-Delegate to Task with: xs {session_id} {message_index if message_index else ''}"""
+Delegate to Task with full session ID and these commands."""
     
     # Return the prompt as additionalContext
     output = {
