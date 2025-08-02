@@ -61,7 +61,7 @@ class describe_after_context:
             
             assert returncode == 0
             # Should show the Read tool (item 6)
-            assert 'Read: ← /target.py' in stdout
+            assert 'Read(/target.py)' in stdout
             # Should show 2 lines after (items 7 and 8)
             assert 'Message 7' in stdout
             assert 'Message 8' in stdout
@@ -98,7 +98,7 @@ class describe_before_context:
             # The Read tool appears as items 6-7, so -B 2 shows item 5
             assert 'Message 5' in stdout
             # Should show the Read tool
-            assert 'Read: ← /target.py' in stdout
+            assert 'Read(/target.py)' in stdout
             # Should NOT show item 4
             assert 'Message 4' not in stdout
         finally:
@@ -118,7 +118,7 @@ class describe_context:
             
             assert returncode == 0
             # Context shows around the matched Read tool events
-            assert 'Read: ← /target.py' in stdout
+            assert 'Read(/target.py)' in stdout
             assert 'Message 7' in stdout  # After context
             # The tool announcement [Tools: Read] is also shown
             assert '[Tools: Read]' in stdout

@@ -115,8 +115,8 @@ class describe_multiline_truncation:
             stdout, returncode = run_explore_session([session_file, '-t'])
             
             assert returncode == 0
-            # In compact mode, Write tool shows as "Write: → /test.py"
-            assert 'Write: → /test.py' in stdout
+            # In compact mode, Write tool shows as "Write(/test.py)"
+            assert 'Write(/test.py)' in stdout
             # For multiline parameters, check with different tools or modes
         finally:
             Path(session_file).unlink()

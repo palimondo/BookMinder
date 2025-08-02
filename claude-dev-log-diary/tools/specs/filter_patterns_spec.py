@@ -136,7 +136,7 @@ class describe_multiple_filters:
             assert 'Write' in stdout
             assert 'Bash' in stdout
             # Should NOT show Read
-            assert 'Read: ←' not in stdout
+            assert 'Read(' not in stdout
         finally:
             Path(session_file).unlink()
 

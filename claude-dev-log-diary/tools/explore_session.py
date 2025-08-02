@@ -1087,6 +1087,18 @@ class SessionExplorer:
                 # Search in tool results
                 for result in msg.get('tool_results', []):
                     content = result.get('content', '')
+                    
+                    # Handle content that might be a list
+                    if isinstance(content, list):
+                        # Convert list to searchable text
+                        text_parts = []
+                        for item in content:
+                            if isinstance(item, dict) and 'text' in item:
+                                text_parts.append(item['text'])
+                            else:
+                                text_parts.append(str(item))
+                        content = '\n'.join(text_parts)
+                    
                     content = content if case_sensitive else content.lower()
                     if search_pattern in content:
                         found = True
