@@ -1,50 +1,66 @@
 # Task Sub-Agent Visibility Findings
 
-## Critical Discovery (2025-08-02)
-**MARKED for deja vu analysis**
+## Critical Update (2025-08-02) - Sidechain Events ARE Visible!
+**IMPORTANT CORRECTION TO PREVIOUS FINDINGS**
 
-### What We Learned
-After rigorous testing comparing the golden output with xs-accessible transcripts, we discovered:
+### What We Initially Thought (INCORRECT)
+We believed sub-agent actions were not visible in JSONL transcripts based on session e583 analysis.
 
-1. **Interactive Claude Code sessions show MORE than JSONL transcripts**
-   - With Ctrl+R in Claude Code, you can see sub-agent's internal tool calls
-   - Example: `find claude-dev-log-diary/ -name "*.jsonl"` visible at line 140 in golden output
-   - This same command is NOT in the JSONL that xs can access
+### What We Actually Discovered (CORRECT)
+After creating characterization tests and checking raw JSONL:
 
-2. **What IS visible in JSONL transcripts:**
-   - Task invocation with parameters
-   - Sub-agent's response/return value
-   - NOT the sub-agent's intermediate steps
+1. **Sidechain events ARE in the JSONL transcripts**
+   - Raw JSONL contains events with `"isSidechain": true`
+   - Session e583 has 130 sidechain events!
+   - These include sub-agent messages and tool calls
 
-3. **Architectural Implications:**
-   - We cannot debug Task failures by examining sub-agent actions
-   - Sub-agents must report their own errors/issues
-   - The `isSidechain: true` flag indicates separate context, not visible actions
+2. **xs DOES show sidechain events**
+   - They appear as regular events in the timeline
+   - No special marking or filtering
+   - All sub-agent actions are visible
 
-## Updated Strategy for Task Delegation
+3. **The Real Issue:**
+   - In session e583, xs showed limited output because:
+     - The Task failed/timed out early
+     - Sub-agent didn't complete its work
+     - NOT because events were hidden
 
-### Prompt Design Must Include:
-1. **Explicit error reporting** - Sub-agents must describe what went wrong
-2. **Command echo for debugging** - Ask them to report commands tried
-3. **Self-contained troubleshooting** - They can't rely on us seeing their work
+4. **Key Finding:**
+   - This is NOT an architectural limitation
+   - Sub-agent visibility works as expected
+   - Our previous analysis was based on incomplete data
 
-### Example Refined Prompt Structure:
-```markdown
-## Debug Requirements
-- Report each command you try with its result
-- If a command fails, include: exact command, error message, what you tried next
-- Do not use fallback tools (find, grep, rg) - only use xs
-```
+## Implications for Task Delegation
 
-## Deja Vu Note
-User mentioned having deja vu about this discovery. Possible that:
-- We discovered this limitation before in a previous session?
-- The pattern of "thinking we can see more than we can" is recurring?
-- Worth searching for previous discussions about Task visibility
+### Good News:
+1. **Full visibility** - We CAN see all sub-agent actions in xs
+2. **Debugging is possible** - Failed Tasks can be analyzed
+3. **No architectural limitations** - System works as designed
+
+### Updated Best Practices:
+1. **Use xs to debug failed Tasks** - All actions are visible
+2. **Look for sidechain events** - They show sub-agent's work
+3. **Check for timeouts** - Tasks may fail due to time limits
+
+### Characterization Test Added:
+Created `specs/sidechain_visibility_spec.py` to document and verify:
+- Sidechain events appear in timeline
+- Summary counts include sidechain actions
+- Search finds content in sidechain events
+
+## User's Critical Intervention
+The user correctly identified this as a potential bug in xs rather than an architectural limitation:
+> "I just want to make sure you are correctly detecting architectural limitation and not a bug in `xs`"
+
+This prompted us to:
+1. Check the raw JSONL file directly
+2. Discover sidechain events DO exist
+3. Create characterization tests
+4. Correct our understanding
 
 ## Testing Methodology
-To verify Task visibility in future:
-1. Compare golden output (Ctrl+R expanded) with xs output
-2. Look for specific tool calls in sub-agent section
-3. Use --json mode to examine raw JSONL structure
-4. Search for `isSidechain` markers
+To verify Task visibility:
+1. Check raw JSONL for `isSidechain` markers: `grep -c '"isSidechain":true' session.jsonl`
+2. Use xs timeline to see all events: `./xs session -t`
+3. Create characterization tests for edge cases
+4. Don't assume limitations - verify with data
