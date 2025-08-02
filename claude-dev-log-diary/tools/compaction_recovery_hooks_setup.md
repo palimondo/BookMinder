@@ -1,5 +1,15 @@
 # Compaction Recovery Hooks Setup
 
+## Status: [WIP] - Not Fully Tested
+
+**Note**: The context recovery system is still experimental and needs real-world testing.
+
+### Current Limitations
+- The `--tail` functionality doesn't exist yet, so finding "last compaction" requires manual steps
+- Sub-agent must manually find the last occurrence from search results
+- Commands assume `./xs` is accessible from the current directory
+- Not tested with actual auto-compaction event
+
 ## Problem Solved
 
 After auto-compaction, Claude often rushes into wrong work, especially in "auto-accept edits" mode. This two-hook system prevents that by injecting context recovery instructions after compaction.

@@ -61,13 +61,21 @@ Begin with timeline scanning to understand structure before diving into specific
 
 ```
 Deep dive into session [ID] to extract full details of design conversations between user and assistant.
+Note: Session IDs can be abbreviated to their first 4-8 characters (e.g., e583 instead of e5837401-4f84-46e0-932f-eead7c00c678).
 
 ### Your Mission
-1. **Start by scanning the timeline** to understand the session's flow and structure
-2. **Check the last todo state** with: `xs session -i TodoWrite -C 1 | tail -5`
-3. **Identify design conversations** - look for patterns where user and assistant discuss approaches, architecture, or implementation strategies
-4. **Extract full details** of these conversations with complete context
-5. **Think carefully between each tool use** about what you've learned and what to explore next
+1. **Find the compaction summary**:
+   - Search: `./xs session -S "This session is being continued"`
+   - Note the LAST event number (e.g., [1164])
+   - Read it in full: `./xs session 1164 --full`
+   - This contains the entire pre-compaction context summary
+2. **Start by scanning the timeline** to understand the session's flow and structure
+3. **Check the last todo state**: 
+   - List all: `./xs session -i TodoWrite`
+   - Read the last one in full using its event number
+4. **Identify design conversations** - look for patterns where user and assistant discuss approaches, architecture, or implementation strategies
+5. **Extract full details** of these conversations with complete context
+6. **Think carefully between each tool use** about what you've learned and what to explore next
 
 ### Important
 - DO NOT rush to implementation details

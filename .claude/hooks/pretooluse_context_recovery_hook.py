@@ -37,9 +37,10 @@ Use Task to analyze session {session_id[:8] if session_id else 'current'}
 following @claude-dev-log-diary/tools/context_recovery_pattern.md
 
 Key commands:
-- Timeline overview: xs {session_id[:8]} -t
-- Last todo state: xs {session_id[:8]} -i TodoWrite -C 1 | tail -5
-- Recent decisions: xs {session_id[:8]} -S "decision|approach|should"
+- Find all compactions: ./xs {session_id[:8]} -S "This session is being continued"
+- Get the last one's event number and use: ./xs {session_id[:8]} <event_number> --full
+- Last todo: ./xs {session_id[:8]} -i TodoWrite (check the last entry)
+- Recent decisions: ./xs {session_id[:8]} -S "decision|approach|should"
 ```
 
 DO NOT proceed with any implementation until context is recovered."""
