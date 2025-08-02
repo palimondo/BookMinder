@@ -79,7 +79,7 @@ class describe_search_with_list_content:
             Path(session_file).unlink()
     
     def it_handles_search_with_double_dash_pattern(self):
-        """Search should handle patterns with -- like '--conversation'."""
+        """Search for patterns starting with -- requires = syntax."""
         # Create a simple session
         with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
             msg = {
@@ -94,14 +94,23 @@ class describe_search_with_list_content:
             session_file = f.name
         
         try:
-            # This might fail with argument parsing error
+            # Use --search=pattern syntax to avoid argparse interpretation
             stdout, stderr, returncode = run_explore_session(
-                [session_file, '-S', '--conversation'],
+                [session_file, '--search=--conversation'],
                 capture_stderr=True
             )
             
             assert returncode == 0, f"Search failed: {stderr}"
             assert 'Found 1 match' in stdout
+            
+            # Also test with -S= syntax
+            stdout2, stderr2, returncode2 = run_explore_session(
+                [session_file, '-S=--conversation'],
+                capture_stderr=True
+            )
+            
+            assert returncode2 == 0, f"Search with -S= failed: {stderr2}"
+            assert 'Found 1 match' in stdout2
             
         finally:
             Path(session_file).unlink()

@@ -1391,7 +1391,7 @@ def main():
     parser.add_argument('-g', '--git', action='store_true', help='Show git operations')
     parser.add_argument('-f', '--files', action='store_true', help='Show file changes (summary of edits per file)')
     parser.add_argument('-c', '--created', action='store_true', help='Show created files')
-    parser.add_argument('-S', '--search', help='Full text search across all content (simple substring match)')
+    parser.add_argument('-S', '--search', help='Full text search across all content (simple substring match). For patterns starting with --, use -S=pattern or --search=pattern')
     parser.add_argument('--export-json', nargs=2, metavar=('RANGE', 'OUTPUT'), 
                         help='Export tool calls in RANGE as JSON to FILE. RANGE can be: 5 (single), 1-50 (range), +10 (first 10), -20 (last 20)')
     parser.add_argument('--json', action='store_true',
