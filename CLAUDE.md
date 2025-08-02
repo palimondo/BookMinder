@@ -170,6 +170,20 @@ Before committing, verify:
 - Batch related tool calls where possible
 - Monitor token usage during development
 - Maintain TODO.md as a living document of progress and priorities
+
+### Context Recovery with xs Tool
+The project includes `xs` (explore_session), a powerful meta-analysis tool for examining Claude session transcripts:
+- **Location**: Symlinked at project root as `./xs` (actual script in `claude-dev-log-diary/tools/`)
+- **Purpose**: Enables interrogation of past sessions to recover context and understand project evolution
+- **Key uses**:
+  - `./xs [session-id]` - Show session summary with tool usage statistics
+  - `./xs [session-id] -t` - Show full timeline in compact format
+  - `./xs [session-id] -S "search term"` - Search within a session
+  - `./xs [session-id] -M -x Tool` - Show only conversation (no tools)
+  - `./xs [session-id] --git` - Show git operations
+  - `./xs [session-id] --files` - Show file modifications
+- **Context recovery pattern**: Use Task delegation with the documented pattern in `claude-dev-log-diary/tools/context_recovery_pattern.md`
+- **Citation format**: `[session:seq]` (e.g., `[e583:247]`) enables precise navigation to specific events
 </session_workflow>
 
 <backlog_management>
