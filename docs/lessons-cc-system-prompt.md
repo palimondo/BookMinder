@@ -22,6 +22,8 @@ Analysis was conducted by examining the Anthropic-authored portions of Claude Co
 - "ALWAYS prefer editing existing files" provides clear decision logic
 - Absolute constraints reduce decision paralysis by eliminating options
 
+**Psychology**: Paradoxically, strict boundaries create freedom by eliminating decision overhead and reducing cognitive load.
+
 **Implementation**: Replace vague suggestions ("consider," "you might") with definitive boundaries ("NEVER," "ALWAYS," "MUST").
 
 ### 2. **Strategic Redundancy Over Efficiency**
@@ -32,15 +34,19 @@ Analysis was conducted by examining the Anthropic-authored portions of Claude Co
 - Each repetition adds contextual nuance rather than verbatim copying
 - Spaced repetition prevents rule forgetting during complex tasks
 
+**Psychology**: Leverages the spacing effect from cognitive science - information is better retained when encountered multiple times across different contexts.
+
 **Implementation**: Identify your 3 most critical rules and embed them in at least 3 different sections with contextual variations.
 
-### 3. **Identity-First Architecture**
+### 3. **Identity-First Architecture** 
 **Discovery**: Role definition precedes all other instructions and is reinforced throughout.
 
 **Evidence**:
 - "You are Claude Code, Anthropic's official CLI for Claude" opens the prompt
 - Identity statements are repeated in different forms across sections
 - Role clarity reduces interpretation uncertainty
+
+**Psychology**: Exploits commitment/consistency bias - once an identity is established, actions align with that identity automatically.
 
 **Implementation**: Begin prompts with definitive identity statements using "You are [X]" rather than "Your role is to..."
 
@@ -53,7 +59,21 @@ Analysis was conducted by examining the Anthropic-authored portions of Claude Co
 - `Backticks` for technical precision
 - Examples anchor abstract concepts
 
+**Psychology**: Creates visual attention hierarchy that guides information processing and recall priority.
+
 **Implementation**: Establish consistent formatting hierarchy: CAPS → Bold → Backticks → Examples.
+
+### 5. **Decision Architecture Design**
+**Discovery**: Complex choices are pre-structured through conditional logic patterns.
+
+**Evidence**:
+- "When X, do Y" patterns eliminate decision-making overhead
+- "Before executing, follow these steps" creates procedural checkpoints
+- "If given a GitHub URL, use the gh command" provides clear decision trees
+
+**Psychology**: Reduces cognitive load by converting complex decisions into simple pattern matching.
+
+**Implementation**: Structure complex guidance as conditional trees rather than general principles.
 
 ## Structural Analysis
 
@@ -206,12 +226,105 @@ When [specific condition]:
 - [Example or clarification]
 ```
 
+## Practical Application Guide
+
+### Immediate Improvements for CLAUDE.md
+
+**Current Pattern**: 
+```
+## Core Programming Philosophy
+- Code is a liability, not an asset - Minimize implementation
+```
+
+**Anthropic Pattern**:
+```
+NEVER create unnecessary code - Every line must justify its existence
+ALWAYS minimize implementation while maximizing value  
+MUST prioritize working software over comprehensive documentation
+```
+
+**Current Pattern**:
+```
+- Begin each feature with a requirements dialogue
+- Structure the dialogue to establish goals...
+```
+
+**Anthropic Pattern**:
+```
+When starting any feature:
+1. Define precise acceptance criteria BEFORE writing code
+2. Document edge cases and expected behaviors  
+3. Create failing tests that specify the behavior
+4. Implement minimal code to pass the tests
+```
+
+### Copy-Paste Ready Templates
+
+**Identity Reinforcement** (place at document start):
+```
+You are a BookMinder Developer, following disciplined engineering practices.
+You are committed to test-driven development and scientific validation of all changes.
+```
+
+**Critical Constraint Pattern**:
+```
+NEVER implement features without corresponding tests
+ALWAYS write failing tests before implementation code  
+MUST maintain test coverage above 90% for all new code
+```
+
+**Decision Tree Pattern**:
+```
+When implementing new functionality:
+- If the feature affects core business logic → Write acceptance test first
+- If the feature is UI-only → Write integration test first  
+- If the feature is utility/helper → Write unit test first
+```
+
+### Language Pattern Upgrades
+
+| Weak Pattern | Strong Pattern |
+|--------------|----------------|
+| "You should consider..." | "ALWAYS..." |
+| "It's recommended to..." | "MUST..." |
+| "Try to avoid..." | "NEVER..." |
+| "You might want to..." | "When X, do Y:" |
+| "Please remember..." | "Before X, verify Y:" |
+
+## Compliance Measurement
+
+### Weekly Assessment Questions
+
+1. Are new developers following constraints without reminder?
+2. Do team members cite specific patterns from guidance?
+3. Are decision trees being used instead of asking for clarification?
+4. Is identity language ("we are X") appearing in team communications?
+5. Are critical rules being referenced during code reviews?
+
+### Success Indicators
+
+**High Compliance (80%+)**:
+- Developers automatically write tests first
+- Code reviews reference specific CLAUDE.md patterns  
+- Decision-making follows documented conditional logic
+- New team members adopt practices within 1 week
+
+**Medium Compliance (60-80%)**:
+- Most practices followed with occasional reminders
+- Some decision trees used, some questions still asked
+- Identity alignment emerging in team language
+
+**Low Compliance (<60%)**:
+- Frequent clarification requests on documented processes
+- Inconsistent practice adoption
+- Rules treated as suggestions rather than constraints
+
 ## Next Steps
 
 1. **Apply Assessment Checklist** to current CLAUDE.md
-2. **Implement High-Impact Changes** using templates above
-3. **Test Behavioral Compliance** through iterative prompt testing
-4. **Measure Effectiveness** through task completion quality
+2. **Implement Copy-Paste Templates** from above section
+3. **Test Language Pattern Upgrades** with team members
+4. **Measure Compliance** using weekly assessment questions
 5. **Iterate Based on Results** using systematic refinement
 
 ---
