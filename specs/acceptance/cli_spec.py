@@ -45,7 +45,7 @@ def describe_bookminder_filter_passthrough():
         ("all", "list_all_books"),
     ])
     @pytest.mark.parametrize("filter_value", [
-        "cloud", "!cloud", "sample", "!sample"
+        "cloud", "!cloud", "sample", "!sample", "finished", "unread", "in-progress"
     ])
     def it_passes_filters_to_library_function(
         command, library_function, filter_value, runner
@@ -128,3 +128,45 @@ def describe_bookminder_acceptance():
             mock_list.assert_called_once_with(user=None, filter="!sample")
             assert "Regular Book - Regular Author (50%)" in result.output
             assert "Sample" not in result.output
+
+    def it_filters_by_finished_status(runner):
+        finished_book = Book(
+            title="Finished Book",
+            author="Finished Author",
+            reading_progress_percentage=100,
+        )
+
+        with patch('bookminder.cli.list_recent_books') as mock_list:
+            mock_list.return_value = [finished_book]
+            result = runner.invoke(main, ['list', 'recent', '--filter', 'finished'])
+
+            mock_list.assert_called_once_with(user=None, filter="finished")
+            assert "Finished Book - Finished Author (Finished)" in result.output
+
+    def it_filters_by_unread_status(runner):
+        unread_book = Book(
+            title="Unread Book",
+            author="Unread Author",
+            reading_progress_percentage=0,
+        )
+
+        with patch('bookminder.cli.list_recent_books') as mock_list:
+            mock_list.return_value = [unread_book]
+            result = runner.invoke(main, ['list', 'recent', '--filter', 'unread'])
+
+            mock_list.assert_called_once_with(user=None, filter="unread")
+            assert "Unread Book - Unread Author (Unread)" in result.output
+
+    def it_filters_by_in_progress_status(runner):
+        in_progress_book = Book(
+            title="In Progress Book",
+            author="In Progress Author",
+            reading_progress_percentage=45,
+        )
+
+        with patch('bookminder.cli.list_recent_books') as mock_list:
+            mock_list.return_value = [in_progress_book]
+            result = runner.invoke(main, ['list', 'recent', '--filter', 'in-progress'])
+
+            mock_list.assert_called_once_with(user=None, filter="in-progress")
+            assert "In Progress Book - In Progress Author (45%)" in result.output

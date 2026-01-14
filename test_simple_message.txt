@@ -1,0 +1,1 @@
+Testing simple commit message format.

@@ -1,0 +1,1 @@
+Testing commit permission patterns for heredoc syntax.
