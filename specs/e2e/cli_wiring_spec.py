@@ -5,9 +5,8 @@ from pathlib import Path
 
 def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=None):
     if use_fixture:
-        integration_dir = Path(__file__).parent.parent / "integration"
-        fixture_path = integration_dir / "apple_books/fixtures/users"
-        user_arg = str(fixture_path / user_name)
+        base_path = Path(__file__).parent / "../integration/apple_books/fixtures"
+        user_arg = str(base_path / "users" / user_name)
     else:
         user_arg = user_name
 
@@ -30,12 +29,13 @@ def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=
         text=True,
         cwd=Path(__file__).parent.parent.parent,
     )
-    assert result.returncode == 0, \
+    assert result.returncode == 0, (
         f"Expected exit code 0, got {result.returncode}: {result.stderr}"
+    )
     return result
 
 
-def describe_bookminder_integration():
+def describe_bookminder_list_recent_integration():
     def it_shows_books_for_user_with_reading_progress():
         """Integration test: verify full stack works with real fixture."""
         result = _run_cli_with_user("test_reader")

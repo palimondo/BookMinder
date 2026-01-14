@@ -6,27 +6,13 @@ from typing import Any
 import click
 
 from bookminder import BookminderError
-from bookminder.apple_books.library import (
-    SUPPORTED_FILTERS,
-    Book,
-    list_all_books,
-    list_recent_books,
-)
+from bookminder.apple_books.library import Book, list_all_books, list_recent_books
 
 
 @click.group()
 def main() -> None:
     """BookMinder - Extract content and highlights from Apple Books."""
     pass
-
-
-def validate_filter(filter_value: str | None) -> None:
-    """Validate filter value against supported filters."""
-    if filter_value and filter_value not in SUPPORTED_FILTERS:
-        raise click.ClickException(
-            f"Invalid filter: '{filter_value}'\n"
-            f"Valid filters: {', '.join(sorted(SUPPORTED_FILTERS))}"
-        )
 
 
 # Common options for list commands
@@ -72,13 +58,11 @@ def format_book_list(books: list[Book], empty_message: str = "No books found") -
 @with_common_list_options
 def recent(user: str | None, filter: str | None) -> None:
     """Show recently read books with progress."""
-    validate_filter(filter)
-
     try:
         books = list_recent_books(user=user, filter=filter)
-        click.echo(format_book_list(
-            books, empty_message="No books currently being read"
-        ))
+        click.echo(
+            format_book_list(books, empty_message="No books currently being read")
+        )
     except BookminderError as e:
         click.echo(f"{e}")
 
@@ -87,8 +71,6 @@ def recent(user: str | None, filter: str | None) -> None:
 @with_common_list_options
 def all(user: str | None, filter: str | None) -> None:
     """Show all books in your library."""
-    validate_filter(filter)
-
     try:
         books = list_all_books(user=user, filter=filter)
         click.echo(format_book_list(books))
