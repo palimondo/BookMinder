@@ -14,7 +14,10 @@ def describe_supported_filters():
         from bookminder.apple_books.library import SUPPORTED_FILTERS
 
         assert isinstance(SUPPORTED_FILTERS, set)
-        assert SUPPORTED_FILTERS == {"cloud", "!cloud", "sample", "!sample"}
+        assert SUPPORTED_FILTERS == {
+            "cloud", "!cloud", "sample", "!sample",
+            "finished", "unread", "in-progress"
+        }
 
 
 def row_stub(**overrides):
@@ -26,6 +29,7 @@ def row_stub(**overrides):
         "ZREADINGPROGRESS": 0.0,
         "ZSTATE": 1,
         "ZISSAMPLE": 0,
+        "ZISFINISHED": 0,
     }
     return {**defaults, **overrides}  # type: ignore[return-value]
 

@@ -128,3 +128,52 @@ def describe_bookminder_acceptance():
             mock_list.assert_called_once_with(user=None, filter="!sample")
             assert "Regular Book - Regular Author (50%)" in result.output
             assert "Sample" not in result.output
+
+
+def describe_bookminder_list_with_reading_status_filter():
+    def it_filters_by_finished_status(runner):
+        """List finished books - scenario from filter-by-reading-status story."""
+        finished_book = Book(
+            title="Finished Book",
+            author="Book Author",
+            is_finished=True,
+        )
+
+        with patch('bookminder.cli.list_all_books') as mock_list:
+            mock_list.return_value = [finished_book]
+            result = runner.invoke(main, ['list', 'all', '--filter', 'finished'])
+
+            mock_list.assert_called_once_with(user=None, filter="finished")
+            assert "Finished Book - Book Author (Finished)" in result.output
+
+    def it_filters_by_unread_status(runner):
+        """List unread books - scenario from filter-by-reading-status story."""
+        unread_book = Book(
+            title="Unread Book",
+            author="Book Author",
+            reading_progress_percentage=0,
+            is_finished=False,
+        )
+
+        with patch('bookminder.cli.list_all_books') as mock_list:
+            mock_list.return_value = [unread_book]
+            result = runner.invoke(main, ['list', 'all', '--filter', 'unread'])
+
+            mock_list.assert_called_once_with(user=None, filter="unread")
+            assert "Unread Book - Book Author (Unread)" in result.output
+
+    def it_filters_by_in_progress_status(runner):
+        """List books in progress - scenario from filter-by-reading-status story."""
+        in_progress_book = Book(
+            title="In Progress Book",
+            author="Book Author",
+            reading_progress_percentage=45,
+            is_finished=False,
+        )
+
+        with patch('bookminder.cli.list_all_books') as mock_list:
+            mock_list.return_value = [in_progress_book]
+            result = runner.invoke(main, ['list', 'all', '--filter', 'in-progress'])
+
+            mock_list.assert_called_once_with(user=None, filter="in-progress")
+            assert "In Progress Book - Book Author (45%)" in result.output
