@@ -7,6 +7,15 @@ Survives compaction and container loss. Maintained by coordinator; updated as th
 Reevaluate dormant project (~1yr) with fresh perspective. No new feature code.
 Coordinator (Fable) delegates to workers (Opus 5 primary; Fable/fork when full context or max capability needed).
 
+## Meta-goals (user's own framing, voice, 2026-08-10)
+- Destination: MCP tool to discuss books with Claude; CLI first (user knows CLI design + TDD/BDD; MCP was unfamiliar)
+- Core question: can an LLM be a good PAIR PROGRAMMER? (user had no colleagues to pair with)
+- Testbed deliberately chosen: Apple Books DB schema evolves with each release → tests long-term
+  software evolution, opposite of one-shotting pretraining-known problems
+- Method is the point: executable specs nail verifiable invariants; art = slicing the problem +
+  designing specs with minimal coupling to implementation. London school (GOOS)
+- Analyst reports = reference material, not agenda; keep session at high level
+
 ## Working style (user preferences)
 - TERSE console replies — user reads incrementally, fires feedback mid-read; avoid wall-of-text spiral
 - User quotes my text as a cursor showing where they are in reading
