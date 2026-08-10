@@ -1,31 +1,23 @@
 # Session Coordination Log
 
-Persistent record for the reevaluation session (started 2026-08-10, first CC cloud-infra test drive).
-Survives compaction and container loss. Maintained by coordinator; updated as threads open/close.
+Persistent record for the reevaluation session (started 2026-08-10, first CC cloud-infra test drive). Survives compaction and container loss. Maintained by coordinator; updated as threads open/close.
 
 ## Session goal
-Reevaluate dormant project (~1yr) with fresh perspective. No new feature code.
-Coordinator (Fable) delegates to workers (Opus 5 primary; Fable/fork when full context or max capability needed).
+Reevaluate dormant project (~1yr) with fresh perspective. No new feature code. Coordinator (Fable) delegates to workers (Opus 5 primary; Fable/fork when full context or max capability needed).
 
 ## Meta-goals (user's own framing, voice, 2026-08-10)
 - Destination: MCP tool to discuss books with Claude; CLI first (user knows CLI design + TDD/BDD; MCP was unfamiliar)
 - Core question: can an LLM be a good PAIR PROGRAMMER? (user had no colleagues to pair with)
-- Testbed deliberately chosen: Apple Books DB schema evolves with each release → tests long-term
-  software evolution, opposite of one-shotting pretraining-known problems
-- Method is the point: executable specs nail verifiable invariants; art = slicing the problem +
-  designing specs with minimal coupling to implementation. London school (GOOS)
+- Testbed deliberately chosen: Apple Books DB schema evolves with each release → tests long-term software evolution, opposite of one-shotting pretraining-known problems
+- Method is the point: executable specs nail verifiable invariants; art = slicing the problem + designing specs with minimal coupling to implementation. London school (GOOS)
 - Analyst reports = reference material, not agenda; keep session at high level
 
 ## Project history (user's account, voice, 2026-08-10)
-- Summer 2025 intensity → BURNOUT. Models then knew the process but couldn't perform it
-  (knowing vs. performing TDD — the key distinction)
+- Summer 2025 intensity → BURNOUT. Models then knew the process but couldn't perform it (knowing vs. performing TDD — the key distinction)
 - CC hooks = most valuable CC innovation (enforcement via automation, not prose)
-- CC 1.x→2.x backwards-incompatible break soured user on interface stability; persists today.
-  Still rates CC most mature CLI (> Codex, Gemini)
-- Session-summary practice origin: copy-pasted console transcripts to Gemini for summaries →
-  discovered JSONL transcripts → built xs → format churn kept breaking it
-- User's view: dedicated transcript tool still better than ad-hoc scripts, but ecosystem
-  churn ("move fast break things") makes maintaining one thankless
+- CC 1.x→2.x backwards-incompatible break soured user on interface stability; persists today. Still rates CC most mature CLI (> Codex, Gemini)
+- Session-summary practice origin: copy-pasted console transcripts to Gemini for summaries → discovered JSONL transcripts → built xs → format churn kept breaking it
+- User's view: dedicated transcript tool still better than ad-hoc scripts, but ecosystem churn ("move fast break things") makes maintaining one thankless
 
 ## Working style (user preferences)
 - TERSE console replies — user reads incrementally, fires feedback mid-read; avoid wall-of-text spiral

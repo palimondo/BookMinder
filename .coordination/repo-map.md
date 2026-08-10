@@ -1,9 +1,6 @@
 # BookMinder Repo Map
 
-Generated for coordinator/worker navigation. Sizes in bytes, `L` = line count.
-Repo total **20M** (`.git` 4.3M, `claude-dev-log-diary/` 12M, `docs/` 2.6M, rest ~1M).
-Python 3.13 / uv / pytest-describe BDD project: CLI over the macOS Apple Books SQLite+plist library.
-No `.venv` present. Working tree clean; HEAD `0e28476`.
+Generated for coordinator/worker navigation. Sizes in bytes, `L` = line count. Repo total **20M** (`.git` 4.3M, `claude-dev-log-diary/` 12M, `docs/` 2.6M, rest ~1M). Python 3.13 / uv / pytest-describe BDD project: CLI over the macOS Apple Books SQLite+plist library. No `.venv` present. Working tree clean; HEAD `0e28476`.
 
 ## Tree
 
