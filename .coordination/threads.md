@@ -16,6 +16,17 @@ Coordinator (Fable) delegates to workers (Opus 5 primary; Fable/fork when full c
   designing specs with minimal coupling to implementation. London school (GOOS)
 - Analyst reports = reference material, not agenda; keep session at high level
 
+## Project history (user's account, voice, 2026-08-10)
+- Summer 2025 intensity → BURNOUT. Models then knew the process but couldn't perform it
+  (knowing vs. performing TDD — the key distinction)
+- CC hooks = most valuable CC innovation (enforcement via automation, not prose)
+- CC 1.x→2.x backwards-incompatible break soured user on interface stability; persists today.
+  Still rates CC most mature CLI (> Codex, Gemini)
+- Session-summary practice origin: copy-pasted console transcripts to Gemini for summaries →
+  discovered JSONL transcripts → built xs → format churn kept breaking it
+- User's view: dedicated transcript tool still better than ad-hoc scripts, but ecosystem
+  churn ("move fast break things") makes maintaining one thankless
+
 ## Working style (user preferences)
 - TERSE console replies — user reads incrementally, fires feedback mid-read; avoid wall-of-text spiral
 - User quotes my text as a cursor showing where they are in reading
