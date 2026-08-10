@@ -1,0 +1,40 @@
+# Session Coordination Log
+
+Persistent record for the reevaluation session (started 2026-08-10, first CC cloud-infra test drive).
+Survives compaction and container loss. Maintained by coordinator; updated as threads open/close.
+
+## Session goal
+Reevaluate dormant project (~1yr) with fresh perspective. No new feature code.
+Coordinator (Fable) delegates to workers (Opus 5 primary; Fable/fork when full context or max capability needed).
+
+## Working style (user preferences)
+- TERSE console replies — user reads incrementally, fires feedback mid-read; avoid wall-of-text spiral
+- User quotes my text as a cursor showing where they are in reading
+- Voice input: expect mistranscriptions
+- NEVER attribute coordinator/worker words or findings to the user
+- Protect main-thread context: delegate doc-heavy reads; use repo-map access strategies
+- User approves commits/plans before execution (approval granted for this branch: coordinator may manage branch contents at own judgment; cleanup later)
+
+## Decisions
+- Diary access: transcript SUMMARIES + xs-generated summaries OK; raw transcripts off-limits
+- .coordination/ committed to session branch `claude/bookminder-recall-5ite2s`; graduation to docs/ deferred to end of reevaluation
+- Removed worker-added self-ignoring .gitignore (hid artifacts instead of preserving them)
+
+## Artifacts
+- repo-map.md — sizes, land mines, access strategies
+- bdd-style.md — gold-standard ATDD characterization + post-6f786cc lapse anatomy
+- process-evolution.md — 7-era timeline, model history, failure modes, session-summary pass (714L)
+
+## Open threads
+1. Reevaluation discussion: meta-level project character (in progress, voice)
+2. What graduates from .coordination/ → docs/ or new stories (end of session)
+3. Dormant TODO: ATDD restoration; PR #18 unmerged (pre-YOLO restoration) — surfaced by analysis
+4. Residue at HEAD (from bdd-style.md): dead TEST_HOME, duplicate describes, missing sqlite3.Error in list_all_books
+5. CLAUDE.md self-contradiction: git_workflow vs tdd_discipline (commit-after-RED rule lost in revert)
+6. Doc rot: README spec path, pre-commit-workflow.md (black/flake8 stale)
+7. Cloud-infra quirks log: shallow clone (unshallowed), no tree cmd, no .venv, hook nags on untracked files
+
+## Failure modes observed THIS session (meta-lab data)
+- Coordinator misattributed analyst finding to user ("your own finding") — user flagged; standing guard
+- Wall-of-text spiral risk from incremental reading + long replies
+- Worker self-resolved hook nag via .gitignore * (silenced symptom, preempted pending decision)
