@@ -40,7 +40,7 @@ Reevaluate dormant project (~1yr) with fresh perspective. No new feature code. C
 - process-evolution.md — 7-era timeline, model history, failure modes, session-summary pass (714L)
 
 ## Open threads
-0. A/B experiment: user unhappy with bdd-style.md writing quality (read through ~§1.5) → fresh Fable xhigh worker redoing task uncontaminated → bdd-style-fable.md; then a comparator agent judges whether the gap is model-capability. Confound: redo differs in model AND effort AND orientation context.
+0. A/B experiment RESOLVED (see style-comparison.md): Opus shallowness primarily BRIEF-induced (no motivation lens), secondary model/effort component real (missed fa0bc72 patch-target mutation with evidence in hand). Scores A/B: rationale 5/9, writing 7/9, accuracy 8/9, insight 7/9. Optional cheap experiment: rerun Opus with B's brief. Suggested: merge B's rationale framework + A's HEAD-residue audit into one canonical doc (3 citation fixes needed). NEW FINDING both docs missed, comparator found: e5c7074 is where fixture acceptance tests were silently swapped for tautological mock versions; HEAD still patches cli.SUPPORTED_FILTERS so the delegation property is unspecified today.
 0b. Benchmark/eval design sketch (trajectory eval: deterministic commit-DAG checks + LLM-judge rubric; schema-drift maintenance axis) — user interested, Fable fork to draft AFTER more discussion
 1. Reevaluation discussion: meta-level project character (in progress, voice)
 2. What graduates from .coordination/ → docs/ or new stories (end of session)

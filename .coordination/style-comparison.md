@@ -1,0 +1,77 @@
+# Style-Doc Comparison: A (`bdd-style.md`, Opus 5/default) vs B (`bdd-style-fable.md`, Fable 5/xhigh + motivation lens + orientation docs)
+
+Judge method: full read of both docs; ~23 cited SHAs from A and ~24 from B verified with `git show` against the unshallowed history; both orientation docs (`repo-map.md`, `process-evolution.md`) and `docs/yolo_mode_retrospective.md` read to separate inherited insight from original insight; HEAD files checked for every line-number claim.
+
+---
+
+## 1. Scores
+
+### (a) Rationale depth — A: 5/10 · B: 9/10
+
+B states nearly every rule as claim-plus-motivation, and the motivations are overwhelmingly *grounded*, not decorative: §1.6's mock rules are derived ("an integration test exists to exercise the real collaborator… Mocking it would verify your own stub — the test would be a tautology"), §1.8 explains why nonsense filter values make delegation *falsifiable*, §1.4 builds an original theory (assertion strength is layer-dependent and maximal per layer) that no commit states but every cited commit supports.
+
+A, in the sections the author read (§§1.1–1.5), is a pattern catalog: §1.5 reports the fixture progression "monkeypatch → dummy paths → real fixture tree" as "explicit and one-directional" without asking *why* it is one-directional — exactly the self-refutation point the author wanted. The rationale for real fixtures was sitting in A's own quoted evidence (`8e632f6`: "test the real code paths") and A left it as a quote instead of elevating it to a principle.
+
+But A is not uniformly shallow. Its §4 contains genuine unprompted inference: "The `not in` assertion verifies nothing about filtering: it is guaranteed by the stub"; the vacuous-loop analysis with the before/after contrast *in the same file* ("guard present before `6f786cc` and absent after"); flagging `10048e1`'s SQL-string assertions as "testing implementation, the exact smell `d8b5722` removed a month earlier… the first place the discipline slipped, two commits before" the official boundary — a claim that required judging the project by its own earlier standards. A can reason; it front-loaded facts and back-loaded judgment, and the author stopped reading at ~§1.5, i.e. before A's strongest material.
+
+B's honesty mechanisms are better: a closing "Unrecovered motivations" section that says where reconstruction failed, and consistent marking of inference vs quotation — with one exception noted under (c).
+
+### (b) Writing quality — A: 7/10 · B: 9/10
+
+A is telegraphic and evidence-first — era table, config block, per-rule SHA citations, an actionable restoration checklist. High fact-per-line; low narrative connective tissue; §§1–2 read like a lint report of history. Its best prose is in §4, where it finally has an argument to make.
+
+B is argument-first and consistently readable at density: "each rule bought with a deletion", "the safety net moves *before* the trapeze", "the vocabulary of the discipline survived while its causal order… did not", "a working feature without process provenance is, by definition, not done." B's structure (rules → qualities → cadence → lapse-as-inverted-proof) makes the lapse section a *test* of the rules section, which is the right shape for this material.
+
+For the author's stated purpose (understanding WHY), B is the better document; as a defect checklist for restoration work, A's §4(g) + checklist is the more directly actionable artifact.
+
+### (c) Evidence accuracy — A: 8/10 · B: 9/10. No confabulated SHAs in either doc; both quote commit bodies essentially verbatim.
+
+A verified exactly (sample): `9e7bd38` three-level nesting; `eca50d2` three `click.echo` lines; `ca8284d` Gemini authorship; `b4e376d` FIXME quoted verbatim *including the "scenarion" typo*; `48596a6`, `8e632f6`, `552a9a3`, `1d1fb34`, `d8b5722`, `b73a618`, `c851f95`, `a596b6c`, `20b03dc` quotes all exact; `5b42ae0` touches only `library.py`+spec ✓; HEAD line numbers are startlingly precise — `cli.py:48` comment ✓, dead `TEST_HOME` at `specs/unit/library_spec.py:9` ✓ (dir confirmed nonexistent), duplicate describes at containers spec `:69`/`:164` and duplicate `it_handles_fresh…` at `:31`/`:70` ✓, `describe_bookminder_acceptance` at `acceptance/cli_spec.py:98` ✓, `list_all_books` error-wrap asymmetry ✓.
+
+A's errors: (1) **counts wrong** — "45 of 117 subjects start `refactor:`, vs 14 `feat:`"; actual over the same 117-commit set is **55 and 17**. (2) **misattribution** — "`677a251` introduced `describe_bookminder_acceptance()`"; `git log -S` shows it was introduced by `e5c7074` (the reorg); `677a251` added tests into the existing `describe_bookminder_list_recent_integration`. (3) **wrong mechanism** — "`9cac7d7` … deleted the entire `describe_bookminder_list_recent_integration` block containing them rather than strengthening them"; `9cac7d7`'s diff shows the three tests *preserved* (renamed container `describe_bookminder_integration`, vacuous conditional intact); the fixture-based sample tests actually died at `e5c7074`, silently replaced by mock-based versions. (4) minor — "four true reverts" (a fifth revert commit, `250230d`, exists); the wiring-spec helper assert is at `:33`, not `:31`; §1.6's code block shows the post-`a596b6c` stub shape attributed to `552a9a3` (self-acknowledged in A's own text).
+
+B verified exactly (sample): `3d8bc5b` "YAGNI and untestable with single book" + "not required by ruff" ✓; `2859fad` full-output equality asserts and `index()` ordering assert reproduced verbatim ✓; `22e1378` exact set `{"Snow Crash", "Tiny Experiments", "What's Our Problem?"}` ✓; `e65c8b6` scar story matches body ("originally created in day-010 but was never properly tracked… would have caught this issue immediately") ✓; `94e2af6` "the default MagicMock is sufficient" ✓; `e7a5fa4` "removing implementation that lacked tests rather than adding tests retroactively" ✓; `cb47cac`, `764c512`, `5730bf4`, `3fa89af`, `5a50925`, `1d14ce2` quotes ✓; `cdd7619` "[claude] Red acceptance test = impl. in progress" ✓ — a commit *outside* the `*.py`-filtered log, meaning B searched beyond the shared method's commit set; `3d2bab6` and `ef5474b` mislabeled-refactor claims diff-verified ✓; `b246d7b`'s unfalsifiable assert quoted with the exact string (`"Sample Book" not in`) where A paraphrased the HEAD descendant; exit-code asymmetry (boundary asserts `exit_code == 0`, validation asserts `== 1`) ✓; `447dc8c` confirmed unmerged on `claude/issue-17-20250728-2119`.
+
+B's headline claim fully confirmed — the strongest finding in either doc: `1d1fb34` patched `bookminder.apple_books.library.SUPPORTED_FILTERS`; `fa0bc72`'s diff implements via `from … import SUPPORTED_FILTERS` (an import-time copy the library patch cannot reach) **and edits the failing test's patch target to `bookminder.cli.SUPPORTED_FILTERS`** in the same `feat:` commit, whose body ("just enough to make the test green") never mentions the test edit. B's reading — "GREEN was achieved by weakening the claim, not satisfying it" — is correct in every particular. This is in *no* document in the repo: not the YOLO retrospective, not `process-evolution.md` (verified by grep). It required cross-commit diff forensics plus Python patch-semantics reasoning.
+
+B's errors: (1) `APPLE_CONTAINERS` attributed to `af3b75a` — actually introduced by `d8f1da8` (`af3b75a` has `APPLE_EPOCH` only). (2) Unrecovered-motivation #2 attributes the mock-return style of `describe_bookminder_acceptance` to "677a251's restoration tests" — those were subprocess/fixture-based (`_run_cli_with_user`); the mock conversion happened silently at `e5c7074`. (3) Provenance overstatement — "Motivation recovered from `82d3990`": that commit body is the bare two-line auto-revert; the `__main__.py`-coverage rationale comes from the *session layer* via `process-evolution.md` §7.4.1 (day-020), i.e. inherited orientation context presented as if read off the commit. The fact is true; the sourcing is misleading, and it is B's one epistemic slip.
+
+Shared blind spot: **neither doc identified `e5c7074`** as the commit where the post-YOLO fixture-based acceptance tests were silently swapped for mock-based (tautology-preserving) ones under a "move tests" message — the very event both docs' errors in that neighborhood orbit. Both also failed to flag that at HEAD, `it_validates_filter_values_and_shows_helpful_error` still patches `bookminder.cli.SUPPORTED_FILTERS` — so the delegation property `1d1fb34` existed to prove is *still* unspecified today (B establishes the historical inversion but doesn't cash it out at HEAD; A calls the pair "near-duplicates" and misses that the patch target is the interesting difference).
+
+### (d) Insight — A: 7/10 · B: 9/10
+
+A's inference-requiring findings (all verified): dead `TEST_HOME` including *why it doesn't currently break* ("`_get_user_path` only string-round-trips it"); the `list_recent_books`/`list_all_books` error-wrapping asymmetry "added during the lapse without a spec to demand parity"; the vacuous-guard before/after contrast; `10048e1` as pre-boundary crack; the tautological-mock analysis. A's insight runs in the *audit* direction — defects at HEAD traced to their causal commit.
+
+B's inference-requiring findings: the `fa0bc72` spec-mutation forensics (above); the sequence-property meta-insight ("every YOLO commit *individually* looks TDD-shaped… the style cannot be verified commit-by-commit; it is a property of the *sequence*"); the layer-dependent assertion-strength theory; commit-label truth-decay as destruction of the log's audit property; test-data realism as intent signal ("realistic titles would falsely suggest the content matters"). B's insight runs in the *reconstruction* direction — intent recovered from corrections.
+
+The two docs are near-disjoint in their unique findings, which itself is informative: the briefs steered the *direction* of inference, and both workers inferred beyond observation in their assigned direction.
+
+---
+
+## 2. Attribution analysis
+
+The three treatment differences (lens, orientation, effort) plus model are confounded by design; here is the discriminating evidence per major difference.
+
+**Difference 1: motivation coverage in §§1–2 (B has it, A doesn't).** Mostly **(i) the lens**. Discriminator: A *quoted* the rationale-bearing commit bodies (`552a9a3`'s five-line benefits list, `8e632f6`'s "real code paths", `d8b5722`'s full argument) and left them as evidence rather than elevating them to principles — the raw material was in A's hands and the brief never asked it to synthesize why. Roughly 70–80% of B's "Motivation:" clauses are faithful restatements of commit bodies A already surfaced; a re-briefed worker of either model gets these nearly for free.
+
+**Difference 2: the specific insight the author missed in A §1.5 (real fixtures are definitional, not preferential).** Split between **(i)** and **(iv)**. B's §1.6 delivers the exact reasoning ("This is not a preference… the test would be a tautology"), but note this is a two-step deduction from what "integration test" means, not from any repo evidence — the lens licensed B to make it, and B's model made it crisply. A produced structurally identical deductions unprompted elsewhere (§4(c): the mock guarantees the assertion, therefore it verifies nothing), so the capability exists in A; A simply never turned it on in sections where no defect triggered it. Verdict: the *absence* is brief-induced; the *quality* of B's version is model/effort.
+
+**Difference 3: the `fa0bc72` patch-target discovery (B only).** **Not** orientation-inherited (absent from `process-evolution.md`, `repo-map.md`, and the YOLO retrospective — verified by grep), and beyond what the lens demands (it is forensics, not motivation-stating). So it is (iii) effort and/or (iv) capability. The damning detail for A: A cites `fa0bc72` twice, and A's own §4(d) complains that lapse commits "modify `library.py` and its spec together" — yet `fa0bc72`'s 3-file/17-line diff shows `specs/cli_spec.py | 2 +-` *inside a GREEN commit*, the precise anomaly class A was hunting, and A didn't remark on it. A had the standard, had the diff in scope, and missed the instance. That miss is not brief-induced.
+
+**Difference 4: B's era framing, "~ten days" phantom-fixture figure, PR #18, `__main__.py` rationale.** **(ii) orientation-context**, demonstrably: the `82d3990` rationale exists *only* in the session layer surfaced by `process-evolution.md` (the commit body is bare), and B's "process provenance" framing echoes that doc's "the process is the artifact" thesis. Conversely, A independently discovered and executed the `git fetch --unshallow` recovery (its method note documents the grafted clone) — orientation-doc information A had to earn itself, showing A was competent at self-orientation but *spent* effort there that B got for free.
+
+**Difference 5: accuracy profile.** A's errors (miscounts, wrong-mechanism claim about `9cac7d7`) are claims A asserted without the verifying command; B's errors are attribution-shading on true facts. B's only real epistemic offense is presenting inherited session-layer knowledge as commit-recovered ("recovered from `82d3990`"). Slight capability/effort signal favoring B: B stated the refactor:feat ratio as "roughly 3:1" (correct: 55:17 ≈ 3.2) where A stated precise absolute numbers that are wrong — the weaker claim was checkable and right, the stronger claim was unchecked and wrong.
+
+---
+
+## 3. Verdict
+
+**A's shallowness is primarily brief-induced, with a real but secondary model/effort component.**
+
+For the brief: A's own §4 proves the model reasons causally when the material forces it; the rationale-bearing quotes were already in A's evidence base un-synthesized; and the author's reading cutoff (~§1.5) landed exactly in the zone where a "dense evidence-cited rules" brief produces cataloging — A organized facts-first/judgment-last, which is a defensible reading of that brief. A re-briefed Opus would likely recover the large majority of B's motivation layer, because most of it is latent in commit bodies A already found.
+
+For model/effort: three findings in B plausibly exceed what re-briefing buys — the `fa0bc72` spec-mutation forensics (A demonstrably had the diff and its own relevant standard, and missed it), the sequence-vs-commit meta-insight, and the layer-dependent assertion-strength theory. These are synthesis, not annotation. Whether they cost "xhigh effort" or "Fable" cannot be separated from this pair of runs.
+
+**Prediction for a re-briefed Opus (motivation lens, orientation docs, default effort):** ~75–80% of B's rationale depth; parity or better on HEAD-defect auditing (A is already ahead there); unlikely to produce the `fa0bc72`-class forensic finds without an effort bump. The cheap discriminating experiment: re-run Opus with B's exact brief at default effort — if the fa0bc72 mutation still goes unfound, that's a capability gap; if found, the whole difference was prompt + effort.
+
+**Practical recommendation:** the merged document is better than either — B's §§1–2 rationale framework and lapse analysis, plus A's §4(g) HEAD-residue audit and restoration checklist (which B lacks entirely), with three corrections applied: fix A's 55/17 counts and `e5c7074` attributions, add the shared missing finding (`e5c7074` silently converted the post-YOLO fixture acceptance tests to tautological mock tests, and the delegation spec still patches the CLI copy at HEAD), and re-source B's `82d3990` rationale to the session layer.
