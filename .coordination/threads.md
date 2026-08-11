@@ -26,6 +26,8 @@ Reevaluate dormant project (~1yr) with fresh perspective. No new feature code. C
 - NEVER attribute coordinator/worker words or findings to the user
 - Protect main-thread context: delegate doc-heavy reads; use repo-map access strategies
 - User approves commits/plans before execution (approval granted for this branch: coordinator may manage branch contents at own judgment; cleanup later)
+- Worker default: effort XHIGH from 2026-08-10 onward (original three Opus workers ran at inherited session default)
+- Markdown for user: never hard-wrap prose — iOS viewer breaks on every newline
 
 ## Decisions
 - Diary access: transcript SUMMARIES + xs-generated summaries OK; raw transcripts off-limits
@@ -38,6 +40,8 @@ Reevaluate dormant project (~1yr) with fresh perspective. No new feature code. C
 - process-evolution.md — 7-era timeline, model history, failure modes, session-summary pass (714L)
 
 ## Open threads
+0. A/B experiment: user unhappy with bdd-style.md writing quality (read through ~§1.5) → fresh Fable xhigh worker redoing task uncontaminated → bdd-style-fable.md; then a comparator agent judges whether the gap is model-capability. Confound: redo differs in model AND effort AND orientation context.
+0b. Benchmark/eval design sketch (trajectory eval: deterministic commit-DAG checks + LLM-judge rubric; schema-drift maintenance axis) — user interested, Fable fork to draft AFTER more discussion
 1. Reevaluation discussion: meta-level project character (in progress, voice)
 2. What graduates from .coordination/ → docs/ or new stories (end of session)
 3. Dormant TODO: ATDD restoration; PR #18 unmerged (pre-YOLO restoration) — surfaced by analysis
