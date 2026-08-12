@@ -36,6 +36,11 @@ Reevaluate dormant project (~1yr) with fresh perspective. No new feature code. C
 - .coordination/ committed to session branch `claude/bookminder-recall-5ite2s`; graduation to docs/ deferred to end of reevaluation
 - Removed worker-added self-ignoring .gitignore (hid artifacts instead of preserving them)
 
+## Review ledger (user's read state; NOTHING is repo rule until user approves wholesale)
+- bdd-style-canonical.md: §1 reviewed in earlier form (gist approved, phrasing not); post-revision version NOT yet reviewed. NOT RATIFIED — not a rule of this repo
+- claude-experiments.md: exec summary read via chat; doc itself skimmed at most
+- process-evolution.md, repo-map.md, comparisons, bdd-style-fable/opus2: NOT read by user (reference only)
+
 ## Artifacts
 - repo-map.md — sizes, land mines, access strategies
 - bdd-style.md — gold-standard ATDD characterization + post-6f786cc lapse anatomy
