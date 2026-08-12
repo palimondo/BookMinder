@@ -55,6 +55,12 @@ Low rungs are not expected to succeed — they are experimental controls that ma
 
 The two-day mining pilot passes if: every failure_mode entry carries quote + loc + implementable detector_candidate; every skill_rule traces to evidence; off-schema observations land in `parked`; and spot-checking quotes against the source transcripts shows no fabrication. Pilot outputs land in scratchpad for user review before any repo commit (established review-first flow).
 
+## Compile/reduce policy (user's debug-build → optimized-build model, 2026-08-12)
+
+Mining output = the DEBUG BUILD: every claim fully back-referenced (loc, date, provenance type). The compile step later cuts the OPTIMIZED BUILD: executable rules stripped of provenance, split into the two skills (tdd-bdd generic / bookminder project-memory).
+
+Contradiction resolution happens at compile, on the evidence base, ranked: (1) user-verbatim > user-paraphrase > agent-synthesis; (2) among user statements, later date overrides earlier (session numbering = chronology); (3) agent-era artifacts (YOLO period, post-downgrade Flash) never override an earlier user ruling. Output is a CONTRADICTION LEDGER — both quotes, dates, proposed resolution — for user ratification, never silent resolution. The ratified ledger also drives the gardening pass over stale README/CLAUDE.md.
+
 ## Open design questions
 
 - Schema v2: `philosophy` section shape — verbatim quote + paraphrase + which skill/rubric element it feeds.
