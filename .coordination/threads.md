@@ -33,6 +33,7 @@ Reevaluate dormant project (~1yr) with fresh perspective. No new feature code. C
 
 ## Decisions
 - Diary access: transcript SUMMARIES + xs-generated summaries OK; raw transcripts off-limits
+- MINING PILOT (2026-08-12, user-directed): trial on day-019 (Claude, 43k, best corrective density) + day-016 (Gemini, 51k, hardest parse format, richest card refs) → .coordination/mining/day-NNN.yaml, fixed schema (failure_modes/skill_rules/pairing_gems/parked + controlled vocab). Evaluate outputs with user BEFORE full swarm. Picker corrected scout regex: Gemini marker "^│  > " (two spaces), only day-015/016. Runner-ups: day-018 (Claude), day-011/012 (Gemini)
 - Diary access EXPANDED (2026-08-10, later): recon scout authorized inside claude-dev-log-diary incl. sampling raw transcripts; multi-agent swarm processing PRELIMINARILY authorized but NOT to launch until discussion. Key question: do full transcripts overlap the YAML-story-card era, or must user commit later JSONL backups first?
 - .coordination/ committed to session branch `claude/bookminder-recall-5ite2s`; graduation to docs/ deferred to end of reevaluation
 - Removed worker-added self-ignoring .gitignore (hid artifacts instead of preserving them)
