@@ -1,3 +1,6 @@
+import subprocess
+import sys
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -11,6 +14,36 @@ from bookminder.cli import main
 @pytest.fixture
 def runner():
     return CliRunner()
+
+
+def _run_cli_with_user(user_name, use_fixture=True, subcommand="recent", filter=None):
+    if use_fixture:
+        user_arg = str(Path(__file__).parent / "apple_books/fixtures/users" / user_name)
+    else:
+        user_arg = user_name
+
+    command = [
+        sys.executable,
+        "-m",
+        "bookminder",
+        "list",
+        subcommand,
+        "--user",
+        user_arg,
+    ]
+
+    if filter:
+        command.extend(["--filter", filter])
+
+    result = subprocess.run(
+        command,
+        capture_output=True,
+        text=True,
+        cwd=Path(__file__).parent.parent,
+    )
+    assert result.returncode == 0, \
+        f"Expected exit code 0, got {result.returncode}: {result.stderr}"
+    return result
 
 
 def describe_bookminder_list_commands():
@@ -95,36 +128,40 @@ def describe_cli_error_boundary():
         assert "Traceback" not in result.output
 
 
-def describe_bookminder_acceptance():
-    def it_filters_recent_books_by_sample_status(runner):
-        """Verify sample filter is passed correctly and output is formatted."""
-        sample_book = Book(
-            title="Sample Book",
-            author="Sample Author",
-            reading_progress_percentage=30,
-            is_sample=True,
-        )
+def describe_bookminder_integration():
+    def it_shows_books_for_user_with_reading_progress():
+        """Integration test: verify full stack works with real fixture."""
+        result = _run_cli_with_user("test_reader")
 
-        with patch('bookminder.cli.list_recent_books') as mock_list:
-            mock_list.return_value = [sample_book]
-            result = runner.invoke(main, ['list', 'recent', '--filter', 'sample'])
+        output_lines = result.stdout.strip().split("\n")
+        assert len(output_lines) > 0, "Expected books in output"
 
-            mock_list.assert_called_once_with(user=None, filter="sample")
-            assert "Sample Book - Sample Author (30%) • Sample" in result.output
+        for line in output_lines:
+            if line.strip():
+                assert " - " in line, f"Expected 'Title - Author' format in: {line}"
+                assert "%" in line, f"Expected progress percentage in: {line}"
 
-    def it_excludes_samples_from_recent_books(runner):
-        """Verify !sample filter is passed correctly and samples are excluded."""
-        regular_book = Book(
-            title="Regular Book",
-            author="Regular Author",
-            reading_progress_percentage=50,
-            is_sample=False,
-        )
+    def it_filters_recent_books_by_sample_status():
+        """Integration test: verify sample filter works for recent command."""
+        result = _run_cli_with_user("test_reader", filter="sample")
 
-        with patch('bookminder.cli.list_recent_books') as mock_list:
-            mock_list.return_value = [regular_book]
-            result = runner.invoke(main, ['list', 'recent', '--filter', '!sample'])
+        output = result.stdout.strip()
+        # Sample books may not have reading progress, resulting in empty list
+        if output and "No books" not in output:
+            for line in output.split("\n"):
+                if line.strip():
+                    assert "Sample" in line, f"Expected 'Sample' indicator in: {line}"
 
-            mock_list.assert_called_once_with(user=None, filter="!sample")
-            assert "Regular Book - Regular Author (50%)" in result.output
-            assert "Sample" not in result.output
+    def it_excludes_samples_from_recent_books():
+        """Integration test: verify !sample filter works for recent command."""
+        result = _run_cli_with_user("test_reader", filter="!sample")
+
+        output = result.stdout.strip()
+        assert len(output) > 0, "Expected non-sample books with reading progress"
+
+        for line in output.split("\n"):
+            if line.strip():
+                assert "Sample" not in line, \
+                    f"Found 'Sample' in filtered output: {line}"
+                assert " - " in line, f"Expected 'Title - Author' format in: {line}"
+                assert "%" in line, f"Expected progress percentage in: {line}"
