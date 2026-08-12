@@ -33,6 +33,7 @@ Reevaluate dormant project (~1yr) with fresh perspective. No new feature code. C
 
 ## Decisions
 - Diary access: transcript SUMMARIES + xs-generated summaries OK; raw transcripts off-limits
+- Diary access EXPANDED (2026-08-10, later): recon scout authorized inside claude-dev-log-diary incl. sampling raw transcripts; multi-agent swarm processing PRELIMINARILY authorized but NOT to launch until discussion. Key question: do full transcripts overlap the YAML-story-card era, or must user commit later JSONL backups first?
 - .coordination/ committed to session branch `claude/bookminder-recall-5ite2s`; graduation to docs/ deferred to end of reevaluation
 - Removed worker-added self-ignoring .gitignore (hid artifacts instead of preserving them)
 
