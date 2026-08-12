@@ -31,6 +31,8 @@ Reevaluate dormant project (~1yr) with fresh perspective. No new feature code. C
 - User approves commits/plans before execution (approval granted for this branch: coordinator may manage branch contents at own judgment; cleanup later)
 - Worker default: effort XHIGH from 2026-08-10 onward (original three Opus workers ran at inherited session default)
 - Markdown for user: never hard-wrap prose — iOS viewer breaks on every newline
+- SWARM-SCALE spends require explicit "launch?"→yes confirmation (rule adopted 2026-08-12 after coordinator launched full swarm on an inferred mid-monologue clause; user let it slide once). Cheap single workers: inference OK
+- Schema discipline enforced by TOOL not prose (user directive): validate_mining.py (scratchpad/mining/) gates all mining YAMLs — required fields, enums, loc format, quote-verbatim-against-source check. Post-hoc gate this run; future swarms embed it in miner instructions
 
 ## Decisions
 - Diary access: transcript SUMMARIES + xs-generated summaries OK; raw transcripts off-limits
