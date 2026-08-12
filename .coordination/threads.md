@@ -8,6 +8,7 @@ Reevaluate dormant project (~1yr) with fresh perspective. No new feature code. C
 ## Meta-goals (user's own framing, voice, 2026-08-10)
 - Destination: MCP tool to discuss books with Claude; CLI first (user knows CLI design + TDD/BDD; MCP was unfamiliar)
 - Core question: can an LLM be a good PAIR PROGRAMMER? (user had no colleagues to pair with)
+- PAIRING DEFINED (user correction, emphatic): a partner to bounce ideas off — discussing the next step, how to define the test, how to minimize implementation surface area, what minimal constraints in the spec get the desired behavior. The discipline of dialogue. NOT about verifying the partner's claims — never fuse pairing with verification (a synthesizer did; user: "totally off base", "essayist tying a bow on unrelated things")
 - Testbed deliberately chosen: Apple Books DB schema evolves with each release → tests long-term software evolution, opposite of one-shotting pretraining-known problems
 - Method is the point: executable specs nail verifiable invariants; art = slicing the problem + designing specs with minimal coupling to implementation. London school (GOOS)
 - Analyst reports = reference material, not agenda; keep session at high level
