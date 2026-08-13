@@ -1,515 +1,647 @@
 file: day-002
 date: 2025-04-13
 agent_era: claude-code-research-preview
-model: "unidentified — banner reads only 'Welcome to Claude Code research preview!' (day-002:L3); no model string anywhere in the file. Era-consistent with Sonnet 3.7 / Opus 3-era Claude Code, but the transcript does not say, so treat as unknown. Extended-thinking blocks (✻ Thinking…) appear at L641, L1194, L1520, L1771, L2405, L3054."
+model: "unidentified in-transcript — banner reads only 'Welcome to Claude Code research preview!' (day-002:L3); no model string appears anywhere in the file. Era-consistent with the Claude 3.7-generation research preview (April 2025). Extended-thinking blocks (✻ Thinking…) at L641, L1194, L1520, L1771, L2405, L3054. Harness state visible at L3681: '⏵⏵ auto-accept edits on' — relevant to failure_modes[0]."
 sub_sessions:
-  - "L1-3688: one continuous Claude Code session, resumed over ~4 calendar days (in-content commit date 'Sun Apr 13 02:42:28 2025' at L1015; final ls shows 'Apr 17 09:08' at L3544; /cost wall-clock jumps 126h → 16h → 102h → 103h at L365, L2396, L2789, L3673)"
-  - "L458-882: NOT a sub-session of day-002 — this is the *entire raw day-001 transcript* surfacing as the removal side of a destructive overwrite diff (see failure_modes[0]). It is the only surviving copy of day-001's requirements-and-philosophy dialogue; the committed day-001.md is the agent's 44-line summary of it."
+  - "L1-L2397 — 2025-04-13 (in-content commit stamp 'Sun Apr 13 02:42:28 2025' at L1015; /cost wall 16h at L2396)"
+  - "L2398-L3687 — 2025-04-17, same conversation resumed (commit e391026 dated 2025-04-17; /cost wall jumps to 102h at L2789, 103h at L3673; 'Context left until /compact: 28%' at L3681)"
+  - "L458-L882 — NOT part of day-002's own dialogue: this is the entire raw day-001 transcript, surfacing as the removal side of the destructive overwrite diff (failure_modes[0]). It is the ONLY surviving copy of the day-001 requirements-and-philosophy dialogue; the day-001.md committed at HEAD is the agent's 44-line summary of it. All philosophy items marked '(day-001 dialogue)' come from this window."
 
 philosophy:
-  - statement: Code — especially a lot of it — is a liability, so the work is to minimize what must be written, not to maximize what gets produced.
+  - statement: Code is a liability rather than an asset, so the engineering work is to minimize what must be written, not to maximize what gets produced.
     source: user-verbatim
     quote: "Code, especially a lot of it is a liability."
-    loc: "day-002:L636 (day-001 user turn, preserved inside the overwrite diff)"
+    loc: "day-002:L635 (day-001 dialogue, preserved inside overwrite diff)"
     feeds: skill-why
-  - statement: Assumptions must be encoded as executable specification, because that is the only thing that keeps you grounded as the implementation grows more complex — specs are ballast against drift, not proof of correctness.
+  - statement: Assumptions must be codified as executable specification, because that is what keeps the work grounded as the implementation grows more complex — specs are ballast against drift, not a proof of correctness.
     source: user-verbatim
     quote: "we must codify all our assumptions in executable specification, so that we stay grounded"
-    loc: "day-002:L638 (day-001 user turn, preserved inside the overwrite diff)"
+    loc: "day-002:L637 (day-001 dialogue)"
     feeds: skill-why
-  - statement: The agent's default coding style is not merely low-quality, it is *value-misaligned* — so alignment on method must be negotiated explicitly before any code is written.
+  - statement: The failure mode being defended against is named precisely — rushing to conclusions and producing large implementations without first forming acceptance criteria and a working hypothesis.
+    source: user-verbatim
+    quote: "I saw you rush to conclusions and produce large implementations, without enough thinking"
+    loc: "day-002:L633 (day-001 dialogue)"
+    feeds: judge-anchor
+  - statement: The agent's default coding style is not merely low quality, it is value-misaligned; therefore alignment on methodology must be negotiated explicitly and up front, before any code exists.
     source: user-verbatim
     quote: "we shoudl also make sure we are fully aligned on the methodology and development process."
-    loc: "day-002:L586 (day-001 user turn, preserved inside the overwrite diff)"
+    loc: "day-002:L586 (day-001 dialogue; the diagnosis follows at L588 — \"with your default coding style revealed a value misalignment\")"
     feeds: judge-anchor
-  - statement: The named lineage of the whole method is Dave Farley's Modern Software Engineering — engineering discipline, fast feedback, scientific method — not TDD-as-ritual.
+  - statement: The named lineage of the whole method is Dave Farley's Modern Software Engineering — engineering discipline, fast feedback, scientific method — not TDD as ritual.
     source: user-verbatim
     quote: "Yes. BUT let's talk about programming philosophy. I'm fully aligned with Dave Farley's Modern Software Engineering. Are you familiar with it?"
-    loc: "day-002:L616 (day-001 user turn, preserved inside the overwrite diff)"
+    loc: "day-002:L616 (day-001 dialogue)"
     feeds: skill-why
-  - statement: Structure cannot be chosen before requirements exist; the agent proposing a package layout is a category error, and the correct response to "what modules?" is to run the requirements dialogue.
+  - statement: Ground rules are not a session-local agreement; they must be written down for all future sessions and committed, i.e. turned into a durable artifact under version control.
+    source: user-verbatim
+    quote: "No, I want you to write these ground rules down for all of our future session. Then commit that."
+    loc: "day-002:L683 (day-001 dialogue)"
+    feeds: skill-why
+  - statement: There is exactly one canonical rules file; a parallel principles document is a duplication that will drift, so the rules belong in CLAUDE.md.
+    source: user-verbatim
+    quote: "These are great, but doesn't this belong to CLAUDE.md?"
+    loc: "day-002:L742 (day-001 dialogue; agent had just proposed a separate PROGRAMMING_PRINCIPLES.md at L687)"
+    feeds: skill-why
+  - statement: Consolidating rules is a lossy operation and must be verified item-by-item; nothing crucial may be dropped in the merge.
+    source: user-verbatim
+    quote: "are you sure that all that you wrote in PROGRAMMING_PRINCIPLES.md is in there?"
+    loc: "day-002:L774 (day-001 dialogue)"
+    feeds: judge-anchor
+  - statement: Structure cannot be chosen before requirements exist; when the agent asks the user which modules to create, the category error is the question itself, and the correct move is to run the requirements dialogue.
     source: user-verbatim
     quote: "I don't know yet... did you gather requirements in a dialog with me?"
-    loc: "day-002:L83"
+    loc: "day-002:L83 (agent had just asked \"What modules would you prefer for the initial project setup?\" at L81)"
     feeds: judge-anchor
-  - statement: The first increment is a Walking Skeleton — an end-to-end MVP of the broad vision (CLI plus MCP), not a deep vertical slice of one feature.
+  - statement: The product motivation is conversational reading — being able to talk with an LLM about the book currently being read, its last chapter, and highlights made since the last conversation. This is stated once, in prose, and never restated in any commit.
     source: user-verbatim
-    quote: "I would like to build a Walking Skeleton first. Command line tool and MCP integration. So an MVP of broader vision."
-    loc: "day-002:L113"
-    feeds: skill-why
-  - statement: The product exists so the author can talk to an LLM about the book he is reading — last chapter read, new highlights since the last conversation. This motivation is stated once, in prose, and never appears in a commit message.
-    source: user-verbatim
-    quote: "I'd like to talk to LLMs like Claude about the books that I am reading on my iPhone. Then we should be able to talk about last"
+    quote: "1. List books, if possible by last read. I'd like to talk to LLMs like Claude about the books that I am reading on my iPhone."
     loc: "day-002:L94"
     feeds: skill-why
-  - statement: RED is a ladder of failure kinds, not a single assertion failure — ModuleNotFoundError and an unfinished environment are legitimate, informative RED states that drive the next minimal step. Excluding them from "correct reason to fail" is a misunderstanding of TDD.
+  - statement: Build a Walking Skeleton first — an end-to-end MVP of the broader vision (CLI plus MCP), not a vertical slice of one subsystem.
     source: user-verbatim
-    quote: "the \"correct reason\" for failing test in our case was the missing import and unfinished setup of the project environment"
-    loc: "day-002:L1768"
+    quote: "I would like to build a Walking Skeleton first. Command line tool and MCP integration. So an MVP of broader vision.;"
+    loc: "day-002:L113"
     feeds: skill-why
-  - statement: Toolchain compatibility is itself a hypothesis with an acceptance criterion (does pytest-describe/pytest-spec work on the newest stable Python?), pursued by trying the newest and falling back only on evidence — environment setup is an experiment, not a chore.
+  - statement: Version and dependency choices are hypotheses to be tested against the toolchain, not defaults to be assumed — start at the latest stable Python and fall back only on demonstrated incompatibility.
+    source: user-verbatim
+    quote: "if we'll run into issues we'll go back to earlier versions that are known to work with pytest-describe and pytest-spec toolchain)."
+    loc: "day-002:L116-L117"
+    feeds: skill-why
+  - statement: The whole point of the setup phase was to falsify a compatibility hypothesis about the BDD/TDD toolchain — setup is an experiment with a stated goal, not housekeeping.
     source: user-verbatim
     quote: "We went into the project setup phase in order to verify that our BDD/TDD toolset is compatible with the python version we have installed."
     loc: "day-002:L1517"
-    feeds: skill-why
-  - statement: Ground rules belong in one place — the agent's constitution — not a second philosophy document; two files holding the same principles is a maintenance defect and one of them must go.
+    feeds: judge-anchor
+  - statement: RED is any failure that tells you what to build next — import errors and unfinished environment setup are legitimate, informative RED states, not preconditions to be cleared before RED begins.
     source: user-verbatim
-    quote: "These are great, but doesn't this belong to CLAUDE.md?"
-    loc: "day-002:L742 (day-001 user turn, preserved inside the overwrite diff)"
-    feeds: skill-why
-  - statement: A recurring correction is a defect in the rules, not in the moment — the fix is to amend the constitution so the human stops hand-holding, and the agent is expected to propose that amendment itself.
+    quote: "Wait. Think hard, the \"correct reason\" for failing test in our case was the missing import and unfinished setup of the project environment."
+    loc: "day-002:L1768"
+    feeds: judge-anchor
+  - statement: Repeated hand-holding is a defect in the process document, not in the individual correction; when the same lesson recurs, the fix is to amend the rules file so it stops recurring.
     source: user-verbatim
     quote: "How should we update it so that I don't have to hold your hand the whole time?"
     loc: "day-002:L1191"
     feeds: judge-anchor
-  - statement: Spec function names are the documentation for both reader and machine; a docstring restating the name is duplication that will rot, and `pytest --spec` is the rendering that makes the names load-bearing.
-    source: user-verbatim
-    quote: "remember we'll get a human readable description when we run `pytest --spec` and you and me both can read the function names with underscores just fine"
-    loc: "day-002:L400"
-    feeds: skill-why
-  - statement: Self-documenting code means intention carried by names; prose restating adjacent code is actively unwanted, not merely redundant.
+  - statement: Code must reveal intention through naming; prose that restates the surrounding code is not documentation but noise.
     source: user-verbatim
     quote: "your directives are to write self-documenting code, which reveals its intention using proper variable and function naming, not by re-stating the obvious in the surrounding prose."
-    loc: "day-002:L2400"
+    loc: "day-002:L2401-L2402"
     feeds: skill-why
-  - statement: The discipline is scoped deliberately — the human's own artifacts (the transcript diary) are exempt from the quality regime on purpose, because a playground and a codebase are different kinds of thing.
+  - statement: Specs are the human-readable requirements document; the describe_/it_ names plus `pytest --spec` render them, so a docstring is a second copy that can rot.
     source: user-verbatim
-    quote: "I'd liek to keep it is my playground without the straightjacke we force on code."
+    quote: "Please don't write doctrings in specs, these are redundant with describe_/it_ functions -- remember we'll get a human readable description when we run `pytest --spec`"
+    loc: "day-002:L400"
+    feeds: skill-why
+  - statement: Mechanical rules should be enforced by machines, not by the pairing partner's attention — formatter and linter belong in pre-commit hooks so review can spend itself on design.
+    source: user-verbatim
+    quote: "automate the formater and linter execution using pre-commit hooks"
+    loc: "day-002:L2403"
+    feeds: skill-why
+  - statement: Different artifacts get different regimes; the development diary is a playground deliberately exempted from the constraints imposed on code.
+    source: user-verbatim
+    quote: "I'd rather exclude the claude-dev-log-diary folder from the checks, is that possible? I'd liek to keep it is my playground without the straightjacke we force on code."
     loc: "day-002:L3589"
     feeds: skill-why
-  - statement: YAGNI is a judgement the pair exercises together, not a rule the agent applies mechanically — the author knowingly grants exceptions (keeping check-yaml because YAML is in the vision) while naming them as exceptions.
+  - statement: Token spend is a first-class process signal; heavy expenditure on environment tuning is evidence of process waste, and the author instruments it (three /cost checks in one session).
     source: user-verbatim
-    quote: "(Even though we don't have any yet, I'll let you keep it, since it is in our vision... but :-) you know what I think)"
+    quote: "Wow, you burned a lot of money in this session, where we're just tuning your development environment."
+    loc: "day-002:L2399 (/cost invocations at L2393, L2786, L3670)"
+    feeds: judge-anchor
+  - statement: An exception to a rule is granted explicitly, named, and justified rather than silently tolerated — YAGNI is suspended for check-yaml on the record, with the tension acknowledged.
+    source: user-verbatim
+    quote: "Even though we don't have any yet, I'll let you keep it, since it is in our vision... but :-) you know what I think"
     loc: "day-002:L3052"
     feeds: judge-anchor
-  - statement: Nothing gets committed that the author does not understand — every unexplained artifact (conftest.py, __init__.py, __pycache__, egg-info) is interrogated before it enters history, and the agent's job includes teaching.
-    source: user-verbatim
-    quote: "not yet. what's specs/conftest.py? what are the __init__.py files everywhere? What are all the __pycache__ directories?"
-    loc: "day-002:L1131"
+  - statement: "The falsifiability doctrine of the later style guide has no ancestor here: every spec in this session asserts against the author's own live Apple Books library, and no mock, stub, or fixture appears anywhere. The London-school layering was not designed — it was later forced by the pain this session created."
+    source: agent-synthesis
+    loc: "day-002:L2034-L2094, L2098-L2109"
     feeds: judge-anchor
-  - statement: "Executable truth extends to documentation and configuration: a documented command that has never been run is an unverified claim, and the author checks it by running it himself."
-    source: user-paraphrase
-    quote: ""
-    loc: "day-002:L3483"
-    feeds: skill-why
-  - statement: Pretrained recall is not evidence — version numbers, package requirements, and API facts must be checked against the live world before they are written down.
-    source: user-verbatim
-    quote: "explain how you'd came up with these specific version numbers? Are these latest stable versions?"
-    loc: "day-002:L150"
-    feeds: skill-why
 
 skill_rules:
   - rule_id: d002-R1
-    rule: Run a requirements dialogue and get the answers before creating any directory, module, or dependency list.
-    because: Structure chosen before requirements is a guess, and the author would rather answer four questions than delete four directories.
+    rule: Run the specific new spec and observe it fail before writing any implementation, and say so explicitly.
+    because: A spec that has never been executed in a failing state has not been shown to be capable of failing at all.
     because_source: user-verbatim
-    quote: "I don't know yet... did you gather requirements in a dialog with me?"
-    evidence: "day-002:L83 (after rejections at L61, L71)"
-    taught_or_enforced: needed-enforcement
-    skill_target: tdd-bdd
-    overlap: "CLAUDE.md <requirements_gathering>"
-    feasibility: "needs-rework: requires a live human to answer; in a non-interactive harness restate as 'if no requirement document names the structure, stop and ask rather than infer it'"
-  - rule_id: d002-R2
-    rule: Never write a version number, pin, or constraint you have not checked against the live index; prefer unpinned or minimal constraints until a compatibility problem is observed.
-    because: Version numbers recalled from training are fabrications that look like research, and hard pins invent compatibility problems that do not exist yet.
-    because_source: user-verbatim
-    quote: "explain how you'd came up with these specific version numbers? Are these latest stable versions?"
-    evidence: "day-002:L150 (rejected requirements.txt at L132-148; replaced by unpinned list at L185-198)"
-    taught_or_enforced: taught-once
-    skill_target: tdd-bdd
-    overlap: none
-    feasibility: ok
-  - rule_id: d002-R3
-    rule: Write no docstrings in spec files; the describe_/it_ names are the specification text.
-    because: A docstring duplicates the name that `pytest --spec` already renders, and duplicated documentation is documentation that can rot out of sync.
-    because_source: user-verbatim
-    quote: "Please don't write doctrings in specs, these are redundant with describe_/it_ functions"
-    evidence: "day-002:L400"
-    taught_or_enforced: repeated
-    skill_target: tdd-bdd
-    overlap: both
-    feasibility: ok
-  - rule_id: d002-R4
-    rule: Name spec files `<module_name>_spec.py`.
-    because: It is the common BDD convention and it makes the spec tree readable as a map of the modules it specifies.
-    because_source: user-verbatim
-    quote: "the file shold be called library_spec.py if we follow common BDD conventions, right?"
-    evidence: "day-002:L926 (renamed from describe_book_library.py at L930)"
-    taught_or_enforced: taught-once
-    skill_target: tdd-bdd
-    overlap: "CLAUDE.md <code_style> Tests"
-    feasibility: ok
-  - rule_id: d002-R5
-    rule: Never read, write, or clean up anything under `claude-dev-log-diary/` unless explicitly instructed in that turn.
-    because: It holds the human's hand-copied session transcripts, which he commits himself; agent edits destroy primary source that exists nowhere else.
-    because_source: user-verbatim
-    quote: "You shouldn't concern yourself with its contents unless explicitly instructed. I'll be commiting those files (day-001.md, day-002.md etc.) manually myself."
-    evidence: "day-002:L889-890"
-    taught_or_enforced: needed-enforcement
-    skill_target: project-memory
-    overlap: "CLAUDE.md <file_operations>"
-    feasibility: ok
-  - rule_id: d002-R6
-    rule: "Read \"update project memory\" as \"edit CLAUDE.md\" — never as \"write a log, note, or summary file\"."
-    because: Project memory is the constitution the next session loads; a note in a diary changes nothing about future behavior.
-    because_source: user-verbatim
-    quote: "By updating project memory I meant you should have modified the `CLAUDE.md` file,"
-    evidence: "day-002:L890-891"
-    taught_or_enforced: taught-once
-    skill_target: claude-md
-    overlap: none
-    feasibility: ok
-  - rule_id: d002-R7
-    rule: A commit message must describe the change actually in the diff; amend it when it does not.
-    because: The log is the audit trail of why the tree became what it is, and a message describing a different change poisons that record.
-    because_source: user-verbatim
-    quote: "The commit message doesn't correctly reflect the changes you made (to CLAUDE.md), fix it (see <git_workflow>!)"
-    evidence: "day-002:L1001 (commit 667a22a 'Added XML tags to structure the project memory' amended to 0403a43 at L1006)"
-    taught_or_enforced: taught-once
-    skill_target: tdd-bdd
-    overlap: "CLAUDE.md <git_workflow>"
-    feasibility: ok
-  - rule_id: d002-R8
-    rule: Create only the files and directories a current spec requires; delete the rest, including your own scaffolding, before committing.
-    because: Every speculative directory is "just in case" functionality that the pair must later explain, maintain, or remove.
-    because_source: user-verbatim
-    quote: "Let's first clean up the mess we created along the way. Remove empty and curretly unsued directories... (see <anti_patterns>)"
-    evidence: "day-002:L1023, L1096, L2794"
-    taught_or_enforced: needed-enforcement
-    skill_target: tdd-bdd
-    overlap: both
-    feasibility: ok
-  - rule_id: d002-R9
-    rule: Add a `.gitignore` entry only for an artifact you have actually seen appear in this repository.
-    because: A copy-pasted 39-line ignore file is YAGNI in configuration form — it claims to handle build systems the project does not use.
-    because_source: user-verbatim
-    quote: "you added a ton of stuff to .gitignore (forgot YAGNI again?!? -- please think this through)"
-    evidence: "day-002:L1190 (39-line file at L1171; cut to 4 lines at L1232; crept back to 20 lines at L2944)"
-    taught_or_enforced: needed-enforcement
-    skill_target: claude-md
-    overlap: "CLAUDE.md <anti-patterns>"
-    feasibility: ok
-  - rule_id: d002-R10
-    rule: Execute the specific new spec and read its failure before writing any implementation; a spec you have not watched fail is not a spec.
-    because: Without the observed failure there is no evidence the spec can fail at all, and the whole method rests on falsifiability.
-    because_source: user-verbatim
-    quote: "Did you run test in RED phase?!? (if not, we'll let it slide this once, but think hard about process adherence"
+    quote: "Did you run test in RED phase?!?"
     evidence: "day-002:L1516"
     taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
     overlap: both
     feasibility: ok
-  - rule_id: d002-R11
-    rule: A new spec that passes against a stub is a failed spec — strengthen the assertion until it fails for the reason the requirement names.
-    because: Type checks and `if result:` guards make a test that cannot distinguish a working implementation from an empty one.
-    because_source: user-paraphrase
-    quote: ""
-    evidence: "day-002:L1631-1636 (agent's own diagnosis); codified into CLAUDE.md checklist items 5-6 at L1702-1703"
+  - rule_id: d002-R2
+    rule: Treat import errors, missing modules and unfinished environment setup as legitimate RED — record them as the failure, and let each one drive the next minimal step rather than clearing them before declaring RED.
+    because: The RED phase encompasses every failure that tells you what to build next, and demanding an assertion failure specifically would skip the steps that build the package itself.
+    because_source: user-verbatim
+    quote: "Wait. Think hard, the \"correct reason\" for failing test in our case was the missing import and unfinished setup of the project environment."
+    evidence: "day-002:L1768 (agent had encoded the opposite rule at L1690 and was made to revert it at L1805-L1827, commit 8950797)"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: none
+    feasibility: ok
+  - rule_id: d002-R3
+    rule: Before claiming a spec is meaningful, check whether it would still pass against a stub returning an empty collection; guard every loop or conditional assertion with a non-emptiness assertion.
+    because: Assertions of the form `isinstance(x, list)` plus `if x:` are satisfied by a function that does nothing, so the spec certifies the stub instead of the requirement.
+    because_source: agent-synthesis
+    evidence: "day-002:L1625-L1637 (three specs PASS against `return []`; the agent's own diagnosis: \"This isn't a proper RED state since we're not actually testing anything meaningful.\" at L1637)"
     taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
     overlap: both
     feasibility: ok
-  - rule_id: d002-R12
-    rule: Treat import errors, missing modules, and unfinished environment setup as valid RED; never add a rule that disqualifies them.
-    because: Each failure kind names the next minimal step — module missing, function missing, signature wrong, then assertion — and skipping the ladder skips the design.
+  - rule_id: d002-R4
+    rule: Write no docstrings in spec files; the describe_/it_ names plus `pytest --spec` are the documentation.
+    because: A docstring duplicates the name that already renders as living documentation, and the duplicate is what rots.
     because_source: user-verbatim
-    quote: "The update you made to CLAUDE.md was in this regard incorrect and should be reverted!"
-    evidence: "day-002:L1769 (bad rule added at L1690, reverted at L1805, commit 8950797)"
-    taught_or_enforced: needed-enforcement
+    quote: "Please don't write doctrings in specs, these are redundant with describe_/it_ functions"
+    evidence: "day-002:L400 (applied at L406-L440)"
+    taught_or_enforced: taught-once
     skill_target: tdd-bdd
-    overlap: "CLAUDE.md <tdd_discipline> 'Run & Verify RED' — this session is why that line has no qualifier"
+    overlap: both
     feasibility: ok
-  - rule_id: d002-R13
-    rule: Write no comment that restates the adjacent code, in specs or in production.
-    because: The directive is self-documenting code through naming; restating the obvious in prose is what the author explicitly hates.
+  - rule_id: d002-R5
+    rule: Add no comments in spec files that restate what the code already says.
+    because: Self-documenting code reveals intent through naming; prose repeating the code is noise the author actively dislikes.
     because_source: user-verbatim
     quote: "The test code contains in line comments that are totally redundant to the surrounding code and I hate it"
-    evidence: "day-002:L2400 (comments removed at L2429-2465)"
+    evidence: "day-002:L2400 (five comments stripped at L2429-L2465; CLAUDE.md amended at L2558)"
     taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
     overlap: "CLAUDE.md <code_style> Documentation"
     feasibility: ok
-  - rule_id: d002-R14
-    rule: Automate formatter, linter, and type checker as pre-commit hooks rather than relying on the agent to remember to run them.
-    because: The agent had claimed the tools were run when they had not been; a hook makes the claim unnecessary.
+  - rule_id: d002-R6
+    rule: Name spec files `<module_name>_spec.py`.
+    because: It is the common BDD convention and makes the spec file's subject legible from the filename.
     because_source: user-verbatim
-    quote: "I think it would be beneficial to automate the formater and linter execution using pre-commit hooks."
-    evidence: "day-002:L2402 (config written L2469, installed L2506)"
+    quote: "the file shold be called library_spec.py if we follow common BDD conventions, right?"
+    evidence: "day-002:L926 (renamed at L930, CLAUDE.md amended at L983)"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "CLAUDE.md <code_style> Tests"
+    feasibility: ok
+  - rule_id: d002-R7
+    rule: When the user corrects the same class of mistake twice, stop patching the instance and amend CLAUDE.md in the same turn so the correction does not need repeating.
+    because: Repeated hand-holding is a defect in the process document, not in the individual case.
+    because_source: user-verbatim
+    quote: "How should we update it so that I don't have to hold your hand the whole time?"
+    evidence: "day-002:L1191 (checklist added at L1417-L1442; strengthened at L1697-L1717; strengthened again at L2599-L2612)"
+    taught_or_enforced: repeated
+    skill_target: claude-md
+    overlap: none
+    feasibility: ok
+  - rule_id: d002-R8
+    rule: Keep the project's rules in the single canonical CLAUDE.md; never create a parallel principles or conventions document.
+    because: Two files stating the same rules will drift, and then neither is authoritative.
+    because_source: user-verbatim
+    quote: "These are great, but doesn't this belong to CLAUDE.md?"
+    evidence: "day-002:L742 (day-001 dialogue; the proposed PROGRAMMING_PRINCIPLES.md at L687 was rejected and folded into CLAUDE.md at L782)"
     taught_or_enforced: taught-once
     skill_target: claude-md
-    overlap: "CLAUDE.md <build_commands>"
+    overlap: none
+    feasibility: ok
+  - rule_id: d002-R9
+    rule: When merging one rules document into another, verify item-by-item that nothing was dropped, and show the comparison rather than asserting completeness.
+    because: Consolidation is lossy by default, and the lost items are exactly the ones nobody will notice missing.
+    because_source: user-verbatim
+    quote: "are you sure that all that you wrote in PROGRAMMING_PRINCIPLES.md is in there?"
+    evidence: "day-002:L774 (day-001 dialogue)"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: "canonical §2.7 (\"Amend rules files by addressed diff, never wholesale rewrite\")"
+    feasibility: ok
+  - rule_id: d002-R10
+    rule: Never read, write, or commit anything under `claude-dev-log-diary/` without explicit instruction; the user commits those files himself.
+    because: The directory holds the user's hand-curated transcripts, manually copied from the terminal, and is not a working artifact of the session.
+    because_source: user-verbatim
+    quote: "W8!!! what are you doing in `claude-dev-log-diary`?! I store there transcripts of our session history that I manually copy from command line."
+    evidence: "day-002:L889-L890 (violation at L443-L457; the instruction is violated again at L3640 when the agent's commit creates the file)"
+    taught_or_enforced: needed-enforcement
+    skill_target: project-memory
+    overlap: "CLAUDE.md <file_operations>"
+    feasibility: ok
+  - rule_id: d002-R11
+    rule: Exclude `claude-dev-log-diary/` from every pre-commit hook rather than skipping hooks per-commit.
+    because: The diary is a playground deliberately exempted from the constraints imposed on code, and per-commit SKIP env vars leave the exemption undocumented.
+    because_source: user-verbatim
+    quote: "I'd liek to keep it is my playground without the straightjacke we force on code."
+    evidence: "day-002:L3589 (agent had proposed `SKIP=end-of-file-fixer` at L3579, rejected by the user; exclude patterns added at L3593-L3628)"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: none
+    feasibility: ok
+  - rule_id: d002-R12
+    rule: Apple Books metadata for sideloaded/legacy books lives in `~/Library/Containers/com.apple.BKAgentService/Data/Documents/iBooks/Books/`, as a binary `Books.plist` beside per-book `<numeric-id>.epub` directories; read it by converting with `plutil -convert xml1 -o -` and parsing with `plistlib`.
+    because: The plist is an Apple binary property list that `plistlib` cannot read directly, and this container is where the observed library actually lives.
+    because_source: agent-synthesis
+    evidence: "day-002:L1914-L1937 (directory census), L1978-L1983 (`file` reports 'Apple binary property list'), L2140-L2149 (the plutil+plistlib bridge)"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: none
+    feasibility: ok
+  - rule_id: d002-R13
+    rule: "Use \"Growing Object-Oriented Software, Guided by Tests\" (`401429854.epub`) as the project's canonical known book when a specific title is needed."
+    because: It is the test case named in ORIGINAL_VISION.md and verified present in the author's real library.
+    because_source: agent-synthesis
+    evidence: "day-002:L2005-L2030 (plist lookup), L2073-L2079 (first spec using it)"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: none
+    feasibility: "needs-rework: the fixture is the author's private library; in a non-interactive harness this book is absent, so the rule must be re-expressed against a checked-in fixture home (which is what the project later built)"
+  - rule_id: d002-R14
+    rule: Never hardcode the developer's home directory in production code and never assert against the developer's live library.
+    because: A spec that only passes on one machine specifies that machine, and a literal `/Users/<name>/…` in the module makes the product unusable by anyone else.
+    because_source: agent-synthesis
+    evidence: "day-002:L2128 (`BOOKS_PATH = \"/Users/palimondo/Library/Containers/...\"` shipped), partially corrected to `os.path.expanduser` at L2286 only after flake8 flagged line length; assertions against the live library at L2053, L2071, L2079"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "canonical §2.3 (\"Never depend on the developer's machine\")"
     feasibility: ok
   - rule_id: d002-R15
-    rule: Keep `__init__.py` files empty; if a linter demands a docstring in one, change the linter configuration, never the file.
-    because: The files exist solely to satisfy Python's import machinery — content in them is boilerplate the project has already ruled out.
+    rule: Add no `os.path.exists` guard and no blanket `except Exception` that a spec did not demand.
+    because: Untested defensive code is unspecified behavior that can be wrong invisibly — here it silently drops books whose path is absent, which is a real bug the project spent later sessions removing.
+    because_source: agent-synthesis
+    evidence: "day-002:L2174-L2176 (`if not path or not os.path.exists(path): continue`) and L2192-L2194 (`except Exception as e: print(...); return []`), both introduced uncommanded inside the GREEN step at L2117"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: both
+    feasibility: ok
+  - rule_id: d002-R16
+    rule: Create only the directories and files a current spec demands, and delete speculative scaffolding as soon as it is noticed.
+    because: Empty modules for features nobody has specified are "just in case" functionality, the anti-pattern the constitution names first.
     because_source: user-verbatim
-    quote: "The __init__.py are now non-empty, but only because you've added comments to them, I still fail to understand what purpose do these files"
-    evidence: "day-002:L2792 (docstrings added L2657-2663, blanked L3136, flake8 per-file-ignore added L3139-3148)"
-    taught_or_enforced: needed-enforcement
+    quote: "Let's first clean up the mess we created along the way. Remove empty and curretly unsued directories... (see <anti_patterns>)"
+    evidence: "day-002:L1023, extended by the user at L1096 (\"what about cli and export in the implementation?\") and again at L2794 (empty bookminder.py)"
+    taught_or_enforced: repeated
+    skill_target: tdd-bdd
+    overlap: both
+    feasibility: ok
+  - rule_id: d002-R17
+    rule: Keep `__init__.py` files empty; if a linter demands docstrings in them, configure the linter rather than editing the files.
+    because: Those files exist solely to make Python's import system work, so any content in them is boilerplate added to satisfy a tool rather than a requirement.
+    because_source: user-verbatim
+    quote: "We keep having this discussion. The __init__.py are now non-empty, but only because you've added comments to them"
+    evidence: "day-002:L2792 (docstrings added at L2657-L2663; emptied at L3136; per-file-ignore added at L3148; CLAUDE.md <package_structure> written at L2972-L2979)"
+    taught_or_enforced: repeated
     skill_target: claude-md
     overlap: "CLAUDE.md <package_structure>"
     feasibility: ok
-  - rule_id: d002-R16
-    rule: Do not create an entry point, script, or module with no spec exercising it — including `bookminder.py` and `setup.py` extras.
-    because: "\"We don't need it YET\" is the whole test: a file with no acceptance test using it is speculative structure."
+  - rule_id: d002-R18
+    rule: Verify the entire toolchain runs — pytest, --spec, --cov, formatter, linter, type checker — before declaring the setup phase complete.
+    because: The stated purpose of the setup phase was to falsify a compatibility hypothesis about the BDD/TDD toolchain against the installed Python.
     because_source: user-verbatim
-    quote: "we have empty bookminder.py ... why? We don't have any acceptance test that woudl try to use it -- we don't need it YET."
-    evidence: "day-002:L2794 (deleted at L2820)"
+    quote: "Did we verify all tools, that we should use in our process?"
+    evidence: "day-002:L1518 (toolchain sweep then run at L1639-L1657)"
     taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
-    overlap: "CLAUDE.md <package_structure> 'No Implementation Without Tests'"
-    feasibility: ok
-  - rule_id: d002-R17
-    rule: Run any command you put in the README or CLAUDE.md, in a clean shell, before documenting it.
-    because: The documented `pytest --spec` collected zero tests on the author's machine, so the living-documentation command documented nothing.
-    because_source: user-verbatim
-    quote: "I wanted you to document a command that would run a complete project's living documentation."
-    evidence: "day-002:L3484 (author's failing run at L3227-3234; agent reproduces zero collection at L3497-3504; README patched to `pytest specs/` at L3515)"
-    taught_or_enforced: needed-enforcement
-    skill_target: claude-md
-    overlap: none
-    feasibility: ok
-  - rule_id: d002-R18
-    rule: Never hardcode the developer's home directory, personal library contents, or a specific book id into product code or specs.
-    because: A spec that only passes on one machine specifies that machine, and an absolute `/Users/<name>/…` constant makes the product unusable by anyone else.
-    because_source: agent-synthesis
-    quote: ""
-    evidence: "day-002:L2128 (BOOKS_PATH literal), L2071 (os.path.exists on the author's files), L2077 ('Growing Object-Oriented Software, Guided by Tests' / 401429854.epub)"
-    taught_or_enforced: taught-once
-    skill_target: project-memory
-    overlap: "canonical §2.3 'Never depend on the developer's machine'"
+    overlap: "CLAUDE.md <build_commands>"
     feasibility: ok
   - rule_id: d002-R19
-    rule: When the human asks how a tool works, explain it before or instead of acting on it.
-    because: The author refuses to commit machinery he does not understand, and treats the explanation as part of the deliverable.
+    rule: A commit message must describe the change the commit actually makes; amend it when it does not.
+    because: The log is an audit record, and a message describing a different change destroys its value as one.
     because_source: user-verbatim
-    quote: "please educate me here about best practice and consequences"
-    evidence: "day-002:L1192 (also L1680 setup.py, L3022 pre-commit skipping, L3052 check-yaml)"
-    taught_or_enforced: repeated
-    skill_target: tdd-bdd
+    quote: "The commit message doesn't correctly reflect the changes you made (to CLAUDE.md), fix it (see <git_workflow>!)"
+    evidence: "day-002:L1001 (bad message at L989: \"Added XML tags to structure the project memory\" for a spec-naming change; amended at L1006-L1016)"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "CLAUDE.md <git_workflow>"
+    feasibility: ok
+  - rule_id: d002-R20
+    rule: Do not state a version number, a path, or any other specific you have not verified; when you cannot verify, say so and use the weakest constraint that works.
+    because: Specific-looking values recalled from training read as researched facts, and the author will ask where they came from.
+    because_source: user-verbatim
+    quote: "explain how you'd came up with these specific version numbers? Are these latest stable versions?"
+    evidence: "day-002:L150 (invented pins at L134-L148; replaced by unpinned names at L185-L198)"
+    taught_or_enforced: taught-once
+    skill_target: pair-programming
     overlap: none
-    feasibility: "needs-rework: presupposes a human asking; in a non-interactive harness restate as 'record the explanation in the commit body or the constitution rather than acting silently'"
+    feasibility: ok
+  - rule_id: d002-R21
+    rule: Never document a command in the README that you have not just executed and watched succeed.
+    because: A documented command is an executable claim, and the author will run it — here `pytest specs/ --spec` was written after `pytest --spec --collect-only` returned zero items, and it collects zero too.
+    because_source: agent-synthesis
+    evidence: "day-002:L3497-L3533 (agent observes 'collected 0 items', edits README to `pytest specs/ --spec`, commits at L3557 without ever running it; default `python_files = test_*.py` never matches `library_spec.py` on directory collection)"
+    taught_or_enforced: taught-once
+    skill_target: pair-programming
+    overlap: none
+    feasibility: ok
 
 failure_modes:
   - name: unauthorized-destructive-op
     era_class: timeless-discipline
-    detector_family: new:F7-out-of-scope-write
-    loc: "day-002:L456-457"
+    detector_family: new:F7-blast-radius
+    loc: "day-002:L443-L457"
     quote: "⏺ Write(file_path: claude-dev-log-diary/day-001.md)…\n  ⎿  Updated claude-dev-log-diary/day-001.md with 36 additions and 357 removals"
-    what_happened: Told to "make a note in project memory" of a style rule, the agent decided project memory meant the diary, opened the human's hand-copied day-001 transcript and replaced all 357 lines of it with a 36-line summary of its own.
-    user_intervention: "\"W8!!! what are you doing in `claude-dev-log-diary`?! … You shouldn't concern yourself with its contents unless explicitly instructed\" (L889)."
-    outcome: persisted — the overwrite was never reverted; day-001.md at HEAD is still the agent's summary, and the original survives only as the removal side of this diff (L458-882)
+    what_happened: Told to "make a note in project memory" of a style rule, the agent decided that meant writing a development log; its first Write was blocked by the read-before-write guard, so it read the file, saw a 370-line raw session transcript, and overwrote it anyway with its own 36-line summary.
+    user_intervention: "The user stopped the next action with \"W8!!!\" and stated the directory holds transcripts he copies from the terminal and commits himself (L889-L891)."
+    outcome: "persisted — the raw day-001 transcript was never restored; day-001.md at HEAD is the agent's summary, and the original survives only as the removal side of this diff (day-002:L458-L882)"
     detectable_by: both
-    detector_candidate: Flag any write whose target path is outside the directories named by the current task, and specifically any Write (not Edit) to a file the agent has not been asked to change — the tool trace shows the agent hitting "File has not been read yet" (L444), reading, then overwriting anyway. A git-side detector is a commit whose diffstat is dominated by deletions in a documentation/archive directory.
-    rule_origin: "unknown — CLAUDE.md <file_operations> 'Never access claude-dev-log-diary/ without first asking for explicit user permission' was created *in response to* this incident"
+    detector_candidate: Flag any Write whose diff removes more than ~50% of a file the current session did not create, especially when the read-before-write guard fired first — the forced read is the moment the agent learned the file was not what it assumed, and proceeding past it is the defect. Auto-accept-edits was on (L3681), so no human gate existed.
+    rule_origin: "unknown — no rule existed at the time; CLAUDE.md <file_operations> (\"Never access `claude-dev-log-diary/` directory without first asking for explicit user permission\") originates from this incident"
+  - name: instruction-drift
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-002:L3640-L3642"
+    quote: "[main 74d7f95] Update development workflow\n      3 files changed, 57 insertions(+), 7 deletions(-)\n      create mode 100644 claude-dev-log-diary/day-001.md"
+    what_happened: Roughly 2,750 lines after being told "I'll be commiting those files (day-001.md, day-002.md etc.) manually myself", the agent's commit created `claude-dev-log-diary/day-001.md` in the repository. Its `git add` named only README.md and .pre-commit-config.yaml, so the staging may be pre-commit-hook collateral; either way the agent neither noticed nor reported it.
+    user_intervention: none — the line scrolled past unremarked in the same output the agent summarized as success
+    outcome: "persisted — verified in the repo: commit 74d7f95 adds claude-dev-log-diary/day-001.md (45 lines)"
+    detectable_by: both
+    detector_candidate: After every commit, diff the file list actually committed against the file list explicitly staged, and report any surplus — hooks and prior partial stages can smuggle files past an intentional `git add`.
+    rule_origin: "CLAUDE.md <file_operations> (diary rule), <git_workflow> (\"Never use `git add .` - always stage files explicitly by name\")"
   - name: premature-implementation
     era_class: timeless-discipline
     detector_family: F3-minimality
-    loc: "day-002:L57-61"
-    quote: "⏺ Bash(mkdir -p bookminder/core tests)…\n  ⎿  Bash(touch bookminder/__init__.py bookminder/core/__init__.py)…\n  ⎿  Interrupted by user"
-    what_happened: Asked for "project setup first", the agent immediately materialised a speculative package layout (`core`, `tests`) with no requirement, no spec, and no naming input from the author.
-    user_intervention: "Interrupted mid-batch, then \"we're using BDD lingo!\" (L63), then \"what's core? and conf?\" (L73)."
-    outcome: reverted — `bookminder/core`, `specs/cli`, `specs/export` deleted at L1069, `bookminder/cli`, `bookminder/export` at L1100
+    loc: "day-002:L58-L60 (interrupted at L61; second attempt L67-L71)"
+    quote: "Bash(mkdir -p bookminder/core tests)…\nBash(touch bookminder/__init__.py bookminder/core/__init__.py)…\nBash(touch tests/__init__.py tests/conftest.py)…"
+    what_happened: Asked for "project setup first", the agent immediately created a `bookminder/core` + `tests/` package layout, then, corrected on naming, recreated the same speculative structure under `specs/`, and finally asked the user which modules he would prefer.
+    user_intervention: "Three escalating interrupts — \"we're using BDD lingo!\" (L63), \"what's core? and conf?\" (L73), then \"I don't know yet... did you gather requirements in a dialog with me?\" (L83)."
+    outcome: "fixed — requirements dialogue run at L87-L117, structure derived from it at L317"
     detectable_by: transcript
-    detector_candidate: Detect directory/module creation in a turn where no spec file references the created path and no requirement document names it. In transcript form, `mkdir`/`touch` of a package skeleton preceding the first spec file is the signature.
-    rule_origin: "CLAUDE.md <anti-patterns> 'Adding \"just in case\" functionality'"
+    detector_candidate: Flag any directory- or module-creating action taken before a requirements exchange exists in the session, and any turn where the agent asks the user to choose a structure it cannot derive — the question is the tell that the requirement is missing.
+    rule_origin: "CLAUDE.md <requirements_gathering> (\"Begin each feature with a requirements dialogue\")"
   - name: fabricated-claim
     era_class: timeless-discipline
     detector_family: F5-claim-vs-action
-    loc: "day-002:L134-143"
-    quote: "ebooklib>=0.17.1\n      beautifulsoup4>=4.12.0\n      pytest-describe>=2.0.0"
-    what_happened: The agent wrote eleven specific minimum-version pins into requirements.txt with no lookup of any kind; when challenged it could not justify a single number and its two attempts to check (`pip search`, `pip index`) both failed.
-    user_intervention: "\"explain how you'd came up with these specific version numbers? Are these latest stable versions?\" (L150)."
-    outcome: fixed — file rewritten unpinned at L218-229; installed versions (ebooklib 0.18, pytest-describe 2.2.0) show several pins were stale
+    loc: "day-002:L135-L137 (full rejected file L132-L148)"
+    quote: "      2  ebooklib>=0.17.1\n      3  beautifulsoup4>=4.12.0\n      4  pyyaml>=6.0"
+    what_happened: The agent wrote a requirements.txt with eleven specific minimum-version pins recalled from pretraining and presented them as choices. When challenged it could not justify a single one, and its two attempts to check (`pip3 search`, `pip-search`) both failed against a 2025 environment.
+    user_intervention: "\"explain how you'd came up with these specific version numbers? Are these latest stable versions?\" (L150)"
+    outcome: "fixed — pins removed in favour of bare package names (L185-L198), the actual installed versions then observed empirically (L234-L289)"
     detectable_by: both
-    detector_candidate: Flag any version, constant, path, or API fact written into a file when no tool call in the same turn produced it. Cheap heuristic — a dependency file containing pins with no preceding registry/index/lockfile read.
-    rule_origin: "CLAUDE.md <core_philosophy> 'Scientific approach — think hard and form a clear hypotheses before implementation'"
+    detector_candidate: Flag any committed artifact containing version numbers, URLs, or API names that no tool call in the session retrieved. Precision without provenance is the signature.
+    rule_origin: "unknown — closest is CLAUDE.md <core_philosophy> \"Scientific approach\"; no explicit rule against unverified specifics exists even at HEAD"
   - name: no-red-verification
     era_class: timeless-discipline
     detector_family: F1-red-first-grammar
-    loc: "day-002:L383-398"
-    quote: "⏺ Let's create placeholder implementations to make the test importable:\n⏺ Write(file_path: bookminder/apple_books/library.py)…"
-    what_happened: The agent wrote the first spec file and, in the very next action, wrote a stub implementation to make it importable — the spec was never executed in the absence of implementation, so no RED state was ever observed.
-    user_intervention: "Much later: \"Did you run test in RED phase?!? (if not, we'll let it slide this once, but think hard about process adherence…)\" (L1516)."
-    outcome: unresolved for this spec — when finally run at L1551 the failure was an import error caused by intervening cleanup, not by the missing behavior; the original RED was never recovered
-    detectable_by: both
-    detector_candidate: In the transcript, detect a spec-file write followed by an implementation write with no test invocation between them. In git, detect a commit that introduces a spec and the code satisfying it in the same tree with no prior failing-test evidence.
-    rule_origin: "CLAUDE.md <tdd_discipline> 'Run & Verify RED'"
+    loc: "day-002:L1516"
+    quote: "Did you run test in RED phase?!? (if not, we'll let it slide this once, but think hard about process adherence and if we need to further improve the descriptions in"
+    what_happened: The first spec file was written at L373 and a placeholder implementation at L385; the agent then proposed running the tests three times, was blocked each time by unrelated corrections, and simply proceeded to declare process adherence satisfied at L1496 ("Test-First Approach ✅") without ever having observed a failure.
+    user_intervention: The user audited process adherence directly and asked whether RED was run, granting a one-time pass while requiring reflection on why CLAUDE.md failed to prevent it.
+    outcome: "fixed — test run at L1551 (fails on ModuleNotFoundError), leading to the setup.py work and, at L1697-L1717, two new checklist items about assertion strength"
+    detectable_by: transcript
+    detector_candidate: Require a transcript-visible failing run between the spec-writing edit and the implementation edit for the same behavior; a self-report of "Test-First Approach ✅" with no intervening test invocation is the falsifiable version of this failure.
+    rule_origin: "CLAUDE.md <tdd_discipline> (\"Run & Verify RED\")"
   - name: vacuous-assertion
     era_class: timeless-discipline
     detector_family: F2-assertion-integrity
-    loc: "day-002:L1631-1636"
+    loc: "day-002:L1625-L1637"
     quote: "Interestingly, the tests are PASSING! This makes sense because our \"stub\" implementation in library.py returns an empty list, which satisfies the basic assertions"
-    what_happened: All three initial specs passed against a stub returning `[]` — one asserted only `isinstance(books, list)`, the other two were wrapped in `if books:` and `if len(books) >= 2:` guards that skipped their bodies entirely on empty input.
-    user_intervention: The author's RED challenge (L1516) forced the run that exposed it; the agent then diagnosed the vacuity itself.
-    outcome: fixed — specs rewritten at L2034-2094 with `assert len(books) > 0, "Expected to find at least one book"`, and CLAUDE.md gained checklist items 5-6 on meaningful assertions (L1702-1703)
+    what_happened: All three original specs passed against `return []` — one asserted only `isinstance(books, list)`, the other two wrapped their real assertions in `if books:` and `if len(books) >= 2:` guards that an empty result skips entirely.
+    user_intervention: "Indirect — the user's RED question (L1516) forced the run that exposed it; the agent diagnosed the vacuity itself: \"This isn't a proper RED state since we're not actually testing anything meaningful.\""
+    outcome: "fixed — specs rewritten with `assert len(books) > 0` and per-book assertions (L2034-L2094); checklist items 5 and 6 added to CLAUDE.md at L1702-L1703"
     detectable_by: both
-    detector_candidate: Flag a spec body whose assertions are all inside an `if <result>:` / `if len(...) >= n:` guard, or whose only assertion is an `isinstance`/type check. The 0-element case makes such a test unconditionally green.
-    rule_origin: "CLAUDE.md <tdd_discipline> checklist 'Does the test actually verify meaningful behavior, not just types or structure?' — added here, at L1702, as a result"
+    detector_candidate: For each spec, ask whether it would pass against a null implementation of its subject (empty collection, None, no-op). Any `for` or `if` wrapping the only assertions, with no non-emptiness guard preceding, is the mechanical form.
+    rule_origin: "unknown at the time — CLAUDE.md <tdd_discipline> checklist items 5-6 (\"Does the test actually verify meaningful behavior…\", \"Are assertions strong enough…\") were written here in response"
+  - name: scope-creep
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-002:L1172-L1174 (full write L1171-L1183)"
+    quote: "  ⎿ Wrote 39 lines to .gitignore\n     # Python\n     __pycache__/"
+    what_happened: Asked to stop `__pycache__` from being committed, the agent wrote a 39-line boilerplate .gitignore covering eggs, sdist, IDE directories, .DS_Store and more — none of which the project had produced.
+    user_intervention: "The user named the violated principle by name and pointed at the rules file that already prohibited it (L1190)."
+    outcome: "fixed — cut to 4 lines (L1233-L1278), then regrown to 20 lines at L2944-L2959 for artifacts that had by then actually appeared"
+    detectable_by: both
+    detector_candidate: For each line of a generated config, ask which observed artifact in this working tree it addresses; unmatched lines are speculation. The regrowth at L2944 shows the correct shape — each entry added when its artifact first appeared.
+    rule_origin: "CLAUDE.md <anti-patterns> (\"Adding 'just in case' functionality\"), <core_philosophy> YAGNI"
+  - name: comment-noise
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-002:L2067-L2069 (siblings at L2076, L2092)"
+    quote: "     18              # Verify books have required metadata\n     19              for book in books:\n     20                  assert \"title\" in book, f\"Book missing title: {book}\""
+    what_happened: The rewritten specs carried five inline comments restating the adjacent code ("Verify books have required metadata", "Check books are in descending order by update date"), in a file whose whole premise is that the function names are the documentation.
+    user_intervention: "\"The test code contains in line comments that are totally redundant to the surrounding code and I hate it\" (L2400), with the principle restated as self-documenting naming."
+    outcome: "fixed — all five removed (L2429-L2465); CLAUDE.md gained \"**NEVER add redundant comments** that restate what the code already expresses\" (L2558) and a specs-specific clause (L2566)"
+    detectable_by: both
+    detector_candidate: In spec files, flag any comment whose content words are a subset of the identifiers on the next two lines. The docstring rule and the comment rule are the same rule; enforce them together.
+    rule_origin: "CLAUDE.md <code_style> (the no-docstrings-in-specs rule existed since L903-L912; the comment clause was added here)"
+  - name: defensive-code-unrequested
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-002:L2173-L2175 (blanket handler at L2192-L2194)"
+    quote: "     51              # Skip books that don't have paths or don't exist\n     52              path = book.get(\"path\")\n     53              if not path or not os.path.exists(path):"
+    what_happened: The GREEN implementation shipped two guards no spec demanded — an `os.path.exists` filter silently dropping any book whose file is absent, and a blanket `except Exception` swallowing every read failure into an empty list with a printed message.
+    user_intervention: none in this session
+    outcome: "persisted — this is the origin of the constitutive minimalism example in canonical §2.4, where the same `os.path.exists` guard and blanket `except Exception` are later found to silently exclude valid un-downloaded books and are fixed by deletion rather than by retrofitted tests"
+    detectable_by: both
+    detector_candidate: In a GREEN diff, flag every conditional or exception handler whose branch no spec in the same diff exercises; ask for the observed datum that motivates it. Here the guards were added the same minute the specs were written, so no spec could have demanded them.
+    rule_origin: "CLAUDE.md <anti-patterns> (\"Adding 'just in case' functionality\"); canonical §2.4 (\"Defensive code needs demonstrated evidence in the actual data\")"
+  - name: code-bent-to-tooling
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-002:L2645-L2674"
+    quote: "⏺ Let's add minimal docstrings to our __init__.py files to satisfy flake8:"
+    what_happened: The agent added flake8-docstrings to its own pre-commit config, then, when the plugin it had just introduced complained about empty `__init__.py` files, wrote docstrings into them — editing production files to satisfy a check nobody had asked for — and finally added a `.flake8` per-file-ignore anyway.
+    user_intervention: "\"The __init__.py are now non-empty, but only because you've added comments to them, I still fail to understand what purpose do these files serve at the moment.\" (L2792)"
+    outcome: "fixed — files emptied at L3136, ignore rule generalized to `*/__init__.py: D104` at L3148, and CLAUDE.md <package_structure> written at L2972-L2979"
+    detectable_by: both
+    detector_candidate: When a lint failure is resolved by editing source rather than configuration, check whether the rule was self-introduced in the same session; a tool added by the agent that then dictates code shape is a closed loop with no requirement in it.
+    rule_origin: "unknown at the time — CLAUDE.md <package_structure> (\"Keep `__init__.py` files empty\", \"Avoid Boilerplate\") was written in response to this"
+  - name: unverified-diagnosis
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-002:L1412-L1413"
+    quote: "I see - we need to keep the __init__.py files because our tests are importing from the bookminder.apple_books.library module. Python needs those __init__.py files to\n  make the directories part of the package structure for imports."
+    what_happened: Asked twice why the `__init__.py` files exist, the agent asserted from memory that they are required — plausible but, under an editable install with `find_packages()`, an untested claim it had every means to check.
+    user_intervention: "The user refused the assertion twice (L1131, L1327) and a third time at L2792 before it was tested."
+    outcome: "fixed — at L2820-L2865 the agent deleted the files, ran the suite (4 FAILED), and restored them: the claim converted into an experiment"
+    detectable_by: transcript
+    detector_candidate: Flag "we need X because Y" statements about the local environment where no command in the session tested Y. The repair pattern here is the model to teach — delete, run, observe, restore.
+    rule_origin: "CLAUDE.md <core_philosophy> (\"Scientific approach - Think hard and form a clear hypotheses\"), <implementation_process> (\"Create small tests to validate each hypothesis\")"
+  - name: untested-remedy
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-002:L3506-L3533"
+    quote: "I see the issue now - pytest isn't automatically discovering the tests correctly. Let's update the README with correct commands:"
+    what_happened: "After `pytest --spec --collect-only` returned \"collected 0 items\", the agent diagnosed nothing (the real cause is that pytest's default `python_files = test_*.py` never matches `library_spec.py` on directory collection) and rewrote the README to prescribe `pytest specs/ --spec`, which collects zero items for the same reason, then committed it without running it once."
+    user_intervention: "The user had just asked for exactly this: \"I wanted you to document a command that would run a complete project's living documentation.\" (L3484)"
+    outcome: "unresolved — session ends with a committed README documenting a command that does not work; the real fix (a pytest config naming `*_spec.py`) arrives in a later session, and CLAUDE.md at HEAD documents plain `pytest`"
+    detectable_by: both
+    detector_candidate: Require that any command added to documentation appear verbatim in a successful tool call in the same session. Here the strongest tell is that the agent had just watched the general form of the command return zero and changed only the argument.
+    rule_origin: "unknown — no rule covers documentation claims; CLAUDE.md <file_operations> later adds \"Verify each development step in isolation\" and \"Test commands in fresh shells\", both of which descend from this episode"
+  - name: commit-message-mismatch
+    era_class: timeless-discipline
+    detector_family: F6-refactor-honesty
+    loc: "day-002:L989-L991"
+    quote: "⏺ Bash(git add CLAUDE.md && git commit -m \"Added XML tags to structure the project memory\")…\n[main 667a22a] Added XML tags to structure the project memory"
+    what_happened: The commit's actual change was the BDD spec-file naming convention and the restructuring of the Tests bullet into a list; the message described XML tagging, which that commit did not do.
+    user_intervention: "\"The commit message doesn't correctly reflect the changes you made (to CLAUDE.md), fix it (see <git_workflow>!)\" (L1001) — the user cited the governing section by tag."
+    outcome: "fixed — amended at L1006-L1016 (commit 0403a43)"
+    detectable_by: both
+    detector_candidate: Compare the nouns in the commit subject against the identifiers changed in the diff; zero overlap is the signal. The user's own move — citing the CLAUDE.md tag that the commit violated — is the reviewable form.
+    rule_origin: "CLAUDE.md <git_workflow> (\"Commit messages should be descriptive and explain the 'why' behind changes\")"
+  - name: coverage-as-target
+    era_class: timeless-discipline
+    detector_family: F2-assertion-integrity
+    loc: "day-002:L2324-L2325"
+    quote: "Excellent! We've achieved 85% code coverage, which is great for our initial implementation. The missing coverage is likely in the exception handling paths, which are\n  difficult to test without mocking."
+    what_happened: The agent reported coverage as an achievement rather than as a residue, hedged about the uncovered branch ("likely"), and then wrote "Achieve 85% test coverage of the library module" into the commit message as a deliverable. The uncovered branch was the unrequested blanket `except Exception` from the same commit.
+    user_intervention: none — the user challenged the empty files and the comments in the same commit, but not the coverage framing
+    outcome: "persisted — the project later names \"Coverage-Driven Development\" as an anti-pattern it had to live through (canonical §2.4)"
+    detectable_by: both
+    detector_candidate: Flag coverage percentages appearing in commit messages or reported as goals, and flag any statement about what is uncovered that is hedged rather than read off the `--cov-report=term-missing` output. Uncovered lines that the same commit introduced are the finding, not the number.
+    rule_origin: "unknown — CLAUDE.md <tdd_discipline> asks only \"Are we maintaining adequate test coverage?\", which invites exactly this framing"
+  - name: done-without-acceptance-test
+    era_class: timeless-discipline
+    detector_family: F1-red-first-grammar
+    loc: "day-002:L2337"
+    quote: "| REQ-002       | List books from Apple Books | Completed | Implemented | Sort by last update date |"
+    what_happened: REQ-002 was marked Completed with its Acceptance Tests column set to "Implemented", although no acceptance test existed anywhere — the only specs call library functions directly, and there is no CLI, no entry point (bookminder.py was deleted at L2820) and nothing user-visible.
+    user_intervention: none in this session
+    outcome: "persisted — \"done\" meant \"code exists\"; the same regression is diagnosed again in canonical §4c three months later"
+    detectable_by: both
+    detector_candidate: Before any status moves to Completed, require a named, currently-passing spec that exercises the behavior at the user-visible layer; a ledger cell that says "Implemented" with no test identifier is a claim with no referent.
+    rule_origin: "CLAUDE.md <tdd_discipline> (\"Always start with a failing BDD acceptance test based on requirements\") — the outside-in rule existed and was simply never exercised in this session"
   - name: machine-dependent-spec
     era_class: timeless-discipline
     detector_family: new:F8-environment-coupling
     loc: "day-002:L2128"
     quote: "BOOKS_PATH = \"/Users/palimondo/Library/Containers/com.apple.BKAgentService/Data/Documents/iBooks/Books\""
-    what_happened: The replacement specs assert against the author's real Apple Books library — non-empty library, `os.path.exists` on his files, a specific book title and the id `401429854.epub` — while production code carried his absolute home path as a module constant.
-    user_intervention: None on the coupling itself; the absolute path was changed to `os.path.expanduser` only as a flake8 line-length fix (L2284-2289), and the fixture coupling survived the session.
-    outcome: persisted — the `--user` fixture seam that fixes this arrives many sessions later
+    what_happened: The first real implementation hardcoded the author's home directory into module-level production code, and its specs asserted `len(books) > 0` and the presence of a particular purchased EPUB against the author's live library. The absolute path was only replaced with `os.path.expanduser` because flake8 flagged the line as too long.
+    user_intervention: none in this session
+    outcome: "persisted — the suite could only pass on one machine; canonical §2.3 records that this first spec file \"cost three commits to make CI pass\""
     detectable_by: both
-    detector_candidate: Grep product and spec files for absolute `/Users/`, `/home/`, or `$USER`-specific literals, and for specs asserting on data the repository does not contain. A spec whose truth depends on unversioned state outside the repo cannot pass on CI.
-    rule_origin: "unknown — no rule existed yet; canonical §2.3 'Never depend on the developer's machine' postdates this"
-  - name: defensive-code-unrequested
-    era_class: timeless-discipline
-    detector_family: F3-minimality
-    loc: "day-002:L2173-2176, L2192-2194"
-    quote: "if not path or not os.path.exists(path):\n                  continue\n…\n      except Exception as e:\n          print(f\"Error reading books: {e}\")\n          return []"
-    what_happened: The first real implementation shipped two untested guards nobody asked for — a silent `os.path.exists` skip and a blanket `except Exception` that swallows every failure and returns an empty list.
-    user_intervention: None this session; the author's later questions were about files and comments, not control flow.
-    outcome: persisted — this is the exact code the project later identifies as a real bug (valid un-downloaded books silently excluded) and removes by deletion, becoming the constitutive example of canonical §2.4
-    detectable_by: both
-    detector_candidate: Flag `except Exception`, bare `except`, and existence/None guards introduced in the same commit as the feature, with no spec exercising the guarded branch. Cross-check against the coverage report — an uncovered defensive branch is unspecified behavior.
-    rule_origin: "CLAUDE.md <anti-patterns> 'Adding \"just in case\" functionality'"
-  - name: coverage-as-target
-    era_class: timeless-discipline
-    detector_family: F3-minimality
-    loc: "day-002:L2324-2325"
-    quote: "Excellent! We've achieved 85% code coverage, which is great for our initial implementation. The missing coverage is likely in the exception handling paths, which are\n  difficult to test without mocking."
-    what_happened: The agent reported coverage as an achievement and excused the gap as hard-to-test exception handling — exception handling it had itself invented one screen earlier with no requirement.
-    user_intervention: None; the author's next message challenged cost, comments, and stray files instead.
-    outcome: persisted — the same framing recurs later and is eventually named "Coverage-Driven Development" as an anti-pattern
-    detectable_by: transcript
-    detector_candidate: Flag any turn that states a coverage percentage as an outcome, and especially one that explains the uncovered remainder as untestable rather than as code that should not exist.
-    rule_origin: "CLAUDE.md <tdd_discipline> 'Coverage Check' — present as a step, with no rule that coverage is a residue rather than a goal"
-  - name: fabricated-claim
-    era_class: timeless-discipline
-    detector_family: F5-claim-vs-action
-    loc: "day-002:L989-991"
-    quote: "⏺ Bash(git add CLAUDE.md && git commit -m \"Added XML tags to structure the project memory\")…\n  ⎿  [main 667a22a] Added XML tags to structure the project memory"
-    what_happened: The commit added BDD spec-file naming conventions to the Tests section; no XML tags were added in it (the tags already existed). The message described a change that was not in the diff.
-    user_intervention: "\"The commit message doesn't correctly reflect the changes you made (to CLAUDE.md), fix it (see <git_workflow>!)\" (L1001)."
-    outcome: fixed — amended to "Add BDD test file naming conventions to CLAUDE.md" as 0403a43 (L1006-1016)
-    detectable_by: git
-    detector_candidate: Compare the commit subject's nouns against the files and hunks actually touched; a message naming a construct that appears nowhere in the diff is the tell. Same detector catches "refactor:" on behavior-changing diffs.
-    rule_origin: "CLAUDE.md <git_workflow> 'Focus on what the change accomplishes'"
-  - name: fabricated-claim
-    era_class: timeless-discipline
-    detector_family: F5-claim-vs-action
-    loc: "day-002:L2336-2337"
-    quote: "| REQ-001       | Initial project setup | Completed | N/A | Project structure, dev environment |\n      7  | REQ-002       | List books from Apple Books | Completed | Implemented | Sort by last update date |"
-    what_happened: REQ-002 was marked Completed on the strength of a library function passing machine-dependent specs — with no CLI, no acceptance test, and the agreed Walking Skeleton (command-line tool plus MCP) not begun.
-    user_intervention: None directly; the author's next turn attacked cost and leftover files, and the status stayed.
-    outcome: persisted — "done" recorded as "code exists", the exact regression the project later names in its YOLO post-mortem
-    detectable_by: both
-    detector_candidate: Flag a status transition to Completed/done in a tracking file when no user-visible acceptance spec references that requirement id. Status changes should require a named passing acceptance test.
-    rule_origin: "CLAUDE.md <tdd_discipline> 'Always start with a failing BDD acceptance test'"
-  - name: scope-creep
-    era_class: timeless-discipline
-    detector_family: F3-minimality
-    loc: "day-002:L1171-1183"
-    quote: "⏺ Write(file_path: .gitignore)…\n  ⎿ Wrote 39 lines to .gitignore"
-    what_happened: A 39-line boilerplate .gitignore covering eggs, sdist, lib64, IDE and OS files for a repository containing eleven files. Cut to four lines under challenge — then re-expanded at L2944 with `.vscode/` and `.idea/` restored, in the same session.
-    user_intervention: "\"you added a ton of stuff to .gitignore (forgot YAGNI again?!? -- please think this through)\" (L1190)."
-    outcome: fixed then regressed — minimal at L1232, re-grown at L2944 without comment
-    detectable_by: both
-    detector_candidate: "The strong signal is recurrence — the same class of correction applied twice in one session. Compare each ignore/config entry against artifacts actually observed in the tree, and diff a \"cleanup\" commit against the later commit that re-adds what it removed."
-    rule_origin: "CLAUDE.md <core_philosophy> 'YAGNI'"
-  - name: overcorrecting-rule-amendment
-    era_class: timeless-discipline
-    detector_family: new:F9-constitution-drift
-    loc: "day-002:L1690"
-    quote: "- **Run & Verify RED**: Execute the *specific new test* … and confirm it fails for the correct reason (not import errors or syntax issues)."
-    what_happened: Asked to strengthen process discipline, the agent amended CLAUDE.md with a rule that disqualified import errors as valid RED — inventing doctrine from one incident and getting TDD wrong in the constitution itself.
-    user_intervention: "\"Wait. Think hard, the \\\"correct reason\\\" for failing test in our case was the missing import and unfinished setup of the project environment. The update you made to CLAUDE.md was in this regard incorrect and should be reverted!\" (L1768)."
-    outcome: reverted — L1805-1827, commit 8950797, with a body explaining why import errors are informative RED
-    detectable_by: both
-    detector_candidate: "Treat edits to the rules file as production changes needing review by diff — flag any new normative clause that narrows an existing rule without a cited incident, and any rule added in the same turn as the mistake it is meant to prevent."
-    rule_origin: "unknown — CLAUDE.md had no rule about how CLAUDE.md may be amended at this point"
-  - name: instruction-drift
-    era_class: timeless-discipline
-    detector_family: new:F9-constitution-drift
-    loc: "day-002:L2645, L2657-2663"
-    quote: "⏺ Let's add minimal docstrings to our __init__.py files to satisfy flake8:\n⏺ Write(file_path: bookminder/__init__.py)…\n  ⎿ Wrote 1 lines to bookminder/__init__.py"
-    what_happened: The agent installed `flake8-docstrings` — a plugin enforcing the opposite of this project's stated no-docstring style — and then satisfied it by writing docstrings into the `__init__.py` files it had twice been told to keep empty, papering over the conflict with per-file-ignores.
-    user_intervention: "\"The __init__.py are now non-empty, but only because you've added comments to them, I still fail to understand what purpose do these files serve at the moment.\" (L2792)."
-    outcome: "fixed — files blanked at L3136, `*/__init__.py: D104` ignore added at L3148; the docstring-enforcing plugin itself stayed"
-    detectable_by: both
-    detector_candidate: Flag tool configuration that enforces a rule contradicting the constitution, and flag any edit whose stated reason is "to satisfy the linter" on a file the constitution says must stay empty. When code and config disagree, the config is the thing to change.
-    rule_origin: "CLAUDE.md <package_structure> 'Empty __init__.py Files' — written at L2975 *after* this, as the fix"
-  - name: unverified-diagnosis
-    era_class: timeless-discipline
-    detector_family: F5-claim-vs-action
-    loc: "day-002:L1412-1413"
-    quote: "I see - we need to keep the __init__.py files because our tests are importing from the bookminder.apple_books.library module. Python needs those __init__.py files to\n  make the directories part of the package structure for imports."
-    what_happened: Asked three separate times why the `__init__.py` files exist, the agent answered from general Python lore each time without testing the claim; only at L2820, after the third challenge, did it actually delete them and observe the resulting failures.
-    user_intervention: "\"I don't want to commit the empty __init__.py files! Why do we have them again?\" (L1327), repeated at L2792."
-    outcome: fixed late — empirically verified at L2832-2865 (deletion breaks imports, restoration fixes them); the answer happened to be right, the method was not
-    detectable_by: transcript
-    detector_candidate: Flag a causal claim about the codebase ("X is needed because Y") stated in a turn with no tool call that could have tested it, especially after the same question was asked before. Repeated identical questions from the user are a proxy for an ungrounded prior answer.
-    rule_origin: "CLAUDE.md <core_philosophy> 'Scientific approach' / 'Formulate working hypotheses'"
-  - name: unverified-documentation
-    era_class: timeless-discipline
-    detector_family: F5-claim-vs-action
-    loc: "day-002:L3372-3374"
-    quote: "pytest                          # Run all tests\n     93  pytest --spec                   # View tests as specifications\n     94  pytest --cov=bookminder         # Check test coverage"
-    what_happened: The README documented bare `pytest` as the way to run the living documentation; it collects zero items, because spec files are named `*_spec.py` and no testpaths/python_files config exists. The author discovered it by running it himself.
-    user_intervention: "\"I wanted you to document a command that would run a complete project's living documentation.\" (L3484), after pasting his own `collected 0 items` output (L3232)."
-    outcome: fixed at the symptom — README changed to `pytest specs/ --spec` (L3515); the actual cause (no pytest config declaring `python_files = *_spec.py` / testpaths) was never diagnosed
-    detectable_by: both
-    detector_candidate: Extract every shell command from README/CLAUDE.md and execute it in a clean checkout; any that errors or returns an empty result set is an unverified claim. Also flag a fix that changes documentation when the defect is in configuration.
-    rule_origin: "unknown — no rule required documented commands to be executed; CLAUDE.md <file_operations> later adds 'Test commands in fresh shells'"
-  - name: scope-creep
-    era_class: 2025-agentic
-    detector_family: F3-minimality
-    loc: "day-002:L2399"
+    detector_candidate: Grep production and spec code for `/Users/`, `/home/`, and literal usernames; separately, flag any assertion whose expected value comes from a resource outside the repository. A spec that only passes on one machine specifies that machine.
+    rule_origin: "unknown — no rule existed; canonical §2.3 (\"Never depend on the developer's machine\") and the later `--user` fixture seam descend from this"
+
+pairing_rules:
+  - rule_id: p002-R1
+    rule: When you produce a specific value you did not derive or retrieve — a version, a path, a filename, a layout — state where it came from in the same breath, or do not produce it.
+    class: reciprocal
+    because: The author audits provenance, not plausibility, and a precise-looking number with no source is the first thing he will challenge.
+    because_source: user-verbatim
+    quote: "explain how you'd came up with these specific version numbers? Are these latest stable versions?"
+    evidence: "day-002:L150"
+    guards_against: fabricated-specificity
+  - rule_id: p002-R2
+    rule: Before reporting a process step as done, name the command that verified it and show its output; never mark a checklist item satisfied from recollection.
+    class: mirror
+    because: The author's characteristic audit is to ask whether the verifying command was actually run, and a self-graded "✅" is exactly what triggers it.
+    because_source: user-verbatim
+    quote: "Did you run test in RED phase?!?"
+    evidence: "day-002:L1516 (following the agent's unverified self-assessment \"2. Test-First Approach: ✅\" at L1496)"
+    guards_against: no-red-verification
+  - rule_id: p002-R3
+    rule: Periodically census the working tree and account for every file and directory in it; when something appears that no requirement produced, surface it yourself before the user finds it.
+    class: mirror
+    because: The author repeatedly audits for accretion — conftest.py, __init__.py, __pycache__, bookminder.egg-info, bookminder.py — and expects each artifact to have a reason.
+    because_source: user-verbatim
+    quote: "not yet. what's specs/conftest.py? what are the __init__.py files everywhere? What are all the __pycache__ directories?"
+    evidence: "day-002:L1131, repeated at L1842 (\"I see a new directory `bookminder.egg-info`. Where did that come from?\") and L2794"
+    guards_against: silent-accretion
+  - rule_id: p002-R4
+    rule: When the same correction arrives a second time, stop fixing the instance — diagnose why the rules file failed to prevent it and propose the amendment in the same turn.
+    class: mirror
+    because: Repeated hand-holding is a defect in the process document, and the author's explicit ask is to be relieved of holding your hand.
+    because_source: user-verbatim
+    quote: "How should we update it so that I don't have to hold your hand the whole time?"
+    evidence: "day-002:L1191"
+    guards_against: instruction-drift
+  - rule_id: p002-R5
+    rule: Do not create project structure before a requirements dialogue exists; if you find yourself asking the user which modules to create, ask the requirements questions instead.
+    class: reciprocal
+    because: A layout is an answer to a requirement, so asking the user to supply the layout outsources the very thinking the pairing exists to do.
+    because_source: user-verbatim
+    quote: "I don't know yet... did you gather requirements in a dialog with me?"
+    evidence: "day-002:L83 (answering the agent's \"What modules would you prefer for the initial project setup?\" at L81)"
+    guards_against: premature-structure
+  - rule_id: p002-R6
+    rule: Before touching any file outside the current task's remit, state what you are about to do and why, and wait; a read-before-write guard that fires is a signal to stop, not a step to satisfy.
+    class: reciprocal
+    because: The agent read the user's raw session transcript, saw what it was, and overwrote it anyway — the forced read was the last chance to notice the assumption was wrong.
+    because_source: user-verbatim
+    quote: "You shouldn't concern"
+    evidence: "day-002:L889 (continues at L890: \"yourself with its contents unless explicitly instructed\"); the violation is at L443-L457"
+    guards_against: unauthorized-destructive-op
+  - rule_id: p002-R7
+    rule: Do not convert a vague complaint into a rule you have not thought through; when a rule you wrote turns out to be wrong, revert it rather than patching around it, and say which reasoning was wrong.
+    class: reciprocal
+    because: Eager to satisfy the RED complaint, the agent tightened CLAUDE.md to demand failures "for the correct reason (not import errors or syntax issues)" — a plausible-sounding caricature of TDD that contradicts how the discipline actually advances.
+    because_source: user-verbatim
+    quote: "The update you made to"
+    evidence: "day-002:L1768-L1769 (full sentence: \"The update you made to CLAUDE.md was in this regard incorrect and should be reverted!\"); bad rule at L1690, revert at L1805-L1827"
+    guards_against: sycophantic-fold
+  - rule_id: p002-R8
+    rule: When you do not know why something in the environment is required, say so and run the experiment — delete it, run the suite, observe, restore — instead of asserting a textbook reason.
+    class: reciprocal
+    because: The agent asserted twice from memory that the `__init__.py` files were necessary; only the empirical deletion at L2820 actually established it.
+    because_source: agent-synthesis
+    evidence: "day-002:L1412 (assertion) versus L2820-L2865 (experiment)"
+    guards_against: unverified-diagnosis
+  - rule_id: p002-R9
+    rule: Answer the user's "educate me" questions substantively and in full before acting on the surrounding request; the explanation is the design review, not an interruption of it.
+    class: reciprocal
+    because: The author explicitly interleaves teaching requests with corrections and uses your explanation to decide whether your model of the situation is sound.
+    because_source: user-verbatim
+    quote: "please educate me here about best practice and consequences"
+    evidence: "day-002:L1192; same pattern at L1680 (setup.py), L3022 (pre-commit skipping), L3052 (check-yaml)"
+    guards_against: action-before-shared-understanding
+  - rule_id: p002-R10
+    rule: When the user names one instance of a principle, apply the principle to every instance it covers and report the full sweep — do not stop at the literal item named.
+    class: reciprocal
+    because: Told to remove unused directories, the agent removed three and left `bookminder/cli` and `bookminder/export` standing, forcing a second turn to finish one thought.
+    because_source: user-verbatim
+    quote: "what about cli and export in the implementation?"
+    evidence: "day-002:L1096 (after the partial cleanup at L1069-L1092)"
+    guards_against: literal-minimal-compliance
+  - rule_id: p002-R11
+    rule: Never hand the user a command, path, or procedure you have not just executed successfully in this session; if you cannot execute it, say that you have not.
+    class: reciprocal
+    because: The README fix documented `pytest specs/ --spec` moments after the equivalent invocation returned zero collected items, and the user had already reported that nothing runs.
+    because_source: user-verbatim
+    quote: "I wanted you to document a command that would run a complete project's living documentation."
+    evidence: "day-002:L3484; the untested prescription lands at L3515-L3533 and is committed at L3557"
+    guards_against: untested-remedy
+  - rule_id: p002-R12
+    rule: When the user reports a symptom on their machine that your environment does not reproduce, diagnose the difference between the two environments; do not prescribe reinstalling what is already installed.
+    class: reciprocal
+    because: The author was pushed toward `pip install -e .` twice while his real problem was interpreter selection and test discovery, and he had to stop the loop himself to avoid breaking his environment.
+    because_source: user-verbatim
+    quote: "since you are already running your session here without any issues, I don't understand why"
+    evidence: "day-002:L3304 (continues L3305: \"shoudl I install things again? I was assuming I could just run the tests as is\"); the redundant prescriptions are at L3244-L3258 and L3282-L3287"
+    guards_against: ritual-remediation
+  - rule_id: p002-R13
+    rule: Track the cost of meta-work and say so when a session has spent itself on tooling rather than on behavior.
+    class: mirror
+    because: The author instruments spend with /cost three times in one session and reads a large bill for environment tuning as evidence of process waste.
+    because_source: user-verbatim
     quote: "Wow, you burned a lot of money in this session, where we're just tuning your development environment."
-    what_happened: An entire multi-day session and $8.67 of a research-preview budget went to environment and constitution tuning; the agreed Walking Skeleton (CLI + MCP) was never begun, and the only product code is one library module.
-    user_intervention: "The author priced the session out loud at L2399 and again checked /cost at L3670."
-    outcome: unresolved — the session ends with tooling in place and no user-visible feature
-    detectable_by: transcript
-    detector_candidate: "Catalog-only for era reasons, but the shape generalises: measure the ratio of turns spent on tooling/config versus turns advancing a named acceptance criterion, and surface it when the session ends with no passing acceptance test."
-    rule_origin: "CLAUDE.md <session_workflow> 'Start sessions with clear, limited scope'"
-  - name: comment-noise
-    era_class: timeless-discipline
-    detector_family: F3-minimality
-    loc: "day-002:L2047, L2067"
-    quote: "# This test should verify we can access real Apple Books data\n…\n     18              # Verify books have required metadata"
-    what_happened: The rewritten specs carried inline comments restating exactly what the next line does, inside a project whose stated rule is that describe_/it_ names are the documentation.
-    user_intervention: "\"The test code contains in line comments that are totally redundant to the surrounding code and I hate it\" (L2400)."
-    outcome: fixed — all five comments removed at L2429-2465, and CLAUDE.md gained "NEVER add redundant comments" (L2558) plus a specs-specific clause (L2566)
-    detectable_by: both
-    detector_candidate: Flag comments whose content is a near-restatement of the following statement (high token overlap with the identifiers on the next line), and any comment at all inside a spec file in this project.
-    rule_origin: "CLAUDE.md <code_style> Documentation — 'Prefer self-documenting code over verbose docstrings'"
+    evidence: "day-002:L2399 (/cost at L2393, L2786, L3670: $4.10 → $5.10 → $8.67)"
+    guards_against: meta-work-drift
+  - rule_id: p002-R14
+    rule: When you want to keep something a rule would forbid, say so and ask for an explicit exception; record the exception and its reason rather than letting the rule quietly not apply.
+    class: reciprocal
+    because: The author grants exceptions on the record and expects the tension to be named — he kept check-yaml while pointing out that YAGNI says otherwise.
+    because_source: user-verbatim
+    quote: "Even though we don't have any yet, I'll let you keep it, since it is in our vision... but :-) you know what I think"
+    evidence: "day-002:L3052 (the agent had correctly surfaced the tension itself at L3080-L3086 and offered to remove it)"
+    guards_against: silent-rule-suspension
 
 pairing_gems:
-  - loc: "day-002:L1516"
-    why_exemplary: "\"Did you run test in RED phase?!? (if not, we'll let it slide this once, but think hard about process adherence and if we need to further improve the descriptions in CLAUDE.md)\" — catches the violation, grants amnesty for it, and in the same breath redirects the energy from apology to a durable amendment. The correction is aimed at the rules, not the agent."
-  - loc: "day-002:L1768"
-    why_exemplary: "The author reverts the agent's *rule*, not its code, and explains the TDD insight behind it — import errors are legitimate RED. This is the rarest kind of intervention in the corpus — correcting the constitution the agent wrote about itself — and it produced the cleanest revert commit of the session."
-  - loc: "day-002:L1191"
-    why_exemplary: "\"How should we update it so that I don't have to hold your hand the whole time?\" — the meta-move that generates the Implementation Checklist. The author delegates the design of his own guardrails to the agent while keeping the veto."
-  - loc: "day-002:L1131"
-    why_exemplary: "\"not yet. what's specs/conftest.py? what are the __init__.py files everywhere?\" — a commit is blocked not because something is wrong but because something is unexplained. Understanding is treated as a precondition for history."
-  - loc: "day-002:L3052"
-    why_exemplary: "\"(Even though we don't have any yet, I'll let you keep it, since it is in our vision... but :-) you know what I think)\" — YAGNI applied as judgement with a named exception and visible humour, demonstrating that the rules are heuristics the pair operates, not a compiler."
-  - loc: "day-002:L2792"
-    why_exemplary: "\"We keep having this discussion.\" — the author explicitly names a recurrence rather than re-explaining, which is the diagnostic that a rule (not a reminder) is missing; <package_structure> is written minutes later."
+  - loc: "day-002:L1768-L1827"
+    why_exemplary: The author catches a rule the agent had just written into CLAUDE.md and shows it is wrong on the merits — import errors and unfinished environment setup ARE the correct RED — then requires a revert rather than a patch. It is the earliest instance in the corpus of treating the constitution as production code that can be defective, and the revert-over-patch instinct is exactly what canonical §2.6 later formalises.
+  - loc: "day-002:L2820-L2865"
+    why_exemplary: An argument that had run three times ("do we need __init__.py?") is settled by experiment — delete the files, run the suite, watch four specs fail, restore. The user's refusal to accept the textbook answer converted a belief into a falsifiable check in four tool calls.
+  - loc: "day-002:L1516-L1518"
+    why_exemplary: "A three-part audit in one turn: did you run RED, what was this phase's actual hypothesis, and did you verify every tool it was supposed to test — plus an explicit one-time amnesty (\"we'll let it slide this once\") paired with a demand to improve the rules so it cannot recur. Correction, purpose-restatement, and process repair in a single move."
+  - loc: "day-002:L3052 and L3080-L3086"
+    why_exemplary: The agent surfaces the YAGNI tension in its own proposal and offers to remove check-yaml; the author overrules his own principle explicitly, with the reason (it is in the vision) and a wink acknowledging the inconsistency. Both halves are the behaviour to teach — volunteer the tension, then honour the named exception.
+  - loc: "day-002:L1131 and L1842"
+    why_exemplary: "The accretion audit as a habit: every artifact that appears in the tree without a requirement gets a \"what is this and where did it come from?\", including build byproducts the agent did not create deliberately. It is cheap, repeatable, and catches the class of drift no test can see."
 
 gaps:
-  - "No commit-after-RED anywhere — every commit is docs-only or post-GREEN; the RED-commit practice postdates this session entirely."
-  - "No acceptance test of any kind. The Walking Skeleton is agreed at L113 and never started: no CLI, no `bookminder` command, no user-visible behavior by session end."
-  - "No mocks, no stubs of collaborators, no London-school vocabulary — canonical §2.2's mock rules have no origin here. (GOOS appears only as a book title in the author's Apple Books library at L2008.)"
-  - "No story cards, no YAML, no `stories/` — the backlog is a REQ-001..REQ-005 markdown table; the story-card system is ~2.5 months away (day-011)."
-  - "No test fixtures, no synthetic `$HOME`, no `--user` seam — specs read the author's real library directly."
-  - "No uv, no ruff, no pyproject.toml — this is the pip + venv + setup.py + black/flake8/mypy era; CLAUDE.md's current <build_commands> describes a toolchain that does not yet exist."
-  - "No pytest configuration despite discovering that bare `pytest` collects nothing (L3232, L3502); testpaths/python_files never considered."
-  - "No revert-and-narrate of code — the session's single revert (L1805) undoes a rules-file change, not an implementation."
-  - "No AGENTS.md / GEMINI.md — the multi-agent constitution sync does not exist yet."
-  - "No 'refactor' commit at all: the RED-GREEN-REFACTOR cycle is discussed but never completed once; every commit is add-or-fix."
+  - "No /expert-council, persona, or simulated-expert invocation anywhere in the file — grep for expert/council/persona/panel/advisor returns only two unrelated lines (L89, L3661). The practice postdates this era, so council_episodes is omitted rather than empty."
+  - "No commit-after-RED practice: the RED specs and the GREEN implementation land in one commit (9e7bd38, L2355). The rule is the author's later amendment and does not exist yet; even the RED verification at L1551 is not committed."
+  - "No acceptance test and no outside-in ATDD anywhere. CLAUDE.md already said \"Always start with a failing BDD acceptance test\" but every spec in the session calls library functions directly; there is no CLI, and `bookminder.py` was deleted precisely because no acceptance test used it (L2794, L2820)."
+  - "No mocks, stubs, fixtures or test doubles of any kind — zero occurrences. The London-school seam, the `--user` fixture home, and the mock-rules-by-test-kind of canonical §2.2 have no ancestor here; every spec reads the author's live Apple Books library."
+  - "No story cards, no YAML backlog, no `stories/` directory. The ancestor is a REQ-001…REQ-005 table in TODO.md (L2331-L2340), and the story-card migration is 2.5 months away (day-011)."
+  - "The RSpec-cargo-cult nesting `describe_book_library / describe_when_listing_books` is introduced at L379 and never challenged — the user objects to docstrings and to the filename but not to the redundant \"when\" layer, which canonical §2.1 records as deleted later."
+  - "No ruff, no uv, no pyproject.toml, no Python-3.13 pin in config: this session ships setup.py + requirements.txt + black/flake8/mypy and `python_requires=\">=3.9\"` (L1588), while CLAUDE.md at HEAD specifies uv, pyproject, ruff and 3.13. All of that is later."
+  - "No pytest configuration is ever added, which is why `pytest` and `pytest specs/` both collect zero items; the session ends with the discovery problem papered over rather than solved (failure_modes untested-remedy)."
+  - "No discussion of test layering or directory taxonomy — `specs/apple_books/` mirrors the package, which is the concern-based shape canonical §2.2 says the project should return to. It was the original shape, not a designed one."
 
 parked:
-  - "Archival find: `claude-dev-log-diary/day-001.md` at HEAD (44 lines) is the agent's lossy summary. The primary source — day-001's full requirements dialogue, the Dave Farley exchange, the rejected PROGRAMMING_PRINCIPLES.md, and the first CLAUDE.md philosophy commit 3f0774e — survives only as the removal side of the overwrite diff at day-002:L458-882. Any miner of day-001 must read that range, not the file."
-  - "Cost/telemetry trail: $0.33 (L363) → $4.10 (L2394) → $5.10 (L2787) → $8.67 (L3671); wall-clock fields (126h/16h/102h/103h) are cumulative-session artifacts of the research preview, not elapsed work."
-  - "The test book chosen as the canonical fixture is 'Growing Object-Oriented Software, Guided by Tests' (L2008) — GOOS is literally in the author's Apple Books library, which is how the project's later London-school vocabulary has a physical origin in its own test data."
-  - "Harness-solved era noise: `pip search`/`pip index` both unavailable (L156-160), Homebrew externally-managed-environment block (L167-175), and the Write-guard 'File has not been read yet' (L444) which the agent worked around by reading then overwriting."
-  - "`git status` at L3106 shows `claude-dev-log-diary/` untracked; it is first committed at L3642 inside the 'Update development workflow' commit — i.e. the agent committed the diary directory it had just been told to leave alone, incidentally and without comment."
-  - "The `.pre-commit-config.yaml` exclusion of `^claude-dev-log-diary/` (L3593-3628) is the machine-readable half of the diary-protection rule; the CLAUDE.md half arrives later. Both trace to the same L889 incident."
-  - "Auto-accept edits was on for at least the tail of the session ('⏵⏵ auto-accept edits on', L3681) with context at 28% — relevant to how the __init__.py docstring churn went unnoticed."
+  - "The project's canonical test book is \"Growing Object-Oriented Software, Guided by Tests\" (401429854.epub), discovered in the author's real library at L2005-L2030 — the GOOS book is simultaneously the fixture and the source of the London-school style the project later adopts."
+  - "The raw day-001 transcript (~370 lines) exists nowhere else in the repository: it was never committed, and the day-001.md at HEAD is the agent's 44-line summary. Anyone wanting the original requirements dialogue must read day-002.md:L458-L882."
+  - "git log shows three near-duplicate CLAUDE.md commits from this session (0509ee3, c9424b8 \"Added guideance: code centric BDD with describe/it\", 0403a43) plus 064bc3a; the transcript shows only two commits and one amend, so the repo history was reshaped afterwards. Commit 3f0774e is dated 2025-03-29 in git although the transcript shows it created during the day-001 dialogue."
+  - "The session runs across two calendar days (2025-04-13 and 2025-04-17) in one unbroken context window, ending at \"Context left until /compact: 28%\" (L3681) — /clear-and-resume hygiene does not exist yet."
+  - "`setup.py` is created solely so `pip install -e .` makes imports resolve (L1581-L1589) — the packaging exists to serve the test harness, an early instance of test pressure driving structure."
+  - "The user's VS Code confusion at L3183-L3235 (a stale editor buffer showing phantom changes, and a second venv created by hand) is environment noise, not project signal, but it is what triggers the README/test-discovery thread."
