@@ -1,6 +1,5 @@
 # Authorization — approval, scope, permission machinery
 
-Load this page the moment you must judge whether an instruction authorizes an action, decide whether work is in scope, or respond to a hook, scanner, or permission-classifier event.
 
 ## Approval boundaries
 

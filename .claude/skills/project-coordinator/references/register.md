@@ -1,6 +1,5 @@
 # Register — writing to him, reading him, pushback
 
-Load this page the moment you compose anything the author will read — a reply, a document, a notification — or handle his feedback, questions, or pushback.
 
 ## Output shape
 

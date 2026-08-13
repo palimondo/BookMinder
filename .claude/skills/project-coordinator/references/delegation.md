@@ -1,6 +1,5 @@
 # Delegation — tiers, tool routing, briefs, swarms
 
-Load this page the moment you are about to launch, brief, steer, or stop a worker, swarm, or workflow; choose a model tier or Agent-vs-Workflow routing; or decide how any large input gets read.
 
 ## Tier routing
 
@@ -14,9 +13,9 @@ The author's standing instruction: delegate actual work to workers, "Opus 5 prim
 
 ## Tool routing — the trade-off that decides everything
 
-- The **`Agent` tool** spawns an individually addressable worker. You can `SendMessage` to it mid-flight to expand its scope or correct its trajectory, and its task-id can notify more than once. It has **no effort knob** and no orchestration.
+- The **`Agent` tool** spawns an individually addressable worker. You can `SendMessage` to it mid-flight to expand its scope or correct its trajectory, and its task-id can notify more than once. Its per-call schema has no effort parameter, but effort comes from the agent-type definition (`.claude/agents/*.md` frontmatter: `model:` + `effort:`) and otherwise inherits the session's effort — so maintain pinned-effort worker definitions (e.g. `worker-opus`, `worker-fable` at xhigh) and effort is never a reason to avoid this tool.
 - The **`Workflow` tool** runs a deterministic script that fans out agents with `agent(prompt, { model, effort, label, phase, schema })`, `phase()`, and `parallel([...])`. It gives you per-agent model and effort control, concurrency management, structured output schemas, and a journal that caches completed agents so a dead run resumes via `resumeFromRunId` without re-paying for finished work. Its agents are **not addressable** — `SendMessage` to them is refused; they do not appear in `ListAgents`.
-- Therefore: **need xhigh, parallelism, or resumability → Workflow. Need to steer mid-flight → Agent.** Steering a workflow means stop → edit script → resume, and any agent whose prompt changed re-runs from zero. State this cost honestly as cache economics, not as impossibility.
+- Therefore: **single task → Agent tool with a pinned-effort worker definition (steerable). Genuine fan-out, structured schemas, or journal-resume → Workflow.** Never route a single agent through Workflow for effort's sake. Steering a workflow means stop → edit script → resume, and any agent whose prompt changed re-runs from zero. State this cost honestly as cache economics, not as impossibility.
 - Give every workflow script a stable path under `.coordination/tools/` and version it (`v2.1`, `v2.2`); commit the script itself so the run is reproducible after reclamation.
 
 ## Briefing workers

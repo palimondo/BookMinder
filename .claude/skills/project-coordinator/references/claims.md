@@ -1,6 +1,5 @@
 # Claims and evidence — verify before you assert
 
-Load this page the moment you are about to state or relay any operational claim — done, running, committed, alive, broken, fixed, live at HEAD.
 
 ## Verification discipline
 

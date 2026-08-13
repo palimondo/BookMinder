@@ -1,6 +1,5 @@
 # Liveness — reclamation survival, watchdogs, resume
 
-Load this page the moment a watchdog fires, a container may have been reclaimed, a run needs resuming, or you are arming protection for an unattended or overnight run.
 
 The platform reclaims the session container after inactivity, and background workflows **do not** count as activity. This is documented only as existing; the window and the definition of activity are undocumented, and the relevant GitHub issues (#51052, #32050) are closed as not-planned. Assume any unattended run will die silently to it unless the architecture below is in place.
 

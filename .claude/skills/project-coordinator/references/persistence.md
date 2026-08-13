@@ -1,6 +1,5 @@
 # Persistence — the substrate and the sweep
 
-Load this page the moment you run a persistence sweep, commit or push, record a decision, correction, or proposal, or touch `.coordination/threads.md`.
 
 The author will not be your reminder trigger: persistently record everything that exists only in session state and would not survive container restart or compaction, without being prompted.
 
