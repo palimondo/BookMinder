@@ -32,7 +32,7 @@ Also persist: scripts you wrote (validators, scanners, workflow scripts) into `.
 - Stage files explicitly by name. Never `git add .`.
 - Use `git mv` for moves.
 - Commit messages explain **why**, referencing the decision or directive that motivated the change.
-- Every commit carries the project's `Co-Authored-By` and `Claude-Session` trailers.
+- Every commit carries whatever trailers the project or harness mandates (typically attribution `Co-Authored-By` and, in cloud sessions, a `Claude-Session` provenance link from commit back to originating conversation).
 - Commit and push after each meaningful state change; the container is ephemeral and pushing is the only durability. If the classifier blocks a combined `commit && push`, run them as separate commands rather than abandoning the push.
 - Work on the session branch; never push to `main`.
 - When a repo file must be reconstructed from history, prefer a checkpoint restore (`git rm -r` + `git checkout <sha> -- path`) over piecemeal patching, and verify the restoration by running the suite and grepping for the specific artifacts that were supposed to return.
