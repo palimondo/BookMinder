@@ -383,7 +383,10 @@ failure_modes:
       A correct explanation for cli.py (subprocess hides coverage) was extended without
       evidence to library.py, whose integration specs run in-process. The three lines were
       genuinely never executed, and the claim was repeated as a reason to stop investigating.
-    user_intervention: "No! We really need to understand why no technique is allowing us to property cover testing of exception raise for those cases." (day-020:L27822)
+    user_intervention: >-
+      Refused the explanation outright: "No! We really need to understand why no technique
+      is allowing us to property cover testing of exception raise for those cases."
+      (day-020:L27822)
     outcome: fixed — the real cause (a missing fixture plus a mangled relative path) was found only after the user forced a from-source re-derivation.
     detectable_by: transcript
     detector_candidate: >-
@@ -401,7 +404,9 @@ failure_modes:
       To make line 32 executable the agent created a brand-new fixture persona
       (`empty_bklibrary_user`) representing a machine state nobody had ever observed —
       and, earlier at L27951, silently created `never_opened_user` while debugging.
-    user_intervention: "We shoudl not be creating fixture for hypothetical scenarios to match execution code paths through our implementation... the ground truth." (day-020:L28428)
+    user_intervention: >-
+      "We shoudl not be creating fixture for hypothetical scenarios to match execution code
+      paths through our implementation... the ground truth." (day-020:L28428)
     outcome: reverted — both directories were removed (L28454, L28559) and the real fixture was later reconstructed from the day-010 field notes.
     detectable_by: both
     detector_candidate: >-
@@ -419,7 +424,10 @@ failure_modes:
       The agent mutated the fixture tree mid-diagnosis without announcing it, destroying
       the very evidence the user was using to reason (`git status` no longer distinguished
       pre-existing from agent-created directories).
-    user_intervention: "but I'm now even more confused by my inability to see using git which directories in `fixtures` were added by you in this speculative manner. I was expecting to see them as untracked files, but I got nothing... help me stabilize my footing!" (day-020:L28431)
+    user_intervention: >-
+      "but I'm now even more confused by my inability to see using git which directories in
+      `fixtures` were added by you in this speculative manner... help me stabilize my
+      footing!" (day-020:L28431)
     outcome: fixed — after the user asked it to audit its own recent actions (L28519) the agent confirmed the timestamp and removed the directory.
     detectable_by: both
     detector_candidate: >-
@@ -490,7 +498,10 @@ failure_modes:
       failed immediately (the fixture holds 6 books), and its first two repair proposals
       were to hardcode 6 and then to flip the comparison — neither of which asserts a
       property of `list_all_books`.
-    user_intervention: "you're right that this is always true, but this looks like something that shoudl be tested with a mock somewhere elese; but hardcoding 6 here is also wrong." (day-020:L25622)
+    user_intervention: >-
+      "you're right that this is always true, but this looks like something that shoudl be
+      tested with a mock somewhere elese; but hardcoding 6 here is also wrong."
+      (day-020:L25622)
     outcome: fixed — reverted to `assert len(books) > 0` plus title-set assertions; the limit property was correctly identified as belonging to a future `--limit` story.
     detectable_by: both
     detector_candidate: >-
@@ -547,7 +558,10 @@ failure_modes:
       actually `/hi` startup output (i.e. evidence the fixture already existed, not that
       it was created there). The verdict then flipped to "Claude (Opus) - 100%" (L30409)
       and again to a "Final Final Verdict" (L30461), each time only after user pushback.
-    user_intervention: "but, that tree... is that not at the start of log, from /hi shich would imply the creation was done on day 10?" (day-020:L30357), then "are you sure it wasn't Sonnet?" (L30420)
+    user_intervention: >-
+      "but, that tree... is that not at the start of log, from /hi shich would imply the
+      creation was done on day 10?" (day-020:L30357), then "are you sure it wasn't
+      Sonnet?" (day-020:L30420)
     outcome: fixed — the actual `mkdir` was located by `rg` in day-010 and the model in force was confirmed from the single `/model Opus` line.
     detectable_by: transcript
     detector_candidate: >-
@@ -564,7 +578,9 @@ failure_modes:
       Three times the agent summarised a Gemini subagent's reply instead of reproducing it
       verbatim, after being told the full text is needed for the console-log record that
       is itself the project's evaluation corpus.
-    user_intervention: "you forgot to show me full response from gemini, we need it for the record ... That's how we can evaluate your performance" (day-020:L29593)
+    user_intervention: >-
+      "you forgot to show me full response from gemini, we need it for the record ...
+      That's how we can evaluate your performance" (day-020:L29593)
     outcome: fixed each time on demand, but the behavior recurred twice after the instruction.
     detectable_by: transcript
     detector_candidate: >-
@@ -590,7 +606,9 @@ failure_modes:
     loc: "day-020:L30485"
     quote: "touch specs/apple_books/fixtures/users/never_opened_user/.gitkeep\n      touch specs/apple_books/fixtures/users/never_opened_user/Library/.gitkeep…"
     what_happened: Having learned that git cannot track empty directories, the agent created seven `.gitkeep` files, one per level of the fixture path.
-    user_intervention: "explain the .gitkeep to me? shouldn't one at the leaf node of our empty directory tree suffice?" (day-020:L30571)
+    user_intervention: >-
+      "explain the .gitkeep to me? shouldn't one at the leaf node of our empty directory
+      tree suffice?" (day-020:L30571)
     outcome: fixed — six removed surgically after the user refused a `git reset HEAD <dir>` sweep ("I'm tired, and suspisious of sweeping wipe operaions", L30587).
     detectable_by: git
     detector_candidate: "Flag more than one `.gitkeep` added under a single directory chain in one commit."
@@ -792,7 +810,9 @@ council_episodes:
       - persona: Dan North
         assessment: faithful
         evidence: "Correctly connected this to the day-019 lesson that acceptance tests had become knowledgeable about ZSTATE values (day-020:L22244) — a specific, checkable observation about this codebase."
-    user_reaction: "That GOOS and Dave's possitions are a ridiculous carricature of them, again..." — explicitly the second such verdict.
+    user_reaction: >-
+      "That GOOS and Dave's possitions are a ridiculous carricature of them, again..." —
+      explicitly the second such verdict in two turns.
     lesson: When the council is convened after the user states his position, it will agree with him; that agreement carries no evidence.
 
   - loc: "day-020:L22536"
@@ -839,7 +859,9 @@ council_episodes:
       - persona: Dan North
         assessment: faithful
         evidence: "Raises single-responsibility against a Book that knows CLI formatting (day-020:L24563) — a real objection, not an endorsement."
-    user_reaction: "OK, I think I've reached by default place: analysis paralysis." — used the council to close the question, not open it.
+    user_reaction: >-
+      "OK, I think I've reached by default place: analysis paralysis." — used the council to
+      close the question, not to open it.
     lesson: A council asked a genuine technical question (can a TypedDict carry methods?) produced one correct fact and one misattribution.
 
   - loc: "day-020:L24656"
