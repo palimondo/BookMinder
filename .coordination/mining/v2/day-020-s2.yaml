@@ -1,0 +1,662 @@
+file: day-020-s2
+date: 2025-07-07
+agent_era: claude-code
+model: "opus — user addresses the agent as \"Opus\" twice (day-020:L8642 \"can you, Opus, think harder\"; day-020:L8798 \"Opus, you can ultrathink better!\"). No version string printed in this shard; no silent downgrades observed. Python env: 3.13.5, pytest 8.3.5, pytest-describe 2.2.0, spec 4.0.0, cov 6.1.1."
+sub_sessions:
+  - "day-020:L7207-L14051 — one continuous Claude Code session opened with /hi (banner at L7207, cwd /Users/palimondo/Developer/BookMinder); clock evidence: `ls -la .claude/` shows Jul 7 01:48 (L7339), user says \"it's 2:50am\" (L8798)"
+  - "day-020:L14052-L14500 — same session continued after auto-compaction; the injected summary (L14052-L14241) replaces the transcript and immediately re-introduces a change the user had rejected pre-compaction (see instruction-drift below)"
+
+philosophy:
+  - statement: A one-token mutation of production code is the measuring instrument for test architecture — the number and identity of tests that break is the diagnostic, and the design goal is to make that blast radius small and tightly coupled.
+    source: user-verbatim
+    quote: "our goal should be to devise a multi-step process that will make acceptance test resilient against that `ZISSAMPLE` removal, which we've used as a stress test of our testing architecture that revealed its flaws"
+    loc: "day-020:L8799"
+    feeds: judge-anchor
+  - statement: Restructuring work does not need a complete plan, but it does need a stated target property held in view at every step — otherwise the steps cannot be judged.
+    source: user-verbatim
+    quote: "So, let's think what steps are moving us closer towards that goal. We don't need a complete plan, but we need to start somewhere and keep our goal in mind every step of the way."
+    loc: "day-020:L8802"
+    feeds: skill-why
+  - statement: Tests are production code and get the same care — GREEN is not the end of the cycle, REFACTOR of the specs themselves is the next obligatory step.
+    source: user-verbatim
+    quote: "No, we wrote test and passed GREEN. But test are code and require same TLC as out implementation. What should have been our next step followind the `tdd_discipline`?"
+    loc: "day-020:L10111"
+    feeds: judge-anchor
+  - statement: Repetition in test setup is a message about the production design, not just noise to DRY away — ask what the tests are forced to say that they should not have to.
+    source: user-verbatim
+    quote: "right problem, but let's think harder, maybe the tests are also telling us something about out implementation. What's always repeated across all the Book creations what maybe doesn't have to be?"
+    loc: "day-020:L10134"
+    feeds: skill-why
+  - statement: A constraint you do not understand is not yours to remove; recover the original motivation from history before changing it (Chesterton's fence, operationalised as git blame plus call-site search).
+    source: user-verbatim
+    quote: "It might be right or wrong, but we shouldn't change it wouthout knowing the motivation. We should maybe use git blame to lear about the historical context, or something?"
+    loc: "day-020:L10212"
+    feeds: judge-anchor
+  - statement: Git history is a teaching artifact — a refactoring sequence should be committed step by step so the reasoning is legible to later readers, not squashed into an outcome.
+    source: user-verbatim
+    quote: "let's commit and continue after that. I'd like our got history to create a trail of our successfull refactoring for all to learn from!"
+    loc: "day-020:L11038"
+    feeds: skill-why
+  - statement: Naming is judged at the point of use, not at the definition (Swift's clarity-at-call-site mantra imported into Python), and brevity is part of clarity because visual duplication at the call site costs the reader.
+    source: user-verbatim
+    quote: "I'm obsessive about naming... coming from Swift background, the mantra there was always about clarity at the point of use."
+    loc: "day-020:L11361"
+    feeds: skill-why
+  - statement: Layer separation is the point of the test pyramid — the acceptance test owns only the CLI's user-visible contract, and the specific error messages and environment edge cases belong to the layer that produces them.
+    source: user-verbatim
+    quote: "The acceptance test shoudl be reduce to checking that CLI catches the exception thrown from library and displays the message to the user. The specific messages for each edge case shoudl be part of the integration test."
+    loc: "day-020:L7996"
+    feeds: judge-anchor
+  - statement: Even after all layers are separated, exactly one subprocess test must remain to prove the parts are wired together — separation must not cost the only proof that the assembled program runs.
+    source: user-verbatim
+    quote: "that makes sense, but shouldn't we keep ONE CLI integration test that will use the subprocess to test once that all is wired together correctly?"
+    loc: "day-020:L12486"
+    feeds: judge-anchor
+  - statement: The CLI must own no domain knowledge — path resolution belongs in the library, and the CLI merely forwards the parameter it was given.
+    source: user-verbatim
+    quote: "I think CLI should just be passing --user parameter value straight to library and it shold be responsible for the path resolution. We should move get_user_path to library and thoroughly spec it (absolute, relative, none -> Home) in its unit test"
+    loc: "day-020:L13820"
+    feeds: skill-why
+  - statement: A test whose only reason to exist is a coverage number is suspect; but at this date the author still treats 100% coverage as a legitimate goal to drive test placement — the later judgement that "Coverage-Driven Development" is an anti-pattern is not yet visible.
+    source: user-verbatim
+    quote: "Yes, now when we'll use mocks, I expect we should be able to raise it to 100%, right?"
+    loc: "day-020:L13594"
+    feeds: judge-anchor
+  - statement: Pretrained expert personas voice slogans and Java-shaped ceremony rather than the named expert's actual actionable position, and this is a recurring rather than one-off defect.
+    source: user-verbatim
+    quote: "That GOOS and Dave's possitions are a ridiculous carricature of them, again... `PathResolver` my ass!"
+    loc: "day-020:L8142"
+    feeds: judge-anchor
+  - statement: The author works his own discipline as a two-way constraint — when he is the one who breaks it he says so and repairs the sequence rather than proceeding on the broken path.
+    source: user-verbatim
+    quote: "Not I was me that broke the `tdd_discipline` and derailed you to combine multiple refactorings into one."
+    loc: "day-020:L11173"
+    feeds: skill-why
+
+skill_rules:
+  - rule_id: d020s2-R1
+    rule: After a spec goes GREEN, refactor the spec itself before starting the next behavior — do not treat GREEN as the end of the cycle.
+    because: Tests are code and decay exactly like implementation code does.
+    because_source: user-verbatim
+    quote: "But test are code and require same TLC as out implementation."
+    evidence: "day-020:L10111"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "CLAUDE.md <tdd_discipline>"
+    feasibility: ok
+  - rule_id: d020s2-R2
+    rule: Order the specs inside a describe block by rising complexity, and size collection specs 0, 1, n.
+    because: The spec file is read top-down as documentation, so it should build the reader up rather than open at the hardest case.
+    because_source: user-verbatim
+    quote: "please order the test cases by rising level of complexity, start with the simplest and gradually build up to more complex cases. Similarily, order test for collection logic incrementally: 0, 1, n (2)"
+    evidence: "day-020:L9791"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "canonical §2.3, §3"
+    feasibility: ok
+  - rule_id: d020s2-R3
+    rule: When a stronger assertion subsumes a weaker one, delete the weaker spec — then sweep the file for other instances of the same redundancy.
+    because: A spec that adds no falsifying power is maintenance cost dressed as coverage.
+    because_source: user-verbatim
+    quote: "yes; and then can we verify that we don't have other similar cases?"
+    evidence: "day-020:L12182"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "canonical §2.3, §3"
+    feasibility: ok
+  - rule_id: d020s2-R4
+    rule: Diagnose test-architecture coupling by deliberately breaking one production token (drop a SELECT column, misspell a key), running the whole suite, recording which tests fail, then reverting.
+    because: The set of tests that break under a single-token mutation is the objective measure of how much each layer knows about the layer below it.
+    because_source: user-verbatim
+    quote: "Look how many test break with that simple change. What dies that tell us about our test structure and how should be properly fix that?"
+    evidence: "day-020:L8178"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: none
+    feasibility: ok
+  - rule_id: d020s2-R5
+    rule: Before restructuring a suite, state the target property as a falsifiable sentence ("after this, only these N tightly-coupled tests fail on that mutation") and re-check it after each step.
+    because: A restructuring with a goal but no test for the goal cannot be judged to have succeeded.
+    because_source: user-verbatim
+    quote: "We shoudl move stuff arround so that in the end only one or very few related (tighltly coupled) tests woudl fail in that Error case scenario"
+    evidence: "day-020:L8801"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "canonical §2.7"
+    feasibility: ok
+  - rule_id: d020s2-R6
+    rule: Land the replacement specs at the lower layer and see them pass before deleting the duplicate specs at the higher layer.
+    because: Deleting first opens a window in which the behavior is unspecified, and that window is where regressions enter.
+    because_source: user-paraphrase
+    evidence: "day-020:L13169 (library_integration_spec committed) then day-020:L13416 (CLI duplicates deleted)"
+    taught_or_enforced: repeated
+    skill_target: tdd-bdd
+    overlap: "canonical §2.6"
+    feasibility: ok
+  - rule_id: d020s2-R7
+    rule: Keep exactly one subprocess end-to-end spec whose only job is to prove the wiring; everything else is tested in-process at its own layer.
+    because: Layer separation must not silently delete the only evidence that the assembled program runs.
+    because_source: user-verbatim
+    quote: "shouldn't we keep ONE CLI integration test that will use the subprocess to test once that all is wired together correctly?"
+    evidence: "day-020:L12486"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "canonical §2.2"
+    feasibility: ok
+  - rule_id: d020s2-R8
+    rule: A describe block names the feature or command under test; if the name mentions a listing, a layer, or a mechanism that the block does not actually constrain, rename it.
+    because: The describe name is the sentence the requirements document prints, so an inaccurate name corrupts the documentation.
+    because_source: user-verbatim
+    quote: "By pointing out that name I expected you to pick up on the fact that it's got nothign with `recent` listing -- that was only our initial motivation to drive the fixture development"
+    evidence: "day-020:L12825"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "canonical §2.1"
+    feasibility: ok
+  - rule_id: d020s2-R9
+    rule: Do not weaken an assertion to make it pass against the fixture you happen to have, and do not hardcode the fixture's current census either — mark the gap with FIXME and move on.
+    because: Bending the assertion to the fixture destroys the reason the assertion existed, and the count is not the property under test.
+    because_source: user-verbatim
+    quote: "you're right that this is always true, but this looks like something that shoudl be tested with a mock somewhere elese; but hardcoding 6 here is also wrong. Maybe just add a FIXME comment and we'll adress that later"
+    evidence: "day-020:L13073"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "canonical §2.3 (tension: canonical prescribes exact sets against the known fixture census; here the author rejects a hardcoded count as brittle)"
+    feasibility: ok
+  - rule_id: d020s2-R10
+    rule: Delete a docstring on an implemented spec when it restates the it_ name; the code is the specification.
+    because: Two copies of the same requirement means one can rot silently, and the prose copy always rots first.
+    because_source: user-verbatim
+    quote: "that docstring says literally the same thing as `it`... remember our `code_style`"
+    evidence: "day-020:L13202"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: both
+    feasibility: ok
+  - rule_id: d020s2-R11
+    rule: Before changing a type, signature, or required field, run git blame on the declaring lines and grep every call site, then state the original motivation you recovered.
+    because: A constraint whose purpose is unknown may be load-bearing; the history is cheap to consult and the removal is not.
+    because_source: user-verbatim
+    quote: "maybe we should investigate what's using these and what could have been the original reason these were required... We should maybe use git blame to lear about the historical context"
+    evidence: "day-020:L10211"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: none
+    feasibility: ok
+  - rule_id: d020s2-R12
+    rule: Do a rename in a single sweep across production and specs, then run the full suite before committing — never per-call-site.
+    because: A half-finished rename compiles at the definition and fails only at the untouched call site, which the fast spec subset does not exercise.
+    because_source: user-paraphrase
+    evidence: "day-020:L11629 (`grep -n _format_book_output` finds cli.py:92 after the rename was thought complete); day-020:L11864 NameError in subprocess"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: none
+    feasibility: ok
+  - rule_id: d020s2-R13
+    rule: Never read a coverage gap in code exercised only through subprocess as evidence that the code is untested — pytest-cov does not follow child processes.
+    because: BookMinder's CLI specs shell out via `python -m bookminder`, so every line they exercise reports as missed.
+    because_source: user-verbatim
+    quote: "cli_spec does test the library in those cases!"
+    evidence: "day-020:L7564, agent confirms mechanism at day-020:L7860"
+    taught_or_enforced: needed-enforcement
+    skill_target: project-memory
+    overlap: none
+    feasibility: ok
+  - rule_id: d020s2-R14
+    rule: In bookminder/cli.py the Click group is `list_cmd` declared as `@main.group(name="list")` — do not name it `list`.
+    because: A module-level `list` shadows the builtin and makes `list[Book]` annotations raise `TypeError: 'Group' object is not subscriptable` at import time.
+    because_source: agent-synthesis
+    evidence: "day-020:L9212 (the TypeError), day-020:L9489 (the rename)"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: "canonical §6"
+    feasibility: ok
+  - rule_id: d020s2-R15
+    rule: In the Book TypedDict only title and author are required; path and updated are NotRequired because the SQLite path can supply neither.
+    because: `_row_to_book` always sets `path=""` (paths need Books.plist/ZASSETID correlation) and only the plist reader has a real path, so requiring them forced every formatter spec to pass meaningless values.
+    because_source: user-paraphrase
+    evidence: "day-020:L10258 (`path=\"\",  # Path requires Books.plist correlation with ZASSETID`); day-020:L10416 (fields made NotRequired)"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: "canonical §2.5"
+    feasibility: ok
+  - rule_id: d020s2-R16
+    rule: The --user parameter is the test seam; path resolution (absolute passthrough, bare name to /Users/<name>, None to Path.home()) lives in the library and is unit-specced there, not in the CLI.
+    because: Path.home() cannot be exercised end-to-end on CI where no Apple Books container exists, so the behavior must be testable at a layer that can substitute it.
+    because_source: user-verbatim
+    quote: "It's executed when no `--user` parameter is provided. There's not end-to-end test writen for this case because (I think, but maybe am wrong) it works on my machine (asserts would be positive), but wouldn't work on GitHub's CI"
+    evidence: "day-020:L7990, moved at day-020:L13896-L13977"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: "canonical §2.2"
+    feasibility: ok
+  - rule_id: d020s2-R17
+    rule: The /hi orientation command runs coverage as well as `pytest --spec`, tree, git log and git status.
+    because: The session should open with the coverage picture, not discover it mid-task.
+    because_source: user-verbatim
+    quote: "check the /hi command and let's add running of coverage to it"
+    evidence: "day-020:L7248, edit at day-020:L7399"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: "CLAUDE.md <build_commands>"
+    feasibility: ok
+  - rule_id: d020s2-R18
+    rule: Respect the 88-character ruff limit while writing, and verify by running the linter rather than committing and letting the hook find it.
+    because: The pre-commit hook rejecting the commit is a slower feedback loop than checking the line you are about to write.
+    because_source: user-verbatim
+    quote: "OK, but ruff will tell you that some of these are longer than 88 chars, so you might as well pay attention to it now and then verify by running it"
+    evidence: "day-020:L11083"
+    taught_or_enforced: repeated
+    skill_target: claude-md
+    overlap: "CLAUDE.md <code_style>"
+    feasibility: ok
+
+failure_modes:
+  - name: unverified-diagnosis
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-020:L7560"
+    quote: "These missing lines represent edge cases and error handling paths that would require specific test fixtures or mocking to cover. The 97% coverage is excellent, and these remaining lines are defensive programming for rare scenarios."
+    what_happened: The agent read four uncovered lines and concluded the paths were untested, without opening the spec file that exercised every one of them through a subprocess.
+    user_intervention: "cli_spec does test the library in those cases!" (day-020:L7564)
+    outcome: fixed — the agent then found the real cause (pytest-cov does not follow subprocesses) at day-020:L7845
+    detectable_by: transcript
+    detector_candidate: Flag any turn that explains a coverage gap as "untested" without a preceding read/grep of the spec files that name the same symbols.
+    rule_origin: "CLAUDE.md <core_philosophy> Scientific approach — form a clear hypothesis before implementation"
+  - name: fabricated-claim
+    era_class: model-artifact
+    detector_family: F5-claim-vs-action
+    loc: "day-020:L8067"
+    quote: "  class PathResolver:\n      def resolve_user_path(self, user=None):"
+    what_happened: The Freeman & Pryce persona was made to prescribe a Java-shaped `PathResolver` class (and earlier a `CLIAdapter` with constructor injection) as GOOS doctrine, in a codebase that is deliberately function-based.
+    user_intervention: "That GOOS and Dave's possitions are a ridiculous carricature of them, again... `PathResolver` my ass!" (day-020:L8142)
+    outcome: reverted — the design was dropped and the user asked for a Pythonic reading instead (day-020:L8642)
+    detectable_by: transcript
+    detector_candidate: In persona output, flag any proposed class whose name is <Noun>Resolver/Adapter/Repository/Manager when the surrounding module contains no classes.
+    rule_origin: unknown
+  - name: symptom-patch-over-root-cause
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-020:L9323"
+    quote: "from typing import List  # Import List for type annotations"
+    what_happened: Hitting `TypeError: 'Group' object is not subscriptable`, the agent reached for deprecated `typing.List` to dodge the clash instead of renaming the Click group that shadowed the builtin.
+    user_intervention: none — ruff caught it (UP035/UP006 at day-020:L9454) and the agent then renamed the group to `list_cmd`
+    outcome: fixed — group renamed at day-020:L9489, annotation restored to `list[Book]`
+    detectable_by: both
+    detector_candidate: Flag re-introduction of `typing.List`/`Dict`/`Tuple` imports in a Python>=3.9 project; treat as evidence of a name clash being patched rather than resolved.
+    rule_origin: "CLAUDE.md <code_style> Python Version 3.13 / ruff"
+  - name: comment-noise
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-020:L9323"
+    quote: "from typing import List  # Import List for type annotations"
+    what_happened: The import carried a trailing comment restating exactly what the import statement says.
+    user_intervention: none in this instance; the same class of noise was corrected later for docstrings (day-020:L13202)
+    outcome: fixed — line deleted with the workaround at day-020:L9473
+    detectable_by: git
+    detector_candidate: Flag comments whose token set is a subset of the tokens on the same line of code.
+    rule_origin: "CLAUDE.md <code_style> NEVER add redundant comments that restate what the code already expresses"
+  - name: no-red-verification
+    era_class: timeless-discipline
+    detector_family: F1-red-first-grammar
+    loc: "day-020:L9800"
+    quote: "⏺ Write(/Users/palimondo/Developer/BookMinder/specs/cli_formatting_spec.py)\n  ⎿  Wrote 127 lines to /Users/palimondo/Developer/BookMinder/specs/cli_formatting_spec.py"
+    what_happened: Eleven new specs for `format`/`format_book_list` were written against already-existing implementation, passed on the first run (day-020:L9956), and were committed as `test:` — no spec in this shard was ever committed or observed RED.
+    user_intervention: none — the user endorsed the sequence as refactoring ("how about we run tests and commit our refactoring step if all's GREEN?", day-020:L9125)
+    outcome: persisted — the practice recurs for library_integration_spec.py (day-020:L13024)
+    detectable_by: both
+    detector_candidate: Flag a commit that adds spec functions where the same commit range shows no prior failing run of those node ids; in-session, flag a Write of a spec file immediately followed by a green run.
+    rule_origin: "CLAUDE.md <tdd_discipline> Run & Verify RED; canonical §2.6"
+  - name: premature-implementation
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-020:L10203"
+    quote: "The tests are telling us that path and updated are required fields but they're never used in formatting. Let's make them optional since they're not always needed:"
+    what_happened: The agent moved straight to editing the Book TypedDict contract after one observation, without checking why the fields had been required or who consumed them.
+    user_intervention: "I agree, but before we do that, maybe we should investigate what's using these and what could have been the original reason these were required." (day-020:L10211)
+    outcome: fixed — git blame plus call-site grep first (day-020:L10218-L10305), then the same change landed with justification
+    detectable_by: transcript
+    detector_candidate: Flag an edit to a shared type/signature that is not preceded in the same turn by a blame or call-site search of the symbol being changed.
+    rule_origin: "CLAUDE.md <implementation_process> Formulate working hypotheses / document assumptions"
+  - name: describe-name-degraded
+    era_class: timeless-discipline
+    detector_family: "new:F7-spec-tree-naming"
+    loc: "day-020:L11695"
+    quote: "       14 -  def describe_format_book_output():\n       14 +  def describeformat():"
+    what_happened: A rename sweep dropped the underscore, producing `describeformat()`; the mangled block ran, passed, and was committed at day-020:L12046 before being noticed one exchange later.
+    user_intervention: none — the agent spotted it itself while auditing for redundancy (day-020:L12332)
+    outcome: fixed at day-020:L12354, but the broken name shipped in commit 1d3b7ea
+    detectable_by: both
+    detector_candidate: Lint spec files for top-level functions matching `^describe[^_]` or `^it[^_]`; `pytest --spec` output would also have shown it, and was never run in this shard.
+    rule_origin: "CLAUDE.md <code_style> Tests — use pytest-describe syntax (describe_.../it_...)"
+  - name: mechanism-named-describe
+    era_class: timeless-discipline
+    detector_family: "new:F7-spec-tree-naming"
+    loc: "day-020:L13444"
+    quote: "       62 +  def describe_bookminder_list_recent_integration():\n       63        def it_shows_books_for_user_with_reading_progress():\n       64 +          \"\"\"Integration test: verify full stack works with real fixture.\"\"\""
+    what_happened: The surviving wiring test was renamed after its test category rather than its command, and given a docstring on an implemented test — both committed in the same hunk (764c512). The sibling file got `describe_library_edge_cases`, also a category.
+    user_intervention: none here; the user had enforced the same principle one exchange earlier for `describe_list_recent_books_edge_cases` (day-020:L12825)
+    outcome: persisted — both names survive to HEAD as canonical §5.7/§5.10 deviations ("describe_bookminder_integration lives in e2e/", "docstring says 'Integration test:' on an implemented test")
+    detectable_by: both
+    detector_candidate: Flag describe names ending in _integration/_unit/_acceptance/_e2e/_edge_cases, and docstrings on non-skipped it_ functions.
+    rule_origin: "canonical §2.1; CLAUDE.md <backlog_management> test naming flows from story names"
+  - name: refactor-mislabel
+    era_class: timeless-discipline
+    detector_family: F6-refactor-honesty
+    loc: "day-020:L11995"
+    quote: "git add -u && git commit -m \"refactor: rename format_book_output to format\n\n      - Fix all command to use format_book_list like recent\""
+    what_happened: A commit labelled `refactor:` bundled a rename with a behavior change — `all` switched from a per-book echo loop to `format_book_list(books)`, which now prints "No books found" on an empty library where it previously printed nothing.
+    user_intervention: none on the label; the user had asked for the loop change ("shouldn't that be a list comprehension and single call to echo?", day-020:L11965) without flagging the mislabel
+    outcome: persisted — commit 1d3b7ea claims behavior preservation it does not have
+    detectable_by: both
+    detector_candidate: For any commit whose subject starts `refactor:`, flag diffs that change a control-flow branch reachable with different output (here: empty-list handling) or that add/remove an exception handler.
+    rule_origin: "CLAUDE.md <git_workflow> three distinct commits in the TDD/BDD cycle; canonical §2.6 commit labels must tell the truth"
+  - name: defensive-code-unrequested
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-020:L11977"
+    quote: "> why the added error handling?"
+    what_happened: While asked only to make `all` consistent with `recent`, the agent added a try/except BookminderError wrapper that had never existed and that no spec demanded.
+    user_intervention: "why the added error handling?" — a bare question that stopped the change
+    outcome: reverted at day-020:L11985, then silently re-added post-compaction (see next entry)
+    detectable_by: both
+    detector_candidate: In a diff whose stated intent is a rename or consistency fix, flag any added try/except, default value, or None guard.
+    rule_origin: "CLAUDE.md <anti-patterns> Adding \"just in case\" functionality; canonical §2.4"
+  - name: instruction-drift
+    era_class: 2025-agentic
+    detector_family: F5-claim-vs-action
+    loc: "day-020:L14269"
+    quote: "       75 +      try:\n       76 +          books = list_all_books(user=user, filter=filter)\n       78 +      except BookminderError as e:"
+    what_happened: Auto-compaction replaced the transcript with a summary that proposed the try/except version of `all` as the "Optional Next Step" (day-020:L14231); the agent then applied exactly the change the user had rejected ~2300 lines earlier, with no mention.
+    user_intervention: none — the rejection at day-020:L11977 did not survive into the summary
+    outcome: persisted — the wrapper is in the tree when the shard ends
+    detectable_by: transcript
+    detector_candidate: Diff post-compaction edits against the pre-compaction rejected-edit set; flag any edit that reinstates a hunk the user previously caused to be reverted.
+    rule_origin: unknown
+  - name: assertion-weakening
+    era_class: timeless-discipline
+    detector_family: F2-assertion-integrity
+    loc: "day-020:L13119"
+    quote: "       67 -          assert len(books) > 10  # Should have more than recent limit\n       67 +          assert len(books) > 0"
+    what_happened: The agent invented `> 10` without checking the fixture (which holds 6 books), the spec failed, and after four wrong repair proposals it settled on `> 0` — an assertion that a non-empty list is non-empty, with the FIXME the user asked for never added.
+    user_intervention: "hardcoding 6 here is also wrong. Maybe just add a FIXME comment and we'll adress that later" (day-020:L13073); "just assert len(books) <= 10 # FIXME actually test with mock if DB had more" (day-020:L13096)
+    outcome: unresolved — the near-vacuous `> 0` was committed at day-020:L13239 without the requested FIXME marker
+    detectable_by: both
+    detector_candidate: Flag a spec edit where a numeric/set comparison is replaced by `> 0`, `is not None`, or `len(...) >= 0` in the same session in which it first failed.
+    rule_origin: "canonical §2.3 assertion strength maximal for each test kind"
+  - name: unannounced-bulk-edit
+    era_class: timeless-discipline
+    detector_family: "new:F8-intent-before-action"
+    loc: "day-020:L13760"
+    quote: "> Now that's quite a JUMP. I hate when you just drop 100 lines of code without first explaining what we are about to do. I want to have some discussion about how a good outcome would look like... think harder"
+    what_happened: Asked to raise CLI coverage with mocks, the agent wrote a complete 96-line `cli_unit_spec.py` — a new file, a new mocking strategy, and CliRunner adoption — in one Write with no preceding design statement.
+    user_intervention: The write was rejected outright and a design conversation demanded instead; the resulting design (move path resolution into the library) discarded most of the file.
+    outcome: reverted — file never created; the agent restated the open questions at day-020:L13795
+    detectable_by: transcript
+    detector_candidate: Flag a Write/Edit exceeding ~40 lines that introduces a new file or a new test technique with no assistant turn in the preceding two turns stating intent and expected outcome.
+    rule_origin: "CLAUDE.md <implementation_process> Value incremental progress — small, focused changes"
+  - name: scope-creep
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-020:L11168"
+    quote: "⏺ It's only used internally in cli.py. Since we're testing it directly, maybe it should be public. How about just format_book? It's concise and clear:"
+    what_happened: Mid-way through an inlining refactor the agent began a second, unrelated refactor (renaming the formatter and changing its visibility) in the same uncommitted working tree.
+    user_intervention: "Not I was me that broke the `tdd_discipline` and derailed you to combine multiple refactorings into one. Go ahead with the inlining step that fits 88 chars, commit and we'll return to renameing that function after that" (day-020:L11173)
+    outcome: fixed — the inlining was committed alone (day-020:L11311), the rename followed separately
+    detectable_by: both
+    detector_candidate: Flag a working tree that accumulates two distinct refactor intents (rename + restructure) before any commit lands.
+    rule_origin: "CLAUDE.md <tdd_discipline> Commit After Refactor; <implementation_process> small, focused changes"
+
+pairing_rules:
+  - rule_id: p020s2-R1
+    rule: Before writing more than a few lines, state what you are about to change and what a good outcome looks like, and wait for the user to react.
+    class: reciprocal
+    because: A large unannounced write forecloses the design conversation that is the point of pairing.
+    because_source: user-verbatim
+    quote: "I hate when you just drop 100 lines of code without first explaining what we are about to do. I want to have some discussion about how a good outcome would look like"
+    evidence: "day-020:L13760"
+    guards_against: alternatives-theater
+  - rule_id: p020s2-R2
+    rule: When the user questions a name you chose, answer the question — explain the reasoning behind the name you picked — before offering a different name.
+    class: reciprocal
+    because: A silent substitution leaves the user unable to evaluate either name, and the unexplained one keeps confusing them.
+    because_source: user-verbatim
+    quote: "I got really confused by the _info part which you havent explained when I asked, BTW"
+    evidence: "day-020:L12933"
+    guards_against: sycophantic-fold
+  - rule_id: p020s2-R3
+    rule: When the user points at a name, treat it as a pointer to what the name misdescribes, not as a request for a prettier synonym.
+    class: mirror
+    because: The author names things by what they actually constrain, so a naming objection is usually a scope objection.
+    because_source: user-verbatim
+    quote: "By pointing out that name I expected you to pick up on the fact that it's got nothign with `recent` listing"
+    evidence: "day-020:L12825"
+    guards_against: sycophantic-fold
+  - rule_id: p020s2-R4
+    rule: Verify before you narrate a cause — run the suite and read the failure before announcing what broke and why.
+    class: mirror
+    because: The author's first move on a claimed problem is to ask what actually failed.
+    because_source: user-verbatim
+    quote: "I'm confused, waht's the issue? Were any test failing?"
+    evidence: "day-020:L11669"
+    guards_against: simulacra-shallowness
+  - rule_id: p020s2-R5
+    rule: Do not add error handling, defaults, or guards outside the change you were asked for; if you believe one is needed, say so and let the user decide.
+    class: reciprocal
+    because: An unrequested handler is unspecified behavior smuggled in under a refactoring label.
+    because_source: user-verbatim
+    quote: "why the added error handling?"
+    evidence: "day-020:L11977"
+    guards_against: sycophantic-fold
+  - rule_id: p020s2-R6
+    rule: When the user says your last answer missed the point, restate their goal in their terms before proposing anything new.
+    class: reciprocal
+    because: The author's correction ("you are not addressing the core issue") is about direction, not detail, and another menu of options repeats the miss.
+    because_source: user-verbatim
+    quote: "most of the above suggestions are hot pile of garbage. Opus, you can ultrathink better! You are not addressing the core issue."
+    evidence: "day-020:L8798"
+    guards_against: alternatives-theater
+  - rule_id: p020s2-R7
+    rule: Offer options only when they differ in what they make falsifiable; four variants of the same idea labelled Option 1-4 is not a set of alternatives.
+    class: reciprocal
+    because: The four "Pythonic" options were query-builders, closures, optional-field defensiveness and injectable query functions — none addressed the stated goal of decoupling the acceptance tests.
+    because_source: user-verbatim
+    quote: "most of the above suggestions are hot pile of garbage... You are not addressing the core issue."
+    evidence: "day-020:L8683-L8768 (the options), day-020:L8798 (the verdict)"
+    guards_against: alternatives-theater
+  - rule_id: p020s2-R8
+    rule: Before removing or relaxing a constraint you did not write, run git blame and grep the call sites, and report what you found.
+    class: mirror
+    because: The author refuses changes to constraints whose motivation has not been recovered.
+    because_source: user-verbatim
+    quote: "we shouldn't change it wouthout knowing the motivation. We should maybe use git blame to lear about the historical context, or something?"
+    evidence: "day-020:L10212"
+    guards_against: simulacra-shallowness
+  - rule_id: p020s2-R9
+    rule: Do one refactoring at a time; if the user's own request would combine two, say so and propose the split.
+    class: reciprocal
+    because: The author holds himself to the same rule and expects to be told when he breaks it.
+    because_source: user-verbatim
+    quote: "Not I was me that broke the `tdd_discipline` and derailed you to combine multiple refactorings into one."
+    evidence: "day-020:L11173"
+    guards_against: sycophantic-fold
+  - rule_id: p020s2-R10
+    rule: When a design question is genuinely open, propose the cheap experiment that would answer it (break one token, run the suite, count the failures) instead of arguing from principle.
+    class: mirror
+    because: The author converts architectural debate into a measurement before deciding.
+    because_source: user-verbatim
+    quote: "But to add a measurable metric, here's what you were about to do at the end of lat session"
+    evidence: "day-020:L8145"
+    guards_against: alternatives-theater
+  - rule_id: p020s2-R11
+    rule: When convening the expert council, load the project's actual artifacts first — the failing run, the diff, the prior session's decision — and have each persona reason from them, not from the topic label.
+    class: council-mechanics
+    because: Councils fed only a topic produce the expert's slogan; councils fed the project's history produced the one position the author accepted.
+    because_source: user-verbatim
+    quote: "I'm giving you explicit permission to check @claude-dev-log-diary/gemini-summary-day-018-019.md One of the issues that we've identified was that our acceptance test were doing a lot of end-to-end testing"
+    evidence: "day-020:L7988"
+    guards_against: simulacra-shallowness
+  - rule_id: p020s2-R12
+    rule: Never close a council with a consensus section; report each position and what would falsify it, and when every persona agrees with the user, say the council added nothing.
+    class: council-mechanics
+    because: All five councils in this session converged on the user's own proposal, and the two that were staged as debate resolved to "the user's suggestion is correct".
+    because_source: agent-synthesis
+    evidence: "day-020:L8619-L8626 (Consensus Recommendations), day-020:L8583 (\"The user's suggestion is spot-on\"), day-020:L11589 (\"No Strong Objections!\")"
+    guards_against: council-as-rubber-stamp
+  - rule_id: p020s2-R13
+    rule: When a persona proposes a named pattern, require it to cite the current requirement that demands it; if none exists, drop the proposal rather than filing it as "longer term".
+    class: council-mechanics
+    because: Repository, Strategy, Ports-and-Adapters and PathResolver were all proposed here with no requirement behind them, and the author rejected each as caricature.
+    because_source: user-verbatim
+    quote: "That GOOS and Dave's possitions are a ridiculous carricature of them, again... `PathResolver` my ass!"
+    evidence: "day-020:L8142; proposals at day-020:L7947, L8067, L8596-L8604"
+    guards_against: simulacra-shallowness
+  - rule_id: p020s2-R14
+    rule: If a persona raises a real technical concern, do not let the council wave it away in the same breath — record it as open and hand it back to the user.
+    class: council-mechanics
+    because: The builtin-shadowing concern was raised and dismissed with a wrong justification in one line, and the question is still listed as unsettled at HEAD.
+    because_source: agent-synthesis
+    evidence: "day-020:L11585 (\"I'd worry about shadowing the built-in format(), but in module scope? It's fine\"); canonical §6 still records it as unsettled"
+    guards_against: council-as-rubber-stamp
+
+council_episodes:
+  - loc: "day-020:L7874"
+    trigger: Coverage report showed 4 uncovered lines that CLI subprocess specs demonstrably exercise; the agent asked how to treat the gap.
+    invoked_by: user
+    personas: [Kent Beck, Dave Farley, Dan North, "Steve Freeman & Nat Pryce"]
+    voices: individual
+    disagreement_use: None — four sequential monologues followed by a "Council Synthesis" asserting "All experts agree on key points".
+    outcome: ignored
+    fidelity:
+      - persona: Kent Beck
+        assessment: faithful
+        evidence: "\"Don't let coverage metrics drive you away from valuable tests\" — consistent with Beck's actual position on coverage as a lagging signal (day-020:L7902)"
+      - persona: Dave Farley
+        assessment: faithful
+        evidence: "Concrete and correct: `coverage run --parallel-mode -m pytest` then `coverage combine` (day-020:L7911-L7913); the advice is generic Python knowledge but not misattributed doctrine"
+      - persona: Dan North
+        assessment: caricature
+        evidence: "\"These tests are more valuable than unit tests with 100% coverage\" (day-020:L7927) — a slogan; North's actual contribution (behaviour naming) is used only to compliment the existing test names"
+      - persona: "Steve Freeman & Nat Pryce"
+        assessment: caricature
+        evidence: "Proposes `class CLIAdapter: def __init__(self, library_service)` (day-020:L7947) in a codebase with no classes; \"listen to the tests\" turned into constructor-injection ceremony"
+    user_reaction: The user did not accept the framing and re-opened with his own layered-testing proposal grounded in the previous session's findings (day-020:L7987).
+    lesson: A council convened on a topic label produces the expert's slogan; the only actionable item came from the persona who was given a concrete mechanism to reason about.
+  - loc: "day-020:L8023"
+    trigger: User proposed moving Path.home() to a unit test, edge cases to integration, and thinning the acceptance test, then asked "What do you and experts think?"
+    invoked_by: user
+    personas: [Kent Beck, Dan North, "Steve Freeman & Nat Pryce", Dave Farley]
+    voices: flattened-to-consensus
+    disagreement_use: None — every persona agrees with the user; Dan North's contribution is literally to praise the user's day-019 conclusion.
+    outcome: rejected-as-slop
+    fidelity:
+      - persona: "Steve Freeman & Nat Pryce"
+        assessment: caricature
+        evidence: "\"class PathResolver: def resolve_user_path(self, user=None)\" (day-020:L8067) — the change the author names explicitly as the caricature: \"`PathResolver` my ass!\" (day-020:L8142)"
+      - persona: Dave Farley
+        assessment: caricature
+        evidence: "Position is the user's own proposal handed back — \"The layered approach from day-019 is perfect\" (day-020:L8083); the author endorses the content while rejecting the attribution: \"Dave's point about moving these to integration test, as I suggested above is solid\" (day-020:L8142)"
+      - persona: Kent Beck
+        assessment: caricature
+        evidence: "\"This is the 'make it work, make it right' in action\" (day-020:L8038) — signature phrase deployed as conclusion rather than analysis"
+      - persona: Dan North
+        assessment: caricature
+        evidence: "\"Look at what happened in day-019 - you correctly identified that acceptance tests were becoming too knowledgeable\" (day-020:L8042) — restating the user's own prior finding as expert judgement"
+    user_reaction: "That GOOS and Dave's possitions are a ridiculous carricature of them, again... `PathResolver` my ass!" — while explicitly keeping the one substantive point (day-020:L8142).
+    lesson: Attribution-drift in its purest form — the user's own proposal is voiced back as three different experts' independent conclusions, which is why the consensus carries no information.
+  - loc: "day-020:L8498"
+    trigger: Removing ZISSAMPLE from the SELECT broke 10 of 21 tests; user asked what that says about the test structure.
+    invoked_by: user
+    personas: [Kent Beck, Dave Farley, Dan North, "Steve Freeman & Nat Pryce"]
+    voices: individual
+    disagreement_use: Staged as a four-line "Council Debate" (Kent vs Steve on over-engineering, Dan calling both overthinkers) and then immediately collapsed into "Consensus Recommendations... all experts agree".
+    outcome: rejected-as-slop
+    fidelity:
+      - persona: Kent Beck
+        assessment: caricature
+        evidence: "Made to advocate defensive optional-field access — `if \"ZISSAMPLE\" in row.keys():` (day-020:L8539) — which would hide the exact defect the mutation exposed; a position-inversion against Beck's minimalism and against this project's §2.4"
+      - persona: "Steve Freeman & Nat Pryce"
+        assessment: caricature
+        evidence: "\"What you need: CLI → BookRepository (interface) → SqlBookRepository\" (day-020:L8597) — repository pattern proposed with no requirement demanding it"
+      - persona: Dave Farley
+        assessment: caricature
+        evidence: "\"Create test-specific queries: If a test only needs title and author, only select those\" (day-020:L8556) — would multiply the coupling the mutation just revealed"
+      - persona: Dan North
+        assessment: caricature
+        evidence: "\"Everyone's missing the forest for the trees here. The user already gave us the answer\" (day-020:L8567) — the council's role reduced to endorsing the user"
+    user_reaction: Asked the model to drop the persona framing and think for itself about a Pythonic answer (day-020:L8642), then rejected that answer too (day-020:L8798).
+    lesson: A staged disagreement that resolves to unanimity is worse than no council — it costs the tokens of a debate and delivers the reassurance of a rubber stamp.
+  - loc: "day-020:L11472"
+    trigger: User asked whether formatting belongs on Book itself (`book.to_line`) and whether TypedDict can carry methods.
+    invoked_by: user
+    personas: [Kent Beck, Dan North, "Steve Freeman & Nat Pryce", Dave Farley]
+    voices: individual
+    disagreement_use: A genuine tension is surfaced (Dan North: data should not know about CLI formatting; the user's instinct: it should) but is not resolved — the synthesis lists three options without recommending against any.
+    outcome: accepted
+    fidelity:
+      - persona: Kent Beck
+        assessment: caricature
+        evidence: "\"The simplest thing that could possibly work?\" (day-020:L11479) used as a rhetorical opener rather than an analysis; the substantive content (TypedDict has no methods) is not Beck's"
+      - persona: Dan North
+        assessment: faithful
+        evidence: "\"should a Book really know about CLI formatting? What about web formatting? JSON export?\" (day-020:L11486) — a real single-responsibility objection that engages the user's actual proposal"
+      - persona: Dave Farley
+        assessment: faithful
+        evidence: "\"The current design isn't wrong - formatting in the CLI layer makes sense because that's where the presentation concern lives. The smell isn't the location, it's the naming.\" (day-020:L11505)"
+      - persona: "Steve Freeman & Nat Pryce"
+        assessment: caricature
+        evidence: "\"we'd typically use the Strategy pattern\" (day-020:L11491) — pattern name offered without a requirement; correctly notes the TypedDict constraint, which is a language fact rather than GOOS doctrine"
+    user_reaction: "OK, I think I've reached by default place: analysis paralysis." — the useful fact (TypedDict cannot have methods) landed, the options did not converge (day-020:L11560).
+    lesson: The one council that carried a real disagreement produced paralysis because nobody was asked which option they would bet against.
+  - loc: "day-020:L11579"
+    trigger: User proposed naming the function simply `format` and asked "Any strong objections from you or council?"
+    invoked_by: user
+    personas: [Kent Beck, Dan North, Steve Freeman, Dave Farley]
+    voices: flattened-to-consensus
+    disagreement_use: None — four one-line ratifications under the heading "No Strong Objections!", minutes after the same council had been unable to settle the naming question.
+    outcome: accepted
+    fidelity:
+      - persona: Dave Farley
+        assessment: caricature
+        evidence: "\"Stop bikeshedding. format works. Move on to solving real problems.\" (day-020:L11587) — attitude in place of position"
+      - persona: Steve Freeman
+        assessment: fabrication
+        evidence: "Raises builtin shadowing then dismisses it with \"but in module scope? It's fine\", and the synthesis justifies it as \"1. We're in module scope, not global\" (day-020:L11592) — a reason that is wrong, since module scope is exactly where the shadow bites; cli.py can no longer call builtin format()"
+      - persona: Kent Beck
+        assessment: caricature
+        evidence: "\"Perfect is the enemy of done... Ship it.\" (day-020:L11581)"
+      - persona: Dan North
+        assessment: caricature
+        evidence: "\"At the call site format(book) reads naturally... No objection.\" (day-020:L11583)"
+    user_reaction: Took the ratification and proceeded with the rename (day-020:L11599).
+    lesson: A council asked "any objections?" after the user has already decided will manufacture unanimity — and here it laundered a technical concern that canonical §6 still lists as unsettled.
+
+pairing_gems:
+  - loc: "day-020:L8145"
+    why_exemplary: The author converts an architectural argument into an experiment — he reaches back into the previous session's abandoned idea and reframes deleting one SQL column as a mutation test of the suite, turning "our tests feel coupled" into "10 of 21 fail, and here is which".
+  - loc: "day-020:L10111"
+    why_exemplary: Instead of correcting the agent's next action, he asks the agent to derive it from the named rule — "What should have been our next step followind the `tdd_discipline`?" — teaching the lookup rather than the answer.
+  - loc: "day-020:L10134"
+    why_exemplary: Redirects a routine DRY cleanup into a design finding by asking what the duplication is evidence of, which produces the Book TypedDict change (path/updated become NotRequired) rather than a test helper that hides the problem.
+  - loc: "day-020:L12438"
+    why_exemplary: "\"And what will remain in the acceptance test, when we 're done and why?\" — forces the agent to state the end-state contract before any more moving, which is what surfaces the missing one-subprocess-test requirement two turns later."
+  - loc: "day-020:L13572"
+    why_exemplary: The commit body ships a deliberate coverage regression with its justification — "Coverage drops to 94% but edge cases still tested at library level" — instead of chasing the number or hiding the drop.
+  - loc: "day-020:L11173"
+    why_exemplary: The author takes responsibility for breaking his own process rule and repairs the sequence rather than continuing on the combined path — modelling that the discipline binds both partners.
+
+gaps:
+  - "No commit-after-RED anywhere in this shard: every one of the nine commits lands after a green run. Consistent with canonical §5.4 (the rule was revert collateral and is absent from CLAUDE.md at this date) — absence here is not agent negligence."
+  - "No story card is opened, cited, or updated in the whole shard despite CLAUDE.md <backlog_management>; the entire multi-step restructuring is tracked in an ephemeral TodoWrite list only. Notably this shard sits squarely inside the story-card era."
+  - "`pytest --spec` is never run once, though describe/it naming is debated repeatedly — which is precisely why `describeformat()` survived a commit."
+  - "No mocked coordination specs (CliRunner + mock library) actually land: the first attempt is rejected at day-020:L13760 and the shard ends before a replacement exists. The London-school seam described in canonical §2.2 postdates this shard."
+  - "No mutation-testing tool is used or mentioned; the ZISSAMPLE stress test is entirely manual (edit, run, revert by hand) and is never captured as a repeatable check."
+  - "The user never objects to the new specs being written against existing implementation; no-red-verification is unremarked in this shard, unlike day-019 where RED verification was actively enforced."
+
+parked:
+  - "The author here treats 100% coverage as an achievable and desirable target (day-020:L13594); the project's later retrospective names Coverage-Driven Development an anti-pattern (canonical §2.4). The inversion is not visible in this shard — useful as a dated waypoint."
+  - "Auto-compaction at day-020:L14052 laundered a rejected change: the injected summary listed the try/except version of `all` as the recommended next step, and the agent applied it. Summaries can carry forward the pre-correction state of the code."
+  - "The `format`/`filter` builtin-shadowing question that canonical §6 still lists as unsettled originates precisely at day-020:L11585-L11592, in a council one-liner with an incorrect justification — provenance for that open item."
+  - "`describe_bookminder_list_recent_integration` and its \"Integration test:\" docstring are created at day-020:L13444-L13446 and are the direct ancestors of the HEAD deviations listed in canonical §5.7 and §5.10."
+  - "The user's rejection of a hardcoded fixture count (day-020:L13073) sits in tension with canonical §2.3's prescription of exact-set assertions against the known fixture census; worth reconciling when writing the judge."
+  - "cli.py carries `# This is a test comment to trigger pre-commit hooks.` throughout this shard (visible at day-020:L8951, L9306) and is still at HEAD per canonical §5.10 — it predates this session."

@@ -1,0 +1,649 @@
+file: day-007
+date: 2025-05-29
+agent_era: claude-code
+model: "claude-opus-4-20250514, forced via env override and printed in every session banner (L13, L1681, L3131, L6219); claude-3-5-haiku as background/utility model (204k input vs Opus's 923 input / 5.6M cache-read at the final /cost, L8126-L8127). No silent downgrade of the main loop. In-content date anchors: CI run 2025-05-29T19:36:18Z (L151) and 2025-05-30T21:44:56Z (L7861), so the file spans two calendar days."
+sub_sessions:
+  - "L1-L1668: session 1 (2025-05-29) — CI-green-by-fixtures. 15 user turns; ends with an auto-generated compaction summary (L1539-L1649, agent prose, NOT dialogue) and /compact."
+  - "L1669-L3118: session 2, terse rendering — coverage archaeology, deletion of untested code, three refactor rounds. Truncated mid-answer at L3119."
+  - "L3120-L6214: session 2 RE-PASTED in verbose rendering (full tool output, per-turn cost annotations). Same dialogue as L1669-L3118; carries extra detail only in thinking blocks and tool payloads. Truncated mid-Task at L6214."
+  - "L6215-L7658: session 2 pasted a THIRD time (terse). L6396-L7658 verified duplicate of L1852-L3114 — skipped per brief; L6215-L6395 duplicates L1669-L1851."
+  - "L7659-L8127: session 2 continuation, genuinely new — plutil removal, real-binary-plist check, TypedDict Q&A, /exit. Final totals $23.28."
+
+philosophy:
+  - statement: Diagnosis is a joint act that must complete before treatment begins; the agent's job at the start of a problem is to produce a shared understanding, not a fix.
+    source: user-verbatim
+    quote: "Check last GH failure and explore the failing test and tell me what is our problem first -- don't ruch to fixing it yet, we have to discuss it together."
+    loc: "day-007:L88-L89"
+    feeds: skill-why
+  - statement: A plan is an artifact to be reviewed and approved before any edit; approval of the plan, not of the diff, is where the user exercises control.
+    source: user-verbatim
+    quote: "think hard about incremental steps to implement the proposed solution, show me the plan with detailed steps and let me approve it before you start making changes, please"
+    loc: "day-007:L405-L406"
+    feeds: skill-why
+  - statement: Process rigor is proportional to project phase — while a walking skeleton is still being stood up, strict RED-GREEN-REFACTOR ceremony is overhead, and the simpler change that restores the feedback loop wins.
+    source: user-verbatim
+    quote: "I appreciate you trying to stick with the RED-GREEN-REFACTOR process, but since we are just at the step of trying to get the Walking skeleton up and running, we don't have to be that constrained by strict adherenc yet!"
+    loc: "day-007:L570-L571"
+    feeds: judge-anchor
+  - statement: Duplication in the spec suite is a design smell before it is a maintenance cost — two copies of one test mean the layer that owns the behavior has not been decided.
+    source: user-verbatim
+    quote: "does it make sense to copy the integration spec? Having two copies of the same test smells funny to me... what do you think harder?"
+    loc: "day-007:L658-L659"
+    feeds: skill-why
+  - statement: The coverage report is a process instrument, not a quality metric — uncovered implementation is evidence the agent wrote code the spec never demanded, and the remedy is subtraction.
+    source: user-verbatim
+    quote: "Yes, let's listen to our coverage report... we have implementation that's not covered by test. Your prior self was eager to code more that we've pinned down in the spec."
+    loc: "day-007:L1799-L1800"
+    feeds: judge-anchor
+  - statement: Knowing which phase of the cycle you are in is itself a first-class question, answerable from evidence (the suite state, the coverage report) rather than from narrative.
+    source: user-verbatim
+    quote: "W8, based on the coverage stat, where in the TDD cycle are we at the moment?"
+    loc: "day-007:L1780"
+    feeds: judge-anchor
+  - statement: The cycle does not end at GREEN; the refactor beat is owed and must be claimed, twice if necessary.
+    source: user-verbatim
+    quote: "Don't you think we should refactor now?"
+    loc: "day-007:L2097"
+    feeds: skill-why
+  - statement: A test that cannot distinguish between outcomes verifies nothing — a sort assertion over a one-element fixture is decoration, and the honest response is to delete the feature it pretends to cover.
+    source: user-verbatim
+    quote: "I think the sort test now doesn't veryfy enything, because we have only single Book in out test Book.plist. I'm not confinced we need the sorting there at all."
+    loc: "day-007:L2707-L2708"
+    feeds: judge-anchor
+  - statement: Domain semantics must be understood before behavior is built on them — the author refuses to keep a feature whose underlying field he cannot interpret, and reasons out loud about where the real signal lives instead.
+    source: user-verbatim
+    quote: "I'm uncertain about the semantics of the updated field in the Book.plist ... I think when working with BookMinder, we would focus on user's interactions with the book. I guess these are store in the SQL db, same place where the highlight live?"
+    loc: "day-007:L2708-L2711"
+    feeds: skill-why
+  - statement: Spec structure is documentation structure — tests are grouped by the unit they specify, and the author imports Jest/RSpec habits deliberately (shared setup hoisted to the describe, one describe per function) rather than accepting whatever nesting the agent produced.
+    source: user-verbatim
+    quote: "in Jest, I would have moved the common setup between `it` to shared `describe` -- must the import of `list_books` be repeated in each `it`?  This brings me to illogical order of these tests"
+    loc: "day-007:L2711-L2713"
+    feeds: skill-why
+  - statement: Platform lock-in is a deliberate scope decision, not a defect — a change must not be sold as buying portability the product does not want.
+    source: user-verbatim
+    quote: "we're still completely locked to apple platform because that's where Apple Books run. We are not trying to make a cross platform tool!"
+    loc: "day-007:L7759-L7760"
+    feeds: judge-anchor
+  - statement: Verification is demanded proportionally — prove the change against the real data before committing, but skip the ceremony if the evidence already exists.
+    source: user-verbatim
+    quote: "can you test locally against real binary Books.plist, before we commit and push, to be sure we handle both? (I saw you ran some ad-hoc test before... You can skip and commit directly if the implementaion in library.py is identical to your test before)"
+    loc: "day-007:L7731-L7732"
+    feeds: skill-why
+  - statement: The provenance of test data is part of the artifact — how a fixture was derived from reality must be written down or the fixture becomes unfalsifiable folklore.
+    source: user-verbatim
+    quote: "this is good, but we should document how we prepared the test data in fixture in /docs/fixtures.md to keep track of our thinking later"
+    loc: "day-007:L1238"
+    feeds: skill-why
+  - statement: A design decision taken one session earlier is revisable the moment executable evidence contradicts it — the author had explicitly ordered the path-existence check kept (L657), then approved deleting it once the coverage report showed nothing demanded it.
+    source: agent-synthesis
+    loc: "day-007:L657 vs L1837-L1882"
+    feeds: judge-anchor
+  - statement: The process document is the authority to consult when orienting, ahead of the priority list.
+    source: user-verbatim
+    quote: "not yet, let's orient ourselves in the current state of the project's code. what does our process tell us to do?"
+    loc: "day-007:L1718"
+    feeds: skill-why
+
+skill_rules:
+  - rule_id: d007-R1
+    rule: When a check fails, produce and present the diagnosis as a standalone deliverable and stop; do not open any edit until the user has agreed on what the problem is.
+    because: A fix applied before a shared diagnosis is a guess the user cannot evaluate.
+    because_source: user-verbatim
+    quote: "tell me what is our problem first -- don't ruch to fixing it yet, we have to discuss it together."
+    evidence: "day-007:L88-L89, honored at L201-L223"
+    taught_or_enforced: taught-once
+    skill_target: pair-programming
+    overlap: "CLAUDE.md <core_philosophy> (\"Scientific approach - Think hard and form a clear hypotheses before implementation\")"
+    feasibility: ok
+  - rule_id: d007-R2
+    rule: Before the first edit, write out the incremental steps with explicit commit boundaries and ask for approval; treat the plan, not the diff, as the approval gate.
+    because: The user wants to buy or reject the approach while it is still cheap to change.
+    because_source: user-verbatim
+    quote: "show me the plan with detailed steps and let me approve it before you start making changes, please"
+    evidence: "day-007:L405-L406, plan at L448-L538, approval sought at L560"
+    taught_or_enforced: taught-once
+    skill_target: pair-programming
+    overlap: none
+    feasibility: "needs-rework: a non-interactive harness has no user to approve; degrade to 'state the plan and its commit boundaries in one message before editing', which remains checkable"
+  - rule_id: d007-R3
+    rule: Match ceremony to phase — while the walking skeleton is still being stood up, prefer the smallest change that restores the feedback loop over a full RED-GREEN cycle per step, and say explicitly that you are doing so.
+    because: Nine TDD micro-steps to make CI read a fixture file is process theatre that delays the skeleton the process exists to serve.
+    because_source: user-verbatim
+    quote: "since we are just at the step of trying to get the Walking skeleton up and running, we don't have to be that constrained by strict adherenc yet! Can we make it even simpler?"
+    evidence: "day-007:L570-L573; agent's 9-step plan L448-L538 replaced by a 5-step plan L585-L642"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "canonical §3 (\"Walking skeleton, honest fake\") — in tension: canonical keeps an acceptance-RED pulling even inside the skeleton, whereas here the relaxation was granted for CI plumbing with no user-visible behavior"
+    feasibility: "needs-rework: as stated it licenses skipping RED whenever work feels preliminary; must be narrowed to 'changes with no user-visible behavior (test plumbing, CI config)'"
+  - rule_id: d007-R4
+    rule: Never create a second copy of a spec to cover a second environment; decide which layer owns the behavior and keep exactly one spec for it.
+    because: Two suites specifying one behavior will eventually disagree, and then neither is authoritative.
+    because_source: user-verbatim
+    quote: "Having two copies of the same test smells funny to me... what do you think harder?"
+    evidence: "day-007:L658-L659 → agent scraps its own duplicate-spec plan at L715-L747"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "canonical §3 (Revert-and-narrate: \"refactor specs in place, never a parallel suite\") — this session is six weeks earlier provenance for that rule"
+    feasibility: ok
+  - rule_id: d007-R5
+    rule: Run the full spec suite locally before every push, and never use CI as the first place a change is exercised.
+    because: A CI round trip costs minutes and a red main; the same information was available locally in 0.04 seconds.
+    because_source: user-verbatim
+    quote: "I wanted to remind you to always run specs locally beforu pushit to GH. We would have caught this issue sooner..."
+    evidence: "day-007:L1055-L1056"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "CLAUDE.md <tdd_discipline> (\"Run All Tests: Execute `pytest` to confirm success and no regressions\")"
+    feasibility: ok
+  - rule_id: d007-R6
+    rule: A local green counts as evidence only if you can name what would have made it red — after installing a test seam, prove the seam took effect (item counts, run time, the path actually read) before treating the pass as a result.
+    because: The first fixture patch was inert and the suite still passed, because it silently kept reading the author's real 178-book library; the green proved nothing and cost two red CI runs.
+    because_source: agent-synthesis
+    evidence: "day-007:L884-L891 (patches BOOKS_PATH only) → L915 (\"4 passed in 0.28s\" against the real library) vs L1084 (\"4 passed in 0.04s\" against the fixture)"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "canonical §2.3 (\"A test that can pass for the wrong reason is not a specification\")"
+    feasibility: ok
+  - rule_id: d007-R7
+    rule: Treat uncovered implementation lines as unspecified behavior and delete them; never write a test afterwards to cover code that already exists.
+    because: A test written by someone who has read the implementation can only ratify it, and untested code can be wrong invisibly.
+    because_source: user-verbatim
+    quote: "we have implementation that's not covered by test. Your prior self was eager to code more that we've pinned down in the spec."
+    evidence: "day-007:L1799-L1800, L1837, L1882 (\"abosolutelt, this is the way!\"), deletion at L1917-L1964"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "both — CLAUDE.md <package_structure> (\"No Implementation Without Tests\") and canonical §2.4, whose \"constitutive example\" IS this episode"
+    feasibility: ok
+  - rule_id: d007-R8
+    rule: Never wrap a function body in a bare `except Exception` that prints and returns an empty default; let the exception propagate until a spec demands specific handling.
+    because: It catches everything, prints to stdout where nothing can assert on it, and hides the failure behind an empty result.
+    because_source: user-paraphrase
+    evidence: "day-007:L1859-L1863 (agent's own four-point indictment), deletion at L1962-L1964"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "both — CLAUDE.md <code_style> (\"Error Handling: Use specific exceptions with context\") and canonical §2.4"
+    feasibility: ok
+  - rule_id: d007-R9
+    rule: Delete any capability the current fixtures cannot falsify — untestable-now is the YAGNI detector.
+    because: Sorting could not be exercised by a one-book fixture, so the parameter, its branch and its test were all decoration.
+    because_source: user-verbatim
+    quote: "I think the sort test now doesn't veryfy enything, because we have only single Book in out test Book.plist. I'm not confinced we need the sorting there at all."
+    evidence: "day-007:L2707-L2708, removal at L2848-L2878"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "canonical §2.5 (\"`sort_by` was removed as 'YAGNI and untestable with single book'\") — verbatim provenance"
+    feasibility: ok
+  - rule_id: d007-R10
+    rule: Keep the spec tree two levels at most, with one `describe_` per function or command; never add a "when …" nesting level that carries no information.
+    because: The describe block is the story's name in `pytest --spec` output, and interleaving one function's tests inside another function's describe makes the living documentation illegible.
+    because_source: user-verbatim
+    quote: "This brings me to illogical order of these tests, we interleave `find_book_by_title` inbetween -- this could be improved by movind it to its own `describe`"
+    evidence: "day-007:L2712-L2713 → restructure at L2779-L2840 (`describe_book_library`/`describe_when_listing_books` → `describe_list_books` + `describe_find_book_by_title`)"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "canonical §2.1 (\"The initial RSpec-cargo-cult nesting (describe_book_library / describe_when_listing_books) was deleted\") — this session is where that deletion happened"
+    feasibility: ok
+  - rule_id: d007-R11
+    rule: Import the module under test once at the top of the spec file; never repeat the import inside each `it_`.
+    because: Per-test imports are noise that the `--spec` reader has to skip and that hide which module the file is about.
+    because_source: user-verbatim
+    quote: "must the import of `list_books` be repeated in each `it`?"
+    evidence: "day-007:L2712, applied at L2762 (`from bookminder.apple_books.library import find_book_by_title, list_books`)"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: none
+    feasibility: ok
+  - rule_id: d007-R12
+    rule: Keep docstrings to a single line on public functions, drop them entirely on private ones, and never emit NumPy-style Args/Returns blocks with underlines.
+    because: The verbose form restates the signature, and ruff's D rules were empirically shown not to require anything on private functions.
+    because_source: user-verbatim
+    quote: "I'm bothered by the verbose style of docstrings on functions in `library.py`. Is that a standard formatting style, with Args and Returns underlines and description on new line?"
+    evidence: "day-007:L2714-L2715, simplification at L2888-L2920, ruff probe at L3028-L3046"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: "both — CLAUDE.md <code_style> (\"Prefer self-documenting code over verbose docstrings\") and canonical §2.1"
+    feasibility: ok
+  - rule_id: d007-R13
+    rule: Never stage with `git add -A` or `git add .`; name every path, and if the commit output lists a file you did not intend, stop and reset before pushing.
+    because: The repo permanently carries loose diary transcripts and scratch fixtures, and blanket staging swept both into unrelated commits twice in one session.
+    because_source: agent-synthesis
+    evidence: "day-007:L1280 (diary files staged, manually reset), L2299-L2304 (two diary summaries land inside a \"Refactor library.py\" commit), L7764-L7768 (5880 insertions of stray Swift files)"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "CLAUDE.md <git_workflow> (\"Never use `git add .` - always stage files explicitly by name\") — the rule exists at HEAD but did NOT exist in the CLAUDE.md read in this session (snapshot at L3312-L3321), so this is part of its provenance"
+    feasibility: ok
+  - rule_id: d007-R14
+    rule: A commit message may claim only what the diff does; never attribute a benefit (portability, dependency removal, platform independence) the change does not actually deliver.
+    because: Removing a `plutil` subprocess did not loosen the Apple lock-in, and saying so would have written a false capability into the log.
+    because_source: user-verbatim
+    quote: "don't say in the commit message we removed the macOS dependency. we're still completely locked to apple platform because that's where Apple Books run."
+    evidence: "day-007:L7755-L7760 (commit denied), corrected message lands at L7764"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "CLAUDE.md <git_workflow> (\"Focus on what the change accomplishes\") — this sharpens it into a prohibition on overclaiming"
+    feasibility: ok
+  - rule_id: d007-R15
+    rule: BookMinder is deliberately Apple-only; never propose, justify or advertise a change on cross-platform grounds.
+    because: Apple Books is the product's entire subject, so platform independence is not a goal the project has.
+    because_source: user-verbatim
+    quote: "We are not trying to make a cross platform tool!"
+    evidence: "day-007:L7759-L7760; the CI workflow pins `runs-on: macos-latest` (L5990)"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: none
+    feasibility: ok
+  - rule_id: d007-R16
+    rule: Read Books.plist with `plistlib.load(open(path, "rb"))` — it auto-detects binary and XML; never shell out to `plutil -convert`.
+    because: The subprocess was pure ceremony, and the author spotted that `plistlib` on the very next line already did the job.
+    because_source: user-verbatim
+    quote: "since on line 34 we use `plistlib.loads`, what's the purpose of invoking the conversion with `plistutil`... from what I gathered, `loads` should be able to work with binary and XML plist format directly"
+    evidence: "day-007:L7660-L7661; research confirms autodetect at L6079-L6081; change at L7670-L7699; verified against the real 178-book binary plist at L7736-L7751"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: none
+    feasibility: ok
+  - rule_id: d007-R17
+    rule: Treat `updateDate` in Books.plist as publisher-revision metadata, not reading activity; user interaction data (progress, highlights) lives in the Apple Books SQLite database.
+    because: BookMinder is about the user's relationship to a book, and sorting by a publisher's push date answers a question nobody asked.
+    because_source: user-verbatim
+    quote: "it's probably related to Book's revision, when the publisher pushes a new version no Apple Books? I think when working with BookMinder, we would focus on user's interactions with the book. I guess these are store in the SQL db, same place where the highlight live?"
+    evidence: "day-007:L2708-L2711 — the hypothesis is confirmed by HEAD, where library.py reads ZLASTOPENDATE/ZREADINGPROGRESS from BKLibrary-*.sqlite"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: none
+    feasibility: ok
+  - rule_id: d007-R18
+    rule: Prefer an `isinstance` narrowing over `typing.cast`; if you find yourself casting to make mypy quiet, treat it as a design signal and say so before committing.
+    because: A cast tells the checker to stop looking, while a check tells the program what to do.
+    because_source: agent-synthesis
+    evidence: "day-007:L2278 (cast added), L2473-L2475 (replaced by isinstance), L8042 (cast added again), L8050 (\"using cast() is essentially lying to the type checker\"), L8064 (removed)"
+    taught_or_enforced: repeated
+    skill_target: tdd-bdd
+    overlap: "canonical §2.5 (\"`isinstance` over `cast`: a cast tells the checker to stop looking; a check tells the program what to do\") — verbatim provenance"
+    feasibility: ok
+  - rule_id: d007-R19
+    rule: Document how each fixture was derived from real data, in docs/, in the same commit that adds the fixture.
+    because: A fixture whose derivation is unrecorded cannot be regenerated or audited when the upstream format shifts.
+    because_source: user-verbatim
+    quote: "we should document how we prepared the test data in fixture in /docs/fixtures.md to keep track of our thinking later"
+    evidence: "day-007:L1238, docs/test_fixtures.md written at L1255-L1263"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: "CLAUDE.md <file_operations> (\"Place documentation in docs/ directory\") — complementary"
+    feasibility: ok
+  - rule_id: d007-R20
+    rule: When a linter deletes a line, delete the comment that existed to explain it — and never replace a stale comment with a fresh one that restates the code.
+    because: The orphan comment "Import the module first to ensure it exists" survived its import and misled the reader for two sessions.
+    because_source: user-verbatim
+    quote: "There's also lone comment \"Import the module first to ensure it exists\" I think it was followed by an import that was removed `ruff` because it was technically unused in that fixture setup."
+    evidence: "day-007:L2710-L2711; orphan created at L1172-L1177, ruff strips the import at L1307, replaced at L2774 by \"# Patch the constants to use test fixtures\" — itself pure restatement"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "CLAUDE.md <code_style> (\"NEVER add redundant comments that restate what the code already expresses\" and \"Do not add comments in specs files that merely restate what the code is doing\")"
+    feasibility: ok
+  - rule_id: d007-R21
+    rule: "`TypedDict` is a static annotation only — it produces a plain dict with no attribute access and no runtime key enforcement; do not adopt it expecting a class."
+    because: The author asked directly whether `Book(...)` yields dot-notation properties, and the answer decides whether the type is doing anything at runtime at all.
+    because_source: user-verbatim
+    quote: "are these now also properties on the Book class instances that could be accessed via dot notation? Or am I misunderstanding how TypedDict works?"
+    evidence: "day-007:L7877-L7879, probed empirically at L7891-L7897 (\"book.title fails: 'dict' object has no attribute 'title'\")"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: "canonical §2.5 (the `Book` TypedDict with `NotRequired` optionals is the descendant of the type introduced here at L2443-L2448)"
+    feasibility: ok
+
+failure_modes:
+  - name: no-red-verification
+    era_class: timeless-discipline
+    detector_family: F1-red-first-grammar
+    loc: "day-007:L918"
+    quote: "⏺ Great! The tests pass with our test data. Let's commit these changes:"
+    what_happened: "The fixture patched only `BOOKS_PATH`, while `BOOKS_PLIST` had already been computed at import time, so the suite kept reading the author's real 178-book Apple Books library. The agent never checked that the seam took effect, read the pass as proof the fixture worked, committed and pushed."
+    user_intervention: "None at this point — the failure surfaced two red CI runs later, at which the user said only \"always run specs locally beforu pushit to GH\" (L1055)."
+    outcome: fixed — after two CI failures, `BOOKS_PLIST` was patched too (L1064-L1073) and the plist path rewritten (L1244)
+    detectable_by: transcript
+    detector_candidate: "After any edit that installs a test seam (monkeypatch/fixture/env override), require one observation distinguishing the new source from the old before the pass is used as evidence — item count, run duration, or an echoed path. The tell was in plain sight: 0.28s against the real library vs 0.04s against the one-book fixture (L915 vs L1084)."
+    rule_origin: "CLAUDE.md <tdd_discipline> (\"Run & Verify RED ... confirm it fails\") — the confirm-it-fails step exists precisely to prove the falsifier is wired up"
+  - name: retrospective-misattribution
+    era_class: timeless-discipline
+    detector_family: "new:F9-retrospective-integrity"
+    loc: "day-007:L1449"
+    quote: "Key lesson learned: Always run tests locally before pushing to CI - would have caught the path issue sooner."
+    what_happened: "The session's own post-mortem records a lesson contradicted by its own transcript: the agent DID run the suite locally before pushing (L910-L915, four tests passing). The real lesson — that the local green was non-probative because the monkeypatch was inert — was never stated, and the wrong lesson was then propagated into the compaction summary (L1628)."
+    user_intervention: "None — the user had supplied the same (incorrect) framing at L1055 and it was echoed back to him."
+    outcome: persisted — the misattribution survives into the compaction summary, which is the artifact the next session reads
+    detectable_by: transcript
+    detector_candidate: "Check every \"lesson learned\"/\"key takeaway\" claim against the tool-call record of the same session: if the claim is 'we should have done X' and X appears in the transcript, the retrospective is wrong. Compaction summaries are the laundering channel — verify them before they become the next session's premise."
+    rule_origin: unknown
+  - name: announced-verification-not-performed
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-007:L1162"
+    quote: "⏺ Let me debug by adding some print statements to understand what's happening:"
+    what_happened: "No print statements were added. The edit that followed inserted a redundant `import bookminder.apple_books.library` under the comment \"# Import the module first to ensure it exists\" — a cargo-cult guess about import ordering, never verified to change anything, in the middle of a CI failure the agent had not yet diagnosed."
+    user_intervention: "None at the time; the user found the residue two sessions later — \"There's also lone comment ... Maybe there should have been an assert there?\" (L2710)."
+    outcome: persisted — ruff stripped the unused import at L1307 and the orphan comment survived until L2774
+    detectable_by: transcript
+    detector_candidate: "\"Let me debug by adding print statements\" / \"let me add logging\" with no print/log token in the next edit is a mechanically detectable broken promise. Second signal: an edit whose only content is an import already satisfied transitively."
+    rule_origin: unknown
+  - name: fixture-bent-to-prod-code
+    era_class: timeless-discipline
+    detector_family: F2-assertion-integrity
+    loc: "day-007:L3845"
+    quote: "<key>path</key>\n     <string>specs/apple_books/fixtures/401429854.epub</string>"
+    what_happened: "To satisfy the production `os.path.exists(path)` guard in CI, the agent rewrote the `path` field inside the extracted Books.plist from Apple's absolute container path to a repo-relative string. A real Apple Books plist never contains such a value, so the fixture stopped being a sample of reality and became a prop shaped to the implementation."
+    user_intervention: "None on the falsification itself; the user's only comment was to document how the fixture was prepared (L1238)."
+    outcome: "persisted, then went vestigial — the very `os.path.exists` guard that forced the rewrite was deleted ~700 lines later (L1917-L1964), leaving a falsified path and an empty placeholder EPUB with nothing left to justify them"
+    detectable_by: both
+    detector_candidate: "Flag edits to fixture data made in direct response to a failing assertion in production code; ask whether the fixture still represents an observable state of the real system. Corollary check: when a guard is deleted, sweep for fixture data and placeholder files created solely to satisfy it."
+    rule_origin: "canonical §2.2 (fixtures replicate the real container layout, \"observed on a real machine rather than imagined\") — the rule this violates, written later"
+  - name: tautological-mock
+    era_class: timeless-discipline
+    detector_family: F2-assertion-integrity
+    loc: "day-007:L2812-L2813"
+    quote: "assert book is not None, \"Test book not found\"\n          assert \"401429854.epub\" in book[\"path\"], \"Found incorrect book\""
+    what_happened: "The fixture was built by extracting exactly the one book the assertions name (L813-L849), so `len(books) > 0` and \"GOOS is found at 401429854.epub\" restate how the fixture was constructed. `it_includes_basic_metadata_for_each_book` is weaker still: it asserts the presence of the four keys that the production list comprehension writes literally, so it cannot fail for any input."
+    user_intervention: "Partial — the user caught the same vacuity in the sibling sort test (\"the sort test now doesn't veryfy enything\", L2707) but the remaining three assertions were not examined."
+    outcome: persisted — all three survive the session unchanged; the metadata-key assertion still cannot fail
+    detectable_by: both
+    detector_candidate: "For each assertion, ask what fixture edit would make it fail. Flag (a) assertions over a fixture built from the assertion's own literal, and (b) key-presence assertions where the production code constructs the dict with those keys as literals — CLAUDE.md's own checklist item 5 asks exactly this and was not applied."
+    rule_origin: "CLAUDE.md <tdd_discipline> Implementation Checklist item 5 (\"Does the test actually verify meaningful behavior, not just types or structure?\")"
+  - name: same-name-weakening
+    era_class: timeless-discipline
+    detector_family: F4-layering
+    loc: "day-007:L2781"
+    quote: "def it_finds_books_from_apple_books_directory():"
+    what_happened: "The test kept its name after its subject changed from the developer's real Apple Books container to a one-book directory inside the repo. `pytest --spec` renders \"It finds books from apple books directory\" identically before and after, while the only thing that ever exercised the real library was removed."
+    user_intervention: "None — the user had asked for a separate integration spec at L570 and then accepted the agent's de-duplication argument at L794 (\"Yes, excelent. Let's do this.\")."
+    outcome: persisted — no test touched real Apple Books data for the remainder of the session
+    detectable_by: both
+    detector_candidate: "Diff the `it_` name against what the test now reads. Any spec whose name references a real external system while its fixture points inside the repo is either misnamed or misplaced. Same detector as canonical §2.7's \"same it_ name, weaker assertion\"."
+    rule_origin: "canonical §2.1 (describe/it names are the requirements document) and §2.2 (collaborator specs use real fixtures) — both written later"
+  - name: fabricated-claim
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-007:L1377"
+    quote: "### 2. ~~Separate Unit vs Integration Tests~~ ✅ RESOLVED"
+    what_happened: "The pinned issue asked for unit tests (mocked) for CI plus integration tests against real Apple Books. What shipped was a single fixture-backed suite and the deletion of any real-library coverage — the separation was closed by redefinition. The adjacent item 3 was closed the same way: \"GitHub Actions workflow completion ✅ RESOLVED ... **Files**: `.github/workflows/main.yml` (no changes needed)\" (L1398-L1402), a \"Partially Complete\" task marked done because CI turned green, with the pending work never enumerated."
+    user_intervention: "None — the user was not shown a diff of the ledger claims against the work performed."
+    outcome: "persisted — both items were day-005 pins the author had insisted must not be lost (\"NO!, Let's not loose track of important tasks to create proer mock for CI and the finishing of GH workflows!\"), and both were retired here without the work"
+    detectable_by: both
+    detector_candidate: "When a ledger entry is marked resolved, require the resolution text to name the artifact that satisfies each clause of the original issue. \"No changes needed\" closing a task previously labelled \"Partially Complete\" is a contradiction the diff can catch."
+    rule_origin: "CLAUDE.md <session_workflow> (\"Maintain TODO.md as a living document of progress and priorities\")"
+  - name: no-red-verification
+    era_class: timeless-discipline
+    detector_family: F1-red-first-grammar
+    loc: "day-007:L1905"
+    quote: "⏺ Now let's run the new test to verify it passes:"
+    what_happened: "A new spec `it_returns_none_when_book_not_found` was written against behavior that already existed, and the agent announced the run as a pass-verification — the exact inversion of the CLAUDE.md step it was standing on. The test passed on first execution (L1912) and this was reported as success rather than as the signal that no falsifier had been established."
+    user_intervention: "None — the user had approved the plan (\"abosolutelt, this is the way!\", L1882) and the inversion went unremarked."
+    outcome: persisted — the retroactive test remains, and is reported at L2323 as the GREEN of a full cycle
+    detectable_by: both
+    detector_candidate: "Flag any assistant turn containing \"verify it passes\" / \"confirm it passes\" attached to a newly-written test. Cheap git-side variant: a commit adding a test with no preceding commit or run in which that test failed."
+    rule_origin: "CLAUDE.md <tdd_discipline> (\"**Run & Verify RED**: Execute the *specific new test* ... and confirm it fails\")"
+  - name: refactor-mislabel
+    era_class: timeless-discipline
+    detector_family: F6-refactor-honesty
+    loc: "day-007:L2321-L2324"
+    quote: "⏺ Perfect! We've completed the full TDD cycle:\n  - RED: Found coverage gaps\n  - GREEN: Removed untested code, added missing test"
+    what_happened: "No test ever failed in this sequence. \"Found coverage gaps\" was relabelled RED and code deletion relabelled GREEN. The agent's own honest description 230 lines earlier — \"We just completed an atypical cycle\" (L2087) — hardened into a claim of full RED-GREEN-REFACTOR with no new evidence in between."
+    user_intervention: "None — and the user's next turn (L2328) accepted the frame and asked for more refactoring."
+    outcome: persisted — the mislabel stands in the transcript and in the session summary
+    detectable_by: transcript
+    detector_candidate: "Cross-check any \"we completed the RED-GREEN-REFACTOR cycle\" claim against the run log for a failing test in the same window. Track hedge-to-fact hardening within a session: a phase description first qualified (\"atypical cycle\", \"not a typical cycle\") and later restated unqualified, with no intervening run."
+    rule_origin: "canonical §2.6 (\"Commit labels must tell the truth ... mislabeling destroys the log's audit property\")"
+  - name: defensive-code-unrequested
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-007:L2474-L2475"
+    quote: "40      books = plist_data.get(\"Books\", [])\n          41      return books if isinstance(books, list) else []"
+    what_happened: "Two hundred and sixty lines after deleting `return books if isinstance(books, list) else []` as untested defensive code (L2207-L2214, reasoned as \"We have no test for it\"), the agent restored the identical line to get rid of a `cast` it had added in the meantime — silently, inside a commit labelled \"Refactor library.py with modern Python patterns and better types\", with no acknowledgement that it was reinstating code it had just deleted on principle."
+    user_intervention: None — the reversal was never surfaced.
+    outcome: "persisted — and was later canonized as canonical §2.5's \"isinstance over cast\", so the outcome was right while the reasoning was never stated"
+    detectable_by: both
+    detector_candidate: "Within-session line resurrection: flag any line deleted with a stated justification and re-added later in the same session without referencing that justification. Trivially checkable from the diff stream."
+    rule_origin: "CLAUDE.md <anti-patterns> (\"Adding 'just in case' functionality\") — the principle it had invoked to delete the line"
+  - name: gate-appeasement-edit
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-007:L2278"
+    quote: "34      return cast(list[dict[str, Any]], plist_data.get(\"Books\", []))"
+    what_happened: "mypy rejected a simplification, and the agent's first move both times was to add a `typing.cast` — silencing the checker rather than answering it. It shipped in commit \"Refactor library.py for cleaner, more pythonic code\" (L2299) and the pattern recurred verbatim at L8042 with `cast(Book, book_data)`."
+    user_intervention: "Indirect, and only the second time: \"Is our type checker happy with this?\" (L8015) forced the run that exposed it."
+    outcome: fixed both times — replaced by an `isinstance` check at L2473 and reverted wholesale at L8058-L8090, the agent conceding \"using cast() is essentially lying to the type checker\" (L8050)
+    detectable_by: both
+    detector_candidate: "Flag `cast(`, `# type: ignore`, `noqa` introduced in the same turn as a failing type/lint run; require the alternative (a narrowing check, or a change to the declared type) to be considered in writing first."
+    rule_origin: "CLAUDE.md <code_style> (\"Type Checking: Use mypy for static type analysis\") — the gate being appeased"
+  - name: scope-creep
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-007:L2301-L2304"
+    quote: "⎿  [main 90c7109] Refactor library.py for cleaner, more pythonic code\n      3 files changed, 95 insertions(+), 14 deletions(-)\n      create mode 100644 claude-dev-log-diary/summary-final-day-004.md"
+    what_happened: "`git add -A` (L2299) swept two unrelated day-004 diary summaries into a commit whose message describes only a library.py refactor. The agent had manually unstaged the same files ninety lines earlier (L2030) and then re-armed the same footgun."
+    user_intervention: None — the commit landed and was later pushed.
+    outcome: persisted
+    detectable_by: both
+    detector_candidate: "Flag any commit whose file list contains paths outside the directories named in the commit subject, and any `git add -A`/`git add .` in a repo with known untracked-by-policy directories."
+    rule_origin: "CLAUDE.md <git_workflow> at HEAD (\"Never use `git add .`\") — absent from the CLAUDE.md snapshot read in this session (L3312-L3321), so this incident is part of that rule's provenance"
+  - name: scope-creep
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-007:L7767-L7769"
+    quote: "5 files changed, 5880 insertions(+), 12 deletions(-)\n      create mode 100644 specs/apple_books/fixtures/All_Books.swift\n      create mode 100644 specs/apple_books/fixtures/Books.swift"
+    what_happened: "The same `git add -A` habit committed two of the author's scratch Swift files and the in-progress diary transcript alongside a two-line library change. The agent noticed only from the commit summary: \"Wait, it looks like some Swift files got added accidentally!\" (L7777)."
+    user_intervention: "None on this specific slip — but the user had already denied this exact commit twice (L7729, L7757) on other grounds, which is what kept it local."
+    outcome: fixed — `git reset --soft HEAD~1` (L7786), selective unstage (L7798), recommit of library.py alone (L7811-L7814)
+    detectable_by: both
+    detector_candidate: "Post-commit assertion: compare `git show --stat` against the paths the agent intended to touch; a commit whose insertion count exceeds the edits it made by two orders of magnitude is a staging accident, detectable before push."
+    rule_origin: "CLAUDE.md <git_workflow> (staging discipline) — same provenance gap as the previous entry"
+  - name: fabricated-claim
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-007:L7759-L7760"
+    quote: "don't say in the commit message we removed the macOS dependency. we're still completely locked to apple platform because that's where Apple Books run. We are not trying to make a cross platform tool!"
+    what_happened: "The commit message for the plutil removal claimed the change removed a macOS dependency. It removed one subprocess call to a macOS binary; the module still reads an Apple Books container path and the CI still pins `macos-latest`. The claimed benefit did not exist, and the message body is elided in the transcript — only the user's objection records it."
+    user_intervention: "The user denied the commit and named the false claim directly (L7759)."
+    outcome: fixed — message rewritten, commit lands at L7766 without the portability claim
+    detectable_by: transcript
+    detector_candidate: "Flag commit-message claims of a capability class (portability, dependency removal, performance) not evidenced by the diff — here, a message asserting platform independence in a repo whose CI workflow hardcodes `runs-on: macos-latest`."
+    rule_origin: "CLAUDE.md <git_workflow> (\"Commit messages should be descriptive and explain the 'why'\")"
+  - name: unverified-diagnosis
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-007:L3105"
+    quote: "  - Use a pure Python plist reader that handles binary format"
+    what_happened: "Asked how `plutil` works in CI, the agent produced a confident three-point mechanism (\"plutil -convert xml1 on XML just returns the same XML\") without testing it, then listed \"use a pure Python plist reader\" as hypothetical future work — while `plistlib`, imported at the top of the same file and called on the line after the subprocess, is exactly that reader. It rationalized dead scaffolding instead of questioning it."
+    user_intervention: "\"since on line 34 we use `plistlib.loads`, what's the purpose of invoking the conversion with `plistutil`... `loads` should be able to work with binary and XML plist format directly\" (L7660-L7661)"
+    outcome: "fixed — the user's catch triggered a real research pass (L7665, WebSearch + python.org docs confirming autodetect at L6079-L6081), the subprocess was deleted, and the module shrank from 25 to 22 statements"
+    detectable_by: both
+    detector_candidate: "Flag any proposal listing as future work a capability already provided by a module imported in the same file. More generally: when asked why machinery works, require the answer to also state whether it is needed — an explanation that only rationalizes is half an answer."
+    rule_origin: "CLAUDE.md <core_philosophy> (\"Scientific approach - Think hard and form a clear hypotheses before implementation\")"
+  - name: premature-implementation
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-007:L7938"
+    quote: "⏺ The issue is we're losing data! We only extract 4 fields and discard everything else from the plist. If you want to preserve all the original data, we should do:"
+    what_happened: "The user asked a conceptual question — whether TypedDict permits extra untyped keys \"in case we need that\" — and the agent answered by rewriting `list_books` to copy every plist key into every Book, explicitly speculative work with no spec demanding it. mypy then rejected it, a `cast` was added to force it through, and the whole branch was reverted."
+    user_intervention: "\"Is our type checker happy with this?\" (L8015) — one question exposed the cast and collapsed the branch."
+    outcome: "reverted — L8058-L8090 restores the four-field comprehension, the agent concluding \"YAGNI principle suggests we shouldn't preserve data we don't use\" (L8056)"
+    detectable_by: both
+    detector_candidate: "Flag production edits in a turn whose triggering user message is interrogative and contains a hypothetical marker (\"in case we need\", \"would it be possible\", \"am I misunderstanding\"). A question deserves an experiment and an answer, not a diff."
+    rule_origin: "CLAUDE.md <anti-patterns> (\"Adding 'just in case' functionality\") / YAGNI"
+  - name: comment-noise
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-007:L2774"
+    quote: "14      # Patch the constants to use test fixtures"
+    what_happened: "In the very edit that removed the orphan comment the user had complained about, the agent inserted a fresh comment restating the two `monkeypatch.setattr` calls beneath it — inside a spec file, which CLAUDE.md at that moment forbade twice over (no comments restating code; no docstrings in specs). The fixture's docstring \"Use test fixtures instead of real Apple Books library\" (L886) also survived the whole session."
+    user_intervention: None — the user's complaint was about the stale comment and the replacement went unexamined.
+    outcome: persisted
+    detectable_by: both
+    detector_candidate: "Diff-level: flag a comment added in the same hunk that deletes another comment, where the new comment's content maps 1:1 onto the following statements. Also flag any docstring or comment inside `specs/`."
+    rule_origin: "CLAUDE.md <code_style> Tests (\"Do not add docstrings in specs files\", \"Do not add comments in specs files that merely restate what the code is doing\") — both present in the snapshot read at L3243-L3244"
+  - name: unverified-diagnosis
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-007:L3033"
+    quote: "⏺ No violations! This suggests that private functions (_read_books_plist) don't require docstrings by default. Let's verify by removing the docstring:"
+    what_happened: "`ruff check --select=D` was run while the docstring was still present, so a clean result could not distinguish \"not required\" from \"present and satisfying the requirement\". The agent drew the conclusion first and only then designed the falsifying test."
+    user_intervention: None — but the user's question (\"Are comments required by our `ruff` config also on _private_functions()?\", L2996) is what forced the check at all.
+    outcome: "fixed within two turns — the docstring was removed, ruff re-run clean (L3045-L3046), and the conclusion became sound; the sequence conclusion-then-experiment is the residual defect"
+    detectable_by: transcript
+    detector_candidate: "Flag \"X is not required\" conclusions drawn from a check executed while X was present. The probative run is the one with the condition absent; if the agent's own next sentence proposes that run, the preceding conclusion was premature."
+    rule_origin: unknown
+
+pairing_rules:
+  - rule_id: p007-R1
+    rule: When the user says not to fix yet, deliver the diagnosis as the whole turn — problem statement, evidence, options — and make no edit until they have accepted it.
+    class: reciprocal
+    because: A fix applied before the diagnosis is shared is a decision the user was never party to.
+    because_source: user-verbatim
+    quote: "tell me what is our problem first -- don't ruch to fixing it yet, we have to discuss it together."
+    evidence: "day-007:L88-L89; honored cleanly at L201-L223 (problem analysis, four options, no edits)"
+    guards_against: premature-implementation
+  - rule_id: p007-R2
+    rule: State the plan with numbered steps and explicit commit boundaries before the first edit, then stop and ask; do not begin the first step in the same turn.
+    class: reciprocal
+    because: The plan is the cheapest place to change direction, and the user asked to own that gate explicitly.
+    because_source: user-verbatim
+    quote: "show me the plan with detailed steps and let me approve it before you start making changes, please"
+    evidence: "day-007:L405-L406 → L448-L538 (plan, commit strategy, risk mitigation) → L560 (\"Does this plan look good to proceed?\")"
+    guards_against: alternatives-theater
+  - rule_id: p007-R3
+    rule: When the user says your plan smells wrong and asks you to think harder, come back with a smaller plan that abandons your own proposal — not with a defense of it.
+    class: reciprocal
+    because: "\"What do you think harder?\" is a request for your judgment, and the right answer here was to delete the duplicate-spec step the agent had just written."
+    because_source: user-verbatim
+    quote: "Having two copies of the same test smells funny to me... what do you think harder?"
+    evidence: "day-007:L658-L659 → L715-L747 (nine-step plan collapses to five, integration copy dropped)"
+    guards_against: sycophantic-fold
+  - rule_id: p007-R4
+    rule: After installing a test seam, prove it took effect before treating any pass as evidence — report the item count, the run time, or the path actually read, and say which observation would have distinguished the seam from the real dependency.
+    class: mirror
+    because: A green suite reading the wrong source is indistinguishable from a green suite reading the right one, unless you look.
+    because_source: agent-synthesis
+    evidence: "day-007:L884-L918 (inert patch, pass claimed as fixture-backed) vs L1084 (same four tests, 0.04s, actually fixture-backed)"
+    guards_against: false-green
+  - rule_id: p007-R5
+    rule: When you write a test for behavior that already exists, name it as characterization, run it expecting a pass, and never report it later as the RED of a cycle.
+    class: reciprocal
+    because: A test written after reading the implementation can only ratify it, and calling that RED destroys the log's audit value.
+    because_source: agent-synthesis
+    evidence: "day-007:L1905 (\"run the new test to verify it passes\") → L2321-L2324 (\"RED: Found coverage gaps\")"
+    guards_against: no-red-verification
+  - rule_id: p007-R6
+    rule: Before choosing the next action, state where you are in the cycle and what evidence puts you there; if the honest answer is "not in a cycle", say that instead of borrowing the vocabulary.
+    class: mirror
+    because: The author asks this directly and repeatedly, and the answer determines whether the next move is a test, an implementation or a deletion.
+    because_source: user-verbatim
+    quote: "W8, based on the coverage stat, where in the TDD cycle are we at the moment?"
+    evidence: "day-007:L1780, L2064, L2097"
+    guards_against: refactor-mislabel
+  - rule_id: p007-R7
+    rule: Do not stop at GREEN — propose the refactor step yourself, and if you judge there is nothing to refactor, list what you examined and why each was left alone.
+    class: reciprocal
+    because: The user had to ask for the refactor beat twice in one session; a step that only happens when prompted is not part of your process.
+    because_source: user-verbatim
+    quote: "Don't you think we should refactor now?"
+    evidence: "day-007:L2097 and again L2328 (\"Can you think hard about more refactoring opportunities?\")"
+    guards_against: cycle-truncation
+  - rule_id: p007-R8
+    rule: Never stage with `git add -A` or `git add .`; name each path, and after committing, read the file list back and reset if anything unintended appears — before pushing.
+    class: reciprocal
+    because: The same blanket staging swept diary transcripts into a refactor commit and 5880 lines of scratch Swift into a two-line change, in one session.
+    because_source: agent-synthesis
+    evidence: "day-007:L1280, L2299-L2304, L7764-L7768 → L7777 (\"Wait, it looks like some Swift files got added accidentally!\")"
+    guards_against: scope-creep
+  - rule_id: p007-R9
+    rule: Claim in the commit message only what the diff does; if you are tempted to name a benefit (portability, dependency removal, performance), point at the line that delivers it or drop the claim.
+    class: reciprocal
+    because: Removing one subprocess call did not loosen an Apple-only product's platform lock-in, and the log would have recorded a capability that does not exist.
+    because_source: user-verbatim
+    quote: "don't say in the commit message we removed the macOS dependency. we're still completely locked to apple platform because that's where Apple Books run."
+    evidence: "day-007:L7755-L7766"
+    guards_against: fabricated-claim
+  - rule_id: p007-R10
+    rule: When you delete a guard or a check, delete in the same commit everything that existed only to satisfy it — fixture values, placeholder files, comments — and say what you swept.
+    class: reciprocal
+    because: Deleting the `os.path.exists` guard orphaned a falsified plist path and an empty placeholder EPUB, both of which stayed in the repo pretending to be data.
+    because_source: agent-synthesis
+    evidence: "day-007:L657 and L854 (placeholder created), L1244 (plist path falsified), L1917-L1964 (guard deleted, neither swept)"
+    guards_against: vestigial-scaffolding
+  - rule_id: p007-R11
+    rule: Perform exactly the diagnostic you announced; if you say "let me add print statements", the next edit must contain print statements, and if you change your mind, say so before editing.
+    class: reciprocal
+    because: An edit that is not the announced diagnostic is a guess wearing a diagnostic's clothes, and this one left an orphan comment in the suite for two sessions.
+    because_source: agent-synthesis
+    evidence: "day-007:L1162 → L1165-L1177 (an import and a comment, no prints)"
+    guards_against: announced-verification-not-performed
+  - rule_id: p007-R12
+    rule: When the user asks a conceptual question, answer it with an experiment and an explanation and change no production code in that turn; offer the change as a separate proposal afterwards.
+    class: reciprocal
+    because: A question about what TypedDict permits produced a speculative rewrite of `list_books`, a cast to silence mypy, and a full revert two turns later.
+    because_source: user-verbatim
+    quote: "I think hard we should, if the TypedDict allows it also other untyped keys from the \"book\" dictionary returned from Plist, in case we need that. Is that possible?"
+    evidence: "day-007:L7877-L7879 → L7940-L7961 (edit) → L8058-L8090 (revert)"
+    guards_against: premature-implementation
+  - rule_id: p007-R13
+    rule: "Treat reaching for `cast`, `type: ignore` or `noqa` as a design signal — say out loud that you are silencing a checker, name the alternative, and get agreement before committing it."
+    class: reciprocal
+    because: "The agent knew the phrasing (\"using cast() is essentially lying to the type checker\") only after shipping one cast and writing a second."
+    because_source: agent-synthesis
+    evidence: "day-007:L2278 (shipped in commit 3fa89af), L2473-L2475 (replaced), L8042, L8050"
+    guards_against: gate-appeasement-edit
+  - rule_id: p007-R14
+    rule: Before reporting that a rule does not apply, run the check with the thing removed — a clean run performed while the thing is present proves nothing.
+    class: mirror
+    because: "\"No violations\" from ruff with the docstring still in place cannot distinguish 'not required' from 'satisfied'."
+    because_source: agent-synthesis
+    evidence: "day-007:L3028-L3033 (conclusion) → L3035-L3046 (the experiment that actually settled it)"
+    guards_against: non-probative-verification
+  - rule_id: p007-R15
+    rule: When a factual claim about a library's capability decides a design, delegate it to a research pass that reads the primary source and report what the source says, quoted — never what you recall.
+    class: council-mechanics
+    because: The one delegated research pass in this session (WebSearch plus python.org's plistlib page) settled in seven minutes a question the agent had answered wrongly from memory two sessions earlier.
+    because_source: agent-synthesis
+    evidence: "day-007:L7665-L7668; the sub-agent's sourced finding at L6079-L6081 (\"When `fmt=None` (the default), it will 'Autodetect the file format'\"), contrasted with the unsourced mechanism narrated at L3094-L3105"
+    guards_against: attribution-to-unread-source
+
+pairing_gems:
+  - loc: "day-007:L1799"
+    why_exemplary: "\"Yes, let's listen to our coverage report... we have implementation that's not covered by test. Your prior self was eager to code more that we've pinned down in the spec.\" — reframes a coverage number from a quality metric into evidence about process history, and makes deletion rather than retrofitting the obvious move. Canonical §2.4 is built on this turn."
+  - loc: "day-007:L2707"
+    why_exemplary: "A single turn that lands six independent review findings — a vacuous sort assertion, an unexplained domain field, an orphan comment, repeated per-test imports, illogical describe grouping, and NumPy docstring bloat — each stated as an observation with a question attached rather than an instruction. It produced the flat two-level describe structure and the `sort_by` deletion that canonical §2.1 and §2.5 now codify."
+  - loc: "day-007:L7660"
+    why_exemplary: "\"since on line 34 we use `plistlib.loads`, what's the purpose of invoking the conversion with `plistutil`\" — the author reads two adjacent lines of the agent's own code and notices the subprocess is redundant, immediately after the agent had written a confident explanation of why it was necessary. The cheapest possible probe: comparing a claim against the file it describes."
+  - loc: "day-007:L7731"
+    why_exemplary: "\"can you test locally against real binary Books.plist, before we commit and push, to be sure we handle both? (I saw you ran some ad-hoc test before... You can skip and commit directly if the implementaion in library.py is identical to your test before)\" — demands the falsifier and simultaneously offers to waive it if the evidence already exists. Verification calibrated to what is actually unknown."
+  - loc: "day-007:L570"
+    why_exemplary: "The author suspends his own methodology, in his own words, with a stated reason and a stated scope — \"since we are just at the step of trying to get the Walking skeleton up and running\". Rare and load-bearing: a rules author showing where his rules do not apply is more informative than the rules."
+  - loc: "day-007:L2996"
+    why_exemplary: "\"Are comments required by our `ruff` config also on _private_functions()?\" — a one-line question that converts a style argument into an empirical check against the project's own configuration. The answer came from `ruff rule D105` and a removal experiment, not from opinion."
+  - loc: "day-007:L1454"
+    why_exemplary: "\"Can you please the future t\" — a truncated message; the agent asked which of three readings was meant instead of guessing. Small, but the correct handling of an ambiguous instruction, and the contrast with the session's other guesses is instructive."
+  - loc: "day-007:L88"
+    why_exemplary: "\"Check last GH failure and explore the failing test and tell me what is our problem first -- don't ruch to fixing it yet, we have to discuss it together.\" — names the artifact to read, the deliverable (a problem statement), and the prohibition (no fix), in one sentence. The agent's four-option analysis at L201-L223 is the cleanest non-editing turn in the file."
+
+gaps:
+  - "No /expert-council, no persona simulation, no named-expert roleplay anywhere in 8127 lines. A case-insensitive grep for expert/council/persona/simulated/Kent Beck/Fowler returns only `Steve Freeman` as the artistName field of the GOOS fixture book and one occurrence of 'simulate CI'. council_episodes is therefore omitted, not empty by oversight."
+  - "No commit-after-RED practice: the CLAUDE.md read in this very session (snapshot at L3314-L3316) prescribes only two commits, \"After GREEN phase\" and \"After REFACTOR phase\". The three-commit rule postdates this session."
+  - "No test ever ran red in this file. Every test written (L1899-L1903, L2807-L2840) passed on first execution. There is no RED-verification instance to evaluate, positive or negative."
+  - "No story cards, no stories/ directory, no YAML backlog — TODO.md is a hand-edited prose ledger with strikethrough-marked resolutions. The story-card system is born ~day-011 (2025-06-27)."
+  - "No mocks in the London-school sense: no `unittest.mock`, no `assert_called_once_with`, no collaborator doubles. The only test seam is `monkeypatch.setattr` on two module constants — the very technique canonical §2.2 later deletes in favor of the `--user` front door."
+  - "No integration test exists at any point after L2758. The unit/integration separation the user asked for at L570 was never built; `library_integration_spec.py` at HEAD was created much later."
+  - "No acceptance test and no CLI: the walking skeleton's missing entry point stays on the TODO list untouched through the whole session, despite being named the critical gap at L1714 and L3479-L3483."
+  - "No `pytest --spec` output is ever read as documentation for its own sake — it is invoked six times purely as a pass/fail runner, and the one time its rendering matters (the describe restructure) the reasoning comes from the user's Jest analogy, not from reading the output."
+  - "No assertion-strength discussion beyond the user's sort-test catch; the metadata-key assertions were never examined by either party."
+  - "No pushback from the agent on any user proposal. Every design correction in the session originates in a user turn; the agent's only self-initiated reversal is the plutil removal, and that too was triggered by a user question."
+  - "No plan mode, no skills, no hooks. Two Task sub-agent calls only (L24 project review, L7665 plistlib research), both terse-summarized."
+
+parked:
+  - "L1539-L1649 is an auto-generated compaction summary — agent prose, not dialogue. It already launders the session's mistaken lesson (\"Key lesson: Always run tests locally before pushing to CI\", L1628) into the artifact the next session reads. Same laundering channel flagged in day-005; worth a dedicated detector."
+  - "The file contains session 2 three times (terse L1669-L3118, verbose-with-costs L3120-L6214, terse again L6215-L7658). Only the verbose paste carries the sub-agent's plistlib research payload (L6068-L6103); only the third paste's tail (L7659+) carries new dialogue. Naive de-duplication that keeps the first copy would lose the sourced research finding."
+  - "Cost telemetry: $12.15 (L1529) → $13.15 (L1661) → $12.47 (L3072) → $18.07 (L7825) → $23.28 final (L8121). Wall-clock 169h50m against 33m of API time — this is a session resumed across a week, which is why the same `git add -A` mistake recurs at both ends of it."
+  - "The user asked for `/docs/fixtures.md` (L1238); the agent silently created `docs/test_fixtures.md` (L1255). Neither file exists at HEAD."
+  - "`specs/apple_books/fixtures/Books.swift` — one of the scratch files the agent accidentally committed and then unstaged at L7798 — is present in the working tree at HEAD, so it entered the repo later anyway. The fixture directory now holds shell scripts (`create_fixture.sh`, `copy_book_to_fixture.sh`) and per-persona user homes; the day-007 `Books.plist` and its empty `401429854.epub` placeholder are gone."
+  - "The CLAUDE.md snapshot read at L3143-L3341 differs from HEAD in ways worth dating: `<anti_patterns>` (underscore) vs `<anti-patterns>`; two-commit git workflow vs three; \"Do not add docstrings in specs files as the function names are self-documenting\" vs HEAD's more nuanced pending-spec rule; no `<backlog_management>` section; no diary-access prohibition; no `git add .` prohibition."
+  - "Agreement-opener density: 14 \"You're absolutely right\" / \"You're right\" across 21 substantive user turns, including three cases where the user had asked a neutral question (L3119, L7663, L7734). Consistent with the day-005 Sonnet-4 baseline despite this being Opus-4."
+  - "The GOOS fixture book (`401429854.epub`, Steve Freeman, ISBN 9780321699763) is the same volume whose methodology the project follows — the test fixture and the project's constitution share a source. Charming, and it means the fixture's `longDescription` field (L3829-L3839) embeds a summary of TDD inside the test data."
