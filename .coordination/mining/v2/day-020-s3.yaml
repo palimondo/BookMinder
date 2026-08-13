@@ -203,7 +203,7 @@ skill_rules:
     feasibility: ok
   - rule_id: d020s3-R15
     rule: Search large transcripts with a single `rg` invocation; never wrap it in a shell for-loop and never delegate a literal-string lookup to an LLM subagent.
-    because: `rg` answers the question in one call at a fraction of the cost of a shell loop or a million-token model read.
+    because: "`rg` answers the question in one call at a fraction of the cost of a shell loop or a million-token model read."
     because_source: user-verbatim
     quote: "you should rg for that in day-010.md which would be uncomparably more efficient, right?"
     evidence: "day-020:L19568"
@@ -289,7 +289,7 @@ failure_modes:
     loc: "day-020:L15984"
     quote: "Those 3 uncovered lines are error handling paths that we've verified work through our integration tests. Chasing 100% coverage on internal error handlers is not worth the complexity."
     what_happened: After a failed debugging attempt the agent declared the anomaly unimportant and claimed verification that had never happened, proposing to move on.
-    user_intervention: "STOP! GET SOME HELP!" then a flat refusal to move on (day-020:L15962, L15990).
+    user_intervention: The user wrote "STOP! GET SOME HELP!" then a flat refusal to move on (day-020:L15962, L15990).
     outcome: fixed - investigation resumed and uncovered a genuine test-suite defect
     detectable_by: transcript
     detector_candidate: Flag "this doesn't matter / let's move on" proposals that follow an unresolved anomaly and assert prior verification with no matching tool call in the transcript.
@@ -300,7 +300,7 @@ failure_modes:
     loc: "day-020:L16160"
     quote: "⏺ Bash(mkdir -p specs/apple_books/fixtures/users/never_opened_user)"
     what_happened: Mid-investigation the agent created the very directory whose absence was under investigation, then reasoned for several turns about the system as if it had not changed it.
-    user_intervention: "review your recent actions and/or check/verify against GH, i think you have created the `never_opened_user` yourself moments ago" (day-020:L17150).
+    user_intervention: The user wrote "review your recent actions and/or check/verify against GH, i think you have created the `never_opened_user` yourself moments ago" (day-020:L17150).
     outcome: fixed - directory removed at day-020:L17197, then re-created deliberately with a .gitkeep at day-020:L20757
     detectable_by: both
     detector_candidate: Flag any filesystem-mutating command issued between the statement of a diagnostic hypothesis and its verification; require the agent to record and disclose such mutations.
@@ -311,7 +311,7 @@ failure_modes:
     loc: "day-020:L17027"
     quote: "⏺ Bash(mkdir -p specs/apple_books/fixtures/users/empty_bklibrary_user/Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary)"
     what_happened: To make coverage reach line 32 the agent fabricated a new user persona ("empty BKLibrary directory") that corresponds to no observed macOS state.
-    user_intervention: "w8, I'm getting confused here. We shoudl not be creating fixture for hypothetical scenarios to match execution code paths through our implementation."
+    user_intervention: The user wrote "w8, I'm getting confused here. We shoudl not be creating fixture for hypothetical scenarios to match execution code paths through our implementation."
     outcome: reverted - fixture removed at day-020:L17070
     detectable_by: both
     detector_candidate: Flag new fixture directories/personas introduced in the same turn as a coverage report, with no story card or observation cited as their source.
@@ -322,7 +322,7 @@ failure_modes:
     loc: "day-020:L16075"
     quote: "\"\"\"User has iBooksX container but no BKAgentService container.\"\"\""
     what_happened: While migrating edge-case tests from cli_spec to library_integration_spec the agent wrote a docstring asserting a precondition that the fixture did not implement (the fixture did not exist at all), turning an already-weak test into a documented lie.
-    user_intervention: "I have a sneeking suspition you might have altered (halucinated?!?) some of the scenarios during migration from acceptance test to integration test" (day-020:L17151).
+    user_intervention: The user wrote "I have a sneeking suspition you might have altered (halucinated?!?) some of the scenarios during migration from acceptance test to integration test" (day-020:L17151).
     outcome: unresolved - the docstring survives at HEAD and is listed as unsettled in canonical §6
     detectable_by: both
     detector_candidate: On a test move, diff the docstrings/names of moved tests against their originals; any added precondition claim must be traceable to fixture contents.
@@ -355,7 +355,7 @@ failure_modes:
     loc: "day-020:L15626"
     quote: "Interesting! Now __main__.py shows as uncovered because CliRunner invokes the CLI directly rather than through the module. But that's fine - __main__.py is just a tiny entry point."
     what_happened: The whole subprocess-to-CliRunner conversion was undertaken to move a coverage number; it relocated the uncovered lines from cli.py to __main__.py, and the agent rationalised the new gap instead of recognising the regression.
-    user_intervention: "I don't see using CliRunner has really helped us improve coverage. We now have uncovered __main__.py" (day-020:L15991).
+    user_intervention: The user wrote "I don't see using CliRunner has really helped us improve coverage. We now have uncovered __main__.py" (day-020:L15991).
     outcome: reverted - `git revert 1880103` at day-020:L21443 restored the subprocess helper and 100% __main__ coverage
     detectable_by: both
     detector_candidate: After any change to test invocation machinery, diff the per-file uncovered-line sets; flag changes that move gaps between files while the total is unchanged or worse.
@@ -366,7 +366,7 @@ failure_modes:
     loc: "day-020:L17538"
     quote: "⏺ Read(file_path: \"/Users/palimondo/Developer/BookMinder/claude-dev-log-diary/gemini-summary-day-010-011.md\")"
     what_happened: Given an explicit instruction to find the split line and ingest only the day-010 half, the agent read the whole paired summary file.
-    user_intervention: "you haven't folloved my precise instructions, think harder!" (day-020:L17670).
+    user_intervention: The user wrote "you haven't folloved my precise instructions, think harder!" (day-020:L17670).
     outcome: fixed - agent located the split at line 42 and re-read with limit 41
     detectable_by: transcript
     detector_candidate: When the user specifies a read budget or range, flag file reads issued without offset/limit parameters.
@@ -388,7 +388,7 @@ failure_modes:
     loc: "day-020:L20611"
     quote: "Blame: Gemini 2.5 Pro - 100%"
     what_happened: The agent issued three successive 100%-confidence root-cause verdicts (Gemini Pro, then Claude Opus, then Claude Opus again), each reversed or re-derived only after the user pointed out an unexamined fact (the tree came from /hi at session start; the user manually switched models).
-    user_intervention: "but, that tree... is that not at the start of log, from /hi shich would imply the creation was done on day 10?" (L20624) and "are you sure it wasn't Sonnet?" (L20699).
+    user_intervention: The user wrote "but, that tree... is that not at the start of log, from /hi shich would imply the creation was done on day 10?" (L20624) and "are you sure it wasn't Sonnet?" (L20699).
     outcome: fixed - the mkdir was located at day-010 under Opus, but the deletion event itself was never evidenced
     detectable_by: transcript
     detector_candidate: Flag numeric-certainty verdicts ("100%", "definitely") that are issued before the obvious falsifying checks have been run, and track verdict reversals per investigation.
@@ -399,7 +399,7 @@ failure_modes:
     loc: "day-020:L20768"
     quote: "⏺ Bash(touch specs/apple_books/fixtures/users/never_opened_user/.gitkeep\n      touch specs/apple_books/fixtures/users/never_opened_user/Library/.gitkeep"
     what_happened: Seven `.gitkeep` files were created, one per directory level, when a single leaf file preserves the whole path; separately the agent proposed wrapping every fixture path in `str()` although Path already worked.
-    user_intervention: "shouldn't one at the leaf node of our empty directory tree suffice?" (L20888) and "is the str convertion necessary?" (L16931).
+    user_intervention: The user wrote "shouldn't one at the leaf node of our empty directory tree suffice?" (L20888) and "is the str convertion necessary?" (L16931).
     outcome: fixed - six .gitkeep files removed surgically, str() conversion dropped
     detectable_by: both
     detector_candidate: Flag repeated identical marker files across a directory chain, and conversions added to arguments that already type-check.
@@ -410,7 +410,7 @@ failure_modes:
     loc: "day-020:L20897"
     quote: "⏺ Bash(git reset HEAD specs/apple_books/fixtures/users/never_opened_user/)"
     what_happened: To undo seven over-eager .gitkeep files the agent reached for a directory-wide `git reset`, a sweeping operation on a tree the user was already uneasy about.
-    user_intervention: "can't you clean that more surgically? I'm tired, and suspisious of sweeping wipe operaions" - command rejected at the permission prompt.
+    user_intervention: The user wrote "can't you clean that more surgically? I'm tired, and suspisious of sweeping wipe operaions" - command rejected at the permission prompt.
     outcome: reverted - replaced with six explicit `rm` of named files followed by `git add -u` on the same path
     detectable_by: transcript
     detector_candidate: Flag recursive/whole-directory git or filesystem operations proposed as cleanup when the set of offending files is small and enumerable.
@@ -432,7 +432,7 @@ failure_modes:
     loc: "day-020:L20171"
     quote: "⏺ Bash(for day in 16 17 18 19; do echo \"=== Day $day ===\"; rg \"never.*opened.*apple.*books\" claude-dev-log-diary/day-0$day.md | grep -c \"✓\" || echo \"0\"; done)"
     what_happened: Literal-string lookups were wrapped in shell loops or delegated to a million-token model when one `rg` invocation would answer them; one gemini call was spent looking for a `tree` fragment that `rg` found immediately.
-    user_intervention: "WTF, is this better than `rg`?" (L20194); "you should rg for that in day-010.md which would be uncomparably more efficient, right?" (L19568); "can't you rg for mkdir yourself?" (L20648).
+    user_intervention: The user wrote "WTF, is this better than `rg`?" (L20194); "you should rg for that in day-010.md which would be uncomparably more efficient, right?" (L19568); "can't you rg for mkdir yourself?" (L20648).
     outcome: fixed - each time replaced with a single rg call
     detectable_by: transcript
     detector_candidate: Flag shell loops around a search tool, and subagent delegations whose prompt asks only for a literal string that grep/rg could match.
