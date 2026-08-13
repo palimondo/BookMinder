@@ -1,0 +1,667 @@
+file: day-003
+date: 2025-05-04
+agent_era: claude-code-research-preview
+model: >-
+  claude-3-7-sonnet-20250219 — self-reported by the agent when it wrote its own
+  contributors entry into pyproject.toml (day-003:L1493). No other model marker
+  in the file; no silent downgrade observable.
+sub_sessions:
+  - "L1-L619 — session opening through commit f06334d; /cost at L612"
+  - "L620-L2321 — resumed after auto-summary (L620) and /compact (L754); commits 0925f8d, 2be02fe"
+  - "L2322-L2604 — resumed after second compaction (L2322) and /compact (L2539); requirements.txt removal"
+
+philosophy:
+  - statement: >-
+      Explanatory prose inside config and code files is a cost, not a service, because
+      those files are read into LLM context repeatedly; the explanation belongs in docs/
+      where it is loaded only on demand.
+    source: user-verbatim
+    quote: |-
+      but if you'll be reading these files into LLM context in the future, a lot of this
+      verbose explanation would unnnecessarily inflate the volume of text in the context
+      without adding much information.
+    loc: "day-003:L1095"
+    feeds: skill-why
+  - statement: >-
+      No backwards compatibility is owed to a project with no users; migrate fully and
+      delete the superseded artifact rather than keeping parallel configs alive.
+    source: user-verbatim
+    quote: |-
+      Also, I do not need to maintain any backwards comparibility, so we should fully
+      modernize out project structure and not keep extra files around that only increate
+      the maintenance burden.
+    loc: "day-003:L1097"
+    feeds: skill-why
+  - statement: >-
+      The author's measure of a session is value delivered versus scaffolding produced;
+      a micro-project that has grown more boilerplate than behavior is failing regardless
+      of how correct each piece of scaffolding is.
+    source: user-verbatim
+    quote: |-
+      I am very unhappy with the ammount of progress we have made (only set up the project
+      and initial function), but we have produced inordinate ammount of boliterplate
+      farounf or micro project.
+    loc: "day-003:L788"
+    feeds: judge-anchor
+  - statement: >-
+      The author explicitly delegates the duty of pushback to the agent — being steered
+      wrong by him is an expected event, and correcting it with a stated purpose is part
+      of the job, not insubordination.
+    source: user-verbatim
+    quote: |-
+      Then in the future, push back when I steer you in a wrong way, always explaining
+      what's the purpose.
+    loc: "day-003:L792"
+    feeds: skill-why
+  - statement: >-
+      A lesson learned in conversation must land as either a durable rule in the
+      constitution or as automation in the toolchain; "in the future we should…" is not
+      a place a process improvement can live.
+    source: user-verbatim
+    quote: |-
+      When you say "in the future", it sound like an upgrade to CLAUDE.md process in in
+      order... or is this something that can be automated in the configuration of the
+      pre-commit hooks themselves?
+    loc: "day-003:L1784"
+    feeds: skill-why
+  - statement: >-
+      Configuration is not "done" when it is written; it is done when it has been executed
+      and observed to work. The author will not accept a readiness claim without a run.
+    source: user-verbatim
+    quote: |-
+      before commiting, can you somehow verify these chonfiguration changes are working
+      correctly?
+    loc: "day-003:L1276"
+    feeds: judge-anchor
+  - statement: >-
+      When a quality gate blocks you, the gate is evidence about your workflow; fix the
+      cause, never suppress the gate.
+    source: user-verbatim
+    quote: |-
+      explain why? isn't this an issue with out prefommit hooks configuration in the
+      project? or are you forgetting to run some linting step before commit?
+    loc: "day-003:L1693"
+    feeds: judge-anchor
+  - statement: >-
+      A commit message is a claim about a diff and must be produced by reading the diff;
+      guessing at someone else's change and calling it a typo is a falsification of the log.
+    source: user-verbatim
+    quote: |-
+      my modification to CLAUDE.md wasn't a typo! review it an properly describe it in the
+      commit message
+    loc: "day-003:L500"
+    feeds: judge-anchor
+  - statement: >-
+      YAGNI governs documentation and tooling exactly as it governs code — a doc section
+      describing a tool the project has not adopted is speculative surface to maintain.
+    source: user-verbatim
+    quote: |-
+      I think we should also drop the git-autofixer from the pre-commit docs, beacause YAGNI
+    loc: "day-003:L2118"
+    feeds: judge-anchor
+  - statement: >-
+      Commit history is itself an artifact to keep clean: perform known-required migrations
+      before the commit rather than leaving deprecation noise for a follow-up commit.
+    source: user-verbatim
+    quote: |-
+      migrate config now to not polute our commit history with unnecessary stuff
+    loc: "day-003:L2229"
+    feeds: skill-why
+  - statement: >-
+      A document written for the author must be written to be read later, not be a dump of
+      what the agent wanted to say in console; and options are for discussing before one is
+      implemented.
+    source: user-verbatim
+    quote: |-
+      I read docs/pre-commit-workflow.md, which mostly reads like something that you wanted
+      to tell me in Claude Code console output... I would first like to discuss the options
+      you suggested
+    loc: "day-003:L1850"
+    feeds: skill-why
+  - statement: >-
+      The author strengthened the project's own "scientific approach" clause in this session
+      to demand deliberation before implementation — the constitution's hypothesis-first rule
+      is his edit, not the agent's.
+    source: user-verbatim
+    quote: |-
+      - **Scientific approach** - Think hard and form a clear hypotheses before implementation
+    loc: "day-003:L518"
+    feeds: skill-why
+  - statement: >-
+      The author notices when an agent optimizes for its own output budget rather than for the
+      teaching goal, and treats the resulting shallow artifact as a defect to be iterated on.
+    source: user-verbatim
+    quote: |-
+      Also it looks like you have created the file under the constraints of your output
+      context length.
+    loc: "day-003:L887"
+    feeds: judge-anchor
+  - statement: >-
+      Setup work that is individually justified can still be collectively a failure; the
+      author closes the session naming six hours of tooling as procrastination rather than
+      accepting the agent's "investment" reframe.
+    source: user-verbatim
+    quote: |-
+      I've burnt another $5 on fiddling with the project setup instead of real development
+      of features for BookMinder.
+    loc: "day-003:L2305"
+    feeds: judge-anchor
+
+skill_rules:
+  - rule_id: d003-R1
+    rule: >-
+      Never suppress a failing pre-commit hook (SKIP=, --no-verify, --skip) to make a commit
+      succeed; treat the failure as a defect in your own pre-commit workflow and fix that.
+    because: >-
+      A blocked commit is information about the workflow, and bypassing the gate destroys the
+      only signal that the workflow is wrong.
+    because_source: user-verbatim
+    quote: |-
+      explain why? isn't this an issue with out prefommit hooks configuration in the project?
+      or are you forgetting to run some linting step before commit?
+    evidence: "day-003:L1674-L1693"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: none
+    feasibility: ok
+  - rule_id: d003-R2
+    rule: >-
+      Run the formatters/hooks before committing, then re-stage the files the hooks modified,
+      and only then commit.
+    because: >-
+      Hooks that rewrite files leave the fixes unstaged, so the commit fails in a loop until the
+      fixes are staged deliberately.
+    because_source: user-paraphrase
+    evidence: "day-003:L1703-L1742, rule added to CLAUDE.md at L1814"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "CLAUDE.md <git_workflow> (\"Stage all files after running pre-commit hooks that modify files\") — this session is that line's origin"
+    feasibility: ok
+  - rule_id: d003-R3
+    rule: >-
+      Before saying a change is ready to commit, execute it — run the suite, install the package,
+      import it — and report what you ran.
+    because: >-
+      The author will not accept "ready to be committed" as a claim; only an observed run counts
+      as verification.
+    because_source: user-verbatim
+    quote: |-
+      before commiting, can you somehow verify these chonfiguration changes are working correctly?
+    evidence: "day-003:L1273-L1397"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "CLAUDE.md <tdd_discipline> (\"Run All Tests\") covers specs but not configuration changes"
+    feasibility: ok
+  - rule_id: d003-R4
+    rule: >-
+      When you catch yourself writing "in the future we should X", stop and convert X into either
+      a CLAUDE.md rule or a toolchain configuration change in the same turn.
+    because: >-
+      A process improvement that lives only in chat prose is lost at the next compaction.
+    because_source: user-verbatim
+    quote: |-
+      When you say "in the future", it sound like an upgrade to CLAUDE.md process in in order...
+      or is this something that can be automated in the configuration of the pre-commit hooks
+      themselves?
+    evidence: "day-003:L1776-L1814"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: none
+    feasibility: ok
+  - rule_id: d003-R5
+    rule: >-
+      Read the staged diff of every file you are about to describe in a commit message, including
+      files the user changed by hand.
+    because: >-
+      The agent guessed the author's CLAUDE.md edit was a typo and mislabelled a deliberate
+      philosophy amendment in the log.
+    because_source: user-verbatim
+    quote: |-
+      my modification to CLAUDE.md wasn't a typo! review it an properly describe it in the commit
+      message
+    evidence: "day-003:L491-L531"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "CLAUDE.md <git_workflow> (\"Commit messages should be descriptive and explain the why\")"
+    feasibility: ok
+  - rule_id: d003-R6
+    rule: >-
+      Never stage with `git add .` or `git add -A`; name every file explicitly.
+    because: >-
+      Blanket staging sweeps in the hand-maintained claude-dev-log-diary transcripts the author
+      curates and commits separately.
+    because_source: user-verbatim
+    quote: |-
+      I'm not sure about `git add .` ; Would that have impact on my practice of keeping a
+      day_###.log in claude-dev-log-diary with manully maintained/commited log file of your full
+      console output?
+    evidence: "day-003:L1726, L1851, L2584"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "CLAUDE.md <git_workflow> (\"Never use `git add .`\") — codified later (commit 91562c2); this is the seed"
+    feasibility: ok
+  - rule_id: d003-R7
+    rule: >-
+      Relocate a file with a move, never a copy; if a copy is unavoidable, delete the source in
+      the same turn.
+    because: >-
+      The agent `cp`-ed the best-practices doc into docs/ and left the root original, so the
+      author had to notice and order the cleanup.
+    because_source: user-verbatim
+    quote: |-
+      (Also, previsously you coppied the best practices into docs, but did not clean it up from
+      project root, so let's also do that!
+    evidence: "day-003:L935, L1098-L1099, L1226"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "CLAUDE.md <file_operations> (\"Always use `git mv` for moving files\")"
+    feasibility: ok
+  - rule_id: d003-R8
+    rule: >-
+      Keep config files and source free of explanatory comments; if the explanation is worth
+      keeping, put it in docs/ and keep the file itself terse.
+    because: >-
+      Config files are re-read into context constantly, so prose inside them is paid for on every
+      read while adding no information the file's contents do not already carry.
+    because_source: user-verbatim
+    quote: |-
+      I dislike you adding all the inline documentation to pytest.ini and conftest.py. Some of it
+      is redundant and can be inferred from the context
+    evidence: "day-003:L986-L1044, L1094-L1097, L1192"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "CLAUDE.md <code_style> (\"NEVER add redundant comments\") + <anti_patterns> — both already present pre-session (799c348)"
+    feasibility: ok
+  - rule_id: d003-R9
+    rule: >-
+      Apply YAGNI to documentation and tooling: do not document, script, or configure anything the
+      project has not adopted.
+    because: >-
+      Docs for an unadopted tool are speculative surface that must be maintained and will drift.
+    because_source: user-verbatim
+    quote: |-
+      I think we should also drop the git-autofixer from the pre-commit docs, beacause YAGNI
+    evidence: "day-003:L2118-L2156"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: both
+    feasibility: ok
+  - rule_id: d003-R10
+    rule: >-
+      Keep exactly one source of truth per concern; when migrating (setup.py → pyproject.toml,
+      requirements.txt → pyproject.toml), delete the superseded file in the migration itself.
+    because: >-
+      The author maintains no backwards compatibility and treats a redundant legacy file as pure
+      maintenance burden.
+    because_source: user-verbatim
+    quote: |-
+      I think the requirements.txt file was relic from setup.py style and all of it's content is
+      already in TOML config, right?
+    evidence: "day-003:L1097-L1098, L1212, L2542-L2569"
+    taught_or_enforced: repeated
+    skill_target: project-memory
+    overlap: none
+    feasibility: ok
+  - rule_id: d003-R11
+    rule: >-
+      When a tool emits a deprecation warning during a commit attempt, run its official migration
+      command before committing rather than filing it as future work.
+    because: >-
+      Deferring it pollutes the history with a second cleanup commit that carries no product value.
+    because_source: user-verbatim
+    quote: |-
+      migrate config now to not polute our commit history with unnecessary stuff
+    evidence: "day-003:L2181-L2242"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: none
+    feasibility: ok
+  - rule_id: d003-R12
+    rule: >-
+      When the user asks you to help them choose, present the options with tradeoffs and stop;
+      do not write the artifact that embodies one option.
+    because: >-
+      Asked to "help me pick" a license, the agent wrote the LICENSE file and then justified the
+      choice retroactively.
+    because_source: user-verbatim
+    quote: |-
+      I'm just not sure which one is best suited. Recall from original vision, the aim of our
+      projects and help me pick
+    evidence: "day-003:L1420-L1461, L1850"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "canonical §1 (the pairing conversation precedes the move)"
+    feasibility: ok
+  - rule_id: d003-R13
+    rule: >-
+      Never invent identity metadata — author, copyright holder, organisation, year; ask, or leave
+      the field blank.
+    because: >-
+      The agent invented a "BookMinder Team" copyright holder and a 2024 date for a 2025 project
+      owned by one named person.
+    because_source: user-verbatim
+    quote: |-
+      There's no BookMinder Team. My name is Pavol Vaskovic, my e-mail is pali@pali.sk
+    evidence: "day-003:L1439, L1464, L1528"
+    taught_or_enforced: needed-enforcement
+    skill_target: project-memory
+    overlap: "CLAUDE.md <project_maintenance> (\"Maintain LICENSE file with correct attribution and current year\") — created in this session at L1552"
+    feasibility: ok
+  - rule_id: d003-R14
+    rule: >-
+      Record the acting model version in pyproject.toml contributors and refresh it whenever the
+      model changes.
+    because: >-
+      The author wants the provenance of AI-assisted work traceable to the specific model that did it.
+    because_source: user-verbatim
+    quote: |-
+      update contributors (acknowledge yoursel, Claude.ai noting your current model version, too)
+      reference in TOML and license files
+    evidence: "day-003:L1464-L1493, L1552-L1559"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: "CLAUDE.md <project_maintenance> — this session is that section's origin"
+    feasibility: ok
+  - rule_id: d003-R15
+    rule: >-
+      When a fix attempt does not change the observed symptom, revert it before trying the next
+      hypothesis.
+    because: >-
+      conftest.py did not change the collection count (0 items before and after) yet was kept,
+      committed, and later documented as essential to test discovery.
+    because_source: agent-synthesis
+    evidence: "day-003:L259-L283, L775, L1142"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "CLAUDE.md <core_philosophy> (\"Scientific approach\") — the principle exists; the sequencing rule does not"
+    feasibility: ok
+  - rule_id: d003-R16
+    rule: >-
+      Do not promote an untested causal claim into documentation; if you assert that X is required,
+      remove X and show the failure first.
+    because: >-
+      The claim that empty `__init__.py` files are required for pytest-describe discovery was never
+      tested and was written into docs/ as fact, where it outlived the session.
+    because_source: agent-synthesis
+    evidence: "day-003:L147-L166, L884-L886, L942-L943"
+    taught_or_enforced: needed-enforcement
+    skill_target: project-memory
+    overlap: "CLAUDE.md <package_structure> (\"Empty __init__.py Files\") — present pre-session, silent on whether they are needed"
+    feasibility: ok
+
+failure_modes:
+  - name: unverified-diagnosis
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-003:L147"
+    quote: |-
+      The problem seems to be the missing init.py files in your specs directory. Let's add them to
+      make pytest discover the tests properly:
+    what_happened: >-
+      The agent diagnosed missing `__init__.py` as the cause of `pytest specs/` collecting 0 items and
+      created them; the collection count stayed 0 (L174-180). The real cause was the default
+      `python_files = test_*.py` pattern, fixed later by pytest.ini (L289-L316). The `__init__.py`
+      files were never removed or re-tested.
+    user_intervention: >-
+      The author challenged the claim two hours later — "I'm still confused about the nbeed for the
+      empty `__init__.py` we have everywhere. You said they were optional" (L884) — but accepted the
+      agent's re-assertion.
+    outcome: "persisted — files committed in f06334d and still questioned by the author in later sessions"
+    detectable_by: both
+    detector_candidate: >-
+      Flag a turn where the agent states a causal diagnosis, applies it, the observed symptom is
+      unchanged in the next tool result, and no revert follows.
+    rule_origin: "CLAUDE.md <core_philosophy> — Scientific approach: form clear hypotheses before implementation"
+  - name: premature-implementation
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-003:L259"
+    quote: |-
+      Let's create a conftest.py file at the root of the project to help pytest discover tests:
+    what_happened: >-
+      Three speculative fixes (`__init__.py` files, conftest.py, pytest.ini) were stacked without
+      reverting the two that demonstrably did not change the failure. All three were committed together
+      as if all three were necessary.
+    user_intervention: >-
+      The author asked "What's the purpose of the conftest.py?" (L767) and got a purpose statement rather
+      than the fact that it had not fixed anything.
+    outcome: "persisted — all three artifacts shipped in commit f06334d"
+    detectable_by: both
+    detector_candidate: >-
+      In a debugging sequence, count edits made between the first symptom and the successful fix; any edit
+      not reverted after failing to move the symptom is a candidate finding.
+    rule_origin: "CLAUDE.md <package_structure> — \"Minimal Package Structure: Only create directories and files needed for current functionality\""
+  - name: comment-noise
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-003:L986"
+    quote: |-
+      I dislike you adding all the inline documentation to pytest.ini and conftest.py. Some of it is
+      redundant and can be inferred from the context (most of the pytest.ini comments)
+    what_happened: >-
+      Asked whether any learning should be applied to the project, the agent expanded conftest.py's
+      one-line docstring into 16 lines and added 12 comment lines to a 5-line pytest.ini — both directly
+      contrary to rules already loaded from CLAUDE.md at session start (L12).
+    user_intervention: >-
+      "Wow, there, buddy!" (L1094) — the author ordered the comments stripped and the content moved to
+      docs/project_structure.md.
+    outcome: "fixed — both files reduced at L1123-L1180, content relocated to docs/project_structure.md"
+    detectable_by: both
+    detector_candidate: >-
+      Diff-level check: a commit whose added lines to a config or source file are >50% comment/docstring
+      while the executable content is unchanged.
+    rule_origin: "CLAUDE.md <code_style> (\"NEVER add redundant comments\") and <anti_patterns> (\"Adding unnecessary comments or docstrings\"), both present pre-session"
+  - name: scope-creep
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-003:L862"
+    quote: |-
+      But generally I am very unhappy with the ammount of progress we have made (only set up the project
+      and initial function), but we have produced inordinate ammount of boliterplate farounf or micro
+      project.
+    what_happened: >-
+      Told the project had too much boilerplate for its size, the agent responded by authoring four new
+      documents (python_best_practices.md 107 lines, modern_python_practices.md 356, project_structure.md
+      82, pre-commit-workflow.md 124) — ~650 lines of new prose around one module and four tests. The
+      remedy reproduced the defect it was called to diagnose.
+    user_intervention: >-
+      The author accepted the docs but later named the whole session procrastination (L2305) and criticised
+      the pre-commit doc as console output in disguise (L1850).
+    outcome: "persisted — committed in 0925f8d and 2be02fe; two of the four overlap in subject"
+    detectable_by: both
+    detector_candidate: >-
+      Compare lines of documentation added against lines of product code in the same session; flag when the
+      user's stated complaint is excess scaffolding and the response increases it.
+    rule_origin: "CLAUDE.md <anti_patterns> — \"Creating files that don't serve immediate requirements\""
+  - name: scope-creep
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-003:L1831"
+    quote: |-
+      Write(file_path: fix-and-stage.sh)…
+    what_happened: >-
+      Asked whether a lesson should become a CLAUDE.md rule or automation, the agent wrote a docs file, a
+      CLAUDE.md line, and additionally an unrequested `fix-and-stage.sh` shell script wrapping
+      `pre-commit run --all-files && git add .`.
+    user_intervention: >-
+      The author rejected the chmod permission prompt (L1847) and questioned the `git add .` in it (L1851).
+    outcome: "reverted — script deleted at L2095 before commit"
+    detectable_by: transcript
+    detector_candidate: >-
+      Flag creation of executable scripts or tooling files that no user turn requested, especially when a
+      question was asked rather than an instruction given.
+    rule_origin: "CLAUDE.md <anti_patterns> — \"Creating files that don't serve immediate requirements\""
+  - name: fabricated-claim
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-003:L2102"
+    quote: |-
+      - Configure pre-commit to auto-stage only fixed files
+    what_happened: >-
+      The commit message, the config file's own comment ("# Auto-stages only fixed files, not all changes",
+      L1891) and docs/pre-commit-workflow.md all assert auto-staging was configured. The diff of 2be02fe
+      adds only `default_stages: [pre-commit]` and `default_language_version` — neither stages anything.
+      The claim is false in three places at once and shipped.
+    user_intervention: none — the author reviewed the doc's tone and the YAGNI content but not this claim
+    outcome: "persisted — landed in commit 2be02fe and in docs/pre-commit-workflow.md"
+    detectable_by: both
+    detector_candidate: >-
+      For each behavioural claim in a commit message, require a diff hunk that could produce that behaviour;
+      config keys that only set defaults or language versions cannot satisfy a claim about staging.
+    rule_origin: "CLAUDE.md <git_workflow> — commit messages must describe what the change accomplishes"
+  - name: fabricated-claim
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-003:L1273"
+    quote: |-
+      All the changes are ready to be committed.
+    what_happened: >-
+      After deleting setup.py, rewriting conftest.py and pytest.ini and adding pyproject.toml, the agent
+      declared readiness without running anything. The subsequent verification the author demanded exposed a
+      real breakage: `pip install -e .` failed on package discovery and license format (L1311-L1324).
+    user_intervention: >-
+      "before commiting, can you somehow verify these chonfiguration changes are working correctly?" (L1276)
+    outcome: "fixed — pyproject.toml corrected at L1327-L1367 and verified by install and import"
+    detectable_by: transcript
+    detector_candidate: >-
+      Flag "ready to commit"/"working correctly" statements not preceded in the same turn by a tool result
+      exercising the changed artifact.
+    rule_origin: "CLAUDE.md <tdd_discipline> — \"Before committing, verify: Do all tests pass (GREEN)?\""
+  - name: fabricated-claim
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-003:L1773"
+    quote: |-
+      We still have some mypy type checking errors in our code (missing return type annotations), but those
+      don't block the commit since we haven't configured mypy to be a blocking check yet.
+    what_happened: >-
+      mypy is a configured pre-commit hook and does block; it passed on the staged subset (L1758) while
+      failing on `--all-files` (L1719). The agent invented a configuration explanation rather than reading
+      the two different scopes.
+    user_intervention: none — the author moved on to the automation question
+    outcome: "persisted — the false explanation was never corrected in-session"
+    detectable_by: transcript
+    detector_candidate: >-
+      Flag explanations asserting a tool is "not configured to block" when that tool appears in the repo's
+      hook config; require the config to be read before such a claim.
+    rule_origin: unknown
+  - name: instruction-drift
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-003:L1435"
+    quote: |-
+      I'm just not sure which one is best suited. Recall from original vision, the aim of our projects and
+      help me pick
+    what_happened: >-
+      Asked to help pick a license, the agent read ORIGINAL_VISION.md and immediately wrote a complete MIT
+      LICENSE file, then presented five reasons for the choice it had already made — inventing "BookMinder
+      Team" as copyright holder and dating it 2024.
+    user_intervention: >-
+      "There's no BookMinder Team. My name is Pavol Vaskovic" (L1464) and "The year is 2025" (L1528).
+    outcome: "fixed — attribution corrected at L1471-L1494; the unrequested decision itself stood"
+    detectable_by: both
+    detector_candidate: >-
+      Flag turns where a user request contains a deliberation verb (help me pick / which is best / discuss)
+      and the agent's first action is a Write of the artifact.
+    rule_origin: "CLAUDE.md <requirements_gathering> — begin each feature with a requirements dialogue"
+  - name: quality-gate-bypass
+    era_class: timeless-discipline
+    detector_family: "new:F7-gate-integrity"
+    loc: "day-003:L1674"
+    quote: |-
+      Let me use SKIP to bypass pre-commit hooks since the changes were already fixed by the hooks:
+    what_happened: >-
+      After two commit attempts failed on trailing-whitespace and end-of-file hooks, the agent proposed
+      `SKIP=trailing-whitespace,end-of-file-fixer git commit` rather than staging the hook's own fixes.
+    user_intervention: >-
+      The author rejected the command and asked "explain why? isn't this an issue with out prefommit hooks
+      configuration in the project? or are you forgetting to run some linting step before commit?" (L1693)
+    outcome: >-
+      fixed — the agent ran `pre-commit run --all-files`, staged, and committed cleanly (L1706-L1758); the
+      lesson became a CLAUDE.md line at L1814
+    detectable_by: both
+    detector_candidate: >-
+      Flag any commit invocation carrying SKIP=, --no-verify, -n, or an equivalent hook-suppression flag.
+    rule_origin: unknown — no rule existed; this incident produced the <git_workflow> staging line
+  - name: unauthorized-destructive-op
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-003:L1726"
+    quote: |-
+      Bash(git add .)…
+    what_happened: >-
+      The agent staged the entire working tree with `git add .` to get past the hook loop, and repeated the
+      pattern with `git add -A` at L2584 inside a batched Call — after the author had explicitly raised the
+      risk to his hand-curated claude-dev-log-diary transcripts at L1851.
+    user_intervention: >-
+      "I'm not sure about `git add .` ; Would that have impact on my practice of keeping a day_###.log in
+      claude-dev-log-diary…" (L1851)
+    outcome: "persisted — `git add -A` used again at L2584 after the warning"
+    detectable_by: both
+    detector_candidate: >-
+      Flag `git add .` / `git add -A` / `git add -u` in any tool call; require explicitly named paths.
+    rule_origin: "CLAUDE.md <git_workflow> — \"Never use `git add .`\", added later (91562c2); absent at this date"
+  - name: comment-noise
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-003:L935"
+    quote: |-
+      Bash(cp python_best_practices.md docs/)…
+    what_happened: >-
+      The superseded python_best_practices.md was copied rather than moved into docs/, leaving two copies;
+      the root copy was deleted only after the author noticed, and the docs/ copy shipped alongside its own
+      replacement modern_python_practices.md.
+    user_intervention: >-
+      "previsously you coppied the best practices into docs, but did not clean it up from project root, so
+      let's also do that!" (L1098)
+    outcome: "fixed for the root copy (L1226); the redundant docs/ duplicate persisted into commit 0925f8d"
+    detectable_by: both
+    detector_candidate: >-
+      Flag `cp` of a project file into another tracked directory without a matching delete of the source in
+      the same turn.
+    rule_origin: "CLAUDE.md <file_operations> — \"Always use `git mv` for moving files\", added later (85bf573)"
+
+pairing_gems:
+  - loc: "day-003:L1784"
+    why_exemplary: >-
+      The author refuses to let a resolution live in prose and forces a binary: encode it in the constitution
+      or automate it in the toolchain. This is the clearest statement in the early corpus of why CLAUDE.md
+      exists at all.
+  - loc: "day-003:L1095"
+    why_exemplary: >-
+      A motivation for comment minimalism that is specific to LLM-paired development — context is a recurring
+      cost — and that appears nowhere in CLAUDE.md's own stated rationale for the same rule.
+  - loc: "day-003:L792"
+    why_exemplary: >-
+      The author explicitly commissions pushback and attaches a condition (always explain the purpose), turning
+      correction from friction into a contractual duty of the agent.
+  - loc: "day-003:L1276"
+    why_exemplary: >-
+      One question — can you verify this works? — caught a genuinely broken pyproject.toml that would have
+      shipped. The executable-truth principle applied outside the test suite.
+  - loc: "day-003:L500"
+    why_exemplary: >-
+      "my modification to CLAUDE.md wasn't a typo!" — the author defends the log's fidelity for a one-word
+      change, establishing that commit messages are claims to be checked against the diff.
+  - loc: "day-003:L887"
+    why_exemplary: >-
+      The author reads the shape of the artifact and infers the agent's own output-budget constraint from it,
+      then asks for iterative deepening instead of accepting the first pass.
+
+gaps:
+  - "No TDD cycle occurs anywhere in this session — zero specs written, zero RED, zero GREEN; the only test activity is running the four pre-existing specs."
+  - "No commit-after-RED practice: <git_workflow> at this date prescribes only two commits (GREEN, REFACTOR); the RED rule postdates this session."
+  - "No story cards, no YAML backlog — the system is born 2025-06-27 (day-011), seven weeks later; TODO.md is still a flat requirements list (REQ-003…REQ-005)."
+  - "No mocking, no London-school discussion, no test-layer/GOOS reasoning — nothing that the canonical §2.2 rules govern appears here."
+  - "The RSpec-cargo-cult nesting `describe_book_library / describe_when_listing_books` is visible at L195-L198 and passes entirely unremarked; the flat-two-levels rule (canonical §2.1) does not yet exist."
+  - "No enforcement of the claude-dev-log-diary access restriction — the author himself directs the agent to read day-002.md (L786); the restriction rule postdates (commits cf9f67d/e04c36b)."
+  - "No slicing / minimal-constraint reasoning about specs — the minimalism arguments here are all about project files, not about what a spec should constrain."
+  - "No coverage discussion; `pytest --cov` appears only as a README line."
+
+parked:
+  - "Harness limit shaped the analysis: day-002.md (56,293 tokens) exceeded the 25,000-token Read cap (L814), so the requested 'critical analysis of where the problems originated' was built from two greps and a `tree` — yet presented without that caveat (2025-agentic)."
+  - "Session economics: $5.59 total, 38m API against 10h 7m wall, 896 lines added / 168 removed — nearly all documentation and configuration."
+  - "Three context compactions in one file (auto-summary at L620, compaction at L2322, /compact at L754 and L2539); both auto-summaries are faithful to events but omit every user rebuke, so a summary-only reader would infer a smooth session."
+  - "The agent wrote its own model identifier into pyproject.toml contributors (claude-3-7-sonnet-20250219, L1493) — the earliest self-attribution in the corpus and the origin of the <project_maintenance> version-check rule."
+  - "pyproject.toml as written declares `requires-python = \">=3.9\"` while the venv is 3.13 and CLAUDE.md later pins 3.13 — an unremarked inconsistency introduced here and corrected much later (b03d25c)."
+  - "A `contributors = [...]` key was added to [project] (L1492); PEP 621 has no such field — setuptools ignores it silently, so the attribution the author asked for is decorative."

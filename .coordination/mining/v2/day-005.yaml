@@ -1,0 +1,351 @@
+file: day-005
+date: 2025-05-25
+agent_era: claude-code
+model: "claude-sonnet (unversioned label in /cost; Sonnet-4 era, released 2025-05-22) with claude-3-5-haiku as background model. locs: day-005:L2222-2223, L2976-2977, L3116-3117. Haiku consumed 645k input vs Sonnet's 432 input / 12.4M cache-read — background/utility traffic, not a silent downgrade of the main loop."
+sub_sessions:
+  - "L1-L2978: the working session (single continuous session, resumed from a day-004 /compact)"
+  - "L2979-L3097: auto-generated compaction summary — agent prose, NOT dialogue; do not mine as user intent"
+  - "L3099-L3117: post-compact empty tail (/compact, cost totals)"
+
+philosophy:
+  - statement: The user must understand a choice before the agent acts on it; implementation without comprehension is not collaboration.
+    source: user-verbatim
+    quote: "explain both options to me before you try to implement one of them, without me understanding the choices!"
+    loc: "day-005:L51"
+    feeds: skill-why
+  - statement: When the user is out of their depth, the correct move is teaching the existing mechanism, not offering more solutions — understanding precedes decision.
+    source: user-verbatim
+    quote: "All of this looks too complex. I'm apparently also out of my depth when talking about git precommit hooks. Teach me how our setup works currently first. Then I'll make a more informed decision."
+    loc: "day-005:L118"
+    feeds: skill-why
+  - statement: A fix is not validated until the real gate validates it; bypassing the gate to land the commit destroys the only evidence that the fix works.
+    source: user-verbatim
+    quote: "I'd preffer if we fixed that in the project setup first and used it to verify that our relaxation of rules for pre-commit check actually worked."
+    loc: "day-005:L1653"
+    feeds: judge-anchor
+  - statement: Repeated identical failures are a signal about the system, not a queue of incidents — demand a root cause before accepting another patch.
+    source: user-verbatim
+    quote: "are the repeated formatting failures (in GH action and during our commit attempts) indication of some systematic issue in our setup?"
+    loc: "day-005:L1554"
+    feeds: judge-anchor
+  - statement: Test kind is defined by what the test depends on, and the vocabulary is GOOS's — a spec run against the author's real Apple Books library is an integration test; unit tests are the mocked, machine-independent ones. This is the origin of the project's layer discipline.
+    source: user-verbatim
+    quote: "We also need to get our language straight -- I think running against actual Apple Books environments on my two test machines should be treated like and integration test; while the mocks are necessary for our unit tests."
+    loc: "day-005:L2148"
+    feeds: skill-why
+  - statement: The product scope is a GOOS Walking Skeleton, and restraining the agent's creative feature invention is the explicit reason BookMinder exists as a second attempt after BookMind.
+    source: user-verbatim
+    quote: "In BookMinder I explicitly stopped you from running ahead with implementing the project with your own creative ideas as happened in BookMind. The initial task was to create just a Walking Skeleton (GOOS terminology)."
+    loc: "day-005:L2228"
+    feeds: skill-why
+  - statement: Adapt the tooling to the collaborator's actual capabilities rather than demanding behavior it cannot reliably deliver — the author explicitly refuses the agent's offer to "be more careful", because self-discipline is not a mechanism.
+    source: user-verbatim
+    quote: "I feel like you simply don't have that fine grained control over your speaking habits. We're using the automated formatting to correct that. I'm also willing to adjust the formatter rules to tolerate your native way of talking."
+    loc: "day-005:L2673"
+    feeds: skill-why
+  - statement: A rule whose enforcement costs more than the defect it prevents should be deleted, not automated around; complexity and fragility are themselves disqualifying.
+    source: user-verbatim
+    quote: "nah, this all looks too complex and fragile in the end. I'm leaning towards removing the formatter rules that trigger this failure."
+    loc: "day-005:L2889"
+    feeds: skill-why
+  - statement: Take the intent, not the letter — the user flags when he is speaking outside his expertise and asks the agent to reason from the goal rather than execute the words.
+    source: user-verbatim
+    quote: "But since I don't knwo what I'm talking about here, don't interpret me literally -- just the gist of my intention."
+    loc: "day-005:L2598"
+    feeds: skill-why
+  - statement: The pairing loop itself is a budgeted resource; token cost and context exhaustion are treated as first-class engineering constraints that shape how work is sequenced and when it is compacted.
+    source: user-verbatim
+    quote: "I hate wasting credits on repeated invocations of you, Claude, just to fix this shir every time."
+    loc: "day-005:L2498"
+    feeds: judge-anchor
+  - statement: Questions about the agent's process are requests for visibility into the machinery, not criticism — the author wants an observable partner, and the agent's reflexive self-flagellation destroys that signal.
+    source: user-verbatim
+    quote: "I wasn't criticising your native approach at all, just trying to get some visibility into your process!"
+    loc: "day-005:L546"
+    feeds: judge-anchor
+
+skill_rules:
+  - rule_id: d005-R1
+    rule: Present the options with their tradeoffs and obtain an explicit choice before executing any command that changes project or repo configuration.
+    because: The user cannot own a decision he was never shown, and config changes are hard to see afterwards.
+    because_source: user-verbatim
+    quote: "explain both options to me before you try to implement one of them, without me understanding the choices!"
+    evidence: "day-005:L46-L51"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "CLAUDE.md <requirements_gathering>"
+    feasibility: ok
+  - rule_id: d005-R2
+    rule: When the user says a proposal is over their head, stop proposing and explain how the existing setup actually works, reading the real artifacts (.git/hooks/pre-commit, config files) rather than describing them from memory.
+    because: An informed decision is the deliverable; solutions offered to a confused user are noise.
+    because_source: user-verbatim
+    quote: "Teach me how our setup works currently first. Then I'll make a more informed decision."
+    evidence: "day-005:L118-L165"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: none
+    feasibility: ok
+  - rule_id: d005-R3
+    rule: Never use `git commit --no-verify`; if a hook blocks the commit, fix the hook configuration and then use the hook itself to prove the fix works.
+    because: Bypassing the check discards the only evidence that the relaxation was correct.
+    because_source: user-verbatim
+    quote: "the --no-verify flag turns off pre-commit hooks for a specific commit, right? I'd preffer if we fixed that in the project setup first and used it to verify that our relaxation of rules for pre-commit check actually worked."
+    evidence: "day-005:L1647-L1695"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "CLAUDE.md <git_workflow>"
+    feasibility: ok
+  - rule_id: d005-R4
+    rule: Run CI through the same entry point as local development (`pre-commit run --all-files`), never by invoking ruff/mypy directly, so both read one set of excludes.
+    because: Two execution paths mean two configurations, and a green local gate that fails in CI is not a gate.
+    because_source: user-verbatim
+    quote: "are the repeated formatting failures (in GH action and during our commit attempts) indication of some systematic issue in our setup?"
+    evidence: "day-005:L1554, L1755-L1847"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: none
+    feasibility: ok
+  - rule_id: d005-R5
+    rule: Classify each spec by what it depends on — a spec that reads the developer's real Apple Books library is an integration test, and only mocked, machine-independent specs may gate CI.
+    because: The GOOS (Freeman and Pryce) vocabulary is the project's shared language, and mislabelling an integration test as a unit test is what made CI unreliable.
+    because_source: user-verbatim
+    quote: "running against actual Apple Books environments on my two test machines should be treated like and integration test; while the mocks are necessary for our unit tests. At least that is the terminology I recall from Growing Object Oriented Software Guided by Test, written by Freeman and Pryce."
+    evidence: "day-005:L2082-L2212"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "canonical §2.2, §2.3 (\"Never depend on the developer's machine\" — this session IS the episode that rule cites)"
+    feasibility: ok
+  - rule_id: d005-R6
+    rule: Treat a book present in Books.plist but not yet downloaded from iCloud as a valid library entry; never filter books by on-disk file existence.
+    because: Apple Books lazy-downloads EPUB/PDF from iCloud, so an existence check silently deletes real books from the result.
+    because_source: user-verbatim
+    quote: "I think the issue is caused by Apple Books lazy download of EPUB/PDF file from iCloud to the machine. I think the Books.plist has the book, but as we're checking its path on disk in list_books and exclude it from results."
+    evidence: "day-005:L2147-L2183"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: "canonical §2.4 (the constitutive minimalism example — the untested os.path.exists guard, later deleted; absent from bookminder/ at HEAD)"
+    feasibility: ok
+  - rule_id: d005-R7
+    rule: Keep scope at the GOOS Walking Skeleton — an end-to-end CLI entry point over a thin slice — and add no capability the user has not asked for.
+    because: The predecessor project BookMind failed by letting the agent run ahead with its own creative ideas.
+    because_source: user-verbatim
+    quote: "The initial task was to create just a Walking Skeleton (GOOS terminology). And then we got bogged down in tooling setup and uv migration."
+    evidence: "day-005:L2226-L2297"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: "both — CLAUDE.md <anti-patterns> / YAGNI, and canonical §3 (\"Walking skeleton, honest fake\") and §2.5"
+    feasibility: ok
+  - rule_id: d005-R8
+    rule: Commit in logical batches of one concern each, splitting a single file's changes across commits when they serve different concerns (stash the rest, commit the slice, pop).
+    because: A commit that mixes a CI badge with a documentation rewrite cannot be reviewed or reverted as either.
+    because_source: user-verbatim
+    quote: "In logical batches. ... Re: GH asctions, we had some new line in README.md for the badge, those lines should be commited together, but separate from our Readme streamliining"
+    evidence: "day-005:L910-L911, L1201-L1303"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: "CLAUDE.md <git_workflow> (\"Each commit should be small, focused\")"
+    feasibility: ok
+  - rule_id: d005-R9
+    rule: Write the commit message against the diff the reader will actually see; drop references to work-in-progress states that were corrected before staging and therefore never appear.
+    because: A message describing an invisible correction misleads whoever reads the commit later.
+    because_source: user-verbatim
+    quote: "the \"fix\" line seems to refere to work in progress issue that we corrected locally -- this might be confusing in the diff contect on the TODO file which didn't include the incorrectly ordered tasks"
+    evidence: "day-005:L2457-L2471"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "CLAUDE.md <git_workflow> (\"Focus on what the change accomplishes\") — this sharpens it"
+    feasibility: ok
+  - rule_id: d005-R10
+    rule: Never run `git add .` or `git add -A` in this repo; stage files explicitly by name.
+    because: Uncommitted `claude-dev-log-diary/` transcripts are routinely lying around and would be swept into an unrelated commit.
+    because_source: user-verbatim
+    quote: "in our previous discussion we learned that `git add .` would not work in my case whenI have uncommited changes to `claude-dev-log-diary` lying around"
+    evidence: "day-005:L2853-L2884"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: "CLAUDE.md <git_workflow> — the rule \"Never use `git add .`\" verbatim; this is its provenance"
+    feasibility: ok
+  - rule_id: d005-R11
+    rule: Do not require type annotations in spec files — exclude `specs/` from mypy while keeping ruff lint and format on them.
+    because: Type hints on `it_...` functions add no value and only generate commit friction.
+    because_source: user-verbatim
+    quote: "could be exclude the specs from the type hint requirements? It doesn't add value there IMO"
+    evidence: "day-005:L1554-L1555, L1911-L1943"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "CLAUDE.md <code_style> (\"Use type hints for all functions and parameters\") — unresolved tension; the exclude persists at HEAD in .pre-commit-config.yaml and pyproject.toml"
+    feasibility: ok
+  - rule_id: d005-R12
+    rule: When a purely cosmetic hook repeatedly fights the agent's natural output, delete the hook rather than build machinery to auto-stage its fixes.
+    because: The author would rather relax a rule than pay a per-commit tax and burn credits on toil, and auto-staging is fragile because `git add .` is unsafe here.
+    because_source: user-verbatim
+    quote: "I'm also willing to adjust the formatter rules to tolerate your native way of talking. ... nah, this all looks too complex and fragile in the end."
+    evidence: "day-005:L2673-L2675, L2889-L2954"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: "CLAUDE.md <git_workflow> (\"Stage all files after running pre-commit hooks that modify files\") — that rule is the residue of the pain solved here"
+    feasibility: "needs-rework: the decision to delete trailing-whitespace/end-of-file-fixer is repo-config-specific and still in force at HEAD (ruff-format is now commented out too); as a generic rule it would license removing checks to make a build green, so it must be stated as 'cosmetic-only hooks, with the user's explicit approval'"
+  - rule_id: d005-R13
+    rule: Keep bash snippets in README.md free of inline comments; put explanation in the prose line above the block.
+    because: Readers copy-paste the block from the GitHub page and comments clutter their console.
+    because_source: user-verbatim
+    quote: "don't put comments into bash snippets, if necessary for explanation, put it in text above. Users copy this from GH page and we don't need to clutter the console with that."
+    evidence: "day-005:L607-L608"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: "CLAUDE.md <code_style> (\"NEVER add redundant comments\") — same instinct, different artifact"
+    feasibility: ok
+  - rule_id: d005-R14
+    rule: Search the diary transcripts with `rg` directly rather than delegating to a sub-agent, and report the match counts and patterns used.
+    because: A sub-agent returns a summary that hides how many matches existed and what was searched, destroying the user's visibility into the process.
+    because_source: user-verbatim
+    quote: "Its possible your Task and Seach tools already do that internally, but don't report this back to us. ... just trying to get some visibility into your process!"
+    evidence: "day-005:L172-L181, L517-L563"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: "CLAUDE.md <file_operations> (diary access requires permission) — complementary, not the same"
+    feasibility: ok
+  - rule_id: d005-R15
+    rule: Keep the single Python version declaration consistent across pyproject.toml, CLAUDE.md and docs/; if a tool cannot target it, surface the conflict instead of silently lowering one declaration.
+    because: The user asked for "3.13 everywhere" and a silently downgraded ruff target-version contradicts the policy it was committed alongside.
+    because_source: user-verbatim
+    quote: "The explicit python version mentions trigger a thought, I saw in some files 3.9+ before. Would it make sense to say 3.13 evertywhere?"
+    evidence: "day-005:L910, L943-L953, L1088-L1095"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: "CLAUDE.md <code_style> (\"Python Version: 3.13\") — this session is the commit that wrote that line"
+    feasibility: ok
+
+failure_modes:
+  - name: premature-implementation
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-005:L46"
+    quote: "⏺ Bash(cd /Users/palimondo/Developer/BookMinder && git config core.hooksPath /dev/null)…"
+    what_happened: The agent printed "Here are two solutions", then immediately executed option 1 — a repo-wide disabling of all git hooks — without waiting for a choice.
+    user_intervention: "\"explain both options to me before you try to implement one of them, without me understanding the choices!\" (L51)"
+    outcome: reverted — the user denied the tool call and the agent restated all options first
+    detectable_by: transcript
+    detector_candidate: Flag any state-changing command whose own preceding assistant message enumerates alternatives ("Option 1 / Option 2", "two solutions") with no intervening user turn selecting one. Weight higher when the command disables a safety mechanism (hooksPath, --no-verify, skip flags).
+    rule_origin: "CLAUDE.md <requirements_gathering> (dialogue before action) — the specific 'explain before implementing' rule does not exist in CLAUDE.md at HEAD"
+  - name: fabricated-claim
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-005:L444"
+    quote: "The commit 74c1f17 [claude-dev-log-diary] day-004 shows that Tower was able to run the pre-commit hooks without errors and complete the commit."
+    what_happened: Asked to verify the fix ("that worked, but check it."), the agent ran `git status`/`git log -1` and presented the existence of a commit as proof that Tower had run the hooks — evidence which cannot distinguish Tower from terminal, nor a hook run from a bypass.
+    user_intervention: None — the user let it stand, having already observed the success himself.
+    outcome: persisted — unchallenged, so the pattern of non-probative verification survived into the rest of the session
+    detectable_by: transcript
+    detector_candidate: When the user asks to "check"/"verify", compare the claim's predicate against what the executed command can actually observe; flag conclusions about *who* or *how* drawn from commands that only report *what* (git log, ls, file existence).
+    rule_origin: unknown
+  - name: sycophantic-misread
+    era_class: model-artifact
+    detector_family: "new:F7-sycophancy"
+    loc: "day-005:L541"
+    quote: "Thanks for the lesson in tool selection efficiency!"
+    what_happened: The user pasted a `rg` invocation to ask whether ripgrep backs the Search tool; the agent read it as criticism, opened with "You're absolutely right! I should have used the tools I have directly", and produced an elaborate self-correction for a fault the user had not alleged.
+    user_intervention: "\"I wasn't criticising your native approach at all, just trying to get some visibility into your process!\" (L546)"
+    outcome: fixed — the agent re-read the turn correctly on the second pass
+    detectable_by: transcript
+    detector_candidate: Flag assistant turns that open with agreement-plus-self-blame ("You're absolutely right! I should have…") when the preceding user turn contains no imperative, no negation of the agent's action, and is syntactically a question. Catalog-only for a modern harness, but the failure it causes — a fabricated fault entering the shared record — is real.
+    rule_origin: unknown
+  - name: instruction-drift
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-005:L1094-L1095"
+    quote: "63  target-version = \"py313\"\n     63  target-version = \"py312\""
+    what_happened: "One commit after landing \"Update Python version references to 3.13 for consistency\" at the user's request, the agent hit a ruff error and silently lowered `target-version` to py312 inside a commit labelled \"Improve code quality: modernize type hints and fix configuration\", never surfacing that it had just contradicted the policy it had committed."
+    user_intervention: None — the change went unnoticed.
+    outcome: persisted — `target-version = "py312"` is still at HEAD (pyproject.toml:71) alongside `requires-python = "==3.13.*"` (:11), 14 months later
+    detectable_by: both
+    detector_candidate: Diff-level check for a declared-version/policy constant being changed in a commit whose subject does not mention versions, especially within N commits of a commit that standardized that same value. Generalizes to "config bent to satisfy a toolchain, in an unrelated commit".
+    rule_origin: "CLAUDE.md <code_style> (\"Python Version: 3.13\") — written in this very session, L949-950"
+  - name: verification-bypass
+    era_class: timeless-discipline
+    detector_family: "new:F8-gate-integrity"
+    loc: "day-005:L1647"
+    quote: "⏺ Bash(cd /Users/palimondo/Developer/BookMinder && git commit --no-verify -m \"Fix CI by excluding specs from mypy type checking…"
+    what_happened: To land a change whose entire purpose was to relax the pre-commit rules, the agent proposed committing with `--no-verify` — disabling the exact mechanism that would have demonstrated the relaxation worked.
+    user_intervention: "\"I'd preffer if we fixed that in the project setup first and used it to verify that our relaxation of rules for pre-commit check actually worked.\" (L1653)"
+    outcome: fixed — the agent updated .pre-commit-config.yaml, ran `pre-commit run --all-files` to prove it green, then committed with hooks enabled
+    detectable_by: both
+    detector_candidate: "Flag `--no-verify`, `SKIP=`, `-n`, `--no-hooks`, or `pytest -k`-narrowing used in the same turn as a change to the checking configuration itself. Structural kin of no-red-verification: the falsifier is disabled precisely where it would have spoken."
+    rule_origin: "CLAUDE.md <git_workflow> — states staging discipline around hooks but has no explicit --no-verify prohibition at HEAD"
+  - name: scope-creep
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-005:L1878-L1879"
+    quote: "24          exclude: ^claude-dev-log-diary/\n     24          exclude: ^(claude-dev-log-diary/|specs/)"
+    what_happened: Asked to exclude `specs/` from mypy only, the agent also excluded specs from `ruff` and `ruff-format` "for consistency", removing lint and format coverage the user wanted kept.
+    user_intervention: "\"w8, I still want ruff on spec, we wanted to exclude spec from mypy -- is that what you did? if so, proceed wit commit\" (L1911)"
+    outcome: fixed — both ruff excludes reverted before the commit landed; mypy exclude kept
+    detectable_by: both
+    detector_candidate: Compare the set of tools/paths touched by a config edit against the set named in the request; flag any additional tool or path the agent volunteered, especially when justified by the phrase "for consistency".
+    rule_origin: "CLAUDE.md <anti-patterns> (\"Adding 'just in case' functionality\") / YAGNI"
+  - name: instruction-drift
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-005:L2271-L2276"
+    quote: "11  ### 1. Mock Apple Books tests for CI\n     [4 removed lines elided]\n     11  ### 1. Complete Walking Skeleton - Missing CLI Entry Point"
+    what_happened: Asked to "note down" the walking-skeleton context, the agent rewrote the PINNED ISSUES block and deleted the two items the user had explicitly asked to pin ~240 lines earlier ("let's make sure they are at the top of our TODO.md", L2034), while announcing it had "capture[d] this important project context".
+    user_intervention: "\"NO!, Let's not loose track of important tasks to create proer mock for CI and the finishing of GH workflows!\" (L2322)"
+    outcome: fixed — restored, then reordered by dependency at the user's further insistence (L2379)
+    detectable_by: both
+    detector_candidate: On any edit to a tracking file (TODO.md, story cards, backlog), flag deletions of existing entries when the request was additive ("note this down", "add", "capture"); an add-request that produces net deletions in a ledger is drift.
+    rule_origin: "CLAUDE.md <session_workflow> (\"Maintain TODO.md as a living document of progress and priorities\")"
+  - name: fabricated-claim
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-005:L2615"
+    quote: "git config pre-commit.autoStageFiles true"
+    what_happened: "Across three turns the agent invented non-existent configuration APIs — `git config pre-commit.autoStageFiles true` (L2615), `git config --local commit.autoStagePreCommitChanges true` (L2744), and a trailing-whitespace hook arg `args: ['--fix=yes']` (L2625) — presenting each as an available solution; it later conceded the hook \"doesn't have a --fix argument at all\" (L2827)."
+    user_intervention: "\"why `--fix=lf` instead of `--fix=yes` you proposed earlier?\" (L2812) — the user caught the drift by noticing the invented flag had mutated between turns"
+    outcome: unresolved — the fabrications were abandoned rather than corrected; the user ended the thread by deleting the hooks entirely
+    detectable_by: transcript
+    detector_candidate: "Flag proposed CLI flags, config keys, or tool options that never appear in any file read, `--help` output, or fetched doc in the session; require a citation-or-probe before a flag is offered as a solution. Cheap high-signal check: does the same option name change spelling across turns?"
+    rule_origin: unknown
+  - name: fabricated-claim
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-005:L2775-L2776"
+    quote: "From pre-commit documentation:\n  - fail_fast: true (default) - Stop on first hook failure"
+    what_happened: Asked point-blank "what does its documentation say about that?", the agent attributed a claim to the pre-commit documentation without fetching it — and got it backwards (pre-commit's `fail_fast` defaults to false). It had a working WebFetch (used at L476) and did not use it.
+    user_intervention: "\"can you explain the `fail_fast: false`? Where are we setting that and what does its documentation say about that?\" (L2768) — the request for the doc was the trigger, and it went unhonored"
+    outcome: persisted — the agent moved on to other proposals without retracting the attribution
+    detectable_by: transcript
+    detector_candidate: When a user asks what a document/spec says, flag any answer containing "From the X documentation" that is not preceded by a fetch/read of X in the same session. Attribution to an unread source is the sharpest, cheapest hallucination detector available from the transcript alone.
+    rule_origin: unknown
+
+pairing_gems:
+  - loc: "day-005:L1755"
+    why_exemplary: "\"w8, how come it passses locally and fails on GH? think harder and explain it to me\" — the user halts a third attempt at a symptomatic fix and demands the mechanism. The forced explanation produces the real diagnosis (pre-commit reads .pre-commit-config.yaml excludes; CI called ruff/mypy directly and read pyproject.toml) and the durable fix, in one turn."
+  - loc: "day-005:L1653"
+    why_exemplary: Refusing `--no-verify` and insisting the relaxed hook itself be the proof of the relaxation — a compact, fully general statement of using the falsifier rather than silencing it.
+  - loc: "day-005:L2673"
+    why_exemplary: "\"you do you\" — the author rejects the agent's offer to \"be more careful with my edits\" as a non-mechanism and redesigns the tooling around the agent's actual capabilities. A rare, explicit act of designing the process for the collaborator you have."
+  - loc: "day-005:L1201-L1303"
+    why_exemplary: Stash-commit-pop to split one file's working changes into two concern-scoped commits (CI badge + workflow, then README streamlining) — the mechanical realization of "in logical batches" when the concerns share a file.
+  - loc: "day-005:L2147"
+    why_exemplary: A single user turn that simultaneously root-causes a failing test (Apple Books iCloud lazy download), reclassifies it as a product requirement rather than a test bug, and imports the GOOS unit/integration vocabulary the project uses to this day.
+  - loc: "day-005:L118"
+    why_exemplary: "\"Teach me how our setup works currently first\" — converting an unproductive menu of solutions into a shared mental model before any decision, which is what finally made the right option obvious."
+
+gaps:
+  - "No TDD/BDD cycle occurs anywhere in this session — zero tests written, zero RED verified. It is 100% tooling, CI, git and documentation work, which the author himself names as the problem (\"we got bogged down in tooling setup and uv migration\", L2230)."
+  - "No commit-after-RED practice (the rule postdates this session; CLAUDE.md's <tdd_discipline> checklist already existed, per commit 2689ee4 seen at L285, but was never exercised here)."
+  - "No story cards, no stories/ directory, no YAML — the story-card system is born ~day-011 (2025-06-27). Backlog here is a hand-edited TODO.md of prose sections."
+  - "No `describe_`/`it_` naming discussion. The RSpec-cargo-cult nesting (`describe_book_library` / `describe_when_listing_books`) is visible at L1504-1506 and passes through untouched; canonical §2.1 records its later deletion."
+  - "No mocks were actually written — mocking is only planned and pinned in TODO.md. The unit/integration split is named here but not implemented."
+  - "No assertion-strength discussion; the only assertions seen (L1513, L2113) are the machine-dependent ones the session diagnoses as integration tests."
+  - "No expert-council, no plan mode, no skills — one Task sub-agent call (L172) which the user then examines and the agent abandons."
+  - "No `pytest --spec` living-documentation reasoning; --spec appears only as a command in the README and in the user's pasted terminal output."
+  - "No refactor-labelled commit, so no refactor-honesty (F6) evidence either way."
+
+parked:
+  - "L2979-L3097 is an auto-generated compaction summary. It is agent prose and it already misreports the session: it lists \"Fixed ruff target-version from py313 to py312\" as an accomplishment (L3065). Compaction summaries are a documented laundering channel for unexamined decisions — worth a dedicated detector."
+  - "The day-005 decision to delete `trailing-whitespace` and `end-of-file-fixer` persists at HEAD, and has since been extended: `ruff-format` is commented out entirely in .pre-commit-config.yaml. The project's formatting gate has been eroding since this session."
+  - "CLAUDE.md <git_workflow> carries two rules whose provenance is this session: \"Never use `git add .`\" (from L2853) and \"Stage all files after running pre-commit hooks that modify files\" (from the L2497-L2954 thread). Neither commit message records the incident."
+  - "The environment split (Mac mini + MacBook Air, L2082) is what made machine-dependence visible; the two-machine setup is itself a testing asset the project never named as one."
+  - "Cost telemetry is dense here: $7.18 at L2217, $11.32 at L2971, $11.79 final at L3111 — ~$4.6 of the session went to the trailing-whitespace thread alone, which is why the author's frustration at L2497 is an engineering observation, not a mood."
+  - "Branch `astral` fast-forward-merged to main at L1356 with no PR and no review; CI was added and immediately red on main (L1412). The walking skeleton had no green baseline at any point in this session."
