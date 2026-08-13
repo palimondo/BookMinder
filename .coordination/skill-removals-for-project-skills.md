@@ -51,3 +51,7 @@
 ## From references/register.md
 
 - Bow-tying incident: "it produced the single worst deliverable of the engagement (a fused pairing/verification motivation that was "totally off base")."
+
+## Second-pass removals (specificity audit)
+- Mining schema attribution enum verbatim: `source: user-verbatim | user-paraphrase | agent-synthesis` + exact-quote-plus-line-reference requirement (validate_mining.py enforces).
+- Mining validator mechanics: grep every `quote:` field against its source transcript file.

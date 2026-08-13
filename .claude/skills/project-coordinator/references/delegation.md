@@ -7,7 +7,7 @@ The author's standing instruction: delegate actual work to workers, "Opus 5 prim
 
 - **Opus, `effort: 'xhigh'` — the default worker.** Use for all bulk and parallel work: archaeology over git history, corpus extraction, scouts, reconnaissance, investigations, per-file extraction, repair agents. This is where volume lives.
 - **Fable, `effort: 'xhigh'` — judgment, synthesis, and prose the author will personally read and grade.** Reserve it for: comparing and judging worker outputs, synthesizing multiple extractions into one canonical document, revising a document against his stated corrections, and any deliverable that is itself a test of whether you understood him.
-- **Fork of this thread (`Agent` with `subagent_type: "fork"`) — only when the *input* is the conversation itself.** Fork when the task requires his voice-stated goals, the corrections he made in dialogue, and the accumulated session judgment — things no file contains — and the deliverable's real test is whether *you* understood what he was going for. Do not fork for work that reads files; that is a fresh worker's job and forking only pollutes it.
+- **Fork of this thread — only when the *input* is the conversation itself, and only where the harness offers a fork mechanism (verify before promising it; some environments have none, and the closest substitute is doing that work in the main thread).** Fork when the task requires his voice-stated goals, the corrections he made in dialogue, and the accumulated session judgment — things no file contains — and the deliverable's real test is whether *you* understood what he was going for. Do not fork for work that reads files; that is a fresh worker's job and forking only pollutes it.
 - **Effort is `xhigh` by standing order.** The one legitimate exception is mechanically-specified work with a structured output schema (e.g. splitting a file on banner boundaries runs fine at `effort: 'low'`).
 - **If he names a tier or mechanism for a deliverable ("let Fable fork draft it"), use it or say explicitly why not.** Silently substituting your own routing is a trust defect even when the output is fine.
 
@@ -27,7 +27,7 @@ The author's standing instruction: delegate actual work to workers, "Opus 5 prim
 - **Restart early rather than patch late.** When a brief is wrong and the worker is minutes in, `TaskStop` and relaunch with the corrected lens; a clean restart beats reconciling a misaimed deliverable.
 - Give every worker its exact deliverable path, the no-hard-wrap rule, and a bounded return format ("return a max-10-line summary"). Long worker returns land in your context and become the wall of text.
 - Forbid workers from touching tracked files other than their deliverable.
-- Push attribution discipline into every worker schema: `source: user-verbatim | user-paraphrase | agent-synthesis`, with verbatim requiring an exact quote plus a line reference, and enforce it with a validator, not with instructions.
+- Attribution discipline must survive delegation: any worker that extracts or relays the author's words must mark, per claim, whether it is his verbatim (with exact quote and source reference), a paraphrase of him, or the worker's own synthesis — and where the work runs through a schema, enforce that mechanically, not with instructions.
 
 ## Swarm operations
 
@@ -37,7 +37,7 @@ The author's standing instruction: delegate actual work to workers, "Opus 5 prim
 - **Slice for concurrency.** A single workflow's cap is `min(16, nproc - 2)`; on a 4-core container that is 2. Slicing the units across several parallel workflows with an `args` array multiplies effective concurrency. Take an arg-sliced variant of the swarm script as the normal shape for large runs.
 - **Drain before kill.** Never `TaskStop` a run without first checking in-flight agents' progress; killing to re-slice throws away nearly-complete work at full token cost. If in-flight agents are deep, let them finish and self-commit, then stop.
 - **Pilot before swarm.** Two units first, inspect the raw output together, then scale. Pilots catch input quirks that would silently break the full run.
-- **Enforce schemas with a script, not with prose.** Keep the schema flexible — workers may extend it — but require the base set mechanically. Write a validator that checks required fields *and* greps every `quote:` against its source file so paraphrase-as-quote fails mechanically. Run it over the whole harvest and dispatch repair agents for violations.
+- **Enforce schemas with a script, not with prose.** Keep the schema flexible — workers may extend it — but require the base set mechanically. Write a validator that checks the required fields, and where deliverables quote sources, make it verify quotes against those sources so paraphrase-as-quote fails mechanically. Run it over the whole batch and dispatch repair agents for violations.
 - When a validator reports a wall of violations, check whether the *validator* is wrong first — the majority of raw violations can be validator artifacts (enum drift, format quirks, elision handling), not worker errors.
 
 ## Context protection
