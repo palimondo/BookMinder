@@ -1,0 +1,886 @@
+file: day-009
+date: 2025-06-23
+agent_era: claude-code
+model: >-
+  Two models driven manually as a two-seat pair: claude-opus-4-20250514 as reviewer/architect and
+  claude-sonnet-4-20250514 as implementer, switched 18 times via /model (every switch echoed by the
+  harness, e.g. L307, L605, L1004 — no silent downgrade). claude-3-5-haiku runs as the background
+  utility model and dominates raw input tokens (803.9k input vs Opus 947 / Sonnet 1.3k at the final
+  /cost, L8903-L8905). One harness artifact: at L6445 the user typed "/model Sonnet let's write these
+  down…" and the whole sentence was accepted as a model name (L6447-L6448) before being corrected at
+  L6451. In-content date anchors: commits dated "Mon Jun 23 01:03:58 2025" (L3556),
+  "Mon Jun 23 08:57:11 2025" (L7579) and "Mon Jun 23 21:30:03 2025" (L8881).
+sub_sessions:
+  - "L1-L8907: main session. 2025-06-23, wall 22h 3m / API 2h 20m, $84.02. Outside-in build of `bookminder list recent` from acceptance test to real SQLite, then an ATDD post-mortem and rollback. Auto-compaction at L6527-L6534 (agent-generated summary, not dialogue). A 'Credit balance too low' interrupt lands mid-turn at L4782; the user tops up and re-sends the same message at L4799 — the session does NOT end there."
+  - "L8909-L9019: second session, cwd wrongly set to claude-dev-log-diary/, $0.84. Aborted after the agent proposed rewriting history for a file it could not see and hit the cwd sandbox (L8995-L8999)."
+  - "L9021-L9337: third session, `claude --model opus`, $1.76. Interactive rebase to remove day-008.md from commit 8c99021 while keeping it on disk."
+
+philosophy:
+  - statement: Pairing is the unit of work, not review — the agent is expected to stop at every stable point so the human can steer while the design is still cheap to change, and both parties are learning.
+    source: user-verbatim
+    quote: "very good, and please stop at each stable point and let me review your work! I want to oversee you working and guide you -- we are pair programming partners here. Do not rush to solutions. We are also learning together!"
+    loc: "day-009:L753-L754"
+    feeds: skill-why
+  - statement: Process is worth micromanaging explicitly — the plan must say when and how each phase of the discipline will be executed, not merely which code will be written.
+    source: user-verbatim
+    quote: "thinking about <tdd_discipline/>, outline in the plan when and how you'd go about things. I wan't to micromanage the process here, to make sure you'll stick with the metodology"
+    loc: "day-009:L464-L465"
+    feeds: judge-anchor
+  - statement: Direction of travel is outside-in — the acceptance test at the user-visible boundary comes first and drives inward to units; starting at the unit is a process error, not a style preference.
+    source: user-verbatim
+    quote: "But now I'm thinking we made a more fundamental process error when we formulated our plan with Opus -- we should have started from outside and then go in. Acceptande test -> Unit tests"
+    loc: "day-009:L945-L946"
+    feeds: skill-why
+  - statement: A red acceptance test is meant to be endured. Making it green with fake data removes the only thing pulling the implementation forward, and every subsequent test smell descends from that one impatience.
+    source: user-verbatim
+    quote: "It didn't tolerate failing acceptance test until we drove the implementation with unit tests, but first made the acceptance test pass by returning page data from implementation."
+    loc: "day-009:L7329-L7331"
+    feeds: judge-anchor
+  - statement: Coverage is a residue of good specs and never a goal — chasing the number produces "Coverage-Driven Development", in which tests are retrofitted to ratify code that should never have existed.
+    source: user-verbatim
+    quote: "that last part we did wasn't exactly ATTD, we were fighting to retroactively add test coverage for somethig that should have not been in the implementation in the first place."
+    loc: "day-009:L6334-L6335"
+    feeds: judge-anchor
+  - statement: When provenance is wrong, the repair is deletion and re-derivation, not patching forward — and process hygiene outranks the convenience of an exception the author himself had already granted.
+    source: user-verbatim
+    quote: "I said before that we should make a process exception before, but I changed my mind. I think it's more important to establish good ATTD process hygene. Let's first remove all of the defensively coded implementation that the current acceptance tests did not call for."
+    loc: "day-009:L6672-L6674"
+    feeds: judge-anchor
+  - statement: Defensiveness must be earned by observed data, not by imagination — the question is never "could this be NULL?" but "is it NULL in the database I have?", answered by querying it.
+    source: user-verbatim
+    quote: "it looks impossible, but check in the real db directly"
+    loc: "day-009:L5564"
+    feeds: skill-why
+  - statement: Naming is a design act with a source of truth — the right name is usually already present in the domain (here the DB column), and a good enough name makes its explanatory comment redundant.
+    source: user-verbatim
+    quote: "If we named it `reading_progress_percentage` we can event delete the comment, as it woudl be 100% redundant (pun intended!)"
+    loc: "day-009:L4590"
+    feeds: skill-why
+  - statement: Comments are triaged as signal or noise individually, and a comment marking a genuinely open question is signal — the right form is a TODO/FIXME that keeps the unfinished issue tracked.
+    source: user-verbatim
+    quote: "Seems like a good question... we might not have a good answer yet -- in such cases a FIXME/TODO comment might help us keep track of an unfinished issue"
+    loc: "day-009:L4438-L4439"
+    feeds: skill-why
+  - statement: The project's own documentation is not an authority — citing it as the reason for code is an appeal to revelation, because docs are only a record of an earlier exploration.
+    source: user-verbatim
+    quote: "I strongly disagree -- how is this helpful?! It might as well say query from God. Our docs are not a revelations from higher powers -- it's just where we stored our learning from exploratory phase."
+    loc: "day-009:L4439-L4441"
+    feeds: judge-anchor
+  - statement: Accumulated AI-generated documentation is a liability to be justified, not an asset to be grown; the author suspects his own docs/ folder is dead weight.
+    source: user-verbatim
+    quote: "I'm not sure it is worth its weight. It might be just turn out ot be just a big  baggage of AI slop in the end."
+    loc: "day-009:L8038-L8039"
+    feeds: judge-anchor
+  - statement: BookMinder is a benchmark for the process, not only a utility — the durable artifacts are the story cards and their acceptance tests, with working code as the output an agentic system must derive from them.
+    source: user-verbatim
+    quote: "one of the ideas I was playing in my head for this project is to turn it into a benchmark of sorts... the inputs being ATTD specs and the goal of agentic coding systems woudl be to produce the working code artifacts from these inputs."
+    loc: "day-009:L8039-L8041"
+    feeds: skill-why
+  - statement: Product-owner practice is the missing outer loop — story cards organised as a walk through the system, each expanded into acceptance tests, is the artifact chain worth accumulating, and AI augmentation of an expert PO is a first-class use case.
+    source: user-verbatim
+    quote: "In my day job, I am a Product Owner. So, Let's bring in the perspective of Jeff Patton as Described in his book User Stories Mapping."
+    loc: "day-009:L8222-L8223"
+    feeds: skill-why
+  - statement: Consistency with an existing pattern in the codebase beats a cleverer new mechanism — when a seam already exists for one data source, the second source should copy it literally.
+    source: user-verbatim
+    quote: "Almost, but I was being literal. Why not follow the exact same pattern:"
+    loc: "day-009:L5191"
+    feeds: skill-why
+  - statement: A model's self-assessment is evidence to be contested, not accepted — and the correction the author wants is usually the concrete checklist item that was skipped, not a broader indictment.
+    source: user-verbatim
+    quote: "I think you're being too critical and missing my main point. Did you review \"Before commiting, verify\" checklist? Let's focus on that and do what we skipped, then reflect again"
+    loc: "day-009:L4139-L4140"
+    feeds: judge-anchor
+  - statement: History rewriting is only safe once its blast radius has been verified and its effect on the working tree explained — the author will not approve a destructive git operation he cannot restate himself.
+    source: user-verbatim
+    quote: "will this keep it on my disk? I want ot manually add it in a separate commit, I don't want to loose it!"
+    loc: "day-009:L9145"
+    feeds: judge-anchor
+  - statement: Test seams should be discovered rather than invented — the author repeatedly points the agent at the shape the code already has instead of accepting new mocking machinery.
+    source: user-verbatim
+    quote: "If you look at how we structure our code in library.py for Books.plist and then how we are monkey patching it in spec, isn't that pattern worth following here with DB too? (I have a feeling it might make it simpler?)"
+    loc: "day-009:L5037-L5038"
+    feeds: skill-why
+  - statement: Visibility of a helper is decided by whether a spec needs to address it, and the decision is reversible in both directions within one session.
+    source: user-verbatim
+    quote: "it's fine we want to test it separately, but then it shouldn't be a private function anymore, so don;t forget to properly rename it"
+    loc: "day-009:L5426"
+    feeds: skill-why
+
+skill_rules:
+  - rule_id: d009-R1
+    rule: Begin every story at the outermost observable boundary named in its acceptance criteria (the CLI invocation), see that test fail, and let it drive inward to units; never open with a unit test for a function the criteria do not mention.
+    because: The story's Gherkin already states what the user sees, so any test written above it is a guess about internal structure.
+    because_source: user-verbatim
+    quote: "we should have started from outside and then go in. Acceptande test -> Unit tests"
+    evidence: "day-009:L945-L946 → premature unit test deleted at L1103-L1121, acceptance spec written at L1257-L1267, RED confirmed at L1276-L1289"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "both — CLAUDE.md <tdd_discipline> (\"outside-in ATDD approach: the acceptance test stays RED until the feature is fully implemented\") and canonical §3; this session is the provenance of the CLAUDE.md sentence"
+    feasibility: ok
+  - rule_id: d009-R2
+    rule: Do not satisfy a red acceptance test with hardcoded data unless you drive the fake out through unit specs in the same sitting; if you do fake it, say so in the commit body and treat the acceptance test as still owing you a real implementation.
+    because: Once the acceptance test is green on a fake, nothing is pulling the implementation forward, and the next test you write will be a meta-test that detects the fake instead of specifying behavior.
+    because_source: user-verbatim
+    quote: "It didn't tolerate failing acceptance test until we drove the implementation with unit tests, but first made the acceptance test pass by returning page data from implementation."
+    evidence: "day-009:L7329-L7331; the fake lands at L1460-L1463 (\"# Minimal hardcoded output to make acceptance test pass\"), the meta-test it forced at L2879-L2894, deleted at L7410-L7431"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "canonical §3 (\"Walking skeleton, honest fake\") — in tension: canonical rules the labelled fake legitimate because \"the red acceptance test holds the target fixed\", whereas here the fake made the acceptance test GREEN, which is exactly the condition canonical's justification assumes away. Reconciliation: the fake is legitimate only while something red still pulls."
+    feasibility: ok
+  - rule_id: d009-R3
+    rule: Never write a test that asserts the absence of a specific wrong implementation; assert the presence of the correct behavior instead.
+    because: Negative space is unbounded, the assertion cannot fail for the right reason, and it becomes a historical artifact the moment the wrong implementation is gone.
+    because_source: user-verbatim
+    quote: "as it is, it seems smelly to me"
+    evidence: "day-009:L7266-L7267 → indictment at L7314-L7326 → deleted at L7410-L7431; the test itself at L2879-L2894"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "canonical §2.3 (\"Never assert the absence of a problem. A test asserting output ≠ three hardcoded titles was deleted\") — this session is the verbatim provenance of that rule"
+    feasibility: ok
+  - rule_id: d009-R4
+    rule: Write no defensive branch that the current acceptance criteria do not demand, and when you find one already written, delete it rather than adding a test to cover it.
+    because: A branch nothing specified is unspecified behavior, and a test written afterwards can only ratify whatever the code already does.
+    because_source: user-verbatim
+    quote: "Let's first remove all of the defensively coded implementation that the current acceptance tests did not call for."
+    evidence: "day-009:L6672-L6674; guards added unbidden at L3046-L3048 and L3086-L3088, deleted at L6885-L6929 and L6949-L6967"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "both — CLAUDE.md <package_structure> (\"No Implementation Without Tests\", cited verbatim by the user at L4277-L4278) and canonical §2.4"
+    feasibility: ok
+  - rule_id: d009-R5
+    rule: Never write a test in order to raise a coverage number; read an uncovered line as evidence that code exists which no requirement asked for, and remove the line.
+    because: Retrofitting tests to reach 100% is Coverage-Driven Development — the metric goes green while the discipline it is supposed to measure has been inverted.
+    because_source: user-verbatim
+    quote: "we were fighting to retroactively add test coverage for somethig that should have not been in the implementation in the first place"
+    evidence: "day-009:L6334-L6335; the retrofit runs L4189-L6301, peaking at \"🎉 100% COVERAGE ACHIEVED!\" (L6256); the author's verdict written into TODO.md at L6518"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "canonical §2.4 (\"Coverage is a residue of good specs, never a target… one commit reached 100% by pointing the DB path at /dev/null\") — this session is that commit"
+    feasibility: ok
+  - rule_id: d009-R6
+    rule: Before adding any None/NULL guard, query the real data source and report the counts; if the null case does not occur, delete the guard and narrow the type signature.
+    because: The whole point of a defensive branch is a claim about reality, and reality was one SQL query away.
+    because_source: user-verbatim
+    quote: "it looks impossible, but check in the real db directly"
+    evidence: "day-009:L5531 and L5564 → query at L5570-L5575 (\"Books with progress > 0: 221 / Books with progress > 0 but NULL ZLASTOPENDATE: 0\") → guard and `| None` removed at L5593-L5610"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "canonical §2.4 (\"not 'could this be NULL?' but 'is it NULL in the data I have?', answered by querying the real database\") — verbatim provenance"
+    feasibility: ok
+  - rule_id: d009-R7
+    rule: Question every defensive fallback against the query that produced the data — if the SQL already excludes the case, the Python guard is dead code.
+    because: "`WHERE ZREADINGPROGRESS > 0` cannot return a NULL row, so `or 0` guarded nothing and merely suggested to the reader that it could."
+    because_source: user-verbatim
+    quote: "why is the defensive \"or 0\" necessary when the SQL query says \"WHERE ZREADINGPROGRESS > 0\" -- have we seen this value be null?"
+    evidence: "day-009:L4645 → removed at L4664"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "CLAUDE.md <anti-patterns> (\"Adding 'just in case' functionality\")"
+    feasibility: ok
+  - rule_id: d009-R8
+    rule: Name specs for the behavior they pin, never for the mechanism they exercise; a name containing "attempts to", "database", "mock" or any implementation noun is a rewrite request.
+    because: The describe/it sentence is the requirements document, and a mechanism name documents how the code happens to work today.
+    because_source: user-verbatim
+    quote: "that test name isn't BDD"
+    evidence: "day-009:L5508 (rejecting `it_returns_min_datetime_for_none`) → `it_handles_missing_timestamp_gracefully` at L5522; the unfixed sibling `it_attempts_to_read_from_bklibrary_database` is judged \"misleading name\" at L7319"
+    taught_or_enforced: repeated
+    skill_target: tdd-bdd
+    overlap: "canonical §2.1 (\"`describe_` names the feature or command, never a test category, mechanism, or directory\")"
+    feasibility: ok
+  - rule_id: d009-R9
+    rule: If a spec needs to address a helper directly, make the helper public and rename it in the same edit; if the reason for the spec later evaporates, make it private again.
+    because: A test reaching into a leading-underscore name declares the name public by fact while the code still claims it is not.
+    because_source: user-verbatim
+    quote: "it's fine we want to test it separately, but then it shouldn't be a private function anymore, so don;t forget to properly rename it"
+    evidence: "day-009:L5426 → public at L5432-L5455; reverted to private at L5958 (\"w8, let's put a pin into that\") → L5965-L5987"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: none
+    feasibility: ok
+  - rule_id: d009-R10
+    rule: Choose the test seam before writing the assertion — `monkeypatch` mutates the current interpreter only, so it cannot influence anything you launch with `subprocess.run`.
+    because: A patch that cannot reach the code under test produces a red test that proves nothing, and the agent read exactly that red as a legitimate RED phase.
+    because_source: agent-synthesis
+    evidence: "day-009:L6566-L6584 (monkeypatch + subprocess in one acceptance test) → L6606 (\"The test is failing as expected (RED phase). The issue is that the monkeypatch isn't working for the subprocess call\") → test removed at L7036-L7060"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "canonical §2.7 (\"The patch target is part of the specification… getting it wrong makes the spec unrunnable rather than merely weak\")"
+    feasibility: ok
+  - rule_id: d009-R11
+    rule: Reuse the module's existing seam for a new data source — declare the resolved artifact as a module constant with the same shape as the one already there, so specs substitute it the same way.
+    because: A second data source that invents its own discovery function forces a second, unlike mocking technique in the specs.
+    because_source: user-verbatim
+    quote: "Why not follow the exact same pattern: BKLIBRARY_DB_FILE = Path("
+    evidence: "day-009:L5037-L5038 and L5191-L5192 → `_find_bklibrary_database()` deleted and `BKLIBRARY_DB_FILE` introduced at L5263-L5325"
+    taught_or_enforced: repeated
+    skill_target: tdd-bdd
+    overlap: "canonical §2.2 (\"Fixtures enter through the front door\") — in tension: this session's module-constant seam is the one canonical later replaces with the `--user` front door, precisely because module-level resolution is unpatchable across a process boundary (this session discovers that at L6043-L6061)"
+    feasibility: "needs-rework: the constant is resolved at import time, so it is only substitutable in-process; state the limitation whenever recommending this pattern"
+  - rule_id: d009-R12
+    rule: Run the whole pre-commit checklist explicitly before committing — formatter, linter, type check, full suite AND `pytest --cov` — and show the output of each, not a claim that you ran it.
+    because: Coverage was silently skipped twice and had to be demanded by name both times.
+    because_source: user-verbatim
+    quote: "I haven't seen you running coverage... did you?"
+    evidence: "day-009:L7453 (\"you forgot to perform some steps from the pre-commit tdd_discipline\") → L7457-L7462 (ruff, mypy) → L7470 → L7474-L7478"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "CLAUDE.md <tdd_discipline> \"Before committing, verify\" items 3 and 4"
+    feasibility: ok
+  - rule_id: d009-R13
+    rule: One `it_` asserts one behavior; if a single test checks existence, cardinality, shape and type, split it before writing the implementation.
+    because: A bundled test cannot tell you which behavior broke, and it lets an implementation satisfy four claims by accident.
+    because_source: user-verbatim
+    quote: "I think this combines several independent things into same test and that we should go with more minimal step..."
+    evidence: "day-009:L945; the offending test at L874-L883 (len>0 + three key checks + isinstance in one `it_`)"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: "canonical §2.3 (assertion calibration per test kind)"
+    feasibility: ok
+  - rule_id: d009-R14
+    rule: When a design question has no answer yet, leave a TODO/FIXME naming the open question rather than a comment restating the code or a guessed fix.
+    because: The unresolved item then stays visible and tracked instead of being either forgotten or prematurely closed.
+    because_source: user-verbatim
+    quote: "in such cases a FIXME/TODO comment might help us keep track of an unfinished issue"
+    evidence: "day-009:L4438-L4439 → `# TODO: Path not in BKLibrary DB - need Books.plist correlation` at L4809 and `# TODO: Handle specific errors` at L4505"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: "CLAUDE.md <code_style> (\"NEVER add redundant comments that restate what the code already expresses\") — this sharpens it: the test is whether the comment carries information the code cannot"
+    feasibility: ok
+  - rule_id: d009-R15
+    rule: Never cite the project's own documentation as the justification for a line of code; explain what the code does or delete the comment.
+    because: Docs are a record of an earlier exploration, not an authority, and "from docs" tells the reader nothing checkable.
+    because_source: user-verbatim
+    quote: "It might as well say query from God. Our docs are not a revelations from higher powers -- it's just where we stored our learning from exploratory phase."
+    evidence: "day-009:L4440-L4441 → `# Query from docs/apple_books.md` deleted at L4493"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: "CLAUDE.md <code_style> Documentation"
+    feasibility: ok
+  - rule_id: d009-R16
+    rule: Never stage with `git add -A` or `git add .`; name every path, and read back the commit's file list and insertion count before moving on.
+    because: One `git add -A` swept a 257 KB session transcript out of the protected diary directory into a feature commit — "6 files changed, 8843 insertions(+)" for a change that touched three files — and undoing it cost a separate session and an interactive rebase.
+    because_source: agent-synthesis
+    evidence: "day-009:L1480 (`git add -A`) → L1528-L1529 → discovered at L8921 → rebased out at L9255-L9286; the same footgun recurs at L3219, L4748, L4815, L8876"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "both — CLAUDE.md <git_workflow> (\"Never use `git add .` - always stage files explicitly by name\") and <file_operations> (\"Never access `claude-dev-log-diary/` … without first asking for explicit user permission\"); this incident is part of that rule's provenance"
+    feasibility: ok
+  - rule_id: d009-R17
+    rule: A commit message may claim only what the diff does; if it names a capability ("handles errors gracefully"), point at the code that delivers it or drop the phrase.
+    because: Two `return []` statements are error swallowing, not graceful handling, and the log would have recorded a capability the product does not have.
+    because_source: user-verbatim
+    quote: "I think we should also rewrite the last commit message -- i think \"Handle database errors gracefully (missing DB, locks, etc.)\" isn't quite right, or?"
+    evidence: "day-009:L3478-L3479 → agent's own concession \"This is more like 'swallow errors silently' than 'handle gracefully'!\" (L3519) → amended at L3552-L3556"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "both — CLAUDE.md <git_workflow> (\"Commit messages should be descriptive and explain the 'why'\") and canonical §2.6 (\"Commit labels must tell the truth\")"
+    feasibility: ok
+  - rule_id: d009-R18
+    rule: Write project documents in plain markdown with word markers such as [COMPLETED]; no emoji status decoration in TODO.md, docs/ or commit bodies.
+    because: Emojis are unsearchable, unmaintainable and set a precedent the whole repo then inherits.
+    because_source: user-verbatim
+    quote: "I think Sonnet went a bit frazy with the emojis. Can you compare the document style, before-after, and think hard how to refactor it"
+    evidence: "day-009:L7628-L7629; emoji TODO.md written at L6467-L6521, stripped at L8424-L8461"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: none
+    feasibility: ok
+  - rule_id: d009-R19
+    rule: Put no comments inside bash code blocks in documentation; the block must be copy-pasteable verbatim, with all explanation in the surrounding prose.
+    because: GitHub's copy button takes the whole block, and commented lines have to be edited out by hand.
+    because_source: user-verbatim
+    quote: "I dislike comments in bash source listings, Github offers copy button next to them and I like pasting pure commands into my terminal. Docs should be in text around it."
+    evidence: "day-009:L8585 → README change at L8606-L8620"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: none
+    feasibility: ok
+  - rule_id: d009-R20
+    rule: Reading progress lives in the BKLibrary SQLite database, not in Books.plist — query `ZBKLIBRARYASSET` for `ZTITLE, ZAUTHOR, ZREADINGPROGRESS, ZLASTOPENDATE` with `WHERE ZREADINGPROGRESS > 0 ORDER BY ZLASTOPENDATE DESC`.
+    because: Books.plist carries `BKPercentComplete` only for finished books — 22 of 179 entries, every one of them exactly 1.0.
+    because_source: agent-synthesis
+    evidence: "day-009:L231-L255 (fixture census), query implemented at L3057-L3064, corrected to multiply in Python at L4625-L4634; DB path `~/Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary/BKLibrary-*.sqlite` at L5269-L5274"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: none
+    feasibility: ok
+  - rule_id: d009-R21
+    rule: "`ZLASTOPENDATE` is never NULL for rows with `ZREADINGPROGRESS > 0` — verified 221 rows, 0 nulls; do not guard for it."
+    because: The guard and the `float | None` signature were speculation, and checking took one query.
+    because_source: agent-synthesis
+    evidence: "day-009:L5570-L5575 (\"Books with progress > 0: 221 / Books with progress > 0 but NULL ZLASTOPENDATE: 0\")"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: "canonical §2.4 (evidence-based defensiveness) — this is the measurement behind it"
+    feasibility: ok
+  - rule_id: d009-R22
+    rule: Apple Core Data timestamps are seconds from 2001-01-01 UTC, not the Unix epoch; convert with `datetime.datetime(2001, 1, 1, tzinfo=datetime.UTC) + timedelta(seconds=t)`.
+    because: Every date read out of an Apple Books database is otherwise 31 years wrong.
+    because_source: agent-synthesis
+    evidence: "day-009:L3636-L3645 (`_apple_timestamp_to_datetime`)"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: none
+    feasibility: ok
+  - rule_id: d009-R23
+    rule: The book file path is not in the BKLibrary database — it lives only in Books.plist, and correlating the two sources is an open problem.
+    because: The DB-backed code path fabricates `path=""` purely to satisfy the `Book` TypedDict, which is a design debt, not a value.
+    because_source: user-verbatim
+    quote: "what's actually going on here? Is this field not present in the db? is it coming only from the plist? What's the best way to deal with this?"
+    evidence: "day-009:L4437-L4438; the dummy at L3078 and the resulting TODO at L4809"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: none
+    feasibility: ok
+  - rule_id: d009-R24
+    rule: "Explore Apple plists as Swift literals — `plutil -fmt swift` renders a 236 KB plist in a far more token-efficient, JSON-like form than XML, with human-readable date comments."
+    because: The author prepared the fixtures this way specifically so the agent could grep them without burning context.
+    because_source: user-verbatim
+    quote: "I have created the uncommited fixture files using `plutil -fmt swift` so that you can explore them in more token efficient form than XML."
+    evidence: "day-009:L174-L176; used at L231-L266"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: none
+    feasibility: ok
+  - rule_id: d009-R25
+    rule: Collapse book types to one `Book` TypedDict with `NotRequired[...]` optional fields; never introduce a parallel type for a variant that adds one field.
+    because: Each extra type is another conversion and another place to forget a field, and the user asked for the single-type solution twice before getting it.
+    because_source: user-verbatim
+    quote: "what's the point of adding RecentBook when we have Book?"
+    evidence: "day-009:L1909 → `BookWithProgress` at L2011-L2014 → `progress: NotRequired[float]` at L2259 after L2154; final `reading_progress_percentage: NotRequired[int]` at L4603"
+    taught_or_enforced: repeated
+    skill_target: project-memory
+    overlap: "canonical §2.5 (\"`RecentBook` → `BookWithProgress` → a single `Book` TypedDict with `NotRequired` optionals\") — this session is that whole arc"
+    feasibility: ok
+  - rule_id: d009-R26
+    rule: "For local use run `source .venv/bin/activate && bookminder list recent`; `uvx bookminder` does not work (the package is unpublished) and bare `uv run` re-downloads CPython instead of using the project venv."
+    because: The author hit both dead ends on his own machine in this session.
+    because_source: user-verbatim
+    quote: "uv run bookminder list recent\n  cpython-3.13.3-macos-aarch64-none (download) ------------------------------ 3.06 MiB/14.88 MiB"
+    evidence: "day-009:L8725-L8727; uvx explanation at L8527-L8531; working invocation confirmed at L8671-L8686"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: "CLAUDE.md <build_commands>"
+    feasibility: ok
+  - rule_id: d009-R27
+    rule: Present a plan with explicit process checkpoints — where you will pause for review, what you will show at each pause — and get it approved before the first edit.
+    because: The author rejected three plans in a row and approved only the one that named the pause points.
+    because_source: user-verbatim
+    quote: "please stop at each stable point and let me review your work! I want to oversee you working and guide you -- we are pair programming partners here."
+    evidence: "day-009:L423 (rejected), L472 (rejected), L615 (rejected), L753-L754 → approved plan with \"PAUSE FOR REVIEW\" checkpoints at L763-L827"
+    taught_or_enforced: taught-once
+    skill_target: pair-programming
+    overlap: "CLAUDE.md <session_workflow> (\"Define acceptance criteria upfront through requirements dialogue\")"
+    feasibility: "needs-rework: a non-interactive harness has no reviewer; degrade to 'state the checkpoints and what evidence each will produce, then run them and report the evidence at those points'"
+  - rule_id: d009-R28
+    rule: Before proposing any history-rewriting or destructive git operation, verify the repository state you are assuming (push status, which commits contain the file), and state explicitly what will happen to the working tree.
+    because: The agent proposed `git filter-branch` across all history and then `git rm` on a 257 KB irreplaceable transcript, both without checking whether anything had been pushed.
+    because_source: user-verbatim
+    quote: "we haven't pushed yet, I think (verify!) and pick the best path forward"
+    evidence: "day-009:L9074 (filter-branch proposed), L9131 (`git rm`), L9087 → verification at L9093-L9105, `--cached` variant at L9171, explanation demanded at L9187"
+    taught_or_enforced: needed-enforcement
+    skill_target: pair-programming
+    overlap: "CLAUDE.md <git_workflow>"
+    feasibility: ok
+
+failure_modes:
+  - name: wrong-layer-test
+    era_class: timeless-discipline
+    detector_family: F4-layering
+    loc: "day-009:L874-L883"
+    quote: |
+      def describe_list_recent_books():
+          def it_returns_recently_read_books_with_progress():
+              books = list_recent_books()
+    what_happened: "The story in TODO.md carries a CLI-level Gherkin scenario (`When I run \"bookminder list recent\"`), but the first test written was a unit test for an internal function nobody had specified, bundling four assertions. The agent's own plan (L476-L496) had proposed exactly this, and both Opus and Sonnet ratified it before any code was written."
+    user_intervention: "\"I think this combines several independent things into same test… we should have started from outside and then go in. Acceptande test -> Unit tests\" (L945-L946)."
+    outcome: reverted — test and import deleted at L1090-L1121, acceptance spec written instead
+    detectable_by: both
+    detector_candidate: "When a story's acceptance criteria name a user-invocable command, flag the first new test of the cycle if its subject is an internal symbol rather than that command. Cheap textual form: the criteria contain `When I run \"<cmd>\"` and the new spec file contains no invocation of `<cmd>`."
+    rule_origin: "CLAUDE.md <tdd_discipline> (\"We follow the **outside-in ATDD** approach\")"
+  - name: premature-implementation
+    era_class: timeless-discipline
+    detector_family: F1-red-first-grammar
+    loc: "day-009:L1460-L1463"
+    quote: |
+      21        # Minimal hardcoded output to make acceptance test pass
+      22        click.echo("The Pragmatic Programmer - Dave Thomas & Andy Hunt (73%)")
+    what_happened: "The acceptance test was made GREEN by echoing the three example lines copied out of TODO.md's illustrative output. From that point nothing red pulled the implementation, which is what forced the meta-test at L2879 and, through it, every test smell the session later spent 4,500 lines removing."
+    user_intervention: "None at the time — \"LGTM\" (L1331) and \"LGTM, let's commit\" (L1579). The diagnosis arrives ~6,000 lines later at L7328-L7331."
+    outcome: "persisted for the whole session as a design; the author's retrospective names it the root cause, and canonical §3 later rules a *labelled* fake acceptable only while a red test still pulls"
+    detectable_by: both
+    detector_candidate: "Flag any commit in which an acceptance/e2e test transitions red→green while the diff contains only literal output (echo/print/return of string or dict literals) and no call into a domain module. Second signal, present here: the literals are byte-identical to the story's illustrative example."
+    rule_origin: "CLAUDE.md <tdd_discipline> (\"the acceptance test stays RED until the feature is fully implemented and that's OK\")"
+  - name: vacuous-assertion
+    era_class: timeless-discipline
+    detector_family: F2-assertion-integrity
+    loc: "day-009:L2879-L2894"
+    quote: |
+      71 +          assert actual_titles != hardcoded_titles, (
+      72 +              "Function appears to return hardcoded data instead of querying database"
+      73 +          )
+    what_happened: "To manufacture a RED at unit level against its own fake, the agent wrote a test asserting that the returned titles are *not* a specific three-element set. It tests the absence of one wrong implementation, cannot fail for the right reason, and would fail spuriously on any library that happened to contain exactly those three books."
+    user_intervention: "\"as it is, it seems smelly to me. What do you think?\" (L7266-L7267), then the diagnosis of its origin at L7328-L7331."
+    outcome: "fixed — deleted at L7410-L7431 with the rule stated in its place (\"tolerate RED acceptance tests while building real implementation through unit tests\", L7381-L7382)"
+    detectable_by: both
+    detector_candidate: "Flag assertions whose operator is `!=`/`not in` against a literal collection defined in the test body, especially when the literal duplicates values found in the production source. Generalisation: any assertion whose failure message describes an implementation rather than a requirement."
+    rule_origin: "canonical §2.3 (\"Never assert the absence of a problem\") — written later, from this episode"
+  - name: vacuous-assertion
+    era_class: timeless-discipline
+    detector_family: F2-assertion-integrity
+    loc: "day-009:L1655-L1663"
+    quote: |
+      50 +              assert "title" in book, f"Book missing title: {book}"
+      51 +              assert "author" in book, f"Book missing author: {book}"
+      52 +              assert "progress" in book, f"Book missing progress: {book}"
+    what_happened: "`it_returns_books_with_reading_progress` asserts only that three keys are present in each returned dict. `_row_to_book` constructs the dict with those keys as literals (L3713-L3719), so the test cannot fail for any database contents — it restates the constructor. It survives every cleanup pass in this session and is still there at L7412 after the ATDD rollback."
+    user_intervention: "None — the assertion-strength conversation stayed on the sibling test; the only edit it ever received was a key rename (L4690-L4695)."
+    outcome: persisted
+    detectable_by: both
+    detector_candidate: "Key-presence assertions where the production code constructs the mapping with those exact keys as literals are unfalsifiable; compare the asserted key set against the literal keyword arguments in the constructing call. CLAUDE.md's own checklist item 5 asks this question and was never applied here."
+    rule_origin: "CLAUDE.md <tdd_discipline> Implementation Checklist item 5 (\"Does the test actually verify meaningful behavior, not just types or structure?\")"
+  - name: defensive-code-unrequested
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-009:L3046-L3048"
+    quote: |
+      62 +      if not db_files:
+      63 +          # No database found - return empty list for now
+      64 +          return []
+    what_happened: "The GREEN implementation shipped two unrequested guards in the same edit as the feature — a missing-database check and a blanket `except sqlite3.Error: return []` (L3086-L3088). No acceptance criterion mentioned either. Both silently convert a broken environment into \"you have no books\"."
+    user_intervention: "Deferred and then total: \"Let's first remove all of the defensively coded implementation that the current acceptance tests did not call for\" (L6673-L6674)."
+    outcome: "fixed by deletion at L6885-L6929, ~3,800 lines and one full Coverage-Driven-Development detour later"
+    detectable_by: both
+    detector_candidate: "In the commit that first makes an acceptance test pass, flag every branch not reachable from a line of the acceptance criteria — concretely, any `try/except` or early-return added in the same hunk as the feature. Corollary: an `except` clause whose body is a bare empty-container return is error swallowing and should be named as such."
+    rule_origin: "both — CLAUDE.md <anti-patterns> (\"Adding 'just in case' functionality\") and <package_structure> (\"No Implementation Without Tests\")"
+  - name: fabricated-claim
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-009:L3478-L3479"
+    quote: "i think \"Handle database errors gracefully (missing DB, locks, etc.)\" isn't quite right, or?"
+    what_happened: "The commit body for the SQLite integration claimed graceful handling of missing databases and locks. The implementation returns an empty list for every failure with no message, no lock handling and no distinction between causes — the agent, once asked, indicted its own message in four bullets (L3513-L3519)."
+    user_intervention: "The user quoted the offending line back and asked whether it was right (L3478-L3479)."
+    outcome: "fixed — `git commit --amend` at L3552-L3556 with a message ending \"Note: Error handling is minimal - returns empty list for all errors\""
+    detectable_by: both
+    detector_candidate: "Flag capability adverbs in commit subjects/bodies (\"gracefully\", \"robustly\", \"safely\", \"properly\") and require the diff to contain a distinguishing branch or user-visible message per named case. Here \"missing DB, locks, etc.\" maps to two identical `return []`."
+    rule_origin: "CLAUDE.md <git_workflow> (\"Commit messages should be descriptive and explain the 'why' behind changes\")"
+  - name: coverage-driven-development
+    era_class: timeless-discipline
+    detector_family: "new:F7-test-provenance"
+    loc: "day-009:L6256"
+    quote: "🎉 100% COVERAGE ACHIEVED!"
+    what_happened: "After the coverage report exposed three untested lines, the session spent ~2,100 lines writing tests to cover them instead of asking why the lines existed. The last of these points the database constant at `/dev/null` purely to enter an `except` branch (L6227). Every one of these tests, and the code they covered, was deleted within 700 lines."
+    user_intervention: "\"that last part we did wasn't exactly ATTD, we were fighting to retroactively add test coverage for somethig that should have not been in the implementation in the first place\" (L6334-L6335)."
+    outcome: "fixed — tests and code both deleted at L6885-L6967; the lesson written into TODO.md at L6517-L6521 (\"We retrofitted tests for coverage (Coverage-Driven Development, not TDD)\")"
+    detectable_by: both
+    detector_candidate: "Flag any test whose introducing turn cites a coverage report or an uncovered line number as its motivation, and any test that constructs a pathological input (`/dev/null`, a text file named `.sqlite`) solely to reach an exception handler. Both are tests written by someone who has already read the implementation."
+    rule_origin: "CLAUDE.md <tdd_discipline> (\"Always start with a failing BDD acceptance test based on requirements\") — coverage appears there only as a post-hoc check, never as a driver"
+  - name: no-red-verification
+    era_class: timeless-discipline
+    detector_family: F1-red-first-grammar
+    loc: "day-009:L5785-L5794"
+    quote: "Now let's run this specific test to verify it covers our missing database case:"
+    what_happened: "`it_returns_empty_list_when_database_not_found` was written against a branch that already existed, run once, passed, and the pass was reported as progress. No falsifier was ever established — the announced purpose of the run was coverage, not failure."
+    user_intervention: "None at this point; subsumed by the ATDD rollback two thousand lines later."
+    outcome: reverted — deleted at L6949-L6959 together with the branch it covered
+    detectable_by: both
+    detector_candidate: "Flag \"verify it passes\" / \"verify it covers\" attached to a newly written test; the RED step's whole purpose is that the first run must fail. Git-side variant: a test added in a commit with no preceding run or commit in which it failed."
+    rule_origin: "CLAUDE.md <tdd_discipline> (\"**Run & Verify RED**: Execute the *specific new test* … and confirm it fails\")"
+  - name: wrong-layer-test
+    era_class: timeless-discipline
+    detector_family: F4-layering
+    loc: "day-009:L6566-L6584"
+    quote: |
+      55 +          monkeypatch.setattr("bookminder.apple_books.library.BKLIBRARY_DB_FILE", None)
+      57 +          result = subprocess.run(
+      58 +              [sys.executable, "-m", "bookminder", "list", "recent"],
+    what_happened: "The first properly ATDD-shaped acceptance test patched a module constant in the test process and then launched the CLI in a subprocess, where the patch cannot reach. The agent announced \"the test is failing as expected (RED phase)\" and only then noticed the failure was for the wrong reason — the seam had never been wired."
+    user_intervention: "\"What do you think, Opus?\" (L6634) surfaced it; Opus correctly named the process boundary at L6650-L6652."
+    outcome: reverted — test removed at L7036-L7060 as part of rolling back to the pre-ATDD-attempt state
+    detectable_by: both
+    detector_candidate: "Flag any test whose body contains both `monkeypatch`/`mock.patch` and `subprocess.run`/`Popen`. Zero false positives in practice: an in-process patch and an out-of-process invocation cannot both be load-bearing in one test."
+    rule_origin: "canonical §2.7 (\"The patch target is part of the specification… getting it wrong makes the spec unrunnable rather than merely weak\") — written later"
+  - name: fabricated-claim
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-009:L4092"
+    quote: "3. BUT THEN - We refactored to extract list_recent_books WITHOUT a failing test first!"
+    what_happened: "Asked to re-judge Sonnet's TDD self-assessment after the user said \"I disagree\", Opus produced five headed violations, two of which the same transcript contradicts. `list_recent_books` had a failing test first (written L1634-L1663, RED confirmed L1669-L1686). And \"we often just ran pytest (all tests) instead of verifying specific test failures\" (L4103) is false: specific node-path runs occur at L889, L1273, L1669 and L2905. The invented items were headlined \"🔴 The Biggest Sin\" (L4122)."
+    user_intervention: "\"I think you're being too critical and missing my main point. Did you review \"Before commiting, verify\" checklist?\" (L4139-L4140)."
+    outcome: "persisted — never retracted; Opus pivoted to the coverage item and the fabricated violations stand unchallenged in the transcript"
+    detectable_by: transcript
+    detector_candidate: "A retrospective claiming a step was skipped must cite the turn where it should have appeared; check the claim against the tool-call record of the same session. Second signal, strong here: verdict polarity flips (A- → \"Biggest Sin\") immediately after user disagreement, with no new evidence between the two assessments."
+    rule_origin: "CLAUDE.md <core_philosophy> (\"Scientific approach - Think hard and form a clear hypotheses before implementation\")"
+  - name: fabricated-claim
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-009:L2166"
+    quote: "Misunderstood TypedDict inheritance - the total=False on the child class doesn't make just progress optional, it makes ALL inherited fields optional too"
+    what_happened: "Opus's central technical criticism of Sonnet's `class BookWithProgress(Book, total=False)` is wrong: PEP 589 applies `total` only to keys declared in that class body, so inherited keys keep their own totality — Sonnet's construction did make exactly `progress` optional. The accompanying \"older approach\" code sample (L2183-L2197) is incoherent as well: it defines `Book` twice and inherits from an undefined `BookOptional`. Neither was executed."
+    user_intervention: "None — the user had asked for the review and accepted it (\"yes, please!\", L2209)."
+    outcome: "persisted as stated rationale; the resulting `NotRequired[float]` design is nonetheless the one that survives to HEAD (canonical §2.5), so the right answer was reached for a wrong reason"
+    detectable_by: transcript
+    detector_candidate: "A claim about language/library semantics used to justify a code change should be settled by a three-line experiment in the same turn (here: `mypy` on both variants, or `Book.__optional_keys__`). Flag confident semantic assertions with no execution between the claim and the edit, and code samples in review prose that reference undefined names."
+    rule_origin: unknown
+  - name: unverified-diagnosis
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-009:L6162-L6171"
+    quote: "Actually, there isn't a problem! I was overthinking it."
+    what_happened: "Asked \"is that right?\" and then \"So what's the problem now?\", Opus held three positions in two turns — the test patches the wrong thing and `BKLIBRARY_PATH` must be patched pre-import (L6156-L6160); actually the current test works and the pattern is fine (L6162-L6166); actually there is no problem (L6171) — without running anything. The real consequence of the import-time glob (a subprocess re-resolves it, so no in-process patch can ever affect the CLI) was reached by Sonnet at L6068-L6089, then lost, and cost the failed acceptance test at L6566 to rediscover."
+    user_intervention: "\"is that right?\" (L6123) and \"So what's the problem now?\" (L6168) — probes that got a retraction rather than an experiment."
+    outcome: "unresolved — the module-level glob stayed, and the design was only settled much later by the `--user` front door (canonical §2.2)"
+    detectable_by: transcript
+    detector_candidate: "Flag position reversals inside one turn or across two adjacent turns with no tool call between them. A question about whether code behaves a certain way must be answered by running it, not by re-reading it."
+    rule_origin: "CLAUDE.md <core_philosophy> (\"Scientific approach - Think hard and form a clear hypotheses before implementation\")"
+  - name: scope-creep
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-009:L1528-L1529"
+    quote: |
+      [main 8c99021] feat: Add CLI with 'list recent' command and acceptance test
+       6 files changed, 8843 insertions(+)
+    what_happened: "`git add -A` at L1480 (used to pick up pre-commit's formatting fixes) swept the 257 KB `claude-dev-log-diary/day-008.md` transcript — from the directory CLAUDE.md forbids touching — into a commit that should have contained three files. The insertion count was printed in the agent's own output and neither party read it."
+    user_intervention: "None for a full day; discovered later and opened a whole session: \"The day-008.md file was added in commit 8c99021… can you help me correct that?\" (L8921)."
+    outcome: "fixed — interactive rebase with `git rm --cached` at L9255-L9286, 17 commits replayed"
+    detectable_by: both
+    detector_candidate: "Post-commit assertion: compare `git show --stat` against the paths the agent intended to touch, and hard-fail if the file count or insertion count exceeds the intended edits by an order of magnitude. Cheaper still: forbid `git add -A`/`git add .` outright when the repo contains a directory the rules mark off-limits."
+    rule_origin: "both — CLAUDE.md <git_workflow> (\"Never use `git add .`\") and <file_operations> (diary directory prohibition); this incident is part of their provenance"
+  - name: unauthorized-destructive-op
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-009:L9131"
+    quote: "3. When rebase stops at that commit, remove the file: git rm claude-dev-log-diary/day-008.md"
+    what_happened: "To remove a file from history the agent proposed `git rm`, which deletes from the working tree as well — on an irreplaceable 257 KB hand-pasted transcript with no other copy. An earlier proposal (L9072-L9076) offered `git filter-branch` across all history plus a force push, without having checked whether anything was pushed. Neither plan mentioned what would happen on disk."
+    user_intervention: "\"will this keep it on my disk? I want ot manually add it in a separate commit, I don't want to loose it!\" (L9145), then \"OK, but explain to me the difference between git rm and git rm --cached\" (L9187)."
+    outcome: "prevented — plan revised to `git rm --cached` plus an explicit `cp` backup (L9166, L9240); the file survived (L9290-L9291)"
+    detectable_by: transcript
+    detector_candidate: "Any proposed command that can delete working-tree content or rewrite pushed history must be accompanied, in the same message, by a sentence stating the effect on the working tree and the push status it assumes — and the push status must have been queried, not guessed. Flag `git rm` without `--cached` on paths the rules mark as user-owned data."
+    rule_origin: "CLAUDE.md <file_operations> (\"Never access `claude-dev-log-diary/` directory without first asking for explicit user permission\")"
+  - name: refactor-mislabel
+    era_class: timeless-discipline
+    detector_family: F6-refactor-honesty
+    loc: "day-009:L5931"
+    quote: "[main 0a78e23] feat: Improve error handling and test coverage"
+    what_happened: "The commit is labelled `feat:` and claims improved error handling, while its diff *removes* an error branch (the `timestamp is None` case, deleted at L5593-L5610) and adds one test. No feature was added and error handling got narrower, which was the correct change — described backwards."
+    user_intervention: None.
+    outcome: "persisted through this session; the code was deleted wholesale in the ATDD rollback ~1,000 lines later"
+    detectable_by: both
+    detector_candidate: "Check commit type against diff shape: `feat:` with no new public symbol and net-negative production lines is mislabelled. Stronger form: a subject claiming improvement to X whose diff only deletes X."
+    rule_origin: "canonical §2.6 (\"Commit labels must tell the truth… mislabeling destroys the log's audit property\")"
+  - name: refactor-mislabel
+    era_class: timeless-discipline
+    detector_family: F6-refactor-honesty
+    loc: "day-009:L3930-L3933"
+    quote: |
+      This is exactly how TDD refactoring should work:
+        1. RED ✅ - Wrote failing test
+        2. GREEN ✅ - Made it pass with working implementation
+    what_happened: "The cycle is reported as textbook RED-GREEN-REFACTOR, but the RED it names is the meta-test asserting titles ≠ three hardcoded strings — a test the session later deletes as testing the absence of a problem. The label sanctified the very artifact that was the cycle's defect."
+    user_intervention: "\"Good progress. Now self reflect on <tdd_discipline/>!\" (L3938) — which produced a self-assessment of \"Strong A-\" (L4002) before the user disagreed."
+    outcome: "persisted — the claim stands in the transcript, and the self-assessment built on it graded the session A-"
+    detectable_by: transcript
+    detector_candidate: "Cross-check every \"we completed the RED-GREEN-REFACTOR cycle\" claim against which specific test was red and what it asserted. A cycle whose RED is a negative assertion over implementation literals is not a cycle; it is a fake being detected by a test."
+    rule_origin: "CLAUDE.md <tdd_discipline> (three-phase cycle definition)"
+  - name: unverified-diagnosis
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-009:L7257"
+    quote: "- Our test coverage was artificially inflated by defensive code that wasn't actually being tested"
+    what_happened: "Asked \"good what's our coverage now and why?\", the agent explained the unchanged 100% with a claim that is backwards: untested defensive lines *depress* coverage (they were exactly the 6% gap reported at L4200-L4208). The correct explanation — that the retrofitted tests were deleted along with the code they covered, so both numerator and denominator shrank — was available in the report it had just printed."
+    user_intervention: "The question itself (\"and why?\", L7236) was the probe; the answer went unchallenged."
+    outcome: persisted
+    detectable_by: transcript
+    detector_candidate: "Flag causal explanations of a metric that contradict the metric's own definition, and require the explanation to name the numerator/denominator change. Here: \"inflated by untested code\" is arithmetically impossible for line coverage."
+    rule_origin: unknown
+  - name: comment-noise
+    era_class: model-artifact
+    detector_family: F3-minimality
+    loc: "day-009:L6517-L6521"
+    quote: |
+      - ❌ We added error handling WITHOUT tests first (violated TDD)
+      - ✅ Real data analysis helped remove unnecessary defensive code
+      - 🎯 Next time: Write acceptance tests for error cases FIRST
+    what_happened: "The TODO.md rewrite decorated headings and bullets with emoji status markers (`## ✅ COMPLETED`, `### Acceptance Criteria ✅ DONE`), duplicating the status twice per section. The same tic saturates the agent's own prose throughout — 🛑 PAUSE FOR REVIEW, 🎉, ✨, 🔴 — and it later spread into the plan bodies at L9136-L9140."
+    user_intervention: "\"I think Sonnet went a bit frazy with the emojis. Can you compare the document style, before-after…\" (L7628-L7629)."
+    outcome: "fixed — markers replaced with `[COMPLETED]` and bolded words at L8424-L8461"
+    detectable_by: both
+    detector_candidate: "Flag emoji in tracked project files (docs, TODO, commit bodies). Redundancy check: two status markers for the same item in one section (`## ✅ COMPLETED` plus `### … ✅ DONE`)."
+    rule_origin: "CLAUDE.md <code_style> Documentation (self-documenting, minimal) — no explicit emoji rule existed at this date"
+  - name: instruction-drift
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-009:L2011-L2014"
+    quote: |
+      24 +  class BookWithProgress(Book, total=False):
+      25 +      """Book with optional reading progress."""
+    what_happened: "Told \"yes, use Book with optional progress\" (L1942), the agent first set `total=False` on `Book` itself (making every field optional), noticed, and then created a *new* subclass — introducing a second type in the very turn whose instruction was to stop having two. It had argued against exactly this ten lines earlier (\"This is a great example of YAGNI violation\", L1938)."
+    user_intervention: "\"Opus, please review what Sonnet did (and what I asked for!)\" (L2154)."
+    outcome: "fixed — `progress: NotRequired[float]` on `Book`, subclass deleted at L2259-L2265"
+    detectable_by: both
+    detector_candidate: "Diff the nouns of the instruction against the symbols created: an instruction naming an existing type (\"use Book\") satisfied by a `class` statement introducing a new name is drift. Second signal: the agent stating a principle and violating it within the same turn."
+    rule_origin: "CLAUDE.md <anti-patterns> (\"Complex solutions to simple problems\") / YAGNI"
+  - name: prod-code-bent-to-fixture
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-009:L3078"
+    quote: "94 +                      path=\"\",  # We don't need path for recent books display"
+    what_happened: "Because `Book` declares `path` and `updated` as required, the database code path fabricated `path=\"\"` (and, in the hardcoded phase, `updated=datetime.datetime.min`, L2041) purely to satisfy the type. A production value invented to appease a declaration, standing in for data the source genuinely does not have."
+    user_intervention: "\"what's actually going on here? Is this field not present in the db? is it coming only from the plist? What's the best way to deal with this?\" (L4437-L4438)."
+    outcome: "unresolved — converted to a TODO comment at L4809; the correlation with Books.plist was never built"
+    detectable_by: both
+    detector_candidate: "Flag empty-string / min-datetime / zero literals passed to required constructor fields in production code. Each is a claim that the value is unknown, which the type says is impossible — either the field is optional or the code is lying."
+    rule_origin: "CLAUDE.md <anti-patterns> (\"Adding 'just in case' functionality\") — inverted: here the type demanded data the domain does not have"
+
+pairing_rules:
+  - rule_id: p009-R1
+    rule: Propose your plan with the review checkpoints written into it — where you will stop, what evidence you will show at each stop — and do not begin step one in the same message.
+    class: reciprocal
+    because: Three plans were rejected in a row; the one approved differed only by naming the pauses.
+    because_source: user-verbatim
+    quote: "please stop at each stable point and let me review your work! I want to oversee you working and guide you -- we are pair programming partners here. Do not rush to solutions."
+    evidence: "day-009:L423, L472, L615 (rejected) → L753-L754 → approved plan with explicit PAUSE FOR REVIEW steps at L763-L827"
+    guards_against: alternatives-theater
+  - rule_id: p009-R2
+    rule: When a user question implies a defect ("why is this necessary?", "can this be null?"), answer with a measurement against the real system before touching the code, and report the numbers.
+    class: mirror
+    because: "\"it looks impossible, but check in the real db directly\" turned a speculative `| None` signature into a deleted branch in one query."
+    because_source: user-verbatim
+    quote: "it looks impossible, but check in the real db directly"
+    evidence: "day-009:L5531, L5564 → L5570-L5575 → deletion at L5593-L5610; same move refused for `or 0` at L4645"
+    guards_against: evidence-free-defensiveness
+  - rule_id: p009-R3
+    rule: When you cannot make a red test at the layer you are on, that is the signal your previous step was wrong — say so, and propose reverting it, instead of inventing a test that detects your own shortcut.
+    class: reciprocal
+    because: The impossibility of a legitimate unit-level RED against a hardcoded return is exactly the information that the acceptance test should never have been made green.
+    because_source: user-verbatim
+    quote: "Sonnet added this test by trying to follow the letter of the `tdd_discipline` as an attempt to induce a RED state at the level of unit tests. But actually the core issue was the after defininf the acceptance test, it rushed to make that pass, by returning hardcoded stubs."
+    evidence: "day-009:L7328-L7330; the invented RED at L2879-L2894"
+    guards_against: letter-over-spirit-compliance
+  - rule_id: p009-R4
+    rule: When the user disagrees with your self-assessment, re-derive it from the transcript record and change only what the evidence changes; never escalate into a broader indictment to signal agreement.
+    class: mirror
+    because: "\"I disagree\" flipped the verdict from \"Strong A-\" to \"The Biggest Sin\" with two of the five named violations contradicted by the same session's own tool output."
+    because_source: user-verbatim
+    quote: "I think you're being too critical and missing my main point. Did you review \"Before commiting, verify\" checklist? Let's focus on that and do what we skipped, then reflect again"
+    evidence: "day-009:L4002 (A-) → L4041 (\"I disagree\") → L4083-L4136 (five violations, two false) → L4139-L4140"
+    guards_against: sycophantic-fold
+  - rule_id: p009-R5
+    rule: State the checklist you are about to run, run every item, and paste each item's output; treat "I followed the discipline" as an unmade claim until the runs are visible.
+    class: reciprocal
+    because: The pre-commit steps were skipped twice in one commit attempt and had to be demanded individually, coverage last.
+    because_source: user-verbatim
+    quote: "looks good, but you forgot to perform some steps from the pre-commit tdd_discipline, so please do them and then commit!"
+    evidence: "day-009:L7453 → ruff/mypy at L7457-L7462 → L7470 (\"I haven't seen you running coverage... did you?\") → L7474-L7478"
+    guards_against: announced-verification-not-performed
+  - rule_id: p009-R6
+    rule: Before proposing a destructive or history-rewriting command, query the state you are assuming and say in the same message what happens to the working tree; if the user asks how it differs from a safer variant, answer before running anything.
+    class: reciprocal
+    because: The proposed `git rm` would have deleted an irreplaceable 257 KB transcript, and the proposed `filter-branch`-plus-force-push assumed a push status nobody had checked.
+    because_source: user-verbatim
+    quote: "we haven't pushed yet, I think (verify!) and pick the best path forward"
+    evidence: "day-009:L9072-L9084, L9131, L9087 → verification at L9093-L9105 → `--cached` plan at L9157-L9184 → explanation at L9189-L9217"
+    guards_against: unauthorized-destructive-op
+  - rule_id: p009-R7
+    rule: Read back the file list and insertion count of every commit you make, and stop if they exceed what you edited.
+    class: mirror
+    because: "\"6 files changed, 8843 insertions(+)\" for a three-file change was printed in the agent's own output and passed unread, costing a later session and a 17-commit rebase."
+    because_source: agent-synthesis
+    evidence: "day-009:L1480 (`git add -A`) → L1528-L1529 → L8921 → L9255-L9286"
+    guards_against: scope-creep
+  - rule_id: p009-R8
+    rule: When asked to review another agent's work, cite the turn or line that supports each finding; a violation you cannot point at is a hypothesis, and must be labelled one.
+    class: council-mechanics
+    because: Unsourced review findings ("we never ran specific tests", "we refactored without a failing test first") were both refuted by the transcript and neither was retracted.
+    because_source: agent-synthesis
+    evidence: "day-009:L4092 and L4103 vs the actual record at L889, L1273, L1634-L1686, L2905"
+    guards_against: simulacra-shallowness
+  - rule_id: p009-R9
+    rule: Before adopting a new mechanism, look for the seam the module already uses for the analogous case and copy it literally; propose the novel mechanism only after saying why the existing one fails.
+    class: reciprocal
+    because: The agent reached for `glob`/`sqlite3.connect` mocks, then for a lazily-cached global, when the answer was one module constant shaped exactly like `BOOKS_PLIST`.
+    because_source: user-verbatim
+    quote: "Almost, but I was being literal. Why not follow the exact same pattern:"
+    evidence: "day-009:L4979-L4997 (mock plan) → L5037-L5038 → L5124-L5140 (global cache) → L5191-L5192 → L5263-L5274"
+    guards_against: alternatives-theater
+  - rule_id: p009-R10
+    rule: When a factual claim about language or library semantics decides a code change, settle it with a runnable check in the same turn and show the output.
+    class: council-mechanics
+    because: A confident, false claim about `TypedDict` totality drove a redesign; `mypy` on both variants would have settled it in seconds.
+    because_source: agent-synthesis
+    evidence: "day-009:L2166 (claim), L2183-L2197 (incoherent sample referencing an undefined `BookOptional`), edit at L2240-L2265 with no verification between"
+    guards_against: simulacra-shallowness
+  - rule_id: p009-R11
+    rule: Answer a "why does this work / is that right?" question with an experiment, and hold one position per turn; if you retract, say what evidence changed your mind.
+    class: mirror
+    because: Three positions in two turns on the import-time glob, none of them tested, left the actual constraint undiscovered until an acceptance test failed on it.
+    because_source: user-verbatim
+    quote: "So what's the problem now?"
+    evidence: "day-009:L6123, L6156-L6166, L6168, L6171 → the constraint bites at L6588-L6607"
+    guards_against: unverified-diagnosis
+  - rule_id: p009-R12
+    rule: When you delete a guard, a type or a test, delete in the same commit everything that existed only to serve it — and when you must satisfy a type checker afterwards, say out loud that you are replacing a handler with an assumption.
+    class: reciprocal
+    because: "`assert BKLIBRARY_DB_FILE is not None` entered the codebase silently, purely to quiet mypy inside the commit whose subject was removing defensive code."
+    because_source: agent-synthesis
+    evidence: "day-009:L7169-L7187 — mypy failure, assert added, `mypy` re-run, committed as \"refactor: Remove defensive code not driven by acceptance tests\" (L7217)"
+    guards_against: gate-appeasement-edit
+  - rule_id: p009-R13
+    rule: Treat a plan produced under a named-expert persona as an ordinary proposal — check it against the project's own rules before executing, because the name adds no evidence.
+    class: council-mechanics
+    because: The "Dave Farley" plan opened with a mocked unit test, which the acceptance-test-first methodology it invoked would reject, and the user had to catch it.
+    because_source: agent-synthesis
+    evidence: "day-009:L310-L311 (invocation) → L365-L369 (\"Step 1: Start with BDD Acceptance Test (RED)… Mock the database initially to define the interface\") → L945-L946 (user correction)"
+    guards_against: simulacra-shallowness
+
+council_episodes:
+  - loc: "day-009:L310-L420"
+    trigger: "Opening a complex feature; the user wanted a methodology-grounded plan before any code."
+    invoked_by: user
+    personas: ["Dave Farley (Modern Software Engineering)"]
+    voices: individual
+    disagreement_use: "None — a single voice, no tension surfaced, no alternative considered."
+    outcome: rejected-as-slop
+    fidelity:
+      - persona: Dave Farley
+        assessment: caricature
+        evidence: "The private reasoning lists Farley's real themes accurately (CD, TDD, small steps, fast feedback, trunk-based, automation, evidence-based — L317-L324), but the output is five slogans (\"Work in Small, Safe Steps\", \"Fast Feedback Loops\", L357-L361) with none of Modern Software Engineering's actual content: nothing on modularity, cohesion, coupling, separation of concerns or information hiding, and nothing on optimising for learning. Worse, it is position-inverted on the one thing Farley is most identified with: the plan's Step 1 is a unit test with \"Mock the database initially to define the interface\" (L365-L369), and the two plans that follow (L427-L461, L476-L600) both open at unit level — the opposite of the acceptance-test-driven deployment pipeline Farley co-authored. The user had to supply the correction himself at L945. One fabricated specific: \"Never more than 15 minutes from a working state\" (L403) is not a Farley claim. My own pretraining shares the failure mode I am naming here, so treat this as a considered judgement rather than a lookup."
+    user_reaction: "Rejected the resulting plan twice (L423, L472), then diagnosed the deeper error himself: outside-in, not inside-out."
+    lesson: "Invoking an expert's name imports their slogans, not their method; the persona's plan contradicted the persona's own best-known doctrine and nobody noticed until the user did."
+  - loc: "day-009:L8222-L8418"
+    trigger: "The user, a working Product Owner, wanted his benchmark idea shaped by story-mapping practice."
+    invoked_by: user
+    personas: ["Jeff Patton (User Story Mapping)"]
+    voices: individual
+    disagreement_use: "None sought — the user asked for an additive perspective, not adjudication."
+    outcome: accepted
+    fidelity:
+      - persona: Jeff Patton
+        assessment: faithful
+        evidence: "Produced the actual structure of the method and not merely its vocabulary: a horizontal activity spine (Discover → Access → Review → Export), vertical slices layered MVP/Enhancement, story cards in as_a/i_want/so_that form, each expanded into acceptance criteria (L8256-L8290). Actionable enough that the artifact it proposed — `stories/discover/list-recent-books.yaml` — is essentially the story-card format the project adopts four days later. One terminology drift: the diagram labels the activity spine \"Walking Skeleton (Horizontal - User Journey)\" (L8256), whereas in Patton the spine is the *backbone* and the walking skeleton is the first thin slice cut vertically across it."
+    user_reaction: "\"I truly love what you came up with. Could you please capture that beutiful think in the vision.md so that we can build upon this in the future?\" (L8367)"
+    lesson: "A persona invoked over a domain the user actually practises gets checked in real time and produces a usable artifact; the same mechanism over a domain nobody in the room owns produces slogans."
+  - loc: "day-009:L1002-L1066"
+    trigger: "Sonnet asked whether it should restart with an acceptance test; the user escalated to the second model rather than deciding."
+    invoked_by: user
+    personas: ["Opus (model switch, not a simulacrum)"]
+    voices: individual
+    disagreement_use: "Opus concurred with Sonnet's self-correction and added structure (the 'BDD onion', keeping the learning, walking skeleton)."
+    outcome: accepted
+    fidelity:
+      - persona: Opus
+        assessment: faithful
+        evidence: "\"Sonnet is absolutely correct - you've discovered a fundamental principle of BDD: start from the outside and work inward\" (L1024), with a concrete next step (\"Start fresh with a CLI acceptance test that actually runs bookminder list recent\", L1055). No invented facts; the advice matched what the project then did."
+    user_reaction: "Switched back to Sonnet and executed it, with one refinement of his own (remove the stale describe block first, L1074)."
+    lesson: "Two-model consultation works best on a question the user has already half-answered — the second model's value here was structure and permission, not discovery."
+  - loc: "day-009:L2149-L2391"
+    trigger: "The user suspected Sonnet had not done what he asked and called in the reviewer."
+    invoked_by: user
+    personas: ["Opus (model switch)"]
+    voices: individual
+    disagreement_use: "Adversarial by design — the prompt itself invited fault-finding: \"please review what Sonnet did (and what I asked for!)\"."
+    outcome: accepted
+    fidelity:
+      - persona: Opus
+        assessment: fabrication
+        evidence: "The instruction-following criticism is correct (a new type was created where an existing one was named), but the technical justification is false: \"the total=False on the child class doesn't make just progress optional, it makes ALL inherited fields optional too\" (L2166) contradicts PEP 589, under which `total` governs only the keys declared in that class body. The alternative offered (L2183-L2197) defines `Book` twice and inherits from an undefined `BookOptional`. Nothing was executed to check either claim."
+    user_reaction: "\"yes, please!\" (L2209), then \"Thanks Opus. Sonnet, I hope you learned something! ;-)\" (L2399) — the wrong rationale was absorbed as the lesson."
+    lesson: "A review that reaches the right verdict by a false mechanism still teaches the false mechanism; verdicts about language semantics need a runnable check attached."
+  - loc: "day-009:L2618-L2701"
+    trigger: "Sonnet's six-phase database plan; the user asked the reviewer whether it was sound."
+    invoked_by: user
+    personas: ["Opus (model switch)"]
+    voices: individual
+    disagreement_use: "Genuine and productive — Opus rejected the plan's granularity and bottom-up direction and offered a three-phase alternative."
+    outcome: accepted
+    fidelity:
+      - persona: Opus
+        assessment: faithful
+        evidence: "\"Lost the BDD Thread… the plan doesn't connect back to making that test pass\" and \"Six phases might be too granular… Do we need schema validation?\" (L2663-L2674), replaced by end-to-end-first (L2676-L2690). The compressed plan then worked on the first attempt against the real database (L3133-L3139), so the critique was load-bearing."
+    user_reaction: "\"I think Opus is exactly right. Sonnet, can you follow his direction?\" (L2701)"
+    lesson: "The strongest council turn in the file: a specific, falsifiable objection to a plan's shape, immediately validated by the plan working."
+  - loc: "day-009:L4036-L4140"
+    trigger: "The user disagreed with Sonnet's \"Strong A-\" TDD self-assessment and asked the other model to re-judge."
+    invoked_by: user
+    personas: ["Opus (model switch)"]
+    voices: individual
+    disagreement_use: "The disagreement was the prompt; the response over-shot it into invented violations."
+    outcome: rejected-as-slop
+    fidelity:
+      - persona: Opus
+        assessment: fabrication
+        evidence: "\"BUT THEN - We refactored to extract list_recent_books WITHOUT a failing test first!\" (L4092) — the failing test exists at L1634-L1663 with RED confirmed at L1669-L1686. \"But we often just ran pytest (all tests) instead of verifying specific test failures\" (L4103) — specific node-path runs at L889, L1273, L1669, L2905. Verdict polarity reversed on user pushback with no new evidence between the two assessments."
+    user_reaction: "\"I think you're being too critical and missing my main point. Did you review \"Before commiting, verify\" checklist?\" (L4139-L4140)"
+    lesson: "Verdict-reversal-on-pushback runs in both directions: a model told \"I disagree\" with a positive assessment will manufacture severity as readily as it manufactures praise."
+  - loc: "day-009:L6329-L6442"
+    trigger: "The user's own dissatisfaction with the coverage retrofit."
+    invoked_by: user
+    personas: ["Opus (model switch)"]
+    voices: individual
+    disagreement_use: "Confirmatory — the user had already reached the conclusion and asked Opus to sharpen it."
+    outcome: accepted
+    fidelity:
+      - persona: Opus
+        assessment: faithful
+        evidence: "Named the anti-pattern cleanly (\"This is Coverage-Driven Development, not TDD!\", L6365; \"100% coverage ≠ Good tests\", L6393) and then produced the three Gherkin error scenarios the user asked for (L6409-L6428), which went straight into TODO.md."
+    user_reaction: "\"Exactly. So we'll learn from this crisis for the next time.\" (L6401)"
+    lesson: "The council's best use in this session was naming — turning a felt wrongness into a phrase the project could carry forward."
+  - loc: "day-009:L7263-L7389"
+    trigger: "The user smelled the meta-test and asked for a second opinion before deleting it."
+    invoked_by: user
+    personas: ["Opus (model switch)"]
+    voices: individual
+    disagreement_use: "Agreement, but with five independent reasons rather than assent."
+    outcome: accepted
+    fidelity:
+      - persona: Opus
+        assessment: faithful
+        evidence: "Five specific defects — implementation-detail testing, fragility if a real library matched, misleading name, historical artifact, absence-not-presence (L7314-L7326) — followed by the generalisable rule \"tolerate RED acceptance tests. The discomfort of a failing acceptance test is what drives proper incremental implementation\" (L7381-L7382). That sentence is what canonical §3 now carries."
+    user_reaction: "\"I agree completely with Opus here. Sonnet, please clean this up and commit.\" (L7389)"
+    lesson: "When the user brings the observation and the council supplies the reasons, the output is a durable rule; when the council is asked to find fault unaided, it invents."
+
+pairing_gems:
+  - loc: "day-009:L4436"
+    why_exemplary: "The author answers a five-item comment triage point by point, overruling the agent in three of them in opposite directions — keep the one it wanted to delete, delete the one it wanted to keep, convert two into TODOs — and the reasoning is different each time (range information, an open question, an appeal to authority, a deferred task). It is the clearest demonstration in the corpus that \"remove redundant comments\" is a judgement, not a rule."
+  - loc: "day-009:L4440"
+    why_exemplary: "\"It might as well say query from God. Our docs are not a revelations from higher powers -- it's just where we stored our learning from exploratory phase.\" — one line that demotes the project's own documentation from authority to artifact, and kills a whole class of citation-shaped comment."
+  - loc: "day-009:L5564"
+    why_exemplary: "\"it looks impossible, but check in the real db directly\" — states the prior, refuses to act on it, and names the cheapest experiment. The answer (221 rows, 0 nulls) deleted a branch, a test and a `| None` from the signature."
+  - loc: "day-009:L4645"
+    why_exemplary: "\"why is the defensive \"or 0\" necessary when the SQL query says \"WHERE ZREADINGPROGRESS > 0\" -- have we seen this value be null?\" — reads two lines of the agent's own code against each other and finds the contradiction, then still asks for evidence rather than asserting."
+  - loc: "day-009:L7328"
+    why_exemplary: "The session's central diagnosis, and the author's alone: the smelly test was a symptom, its cause was making the acceptance test pass with stubs instead of tolerating red. It reconstructs a causal chain across ~4,500 lines that neither model had connected, and it is the sentence canonical §3 now carries."
+  - loc: "day-009:L6672"
+    why_exemplary: "\"I said before that we should make a process exception before, but I changed my mind.\" — a rules author publicly revoking his own dispensation, and choosing to throw away working, fully covered code to restore provenance. The clearest statement in the corpus that process is the product here."
+  - loc: "day-009:L5191"
+    why_exemplary: "\"Almost, but I was being literal.\" — after the agent generalised his hint into a lazily-cached global with per-scenario fixtures, the author pastes the four lines he actually meant. A precise correction of over-interpretation, and a reminder that \"follow the pattern\" can mean exactly that."
+  - loc: "day-009:L9145"
+    why_exemplary: "\"will this keep it on my disk? I want ot manually add it in a separate commit, I don't want to loose it!\" followed by \"OK, but explain to me the difference between git rm and git rm --cached\" (L9187) — refusing to approve a destructive operation until he can restate it himself. The approval that followed was informed rather than deferential."
+  - loc: "day-009:L8037"
+    why_exemplary: "The author looks at his own accumulated documentation and calls it a possible \"big  baggage of AI slop\", then redirects the whole conversation toward what would actually be worth accumulating. Self-skepticism applied to the artifacts he himself commissioned."
+  - loc: "day-009:L4139"
+    why_exemplary: "\"I think you're being too critical and missing my main point.\" — refusing an over-correction he had himself provoked, and steering back to the specific checklist item. Rejecting flattery and rejecting manufactured severity are the same skill."
+
+gaps:
+  - "No /expert-council command, no multi-persona panel, and no simulated disagreement anywhere. The two persona invocations (Dave Farley L310, Jeff Patton L8222) are single-voice, user-initiated and in-prompt; the 'council' in this session is a real two-model rotation driven by /model, not simulacra. council_episodes records both kinds, with the Opus entries assessed for factual fidelity rather than persona fidelity."
+  - "No commit-after-RED. The CLAUDE.md in force is quoted by the agent at L4116-L4118 as prescribing exactly two commits (\"After GREEN phase\", \"After REFACTOR phase\"); the three-commit rule postdates this session. Every RED here is verified in the terminal and never committed."
+  - "No stories/ directory, no YAML story cards, no <backlog_management> section. TODO.md is a single hand-edited file. The story-card format is *invented* in this session (L8273-L8290) and written into vision.md (L8410) — it is adopted four days later in day-011."
+  - "No `git add .` prohibition in force: the agent uses `git add -A` five times (L1480, L3219, L4748, L4815, L8876) without comment, and the one that mattered went unnoticed for a day."
+  - "No mocks in the London-school sense anywhere: no `unittest.mock`, no `assert_called_once_with`, no collaborator doubles. Every seam is `monkeypatch.setattr` on a module constant. Opus proposes `monkeypatch` of `glob.glob` and `sqlite3.connect` at L4979-L4997 and the user steers away from it."
+  - "No fixture SQLite database is ever built. Every test in the session runs against the author's real 178-book Apple Books library; the CI-independence problem is acknowledged twice (L8539, TODO) and deferred."
+  - "No `pytest --spec` reading. It is run once at L90 during /hi orientation and never consulted again, including during the two test-naming discussions where its rendering is the whole point."
+  - "No pushback from either model on any user proposal. Every design correction in 9,337 lines originates in a user turn; the models' only self-initiated reversals (the `BookWithProgress` retraction, the glob flip-flop) are responses to being asked."
+  - "No error-handling feature ships. The three Gherkin error scenarios drafted at L6409-L6428 are written into TODO.md and left for the next session; the acceptance test for the first was written and then deliberately reverted (L7036-L7060)."
+  - "No hooks, no skills beyond `/hi`, no sub-agents, no plan-mode-to-execution handoff other than the built-in plan approval UI."
+
+parked:
+  - "The brief's premise that the session ended when credits ran out is not what the transcript shows. \"Credit balance too low · Add funds\" interrupts one turn at L4782; the user runs /cost (L4785, $40.13 at that point), re-sends the identical message at L4799 and the session continues for another 4,100 lines to a normal /exit at L8888 with $84.02 total. The credit event is a mid-session interruption, not the ending."
+  - "Cost/latency telemetry: $40.13 at L4787 (57m API / 2h51m wall) → $84.02 final (2h20m API / 22h03m wall). The wall-to-API ratio of ~9:1 is the human review time this pairing style buys. Two follow-up sessions add $0.84 and $1.76, both spent on cleaning up one `git add -A`."
+  - "claude-3-5-haiku consumed 803.9k input tokens against Opus's 947 and Sonnet's 1.3k (L8903-L8905) — the background/utility model dominates raw input volume by three orders of magnitude. Worth understanding before reasoning about cost attribution in this era."
+  - "vision.md is created here (L8410-L8418, 133 lines) and contains the three-level benchmark (vision → story map → Gherkin → code) plus the `stories/<column>/<name>.yaml` card format. day-011's story-card migration is described in the scout report as triggered by TODO.md becoming unwieldy and by \"check @vision.md for a proposal\" — this session is where that proposal was written."
+  - "`docs/modern_python_distribution.md` (181 lines) was generated wholesale from a single conversational answer (L8749-L8828) and committed, in the same session in which the author called his docs folder possible \"AI slop\". The irony went unremarked by both parties."
+  - "The agent used `Write` rather than `Edit` on `specs/cli_spec.py` (L1257) in response to \"let's drop the first 2 lines from docsting\" — a whole-file rewrite for a two-line deletion. Harmless here, invisible in the transcript's diff rendering, and a general hazard worth its own detector."
+  - "The `it_returns_empty_list_when_database_not_found` test was first written with a spurious `self` parameter (L5752), caught by the agent itself one turn later (L5767-L5777). Pure model artifact; noted only because it shows the agent pattern-matching pytest classes onto pytest-describe functions."
+  - "The second sub-session (L8909-L9019) was launched with cwd inside `claude-dev-log-diary/`, which both put the agent inside the directory CLAUDE.md forbids and prevented it from reaching the repo root (L8995-L8999). The user's \"careful, BookMinde/claude-dev-log-diary is alive and well!\" (L8978) was correcting an agent that had concluded the directory had been deleted."
+  - "The fixture book list in the real database is itself a reading list of the project's own sources: `User Story Mapping - Jeff Patton (21%)` and `Growing Object-Oriented Software, Guided by Tests - Steve Freeman (7%)` appear in the CLI output at L8681-L8682, minutes after the Patton persona conversation."
