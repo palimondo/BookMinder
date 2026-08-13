@@ -57,7 +57,7 @@ The two-day mining pilot passes if: every failure_mode entry carries quote + loc
 
 ## Compile/reduce policy (user's debug-build → optimized-build model, 2026-08-12)
 
-Mining output = the DEBUG BUILD: every claim fully back-referenced (loc, date, provenance type). The compile step later cuts the OPTIMIZED BUILD: executable rules stripped of provenance, split into the two skills (tdd-bdd generic / bookminder project-memory).
+Mining output = the DEBUG BUILD: every claim fully back-referenced (loc, date, provenance type). The compile step later cuts the OPTIMIZED BUILD: executable rules stripped of provenance, split into THREE skills (user decision 2026-08-13): (1) tdd-bdd — generic discipline; (2) bookminder project-memory — Apple Books domain lore, fixtures; (3) pair-programming — conduct: design criticism, alternative-suggesting, expert-council invocation (channeling pretrained BDD/TDD expert simulacra), Socratic verification moves. Miners' schema predates the third skill: compile routes pairing_gems + conduct-shaped skill_rules to it (no cache invalidation mid-swarm).
 
 Contradiction resolution happens at compile, on the evidence base, ranked: (1) user-verbatim > user-paraphrase > agent-synthesis; (2) among user statements, later date overrides earlier (session numbering = chronology); (3) agent-era artifacts (YOLO period, post-downgrade Flash) never override an earlier user ruling. Output is a CONTRADICTION LEDGER — both quotes, dates, proposed resolution — for user ratification, never silent resolution. The ratified ledger also drives the gardening pass over stale README/CLAUDE.md.
 
