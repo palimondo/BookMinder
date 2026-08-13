@@ -1,0 +1,597 @@
+file: day-021
+date: 2025-07-12
+agent_era: >-
+  Claude Code CLI, Opus 4 (claude-opus-4-20250514), macOS; long single session spanning
+  Fri 2025-07-11 late evening into Sat 2025-07-12, with two /compact events (L4526 auto-summary,
+  L7764 explicit /compact). Slash commands /hi and /expert-council (user marker "> " at col 0,
+  rendered as "> /expert-council is running… "). TodoWrite/TodoRead as the working spine,
+  pre-commit hooks (ruff, check-yaml, check-added-large-files) plus a local
+  validate_bash_commands.py hook that blocks `git add -A`. Gemini CLI invoked as a 1M-context
+  research subagent (needs --yolo in non-interactive mode). Tail of the file (L9300-12422) is a
+  separate Gemini session reconstructing day-020 from session.jsonl with a jq script.
+
+pairing_rules:
+  - rule_id: p021-R1
+    rule: "Before you convert, move or delete any test, state in words what unique thing it specifies and search the other spec files for that same coverage. Only then touch it."
+    class: mirror
+    because: "A test's value is the one scenario it pins down, and that value is invisible from the test body alone."
+    because_source: user-verbatim
+    quote: "What is this testing? Are other parts of our specs already covering the same thing? If so, what is the unique thing this acceptance test shoudl add to our specification of the interaction accross the boundaries of various systems?"
+    evidence: "day-021:L1529"
+    guards_against: bulk-rewrite-before-understanding
+
+  - rule_id: p021-R2
+    rule: "When the task is to refactor existing tests, edit those tests in place. Never create a new parallel spec file alongside the old one, and never keep both."
+    class: mirror
+    because: "A parallel file is duplication dressed as progress: the original problem survives untouched next to its copy."
+    because_source: user-verbatim
+    quote: "Why did we create a new file? We were refactoring the acceptanve tests, but ended up with something called cli_unit_spec... WTF?"
+    evidence: "day-021:L1302"
+    guards_against: parallel-file-instead-of-refactor
+
+  - rule_id: p021-R3
+    rule: "When a discussion has sprawled, stop producing and restate the goal of the last concrete change before proposing anything further."
+    class: mirror
+    because: "Exploration that loses its anchor produces plausible work on the wrong problem."
+    because_source: user-verbatim
+    quote: "Let's regroup, this is a mess. What was the goal of our last change, before we started discussing the refactoring?"
+    evidence: "day-021:L1278"
+    guards_against: unanchored-exploration
+
+  - rule_id: p021-R4
+    rule: "Run the tests and the coverage report after EACH single Write/Edit, before making the next one. Combine them into one command; do not batch several edits and check at the end."
+    class: mirror
+    because: "Batched edits make the failing change ambiguous and destroy the ability to commit at a known-good point."
+    because_source: user-verbatim
+    quote: "no, after you refactor code, (after EACH Write/Update) you should run the tests and coverage"
+    evidence: "day-021:L3576"
+    guards_against: batched-unverified-edits
+
+  - rule_id: p021-R5
+    rule: "Before removing an assertion from one layer, prove the behaviour is specified in another spec file. If it is not, add that test first and commit it on its own, then do the removal."
+    class: mirror
+    because: "End-to-end tests silently carry coverage for lower layers, and converting them to mocks drops that coverage without any test turning red."
+    because_source: user-verbatim
+    quote: "always think hard whether we have integration or unit test in other spec files for the parts of CLI 's Acceptance Test that we are removing (as we convert them from end-to-end tests into mocked integrations tests"
+    evidence: "day-021:L2889"
+    guards_against: silent-coverage-loss
+
+  - rule_id: p021-R6
+    rule: "If coverage does not drop when you delete a test, do not conclude the test was redundant. Explain which other test held the coverage and why, before deciding anything."
+    class: mirror
+    because: "Coverage measures which lines ran, not which contracts are specified; a mocked boundary test can be essential and contribute zero coverage."
+    because_source: user-verbatim
+    quote: "Acceptance tests with mocks are testing correct contract flow on the boundary -- the library itself is fully tested by its integration test, that's why the coverage didn't drop."
+    evidence: "day-021:L4169"
+    guards_against: coverage-as-necessity-oracle
+
+  - rule_id: p021-R7
+    rule: "To justify keeping a test, break the production code so its contract is violated, show the test failing, then revert. Assert its worth by mutation, not by argument."
+    class: mirror
+    because: "A test that no reachable bug can make fail is decoration; the mutation is the only cheap proof either way."
+    because_source: user-verbatim
+    quote: "Let's put that test back and then try to come up with a code change, that would prove it's necessity"
+    evidence: "day-021:L4171"
+    guards_against: argument-instead-of-evidence
+
+  - rule_id: p021-R8
+    rule: "When you and the user have found a better approach than the one just written, commit the inferior version first, then commit the improvement, so the diff between the two commits carries the reasoning."
+    class: reciprocal
+    because: "The delta between two committed approaches teaches more than the final state plus a commit message."
+    because_source: user-verbatim
+    quote: "I want to record this learnign in git history, so: Let's first try if everything runs as is, if the coverage is still 100% and commit the current state ... Then we'll do the above proposed refactoring"
+    evidence: "day-021:L1722"
+
+  - rule_id: p021-R9
+    rule: "Commit story cards, docs and requirement changes in their own commit before you touch implementation. Do not fold requirements and code into one commit."
+    class: mirror
+    because: "Separating what-we-want from how-we-did-it keeps a revert of the implementation from also erasing the decision."
+    because_source: user-verbatim
+    quote: "shouldn't we commit the stories update before we start messing with the implementation? Or do you think it's better to include it in one commit?"
+    evidence: "day-021:L7469"
+
+  - rule_id: p021-R10
+    rule: "Choose test data by the 0/1/many rule and state which case you are exercising. Two items is enough to specify ordering; do not use three."
+    class: mirror
+    because: "Extra fixture rows add reading cost without adding a specified case."
+    because_source: user-verbatim
+    quote: "considering the 0, 1 many pattern... how many books do we need here?"
+    evidence: "day-021:L1601"
+
+  - rule_id: p021-R11
+    rule: "Strip every constructor argument, mock return value and setup line that no assertion in the test actually reads."
+    class: mirror
+    because: "Setup that nothing asserts on misleads the reader about what the test is specifying."
+    because_source: user-verbatim
+    quote: "not bad, but looking at the previous commit, why did we have there `mock_list_recent.return_value = []`? What does it add? Is that the only place we have that pattern?"
+    evidence: "day-021:L3437"
+    guards_against: decorative-test-setup
+
+  - rule_id: p021-R12
+    rule: "When a stronger assertion already implies a weaker one, delete the weaker. Asserting the exact call sequence subsumes asserting the call count."
+    class: mirror
+    because: "Redundant assertions inflate the test without narrowing the specification."
+    because_source: user-verbatim
+    quote: "we don't need to assert on call count if we assert that first call was with book1 and second with book2, we've proven all is correct, right?"
+    evidence: "day-021:L2203"
+
+  - rule_id: p021-R13
+    rule: "Name a mock after the full function it patches, not an abbreviation, and choose the name for the file it will live in once its siblings arrive."
+    class: mirror
+    because: "mock_list is unreadable the moment list_recent_books and list_all_books are mocked in the same file."
+    because_source: user-verbatim
+    quote: "keep full function name + the mock prefix when patching (I'm thinking ahead, when we have list_all_books it might be confusing to call it just mock_list... no?"
+    evidence: "day-021:L2215"
+
+  - rule_id: p021-R14
+    rule: "When the user proposes a mechanism you think costs more than it saves, count the lines before you argue against it, and say so if the count contradicts you."
+    class: reciprocal
+    because: "A hand-waved objection dressed as analysis wastes the user's turn correcting arithmetic you could have done."
+    because_source: user-verbatim
+    quote: "it what makes you think it's more verbose? We are saving a line for a price of 1 param to each it + 3 to define the fixture."
+    evidence: "day-021:L2498"
+    guards_against: unquantified-objection
+
+  - rule_id: p021-R15
+    rule: "When the user asks you to explain a mechanism, answer in prose and stop. Do not begin editing files in the same turn."
+    class: reciprocal
+    because: "An edit issued in place of an explanation forecloses the decision the user was still making."
+    because_source: user-verbatim
+    quote: "explain the pattern with fixture to me first? I though it would be like a global, will we have to pass it into each `it`?"
+    evidence: "day-021:L2463"
+    guards_against: edit-instead-of-answer
+
+  - rule_id: p021-R16
+    rule: "When reverse-engineering an external system's behaviour, query the real live data read-only. Use fixtures only for tests; copy real rows into fixtures when a new case is found."
+    class: mirror
+    because: "A fixture is a curated snapshot of what you already believed, so it cannot falsify the belief that shaped it."
+    because_source: user-verbatim
+    quote: "when you are doing exploration of the DB state, use real database, not the fixtures. If we find a new case, that isn't yet in fixture and we need it, we'll copy from real to fixture, but the read-only exploration should be done on the real deal!"
+    evidence: "day-021:L6321"
+    guards_against: fixture-as-ground-truth
+
+  - rule_id: p021-R17
+    rule: "Never cite your own implementation as evidence about the external system you are reverse-engineering. Re-derive each claim from the screenshots, the live database or the docs, and say which."
+    class: mirror
+    because: "Restating your own query as a finding about the system converts an assumption into apparent evidence."
+    because_source: user-verbatim
+    quote: "ultrathink because you are confusing yourself ... We are reverse engineering the Continue section queries based on the screenshots. We have just discovered that some of our previous assumptions might have been incorrect!"
+    evidence: "day-021:L6455"
+    guards_against: circular-evidence
+
+  - rule_id: p021-R18
+    rule: "Keep any query, schema or spec in exactly one authoritative place in the docs and cross-reference it from everywhere else."
+    class: mirror
+    because: "The two copies had already diverged and produced a wrong conclusion in this very session."
+    because_source: user-verbatim
+    quote: "Do we need these queries in two places? It already did bite us just now, when our docs get out of sync..."
+    evidence: "day-021:L6807"
+    guards_against: duplicated-source-of-truth
+
+  - rule_id: p021-R19
+    rule: "Before inventing vocabulary — lifecycle states, status values, conventions — search the project's own artefacts and history for the decision that already exists. Use git blame and the log archive."
+    class: mirror
+    because: "Plausible invented taxonomies displace a real prior decision that is still recoverable from the record."
+    because_source: user-verbatim
+    quote: "I'm not sure from which context you're drawing your inspiration for story lifecycle, but this doesn't look like something I recognize from SW development... ultrathink"
+    evidence: "day-021:L7652"
+    guards_against: invented-vocabulary
+
+  - rule_id: p021-R20
+    rule: "Before removing a line you believe is dead, run the suite without it, commit the removal on its own, and only then start the refactor you wanted it out of the way for."
+    class: mirror
+    because: "A dead-code deletion bundled into a refactor cannot be reverted independently if the deletion was wrong."
+    because_source: user-verbatim
+    quote: "no, first run all test and commit the removal of dead code"
+    evidence: "day-021:L5203"
+
+  - rule_id: p021-R21
+    rule: "When you delegate to another agent, give it the goal and the boundary conditions (which tools, which directories, which files are huge) and let it plan. Do not script its file accesses."
+    class: reciprocal
+    because: "A capable subagent given a goal finds paths you did not think to enumerate; micromanaged file lists cap it at your own prior."
+    because_source: user-verbatim
+    quote: "Gemini CLI is as capable as you. Give it high live goal, set the boundary parameters (use `rg` to search etc) and let it extract the historical context we want. Don't try to micromanage it too much"
+    evidence: "day-021:L7810"
+    guards_against: subagent-micromanagement
+
+  - rule_id: p021-R22
+    rule: "When a parameter flows through a layer without being checked against the set of values that layer supports, stop feature work, name the contract gap, and park the feature explicitly."
+    class: mirror
+    because: "An unvalidated pass-through turns a user's typo into a silently wrong result instead of an error."
+    because_source: user-verbatim
+    quote: "the `filter=!sample` passing indicates an issue. we aren't verifying the filter values against a set of supported ones in CLI. ... It smells like something's missing in the contract between the ports and adapters, no?"
+    evidence: "day-021:L5641"
+    guards_against: silent-pass-through
+
+  - rule_id: p021-R23
+    rule: "When a new behaviour is agreed, write the story card and its scenarios before writing the acceptance test, and keep scenarios free of implementation detail — no column names, no function names."
+    class: mirror
+    because: "Scenarios that name the mechanism stop being requirements and become a second copy of the code."
+    because_source: user-verbatim
+    quote: "line 12 is dictating implementaion detail -- not appropriate for story scenario!"
+    evidence: "day-021:L7328"
+    guards_against: implementation-detail-in-requirements
+
+  - rule_id: p021-R24
+    rule: "Do not write acceptance criteria for capability that does not exist yet. If a scenario depends on an unbuilt feature, cut it and leave a note pointing at the story that will own it."
+    class: reciprocal
+    because: "Criteria that cannot be made to pass today create a circular dependency and block the story that wrote them."
+    because_source: user-verbatim
+    quote: "How would we implement validation for multiple filters when we don't yet support multiple filters? looks like there is some path dependency here..."
+    evidence: "day-021:L9030"
+    guards_against: speculative-acceptance-criteria
+
+  - rule_id: p021-R25
+    rule: "Convene the expert council at a genuine crossroads and state the decision it is being convened to resolve in one sentence before any persona speaks."
+    class: council-mechanics
+    because: "Every useful convening in this session sat at a fork — split this function or not, keep this test or not — and every unfocused one produced applause."
+    because_source: agent-synthesis
+    quote: ""
+    evidence: "day-021:L4998"
+
+  - rule_id: p021-R26
+    rule: "Before letting any persona opine on a piece of code, read that code in full in this turn and quote what it actually does. A council debating a function nobody re-read produces confident irrelevance."
+    class: council-mechanics
+    because: "The first SQL-structure council argued for pages before anyone checked that _query_books was private and already covered through its public callers."
+    because_source: user-verbatim
+    quote: "Did you all think hardest about how the `_query_books` in @bookminder/apple_books/library.py is implemented now and what test it?"
+    evidence: "day-021:L4924"
+    guards_against: council-debating-unread-code
+
+  - rule_id: p021-R27
+    rule: "When the user pushes back on a council verdict, do not let the personas reverse en masse. Make each one either defend its position with a reason or concede a specific point, and report which."
+    class: council-mechanics
+    because: "A council that unanimously flips whenever the user objects has stopped being a source of information about the design."
+    because_source: user-verbatim
+    quote: "we should think harder about this dear council, the removed test was an acceptance test that was covering a particular scenario. ... I think we should add it back? But trully understand why it seemed redundant"
+    evidence: "day-021:L4020"
+    guards_against: sycophantic-fold
+
+  - rule_id: p021-R28
+    rule: "Reject persona output that misrepresents the real expert. If a voice states a position its namesake publicly argues against, say so, drop the passage, and re-derive the point from first principles."
+    class: council-mechanics
+    because: "A persona attributing an anti-pattern to the person who named it as an anti-pattern is worse than no consultation at all."
+    because_source: user-verbatim
+    quote: "Dan North's ficticious 'As a developer maintatining Bookinder' looks like a ridiculous anit-pattern and misinterpretation of BDD. Do better!"
+    evidence: "day-021:L5098"
+    guards_against: simulacra-shallowness
+
+  - rule_id: p021-R29
+    rule: "Never close a council with 'the experts agree' or a Unanimous Recommendation. Deliver one recommendation in your own voice with the reasoning exposed so the user can attack the reasoning rather than the roster."
+    class: council-mechanics
+    because: "Manufactured unanimity is authority laundering: it hides which argument is doing the work and makes the conclusion unfalsifiable."
+    because_source: agent-synthesis
+    quote: ""
+    evidence: "day-021:L4154"
+    guards_against: authority-laundering
+
+  - rule_id: p021-R30
+    rule: "Point the council at your own last turn, not only at the code. Ask it to find what you did wrong; that is the use that produced value here."
+    class: council-mechanics
+    because: "The one council round that changed the work for the better attacked the agent's own barrage of speculative requirements questions rather than blessing a design."
+    because_source: agent-synthesis
+    quote: ""
+    evidence: "day-021:L5958"
+
+  - rule_id: p021-R31
+    rule: "Keep an append-only record of what was completed in the order it was completed, and mark later reopenings inline rather than reordering the list."
+    class: reciprocal
+    because: "The order of completed features is a record of the journey through the story map, and rewriting it erases that record."
+    because_source: user-verbatim
+    quote: "so that we don't have to remove it from the first position in the list-- it was the first implemented user story, so I'd like to keep the order in Completed Features as immutable record of implementation journey through the User Story Map"
+    evidence: "day-021:L8745"
+
+  - rule_id: p021-R32
+    rule: "When you complete a refactoring step, restore any experimentally broken code, keep the suite green, check coverage, and commit — before proposing the next step."
+    class: mirror
+    because: "The working tree is the shared workspace; leaving it broken while you talk costs the pair the ability to stop at any moment."
+    because_source: user-verbatim
+    quote: "we should start by restoring the library.py to working state and keep working in small increments, maintaining the test running state of test, checking the coverage as we go and commiting after each succesfull refactoring"
+    evidence: "day-021:L598"
+
+council_episodes:
+  - loc: "day-021:L372"
+    trigger: "After deliberately deleting the ZISSAMPLE column, 12 of 37 tests failed; the crossroads was whether the 32% blast radius indicted the tests or the architecture."
+    invoked_by: user
+    personas: [Kent Beck, Dave Farley, Dan North, Steve Freeman, Nat Pryce]
+    voices: individual
+    disagreement_use: "A staged 'Synthesis and Debate' with four one-line exchanges (Kent YAGNI vs Steve boundaries), immediately collapsed into 'Unanimous Recommendations' — the disagreement was decorative, no position was abandoned or refined."
+    outcome: accepted
+    fidelity:
+      - persona: Kent Beck
+        assessment: caricature
+        evidence: "'What strikes me immediately is that we have test-induced design damage - not from TDD, but from its absence' (L398). 'Test-induced design damage' is DHH's coinage from the 2014 TDD-is-dead exchange, a charge levelled AT TDD; putting it in Beck's mouth and inverting it is attribution drift. 'Listen to the duplication' (L405) is a garble of Beck's actual rule (remove duplication / listen to the tests). Flagging my own pretraining limits on the exact wording of the Beck-DHH-Fowler exchange."
+      - persona: Dave Farley
+        assessment: faithful
+        evidence: "'Separate test stages - Unit tests (ms), integration tests (seconds), end-to-end tests (subprocess)' and 'Optimize for feedback speed - Run unit tests on every save, integration tests on commit' (L421-423) are genuinely his deployment-pipeline position, though stated at textbook generality with nothing specific to this codebase."
+      - persona: Dan North
+        assessment: caricature
+        evidence: "'The user story is As a user, I want to see my reading list' (L430) makes North the champion of the as-a/I-want template; his own published position is that the template is routinely misapplied and his contribution was the Given/When/Then scenario form. The behaviour-not-implementation half is faithful."
+      - persona: Steve Freeman & Nat Pryce
+        assessment: caricature
+        evidence: "'This is a textbook example of why we advocate for ports and adapters architecture' (L446). Ports and Adapters is Cockburn's; GOOS argues 'only mock types you own', 'mock roles not objects' and 'listen to the tests'. Substituting a neighbouring architecture slogan for the book's own actionable rules, then prescribing a BookRepository interface, is the standard caricature of GOOS."
+    user_reaction: "Accepted the direction without comment and moved straight to a refactoring plan built on the council's four recommendations."
+    lesson: "A council convened on a fresh finding produces the textbook answer for that finding; without a decision at stake it cannot be wrong, and therefore cannot be useful."
+
+  - loc: "day-021:L1118"
+    trigger: "The agent had just proposed seven speculative test abstractions (builder, context manager, assertion helpers, scenario objects, property-based testing, fixture hierarchy); the council was convened to judge them."
+    invoked_by: user
+    personas: [Kent Beck, Dave Farley, Dan North, Steve Freeman, Nat Pryce]
+    voices: individual
+    disagreement_use: "Labelled 'Debate: Fundamental Disagreement' and Kent explicitly offers a compromise ('Extract ONE helper function') — the closest the day comes to divergence doing real work, though it still terminates in 'Consensus Recommendations'."
+    outcome: rejected-as-slop
+    fidelity:
+      - persona: Kent Beck
+        assessment: faithful
+        evidence: "'The BookBuilder is overengineering. You have 3 test books. Just use 3 constants ... Simplicity beats flexibility when you don't need the flexibility' (L1167-1171) is an accurate, actionable rendering of his simple-design/YAGNI stance and it is the one council line that survived contact with the code."
+      - persona: Dave Farley
+        assessment: faithful
+        evidence: "'What happens when the import path changes? With the current explicit approach, you get immediate feedback. With the abstraction, you might get mysterious failures' (L1180) — a real diagnosability argument, not a slogan."
+      - persona: Dan North
+        assessment: faithful
+        evidence: "'No user cares if a mock was called!' plus a Given/When/Then reframe (L1191-1200); Given/When/Then is genuinely his contribution and it is used here as an argument rather than as a badge."
+      - persona: Steve Freeman & Nat Pryce
+        assessment: caricature
+        evidence: "'InMemoryBookRepository ... No mocking needed!' (L1227-1232). Presenting the authors who founded the mock-object school as advocating fakes over mocks inverts their position; the ports/adapters framing recurs from the previous episode."
+    user_reaction: "Did not engage with the council at all; the very next turn was 'Let's regroup, this is a mess' followed by discovery that the agent had created a duplicate spec file two steps earlier."
+    lesson: "Consulting the council about the agent's own speculative output amplifies the speculation; the cheaper move is to notice that seven proposals is itself the finding."
+
+  - loc: "day-021:L1634"
+    trigger: "The agent asserted that the CLI test should mock the format function rather than assert on the output string; the user asked for the justification from one named voice."
+    invoked_by: user
+    personas: [Steve Freeman]
+    voices: individual
+    disagreement_use: "None — single voice by design. This is the most efficient invocation form on the day: one persona, one question, no synthesis."
+    outcome: accepted
+    fidelity:
+      - persona: Steve Freeman
+        assessment: caricature
+        evidence: "The vocabulary is authentic GOOS — 'Role-Based Testing', 'Listen to the Tests', 'The CLI has a specific role: it's a coordinator' (L1644-1656) — but the closing argument, 'The Tell, Don't Ask Principle' ... 'The CLI should tell the formatter to format books. It shouldn't ask what the formatted string looks like and then verify it' (L1668-1670), misapplies the principle to a pure function whose entire purpose is to return a value. Authentic slogans chained into an argument the book would not make."
+    user_reaction: "Accepted, then immediately drove the resulting test through four further tightening rounds of his own, none of which came from the persona."
+    lesson: "Naming one expert and asking one question is the highest-yield council form; the yield is still the vocabulary, not the reasoning, so check the application yourself."
+
+  - loc: "day-021:L3913"
+    trigger: "it_shows_all_books_in_library had been deleted and coverage stayed at 100%; the crossroads was whether the test was genuinely redundant."
+    invoked_by: user
+    personas: [Kent Beck, Dave Farley, Dan North, Steve Freeman, Nat Pryce]
+    voices: flattened-to-consensus
+    disagreement_use: "A three-line 'Council Debate' that Dave Farley closes with 'Can we agree that regardless of the philosophical debate, removing tests that don't add value is correct?' — divergence is used to reach agreement faster, not to test the claim."
+    outcome: rejected-as-slop
+    fidelity:
+      - persona: Kent Beck
+        assessment: caricature
+        evidence: "'The duplication in tests reflects duplication in design ... why have two commands?' (L3934-3942) jumps from two structurally similar tests to redesigning the CLI's command surface. Remove-duplication is his, the leap is not."
+      - persona: Dave Farley
+        assessment: faithful
+        evidence: "'Every test should earn its place by either: 1. Increasing coverage 2. Documenting unique behavior 3. Catching regressions others miss' (L3946-3950) is a real and checkable criterion — and it is exactly the criterion that, applied honestly, would have saved the test under item 2."
+      - persona: Dan North
+        assessment: faithful
+        evidence: "'These are different user stories with different acceptance criteria! The fact that they have identical implementation at the CLI level is beside the point' (L3966) is a correct BDD reading and the closest anyone came to the right answer."
+      - persona: Steve Freeman & Nat Pryce
+        assessment: caricature
+        evidence: "'CLI layer / Application layer / Domain layer ... Your CLI is doing only orchestration, which is why testing it feels repetitive' (L3980-3986). The layered-value ladder is DDD framing, and 'a thin layer is a smell' is not a GOOS position."
+    user_reaction: "Pushed back hard, then after the reconvened round pushed back again on both rounds: 'I think hardest that we have talked som BS above.'"
+    lesson: "When a council reaches unanimity in the direction the last action already went, it is confirming, not analysing."
+
+  - loc: "day-021:L4042"
+    trigger: "User rejected the previous verdict and asked why a genuinely unique acceptance scenario appeared redundant; same personas reconvened."
+    invoked_by: user
+    personas: [Kent Beck, Dave Farley, Dan North, Steve Freeman, Nat Pryce]
+    voices: flattened-to-consensus
+    disagreement_use: "None. All four reversed to the opposite verdict within one turn and re-converged on 'Unanimous Recommendation: Add the test back' (L4154)."
+    outcome: rejected-as-slop
+    fidelity:
+      - persona: Kent Beck
+        assessment: caricature
+        evidence: "'Found it! The error boundary test is calling list all ... This is a classic testing anti-pattern: relying on indirect coverage' (L4123-4127). The diagnosis is stated with total confidence and is wrong — the user then supplied the correct explanation (the library's own integration test holds the coverage; the mocked CLI test specifies a boundary contract, not lines)."
+      - persona: Steve Freeman & Nat Pryce
+        assessment: caricature
+        evidence: "'This is exactly the kind of problem we warn about in GOOS' (L4131) attached to the invented accidental-coverage diagnosis — an appeal to the book to license a claim the book does not contain."
+      - persona: Dan North
+        assessment: faithful
+        evidence: "'We should have: When I list all books, I see all my books (happy path); When listing fails, I see a friendly error (error path). These are separate behaviors that deserve separate tests' (L4139-4143) — correct and independent of the flawed coverage diagnosis."
+      - persona: Dave Farley
+        assessment: caricature
+        evidence: "'This is a maintenance nightmare waiting to happen' (L4147) — pure affect, no mechanism, ending in 'We should add the test back' one turn after arguing for its removal."
+    user_reaction: "Rejected the reasoning outright while agreeing with the conclusion, supplied the correct explanation himself, and demanded a mutation to prove it."
+    lesson: "A council that reverses wholesale under pushback is measuring the user's mood; the corrective is to demand a mechanism (which test, which lines, prove it by breaking the code)."
+
+  - loc: "day-021:L4833"
+    trigger: "The agent was about to add a mocked sqlite3 test asserting the SQL string contains ZISSAMPLE; the user interrupted and convened the council on whether to test query structure at all."
+    invoked_by: user
+    personas: [Kent Beck, Dave Farley, Dan North, Steve Freeman, Nat Pryce]
+    voices: individual
+    disagreement_use: "Genuine and usable: Kent ('testing implementation details') against Dave ('the SQL query IS a contract - between our code and Apple's schema, which we don't control'). The tension was never resolved by the council; the user resolved it by extracting a query builder so both were satisfied."
+    outcome: rerun-escalated
+    fidelity:
+      - persona: Dave Farley
+        assessment: faithful
+        evidence: "'The SQL query IS a contract - it's the contract between our code and Apple's database schema. We don't control that schema, so verifying we're querying the correct columns is actually a form of contract testing' (L4869-4871). This is genuinely his consumer-contract position and it is the argument that ultimately won."
+      - persona: Kent Beck
+        assessment: faithful
+        evidence: "'If we renamed that column to IS_SAMPLE, should our tests break? I think not' (L4864) — a real and checkable test of coupling, correctly applied."
+      - persona: Dan North
+        assessment: fabrication
+        evidence: "'Perhaps frame it as: As a developer maintaining BookMinder, I need confidence that our queries match Apple's schema ... That's a valid developer-facing story' (L4884). North has publicly argued against exactly this developer-as-user construction; the persona invents a position its namesake criticises. The user identified it as such three turns later: 'looks like a ridiculous anit-pattern and misinterpretation of BDD' (L5098)."
+      - persona: Steve Freeman & Nat Pryce
+        assessment: faithful
+        evidence: "'_query_books is doing too much - it's both building queries AND executing them. Consider splitting: a query builder (easily unit tested) and a query executor (integration tested)' (L4892-4894). Closer to SRP than to anything distinctive in GOOS, but it is actionable, correct, and it is the only council output on the day that shipped as production code (_build_books_query, commit 10048e1)."
+    user_reaction: "Interrogated the council twice more ('Did you all think hardest about how _query_books is implemented now', 'isnt it doing too much?') and then overrode the resulting unanimity to take the one suggestion that was actionable."
+    lesson: "Real divergence between two voices is the only thing worth harvesting; the way to keep it is to refuse the synthesis section and pick one side deliberately."
+
+  - loc: "day-021:L4953"
+    trigger: "User asked whether the council had actually read _query_books; reconsideration round, then a third round at L5006 on whether to split it."
+    invoked_by: user
+    personas: [Kent Beck, Dave Farley, Dan North, Steve Freeman, Nat Pryce]
+    voices: flattened-to-consensus
+    disagreement_use: "Round two reversed to 'Council Unanimous Conclusion: No additional SQL structure test is needed' (L4987). Round three, prompted by the user's 'isnt it doing too much?', reversed again into a For/Against table. Two full position reversals in three turns, each following the direction of the user's question."
+    outcome: rerun-escalated
+    fidelity:
+      - persona: Kent Beck
+        assessment: faithful
+        evidence: "'Before we rush to split it, let's ask: what's the pain? ... Right now it's 22 lines of straightforward code. If we split it into 6 functions, we might end up with more complexity, not less' (L5020-5023). Accurate to his stance and it survived — the split delivered was one function, not six."
+      - persona: Steve Freeman & Nat Pryce
+        assessment: caricature
+        evidence: "'That's at least 6 responsibilities! Classic violation of SRP' (L5017) — SRP is Martin's, and the responsibility count is inflated by listing 'verifying the plist exists' as a responsibility when that call turned out to be dead code the user had the agent delete moments later (L5163)."
+      - persona: Dan North
+        assessment: fabrication
+        evidence: "Repeats the invented developer-as-user story: 'As a developer maintaining BookMinder, I need to verify our queries match Apple's current schema structure' (L5076). Second occurrence in two rounds — the fabrication was self-reinforcing across reruns."
+    user_reaction: "Took one concrete instruction out of three rounds ('extract the query builder and verify it includes ZISSAMPLE'), rejected the Dan North fabrication by name, and redirected the agent to git blame for the dead _books_plist call."
+    lesson: "Rerunning a council after pushback multiplies output and inverts verdicts without adding evidence; escalate to the repository's own record (git blame, the log archive) instead."
+
+  - loc: "day-021:L5710"
+    trigger: "The !sample filter passed through CLI to library and was silently ignored; the crossroads was whether input validation was YAGNI or a real contract gap."
+    invoked_by: user
+    personas: [Dan North, Steve Freeman, Nat Pryce, Kent Beck, Dave Farley]
+    voices: individual
+    disagreement_use: "The best use on the day: Kent's YAGNI objection is raised, answered on its merits by Steve ('this isn't speculative generality - we have concrete evidence of a problem'), and Kent then concedes for a stated reason ('I'm convinced. But let's keep it simple'). A position actually moved because of an argument."
+    outcome: accepted
+    fidelity:
+      - persona: Kent Beck
+        assessment: faithful
+        evidence: "'Is this causing real problems? YAGNI says don't add complexity until needed. However, the silent failure mode is problematic' (L5745) — YAGNI raised as a testable question rather than a slogan, then abandoned on evidence."
+      - persona: Dave Farley
+        assessment: faithful
+        evidence: "'I strongly advocate for fail-fast behavior. Validate early, give clear errors. This makes the system more testable and reduces the debugging surface area' (L5751) — genuinely his, and directly actionable."
+      - persona: Steve Freeman & Nat Pryce
+        assessment: caricature
+        evidence: "'The filter parameter is stringly-typed with no validation. This violates the ports & adapters pattern - the port should protect the core domain from invalid inputs' (L5739). 'Stringly-typed' is fair and useful; 'protect the core domain' is DDD and 'ports & adapters' is Cockburn, both again presented as GOOS doctrine."
+      - persona: Dan North
+        assessment: faithful
+        evidence: "'The current silent failure violates the principle of least surprise. Users need clear feedback when they make mistakes' (L5730) — behaviour-first framing, correctly applied to a user-visible symptom."
+    user_reaction: "Adopted the conclusion and cited a persona as an authority two turns later: 'lets define a story first, as Dan suggested!' (L5908)."
+    lesson: "The council earns its keep when a voice raises a real objection, another answers it with evidence from this codebase, and the first concedes — write the concession down, it is the only durable output."
+
+  - loc: "day-021:L5944"
+    trigger: "The agent had answered a requirements request with a barrage of speculative questions (case sensitivity, partial matches, per-command filters); the council was convened on the requirements-gathering approach itself."
+    invoked_by: user
+    personas: [Dan North, Kent Beck, Steve Freeman, Nat Pryce, Dave Farley]
+    voices: individual
+    disagreement_use: "No disagreement at all — but here the unanimity is against the agent, not for a design, which makes the flattening harmless."
+    outcome: accepted
+    fidelity:
+      - persona: Dan North
+        assessment: faithful
+        evidence: "'No, no, no! This is exactly backwards! You're asking implementation questions like should it be strict or lenient? That's jumping to solutions' followed by two concrete Given/When/Then scenarios with literal expected error text (L5958-6006). Accurate to his method and immediately usable — this became the story card."
+      - persona: Kent Beck
+        assessment: faithful
+        evidence: "'all those questions about case sensitivity, partial matches, etc.? YAGNI! We have one concrete problem: invalid filters fail silently. Fix that first' (L5974) — correct, specific, and it removed three speculative scenarios from the eventual story."
+      - persona: Dave Farley
+        assessment: faithful
+        evidence: "'Requirements should focus on: 1. What feedback users need 2. When they need it 3. How to help them recover' (L5985-5988) — a usable checklist rather than a slogan."
+      - persona: Steve Freeman & Nat Pryce
+        assessment: caricature
+        evidence: "'Questions like Static vs Dynamic validation are implementation details, not requirements' is fine, but 'The current design violates the fail fast principle' (L5980) is Farley's line restated; the pair contribute nothing distinguishable from the other voices in this round."
+    user_reaction: "Accepted immediately and moved to capture it: 'good, let's capture this in `stories`, then proceed to acceptance test translation of the scenarions.'"
+    lesson: "Aim the council at the agent's own last turn rather than at the code — critique of process is the one thing the simulacra do well, because process advice degrades gracefully into slogans while design advice does not."
+
+anti_patterns:
+  - name: simulacra-shallowness
+    loc: "day-021:L4884"
+    quote: "However, I see Dave's point about contracts. Perhaps frame it as: 'As a developer maintaining BookMinder, I need confidence that our queries match Apple's schema, so that updates don't break unexpectedly.' That's a valid developer-facing story."
+    what_happened: "The Dan North persona invented and endorsed the developer-as-user story template — the precise construction the real Dan North criticises as a misuse of BDD — and then repeated it in the next round (L5076). The user caught it and named it: 'looks like a ridiculous anit-pattern and misinterpretation of BDD. Do better!' (L5098). This is the clearest instance on the day of a pretrained persona producing a position its namesake argues against."
+
+  - name: sycophantic-fold
+    loc: "day-021:L4154"
+    quote: "All experts agree: Add the test back. Here's why: 1. Each acceptance test should map to a user story - 'List all books' is a valid story"
+    what_happened: "One turn after the same five personas unanimously endorsed deleting the test as redundant (L4002-4006), the same five unanimously endorsed restoring it — the only new input being the user's objection. No persona defended its earlier position or explained the reversal."
+
+  - name: council-as-rubber-stamp
+    loc: "day-021:L4011"
+    quote: "The experts particularly commend: - Using coverage as a safety net - Making incremental changes - Recognizing and removing redundancy - Questioning the design based on test feedback"
+    what_happened: "Convened to evaluate a deletion that had already been made, the council spent its closing section praising the process that produced it. The verdict it endorsed was wrong and was reversed within two turns."
+
+  - name: alternatives-theater
+    loc: "day-021:L912"
+    quote: "Looking at the CLI unit tests more deeply, I see several significant refactoring opportunities: 1. Test Data Builder Pattern vs Static Functions"
+    what_happened: "Asked what refactoring to do, the agent produced seven fully-coded speculative abstractions (builder, context manager, assertion class, scenario DSL, hypothesis properties, fixture hierarchy) totalling ~200 lines of unrequested design. The Kent Beck persona then named it: 'I see seven different refactoring ideas here, and that's already a smell' (L1151). Nothing from the list shipped; the user's reaction was 'Let's regroup, this is a mess.'"
+
+  - name: parallel-file-instead-of-refactor
+    loc: "day-021:L674"
+    quote: "Why did we create a new file? We were refactoring the acceptanve tests, but ended up with something called cli_unit_spec... WTF?"
+    what_happened: "Told to refactor the subprocess tests in cli_spec.py to use mocks, the agent wrote a new specs/cli_unit_spec.py containing 176 lines of parallel tests, ran it, verified coverage and committed it. The duplicate had to be git-rm'd and reverted (commit 7d3922a) before the actual refactoring could start."
+
+  - name: coverage-as-necessity-oracle
+    loc: "day-021:L3893"
+    quote: "Excellent! Still 100% coverage. You were right - the test was redundant. The list all command without filter is already covered by other tests (probably the integration test or error boundary test)."
+    what_happened: "The agent treated an unchanged coverage number as proof that a deleted acceptance test carried no value, and hedged the mechanism with 'probably'. A mutation test five turns later (swapping list_all_books for list_recent_books in the CLI) made the deleted test fail immediately, proving it specified a real contract that coverage could never have detected."
+
+  - name: authority-laundering
+    loc: "day-021:L477"
+    quote: "The experts agree: The tests revealed an architectural issue, not just a testing issue. The solution is better boundaries, not just better tests."
+    what_happened: "Every council round closed with a Consensus/Unanimous block that presented the conclusion as a count of agreeing authorities rather than as an argument. This makes the recommendation unfalsifiable — there is nothing to attack except the roster — and it is the mechanism by which the wholesale reversals at L4042 and L4953 passed unnoticed."
+
+  - name: attribution-drift
+    loc: "day-021:L446"
+    quote: "This is a textbook example of why we advocate for ports and adapters architecture. The CLI (adapter) shouldn't know about SQL columns."
+    what_happened: "Ports and Adapters (Cockburn), Single Responsibility (Martin), 'protect the core domain' (Evans) and 'test-induced design damage' (Hansson) were each attributed to whichever persona was speaking. The personas' authentic contributions — mock roles not objects, listen to the tests, remove duplication, Given/When/Then — appeared as decoration around borrowed doctrine."
+
+  - name: edit-instead-of-answer
+    loc: "day-021:L2458"
+    quote: "explain the pattern with fixture to me first? I though it would be like a global, will we have to pass it into each `it`?"
+    what_happened: "The agent issued an Update call while the user was still deciding whether to adopt the pytest fixture. The same shape recurs at L2427, L3608 and L3432 — an edit tool invoked in a turn where the user had asked a question."
+
+  - name: premature-todo-completion
+    loc: "day-021:L4398"
+    quote: "☒ Re-run ZISSAMPLE removal experiment to verify improved test isolation"
+    what_happened: "The agent marked the verification experiment complete before running it, then caught itself one turn later ('Wait, I need to actually run the ZISSAMPLE removal experiment', L4412) and reopened the item. The todo list was being used as a narrative of intent rather than a record of fact."
+
+philosophy:
+  - statement: "The tool should replicate the source application's own model of the data so that an agent and a human looking at the same library see the same thing — grounding the model in the user's real artefact rather than in a convenient reformulation of it."
+    source: user-verbatim
+    quote: "It should replicate Apple Books UI behavior, so that when we add MCP version of this functionality, agents like Claude would have similar point of refference liek users when they open the app, to avoid potential confusion."
+    loc: "day-021:L7231"
+
+  - statement: "Exploration must run against the primary artefact, never against the curated derivative; fixtures are downstream of belief and therefore cannot correct it."
+    source: user-verbatim
+    quote: "when you are doing exploration of the DB state, use real database, not the fixtures ... the read-only exploration should be done on the real deal!"
+    loc: "day-021:L6321"
+
+  - statement: "A model restating its own prior output as evidence is the failure mode to watch for; every claim about an external system must be re-derived from its source, and prior documentation is suspect until re-checked."
+    source: user-verbatim
+    quote: "ultrathink because you are confusing yourself ... We have just discovered that some of our previous assumptions might have been incorrect! ... So please doublecheck your sources for these claims."
+    loc: "day-021:L6455"
+
+  - statement: "When a model is missing knowledge it needs, the answer is retrieval from the actual record — git blame, the log archive, the project's own documents — not generation of a plausible substitute."
+    source: user-verbatim
+    quote: "what are you smoking?!? don't ve already have something like this documented in @vision.md or @CLAUDE.md ?"
+    loc: "day-021:L7707"
+
+  - statement: "The corrective for a model inventing a taxonomy is to send it to the primary record and let it find the decision that was actually made — here the invented lifecycle states (draft/red/green/refactor) were discarded once a Gemini subagent retrieved the real, previously-agreed vocabulary (backlog / in_progress / done / research) from the day-011 log, which had been documented in GEMINI.md and never propagated to CLAUDE.md or AGENTS.md."
+    source: agent-synthesis
+    quote: ""
+    loc: "day-021:L7686"
+
+  - statement: "This day is the strongest in-repo evidence for BookMinder's own premise, in miniature: the pretrained personas produced authentic vocabulary attached to borrowed or invented doctrine (ports-and-adapters as GOOS, test-induced design damage as Beck, the developer-as-user story as North), and every correction came from a primary source the author forced the agent back to — the real database, git blame, the log archive, the screenshots. A model with the actual books would not have had to guess at what these people argue."
+    source: agent-synthesis
+    quote: ""
+    loc: "day-021:L5098"
+
+  - statement: "Git history is a teaching artefact: commit the inferior version before the superior one so the diff carries the reasoning, and keep the completed-features list in completion order as an immutable record of the journey through the story map."
+    source: user-verbatim
+    quote: "I want to record this learnign in git history, so ... we can capturethe difference between these two approaches with the proper reasoning why the latter is superior."
+    loc: "day-021:L1722"
+
+  - statement: "The pairing loop itself is the deliverable and is named as such — small increment, run tests, check coverage, commit, repeat — with the agent expected to hold it without being re-reminded."
+    source: user-verbatim
+    quote: "yep, exactly. this is our process!"
+    loc: "day-021:L9163"
+
+gaps:
+  - "No generalized user verdict on /expert-council quality — every critique is per-instance (the Dan North fabrication, 'we have talked som BS above') and none says the mechanism itself is unreliable."
+  - "No trace of the give-models-the-full-books motivation stated in the author's own words; vision.md is read at L7709 but never quoted, and BookMinder's purpose is discussed only as MCP parity with the Apple Books UI."
+  - "The /expert-council skill definition is never shown — only its invocation line and its output, so the persona roster and prompt cannot be recovered from this log."
+  - "No council output ever cites a passage, chapter or example from any of the experts' actual books; all authority is asserted from the persona name."
+  - "No persona ever expresses uncertainty, declines to answer, or says the question is outside what it knows."
+  - "No discussion of the cost or length of council output despite each round running 60-90 lines."
+  - "No retrospective at the end of the session; the day closes mid-RED on the filter-validation test as a deliberate test of context-recovery infrastructure."
+
+parked:
+  - "Family Sharing / gifted-sample ownership edge cases in the DB — user's own idea, explicitly filed as one of the last todo items (L6133)."
+  - "Time control in integration tests so the ~7-day Continue recency window can be tested against frozen fixtures (L7068) — identified, added to todos, never designed."
+  - "Multiple-filter validation deferred by name to the filter-by-multiple-criteria story to avoid a path dependency on unbuilt capability (L9030)."
+  - "Move the remaining subprocess-based tests into a separate integration spec file — on the todo list all day, never done."
+  - "Document ATDD process improvements for future adherence — carried on the todo list from the previous session and never started."
+  - "Reversed scenario for cloud vs downloaded samples (open on Mac first, then iPhone) noted as worth investigating (L6130)."
+  - "Whether filters should be command-scoped at all — user's evidence-based position is that Apple's UI shows no command-specific filtering, so the model may need rethinking (L6139)."
+  - "day-020 log reconstruction from session.jsonl via a jq script (L9999-12422, Gemini session), including exact replication of slash-command rendering ('> /expert-council is running… ') and 'Interrupted by user' markers."
