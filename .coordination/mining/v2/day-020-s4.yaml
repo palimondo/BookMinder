@@ -439,8 +439,8 @@ failure_modes:
   - name: instruction-drift
     era_class: 2025-agentic
     detector_family: F5-claim-vs-action
-    loc: "day-020:L26581"
-    quote: "76 +      try:\n77 +          books = list_all_books(user=user, filter=filter)\n79 +      except BookminderError as e:"
+    loc: "day-020:L26584"
+    quote: "78 +      except BookminderError as e:\n79 +          click.echo(f\"{e}\")"
     what_happened: >-
       The auto-compaction summary's "Optional Next Step" (L26541-26550) proposed a
       try/except around the `all` command — the exact addition the user had rejected
