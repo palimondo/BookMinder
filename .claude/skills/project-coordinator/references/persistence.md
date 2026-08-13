@@ -32,9 +32,8 @@ Also persist: scripts you wrote (validators, scanners, workflow scripts) into `.
 - Stage files explicitly by name. Never `git add .`.
 - Use `git mv` for moves.
 - Commit messages explain **why**, referencing the decision or directive that motivated the change.
-- Every commit carries whatever trailers the project or harness mandates (typically attribution `Co-Authored-By` and, in cloud sessions, a `Claude-Session` provenance link from commit back to originating conversation).
+- Follow the environment's mandated git conventions — commit trailers and branch targets arrive with the harness or per-session directives; honor them, do not restate them here.
 - Commit after each meaningful state change — commit cadence is evergreen; PUSH cadence is environment-conditional (below).
-- Work on the designated branch; never push to `main`.
 - When a repo file must be reconstructed from history, prefer a checkpoint restore (`git rm -r` + `git checkout <sha> -- path`) over piecemeal patching, and verify the restoration by running the suite and grepping for the specific artifacts that were supposed to return.
 
 ## Environment-conditional: push policy and memory
