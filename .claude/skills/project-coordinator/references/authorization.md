@@ -28,3 +28,5 @@ Scope creep is the author's self-identified "most common personal failure mode".
 - Do not invent privacy concerns on his behalf without reasoning about the facts first. Establish where data actually comes from before invoking caution; material already committed, public, in his own repo is not a privacy exposure.
 - Hooks are the harness's opinion and can be wrong. A hook can encode a single-agent invariant (e.g. "no uncommitted work at turn end") that misfires in a multi-agent regime where a freshly-written file is healthy pipeline state. Diagnose the sensor, tell him, and let him decide.
 - Hook and settings files under the container's home are provisioned per container; a fix there dies on the next reclamation. The surviving location is the repo's own `.claude/`.
+
+- Resuming the unfinished remainder of an already-approved run is covered by the original authorization and needs no fresh "launch?" — but state that reasoning in one line rather than assuming it silently. A new scope or a reshaped run is a new spend.

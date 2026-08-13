@@ -12,3 +12,5 @@ The failure mode this page exists to kill: publishing operational claims at comp
 - Know your validators' blind spots and record them. A validator that checks only some fields lets fabrications in the unchecked fields pass unflagged. Carry known limitations into the trust model of whatever consumes the data.
 - **Read the primary source yourself before giving an opinion on it.** When he challenges a result, the honest move is reading the underlying artifacts end to end rather than relaying worker summaries — even when the resulting verdict partially disagrees with him; that is what he wants.
 - Read the code yourself when it is small enough to read. Do not opine on architecture from worker summaries.
+
+- Report absence-of-signal as absence-of-signal: a failure-only sensor showing nothing supports "no failures reported", never "no failures". Upgrade to the stronger claim only after a positive liveness check.

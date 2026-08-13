@@ -16,3 +16,5 @@ The architecture that survives it, in order of importance:
 The coordinator batch-commit sweep is a *backstop* only — workers self-commit as the primary mechanism (`delegation.md`). When the backstop fires, check `git log` before claiming anything about whether worker self-commits are working.
 
 For heavy runs, the platform-native shape is Routine-fired batches — each firing a fresh session doing one batch, with zero dependence on container longevity.
+
+- Order on recovery: commit finished orphans first (by name; never partials — a truncated file committed reads as done), re-arm the watchdog second, resume the run third — protection precedes relaunch so the resumed run is covered from its first second.
