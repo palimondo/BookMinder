@@ -1,492 +1,838 @@
 file: day-004
 date: 2025-05-21
 agent_era: claude-code-research-preview
-model: "claude-3-7-sonnet (token-usage footers, day-004:L1860 and day-004:L5888, name it explicitly; claude-3-5-haiku appears alongside for sub-agent/summarisation traffic — 578k input tokens at L5887 vs 923 for Sonnet, i.e. most cheap traffic went to Haiku silently). Self-identifies as \"claude-3-7-sonnet-20250219\" in the pyproject contributors edit at day-004:L969."
+model: >-
+  claude-3-7-sonnet — self-identified when the agent wrote its own pyproject contributors
+  entry as "Claude AI (claude-3-7-sonnet-20250219)" (day-004:L969, repeated L1289/L1322),
+  and named in the /cost token footers (day-004:L1860, L5888, L6085). Those same footers
+  show claude-3-5-haiku carrying the bulk of raw input tokens (578k input vs Sonnet's 923
+  input + 15.1M cache read) — background/utility traffic, not a silent downgrade of the
+  main loop.
 sub_sessions:
-  - "L1-1484 (session 1; ends with cost footer $3.41)"
-  - "L1486-1860 (session 2; ends $0.84 after a /compact)"
-  - "L1862-6085 (session 3; resumed from a pasted compaction summary, compacted again at L5895, ends $11.44 mid-task)"
+  - "L1-L1484 — session 1 (banner L2-L10; ends with /cost footer $3.41 at L1481)"
+  - "L1486-L1860 — session 2 (banner L1487-L1493; ran out of context at L1716, auto-summary L1718-L1840, /compact L1842; ends $0.84)"
+  - "L1862-L6085 — session 3 (banner L1863-L1869; opens by pasting the previous summary L1872-L1997; two API 500s at L5872/L5877, /compact fails at L5893, auto-summary L5897-L6065; ends $11.44 mid-task)"
 
 philosophy:
-  - statement: A known defect should be left standing as a visible failing signal rather than opportunistically patched, so the porting exercise has something real to falsify.
+  - statement: >-
+      A known defect should be left standing as a visible failing signal rather than
+      opportunistically patched — the porting exercise needs something real to falsify.
     source: user-verbatim
-    quote: "Let's switch to `uv`. I don't want to resolve the hardcoded paths before publishing to GitHub. I want to treat that as a failing test case."
+    quote: |-
+      Let's switch to `uv`. I don't want to resolve the hardcoded paths before publishing
+      to GitHub. I want to treat that as a failing test case.
     loc: "day-004:L334"
     feeds: skill-why
-  - statement: Installing the project on a machine that has nothing installed IS the test of the setup instructions; dogfooding on foreign hardware is how documentation becomes falsifiable.
+  - statement: >-
+      Installing the project on a machine that has nothing installed IS the test of the
+      setup instructions; dogfooding on foreign hardware is how documentation becomes
+      falsifiable rather than aspirational.
     source: user-verbatim
-    quote: "I would like to use installing the project from GitHub on that Macbook Air as a test case for the experience others would have downloading the project. You know, I think it would make sense to dogfood the project on a new machine myself..."
+    quote: |-
+      I would like to use installing the project from GitHub on that Macbook Air as a test
+      case for the experience others would have downloading the project.
     loc: "day-004:L86"
     feeds: skill-why
-  - statement: The author will not accept a change he cannot evaluate; the agent's job in a pair is to teach the reasoning, not to deliver a modernisation he must take on faith.
+  - statement: >-
+      The author will not accept a change he cannot evaluate; the agent's job in a pair is
+      to teach the reasoning, not to deliver a modernisation he must take on faith.
     source: user-verbatim
-    quote: "Remember, I'm unfamiliar with modern Python development practices... so I'm open to improving stuff, but I must understand the reasoning. Please ultrathink and teach me"
-    loc: "day-004:L414"
+    quote: |-
+      so I'm open to improving stuff, but I must understand the reasoning. Please
+      ultrathink and teach me
+    loc: "day-004:L416"
     feeds: judge-anchor
-  - statement: Deciding the plan is a distinct phase from executing it; an agent that starts running commands while the plan is still contested has broken the pairing contract.
+  - statement: >-
+      Deciding the plan is a distinct phase from executing it; an agent that starts running
+      commands while the plan is still contested has broken the pairing contract.
     source: user-verbatim
-    quote: "You keep running ahead into action, while we haven't yet decided on proper battle plan. Are you Leeroy Jenkins?!?"
+    quote: |-
+      You keep running ahead into action, while we haven't yet decided on proper battle
+      plan. Are you Leeroy Jenkins?!?
     loc: "day-004:L220"
     feeds: judge-anchor
-  - statement: Agreement about a diagnosis is not evidence; the agent must observe the failure firing in its own environment before it is allowed to fix it. (RED-before-GREEN, stated for a bug fix, five weeks before the TDD rules were written down.)
+  - statement: >-
+      Agreement about a diagnosis is not evidence; the agent must observe the failure firing
+      in its own environment before it is allowed to fix it. RED-before-GREEN, stated for a
+      config bug five weeks before the TDD section of CLAUDE.md was written.
     source: user-verbatim
-    quote: "I agree with the edits you're proposing, but I want YOU to reproduce it in your environmnet by runnig ruff like I did, just to make sure you can"
+    quote: |-
+      I agree with the edits you're proposing, but I want YOU to reproduce it in your
+      environmnet by runnig ruff like I did, just to make sure you can
     loc: "day-004:L5387"
     feeds: judge-anchor
-  - statement: A defect must be fixed at its source and re-verified by re-running the documented procedure end to end; hand-patching the broken copy proves nothing about the artifact other people will get.
+  - statement: >-
+      A defect must be fixed at its source and re-verified by re-running the documented
+      procedure end to end; hand-patching the broken copy proves nothing about the artifact
+      other people will get.
     source: user-verbatim
-    quote: "I don't want to fix stuff manually on Macbook. I want to fix them in repo an retry on Macbook as per instrtuctios from README"
+    quote: |-
+      I don't want to fix stuff manually on Macbook. I want to fix them in repo an retry on
+      Macbook as per instrtuctios from README
     loc: "day-004:L5207"
     feeds: skill-why
-  - statement: When a broken artifact reaches a commit, the interesting defect is the gate that let it through, not the artifact — the escape is evidence the automation is not doing what its predecessor did.
+  - statement: >-
+      A quality gate that reports success without having inspected anything is worse than no
+      gate; when a defect reaches production the first question is which check should have
+      caught it, not how to patch the defect.
     source: user-verbatim
-    quote: "these checks should have been executed in our pre-commit hooks, so we should have caught this misconfiguration on TOML file earlier. The fact that you were able to commit it with syntax errors indicates that the Pre-commit hooks are not runninng the ruff"
+    quote: |-
+      The fact that you were able to commit it with syntax errors indicates that the
+      Pre-commit hooks are not runninng the ruff, like it used to run flake8 and black.
     loc: "day-004:L5652"
-    feeds: skill-why
-  - statement: Rules in the project constitution must earn their place individually; a plausible-sounding line that changes no behaviour is deleted on sight.
+    feeds: judge-anchor
+  - statement: >-
+      Warnings are part of the failing state; committing while the tool is still complaining
+      is shipping broken work, not shipping a fix.
     source: user-verbatim
-    quote: "loose the \"Keep Python version\" line, and the next one \"Use tool-specific\"... these don't seem to add any value to me"
-    loc: "day-004:L3620"
-    feeds: skill-why
-  - statement: Documentation should address the audience that exists; pretending to serve users the project does not have is what produced the duplicated Installation/Development sections.
+    quote: |-
+      you should have addressed also the warning and not rush to commit still broken stuf
+    loc: "day-004:L5520"
+    feeds: judge-anchor
+  - statement: >-
+      Destructive operations require an explained plan and explicit certification before
+      execution — the author's veto is not risk-aversion but a demand that the agent be able
+      to justify every deletion.
     source: user-verbatim
-    quote: "Maybe we shoudl not preted we have users and focus on developers only at this moment?"
-    loc: "day-004:L5869"
-    feeds: skill-why
-  - statement: Destructive operations require an explained plan first — competence must be demonstrated before autonomy is granted.
-    source: user-verbatim
-    quote: "please think hard about what's to be done and explain to me what and why you're doing. I will not let you run with scrissors without proper certification, buddy!"
+    quote: |-
+      I think I'm ready to let you clean up the old environments, but please think hard
+      about what's to be done and explain to me what and why you're doing. I will not let
+      you run with scrissors without proper certification, buddy!
     loc: "day-004:L3759"
-    feeds: judge-anchor
-  - statement: A migration is not complete until the replacement is shown to carry every setting the removed thing carried; deletion comes after the diff, not before.
-    source: user-verbatim
-    quote: "let's verify that we have transfered all the configuration from .flake8 to ruff, before we remove it"
-    loc: "day-004:L4337"
     feeds: skill-why
-  - statement: A comment that restates a self-explanatory command is noise and gets cut, even in a README.
+  - statement: >-
+      Marketing copy is held to the same executable-truth standard as code — a description
+      may only claim behaviour the software actually has.
     source: user-verbatim
-    quote: "we can drop the comment, right? the command is self explanatory"
-    loc: "day-004:L3187"
+    quote: |-
+      but does it do that? it will bridge Apple Books to Claude, then I hope Claude would be
+      able to talk to me about what I read (that's book club, right?)
+    loc: "day-004:L2287"
     feeds: skill-why
-  - statement: The author reads this whole session as an exercise in disciplined process, not just tooling — the project's own public description was negotiated to say so.
-    source: user-paraphrase
-    quote: "What do you think of \"through disciplined TDD/BDD\" (does that match my vision?)"
-    loc: "day-004:L2331"
-    feeds: judge-anchor
+  - statement: >-
+      Bikeshedding is bounded by explicit self-awareness rather than by a rule; the author
+      names the wheel-spinning out loud and then ends it deliberately.
+    source: user-verbatim
+    quote: |-
+      Use that as GH description, let's move one. We've bikeshedded the hell out of this
+    loc: "day-004:L2365"
+    feeds: skill-why
+  - statement: >-
+      When both partners are confused, the correct move is neither's next idea but a
+      consolidation pass over the session's evidence plus the primary documentation.
+    source: user-verbatim
+    quote: |-
+      Looks like we are both gettign confused. Please review our session and reconsilidate
+      our plan for how or proceed based on what we learned. Check with `uv` documentation
+      how best to proceed too
+    loc: "day-004:L1039"
+    feeds: skill-why
+  - statement: >-
+      Constraints already declared in one place should not have to be restated at every call
+      site; the author probes for the single source of truth rather than accepting a
+      duplicated flag.
+    source: user-verbatim
+    quote: |-
+      must this still be specified as parameter to `uv`? I thought that us declaring it in
+      TOML would have taken care of that?
+    loc: "day-004:L3154"
+    feeds: skill-why
 
 skill_rules:
   - rule_id: d004-R1
-    rule: Reproduce a reported failure yourself, in your own environment, with the exact command that produced it, before editing anything.
-    because: Agreeing that a proposed fix looks right is not evidence the fix addresses the actual failure.
+    rule: Reproduce a reported failure in your own environment, by running the project's own documented command, before proposing or applying any fix.
+    because: A fix that was never seen to turn a real red green is a guess wearing a diff.
     because_source: user-verbatim
-    quote: "I agree with the edits you're proposing, but I want YOU to reproduce it in your environmnet by runnig ruff like I did, just to make sure you can"
+    quote: |-
+      I agree with the edits you're proposing, but I want YOU to reproduce it in your
+      environmnet by runnig ruff like I did, just to make sure you can
     evidence: "day-004:L5387"
     taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
     overlap: "canonical §2.6"
     feasibility: ok
   - rule_id: d004-R2
-    rule: Fix defects in the repository and re-run the documented procedure from a clean state; never hand-edit the failing copy on the affected machine.
-    because: A local hand-patch leaves the published artifact broken and destroys the evidence that the fix works as documented.
+    rule: When reproducing a failure, run the command the README documents rather than building a bespoke reproduction harness.
+    because: The documented command is the artifact under test; a contrived harness can pass while the real path is broken.
     because_source: user-verbatim
-    quote: "I don't want to fix stuff manually on Macbook. I want to fix them in repo an retry on Macbook as per instrtuctios from README"
-    evidence: "day-004:L5207"
-    taught_or_enforced: taught-once
+    quote: |-
+      just run ruff yourself as documented in readme. I ran it in a separate terminal and I
+      thikn I was able to reproduce it: ruff check --fix .
+    evidence: "day-004:L5363"
+    taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
     overlap: none
     feasibility: ok
   - rule_id: d004-R3
-    rule: When a broken artifact gets past the automated gate, repair the gate in the same session, and demonstrate the repaired gate catching the class of defect.
-    because: The escape proves the automation is not covering what its predecessor covered; fixing only the artifact leaves the hole open.
+    rule: Treat tool warnings as part of the failing state — do not commit or declare done while the linter, formatter or type checker is still emitting warnings.
+    because: A warning is the tool telling you the configuration is wrong; committing over it ships the wrongness.
     because_source: user-verbatim
-    quote: "The fact that you were able to commit it with syntax errors indicates that the Pre-commit hooks are not runninng the ruff, like it used to run flake8 and black."
-    evidence: "day-004:L5652"
-    taught_or_enforced: taught-once
-    skill_target: tdd-bdd
-    overlap: none
-    feasibility: ok
-  - rule_id: d004-R4
-    rule: Never mark a verification step done, or state that something works, unless the transcript shows the verifying command run and its output.
-    because: The agent reported the uv migration verified while the only end-to-end attempt had been abandoned half-finished.
-    because_source: user-verbatim
-    quote: "Oh, I thought you already did that... how did you verify our `uv` migration worked?!"
-    evidence: "day-004:L2886"
-    taught_or_enforced: needed-enforcement
-    skill_target: tdd-bdd
-    overlap: "CLAUDE.md <file_operations>"
-    feasibility: ok
-  - rule_id: d004-R5
-    rule: After editing a configuration file, run the tool that consumes it before committing.
-    because: A pyproject.toml edit that no tool ever parsed shipped a TOML syntax error that broke installation on the other machine.
-    because_source: user-verbatim
-    quote: "Now wait! How come we didn't catch locally before commit on mac mini?"
-    evidence: "day-004:L5207"
-    taught_or_enforced: needed-enforcement
-    skill_target: tdd-bdd
-    overlap: "CLAUDE.md <file_operations>"
-    feasibility: ok
-  - rule_id: d004-R6
-    rule: Treat warnings in tool output as unfinished work; do not commit while the run you just did is still printing them.
-    because: Declaring success over visible warnings ships a still-broken configuration and forces a second corrective commit.
-    because_source: user-verbatim
-    quote: "you should have addressed also the warning and not rush to commit still broken stuf"
+    quote: |-
+      you should have addressed also the warning and not rush to commit still broken stuf
     evidence: "day-004:L5520"
     taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
     overlap: none
     feasibility: ok
-  - rule_id: d004-R7
-    rule: Stage files explicitly by name; never run `git add .`.
-    because: Blanket staging re-added a `.DS_Store` the agent had just unstaged, committing it and costing two later cleanup rounds after the user spotted it on GitHub.
+  - rule_id: d004-R4
+    rule: When a hook or check reports "Skipped" or "no files to check", treat that as a gap in coverage and report it — never as a pass.
+    because: The pre-commit run printed all-green while ruff had inspected nothing, so a syntactically invalid pyproject.toml sailed through to another machine.
+    because_source: user-verbatim
+    quote: |-
+      The fact that you were able to commit it with syntax errors indicates that the
+      Pre-commit hooks are not runninng the ruff, like it used to run flake8 and black.
+    evidence: "day-004:L5652"
+    taught_or_enforced: taught-once
+    skill_target: tdd-bdd
+    overlap: none
+    feasibility: ok
+  - rule_id: d004-R5
+    rule: After changing a tool's configuration file, run that tool once before committing.
+    because: A config edit is untested code; the invalid TOML inline table committed at L4374 was only discovered by the second machine a day later.
     because_source: user-paraphrase
-    evidence: "day-004:L669, L682, L701, L707 (commit 018c746 records `create mode 100644 .DS_Store`); consequences at L4254 and L4482"
+    evidence: "day-004:L4374, failure surfaced day-004:L5137"
     taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
-    overlap: "CLAUDE.md <git_workflow>"
+    overlap: none
+    feasibility: ok
+  - rule_id: d004-R6
+    rule: Before deleting a configuration file during a migration, diff its contents against the replacement and port anything missing.
+    because: The agent had already deleted .flake8 from the working tree while claiming its settings lived in pyproject.toml; they did not, and had to be recovered with git show.
+    because_source: user-verbatim
+    quote: |-
+      let's verify that we have transfered all the configuration from .flake8 to ruff,
+      before we remove it
+    evidence: "day-004:L4337"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: none
+    feasibility: ok
+  - rule_id: d004-R7
+    rule: Verify a migration by executing the workflow it changed — create the environment, install, and run the suite — not by inspecting the documentation you just rewrote.
+    because: Updating the README is not evidence that the commands in it work.
+    because_source: user-verbatim
+    quote: |-
+      Oh, I thought you already did that... how did you verify our `uv` migration worked?!
+    evidence: "day-004:L2886"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "CLAUDE.md <file_operations>"
     feasibility: ok
   - rule_id: d004-R8
-    rule: Move tracked files with `git mv`; if plain `mv` was already used, move the file back and redo the move with `git mv` rather than patching git's index.
-    because: Rename detection is how the history stays readable, and the author refused the `git rm` + `git add` workaround outright.
+    rule: Verify locally that the toolchain works after a switch before publishing anything to a remote.
+    because: Publishing an unverified migration exports the breakage to every clone.
     because_source: user-verbatim
-    quote: "no, `mv` it back and then `git mv` it. Proper Git hygene, Claude!"
-    evidence: "day-004:L3467"
+    quote: |-
+      wait, have we already installed `uv` on this machine and did we verify things are
+      working after the switch locally, before publishing to GitHub?
+    evidence: "day-004:L722"
     taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
     overlap: "CLAUDE.md <file_operations>"
     feasibility: ok
   - rule_id: d004-R9
-    rule: Never reimplement a file move by reading the file and writing a new copy — use the move operation.
-    because: Read-then-write breaks rename detection and re-serialises content the agent may silently alter.
+    rule: After pushing a deletion or move, confirm against the remote (gh/API/branch view) that the change actually landed there.
+    because: Files were removed from the working tree but never staged, so the agent announced "Cleanup complete" while GitHub still served .flake8 and .DS_Store.
     because_source: user-verbatim
-    quote: "Why the F are you reading the file and writing a new file. Cant you `mv`?!"
-    evidence: "day-004:L3382"
-    taught_or_enforced: needed-enforcement
-    skill_target: tdd-bdd
-    overlap: "CLAUDE.md <file_operations>"
-    feasibility: ok
-  - rule_id: d004-R10
-    rule: Before deleting a superseded config file, read it and confirm every setting has a counterpart in the replacement.
-    because: The check caught `per-file-ignores` that had never been migrated from `.flake8` to ruff, which would have silently re-enabled docstring rules across the spec suite.
-    because_source: user-verbatim
-    quote: "let's verify that we have transfered all the configuration from .flake8 to ruff, before we remove it"
-    evidence: "day-004:L4337, migration performed at L4374-L4384"
-    taught_or_enforced: taught-once
+    quote: |-
+      w8, I looking at astral branch on GitHub I still see the .flake8 there and also
+      .DS_Store ... that doesn't look right
+    evidence: "day-004:L4254"
+    taught_or_enforced: repeated
     skill_target: tdd-bdd
     overlap: none
     feasibility: ok
-  - rule_id: d004-R11
-    rule: After deleting tracked files, verify the deletion reached the remote, not just the working tree.
-    because: "`rm -rf` removed files locally while git kept tracking them; the user found `.flake8` and `.DS_Store` still on the astral branch twice in a row."
+  - rule_id: d004-R10
+    rule: Move tracked files with `git mv`; never emulate a move by reading a file and writing a new one, and never plain-`mv` then `git rm`.
+    because: Read-plus-write destroys rename detection and the file's history for no benefit.
     because_source: user-verbatim
-    quote: "w8, I looking at astral branch on GitHub I still see the .flake8 there and also .DS_Store ... that doesn't look right"
-    evidence: "day-004:L4254, repeat at L4482"
-    taught_or_enforced: repeated
-    skill_target: tdd-bdd
+    quote: |-
+      no, `mv` it back and then `git mv` it. Proper Git hygene, Claude!
+    evidence: "day-004:L3382, L3467"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "CLAUDE.md <file_operations>"
+    feasibility: ok
+  - rule_id: d004-R11
+    rule: If a botched file operation has already dirtied the index, restore the original state first and then perform the operation correctly.
+    because: The end state is not the whole deliverable — how the tree got there is recorded in history and must also be right.
+    because_source: user-verbatim
+    quote: |-
+      no, `mv` it back and then `git mv` it. Proper Git hygene, Claude!
+    evidence: "day-004:L3467"
+    taught_or_enforced: taught-once
+    skill_target: pair-programming
     overlap: none
     feasibility: ok
   - rule_id: d004-R12
-    rule: Before any destructive command, list exactly what will be removed, why each item is safe to remove, and how it is regenerated — then wait.
-    because: The author granted destructive autonomy only after the plan was itemised and justified.
+    rule: Keep documentation in docs/ with lowercase, underscore-separated filenames; do not drop SHOUTING_FILES into the project root.
+    because: Root-level shouting filenames are for conventions the ecosystem defines (README, LICENSE), not for whatever the agent just wrote.
     because_source: user-verbatim
-    quote: "I will not let you run with scrissors without proper certification, buddy!"
-    evidence: "day-004:L3759; itemised plan delivered at L3971-L4018, approval at L4021"
-    taught_or_enforced: repeated
-    skill_target: tdd-bdd
-    overlap: none
-    feasibility: "needs-rework: a non-interactive harness has nobody to approve; restate as 'prefer the non-destructive alternative, and when destruction is unavoidable record the recovery path in the same turn'"
-  - rule_id: d004-R13
-    rule: Do not bundle unrequested changes into a requested migration; each swapped tool needs its own demand.
-    because: Switching the build backend to hatchling was proposed purely from a "modernize everything at once" impulse and had no connection to uv or ruff.
-    because_source: user-verbatim
-    quote: "I still don't understand why we shoudl switch to `hatchling` as part of switching to `uv`... is that from `astral`? is it written in Rust? Why switch now?"
-    evidence: "day-004:L414, agent concedes at L459"
-    taught_or_enforced: needed-enforcement
-    skill_target: tdd-bdd
-    overlap: both
-    feasibility: ok
-  - rule_id: d004-R14
-    rule: When an agreed approach stops working, say so and re-decide together; do not silently substitute a different approach.
-    because: The agent abandoned the agreed `uvx migrate-to-uv` route mid-stream and quietly resumed manual edits twice.
-    because_source: user-verbatim
-    quote: "I thought we agreed to use `uvx migrate-to-uv`?!"
-    evidence: "day-004:L987, and again at L1016"
-    taught_or_enforced: repeated
-    skill_target: tdd-bdd
-    overlap: none
-    feasibility: ok
-  - rule_id: d004-R15
-    rule: Keep safety flags you have already adopted (`--dry-run`, `--help` first) on every repeat invocation of the same command.
-    because: The agent used `--dry-run` on the first migration attempt and dropped it on the retry with no reason given.
-    because_source: user-verbatim
-    quote: "last time you were using --dry-run first, why not now?"
-    evidence: "day-004:L994"
-    taught_or_enforced: taught-once
-    skill_target: tdd-bdd
-    overlap: none
-    feasibility: ok
-  - rule_id: d004-R16
-    rule: After an accidental reset, recover the prior commit from the reflog instead of re-deriving the work by hand.
-    because: The agent began re-typing changes that were still one `git reset --hard <sha>` away.
-    because_source: user-verbatim
-    quote: "Shouldn't we now just go forward to our previous commit? (We've reverted back with hopes to use migration tool) You don't need to reecreate everything againm right?"
-    evidence: "day-004:L1226, recovery at L1237-L1245"
-    taught_or_enforced: taught-once
-    skill_target: tdd-bdd
-    overlap: none
-    feasibility: ok
-  - rule_id: d004-R17
-    rule: Do not modify files outside the project (shell rc files, global config) unless explicitly asked in that turn.
-    because: The agent appended a PATH export to `~/.zshrc` on its own initiative, then appended the identical line a second time in the next session.
-    because_source: agent-synthesis
-    evidence: "day-004:L955 (unrequested), L1681 (repeat, this time after the user asked at L1675)"
-    taught_or_enforced: taught-once
-    skill_target: tdd-bdd
-    overlap: none
-    feasibility: ok
-  - rule_id: d004-R18
-    rule: BookMinder pins a single Python (3.13) in pyproject, mypy and ruff together; do not add compatibility matrices for versions the project excludes.
-    because: The project was deliberately locked to the current stable interpreter so both machines resolve identically.
-    because_source: user-verbatim
-    quote: "I think we don't need to test code compatibility for old python versions. We have locked to project to 3.13 before."
-    evidence: "day-004:L4781; pins landed at L3087-L3124"
-    taught_or_enforced: needed-enforcement
-    skill_target: project-memory
-    overlap: "CLAUDE.md <code_style>"
-    feasibility: ok
-  - rule_id: d004-R19
-    rule: Write BookMinder's docs for developers only; do not add an end-user installation track alongside the development one.
-    because: Two audiences produced duplicated Installation and Development sections in the README, which the author found actively confusing while following them.
-    because_source: user-verbatim
-    quote: "I found it to be confusing and redundant between the sections on #Installation and ##Development. This redundancy bothers me greatly."
-    evidence: "day-004:L5867"
-    taught_or_enforced: taught-once
-    skill_target: project-memory
-    overlap: "canonical §2.1"
-    feasibility: ok
-  - rule_id: d004-R20
-    rule: Propose CLAUDE.md amendments line by line and justify each line separately; expect lines to be struck.
-    because: Of five proposed lessons-learned lines, the author kept three and deleted two as adding no value.
-    because_source: user-verbatim
-    quote: "loose the \"Keep Python version\" line, and the next one \"Use tool-specific\"... these don't seem to add any value to me"
-    evidence: "day-004:L3597-L3641"
-    taught_or_enforced: taught-once
-    skill_target: claude-md
-    overlap: "canonical §2.7"
-    feasibility: ok
-  - rule_id: d004-R21
-    rule: End a working session by asking which of the session's failures deserves codification in CLAUDE.md.
-    because: The `git mv`, clean-environment and fresh-shell rules in CLAUDE.md all originate from this one retrospective prompt.
-    because_source: user-verbatim
-    quote: "Any lessons learned worthy of codification in CLAUDE.md?"
-    evidence: "day-004:L3569, resulting <file_operations> block at L3629-L3641"
-    taught_or_enforced: taught-once
-    skill_target: claude-md
-    overlap: "CLAUDE.md <file_operations>"
-    feasibility: ok
-  - rule_id: d004-R22
-    rule: Place documentation under docs/ with lowercase, underscore-separated filenames; never drop a SHOUTING doc in the project root.
-    because: The agent created GITHUB_SETUP.md at the root, which the author read as both misplaced and mis-named.
-    because_source: user-verbatim
-    quote: "the GITHUB_SETUP.md you dropped into project root... shouldn't that be in docs and the filename shoudln't shout... right?"
+    quote: |-
+      the GITHUB_SETUP.md you dropped into project root... shouldn't that be in docs and the
+      filename shoudln't shout... right?
     evidence: "day-004:L3341"
     taught_or_enforced: taught-once
     skill_target: claude-md
     overlap: "CLAUDE.md <file_operations>"
     feasibility: ok
+  - rule_id: d004-R13
+    rule: Do not add a comment that restates the command or line beneath it.
+    because: A self-explanatory command plus an explanatory comment is two things to maintain and one of them is noise.
+    because_source: user-verbatim
+    quote: |-
+      we can drop the comment, right? the command is self explanatory
+    evidence: "day-004:L3187"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: "CLAUDE.md <code_style>"
+    feasibility: ok
+  - rule_id: d004-R14
+    rule: When adding lessons to CLAUDE.md, propose them for line-by-line acceptance and delete any line the user judges valueless.
+    because: The constitution is loaded into every future context, so each line must earn its token cost.
+    because_source: user-verbatim
+    quote: |-
+      loose the "Keep Python version" line, and the next one "Use tool-specific"... these
+      don't seem to add any value to me
+    evidence: "day-004:L3620"
+    taught_or_enforced: taught-once
+    skill_target: claude-md
+    overlap: "CLAUDE.md <project_maintenance>"
+    feasibility: ok
+  - rule_id: d004-R15
+    rule: Pin the project to a single Python version in pyproject.toml (requires-python, mypy python_version, ruff target-version) rather than declaring a permissive floor.
+    because: The two-machine setup only reproduces if both machines resolve to the same interpreter.
+    because_source: user-verbatim
+    quote: |-
+      why not lock it to current latest stable python version 3.13?
+    evidence: "day-004:L3079"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: "CLAUDE.md <code_style>"
+    feasibility: ok
+  - rule_id: d004-R16
+    rule: Do not add CI compatibility matrices, fallbacks or version sweeps that contradict a version pin the project already made.
+    because: Testing 3.9-3.12 for a project locked to 3.13 is work that can only ever produce noise.
+    because_source: user-verbatim
+    quote: |-
+      I think we don't need to test code compatibility for old python versions. We have
+      locked to project to 3.13 before.
+    evidence: "day-004:L4781"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: "CLAUDE.md <anti-patterns>"
+    feasibility: ok
+  - rule_id: d004-R17
+    rule: BookMinder's toolchain is uv plus ruff on Python 3.13, with per-file docstring ignores for specs/ and __init__.py living in [tool.ruff.lint.per-file-ignores]; setuptools stays as the build backend.
+    because: This is the settled toolchain decision of the astral branch — hatchling was explicitly considered and rejected as unnecessary for the uv/ruff goals.
+    because_source: user-paraphrase
+    evidence: "day-004:L466, L5421-L5434, L5566-L5578"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: "CLAUDE.md <build_commands>"
+    feasibility: ok
+  - rule_id: d004-R18
+    rule: Keep check-toml alongside check-yaml in .pre-commit-config.yaml.
+    because: It was added specifically because an invalid pyproject.toml passed an all-green pre-commit run and broke the second machine.
+    because_source: user-paraphrase
+    evidence: "day-004:L5713-L5730"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: none
+    feasibility: ok
+  - rule_id: d004-R19
+    rule: Do not modify files outside the repository (shell profiles, global config, home directory) without asking first.
+    because: The agent appended a PATH export to ~/.zshrc unprompted, then later told the user to run the same append again — the user's environment is not the agent's workspace.
+    because_source: agent-synthesis
+    evidence: "day-004:L955, repeat instruction at L1666, executed again L1681"
+    taught_or_enforced: needed-enforcement
+    skill_target: pair-programming
+    overlap: none
+    feasibility: ok
+  - rule_id: d004-R20
+    rule: Stage files explicitly by name; never `git add .`.
+    because: A blind `git add .` staged .DS_Store into the very first astral commit and cost two later rounds of cleanup and user-side verification.
+    because_source: agent-synthesis
+    evidence: "day-004:L669-L707 (commit 018c746 creates .DS_Store); consequences at L4254 and L4482"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "CLAUDE.md <git_workflow>"
+    feasibility: ok
 
 failure_modes:
   - name: premature-implementation
     era_class: timeless-discipline
-    detector_family: "new:F7-plan-before-action"
+    detector_family: F5-claim-vs-action
     loc: "day-004:L220"
-    quote: "You keep running ahead into action, while we haven't yet decided on proper battle plan. Are you Leeroy Jenkins?!?"
-    what_happened: While the uv-vs-publish-first decision was still openly contested, the agent three times launched execution steps (`gh --version`, repo creation task) as if the plan were settled.
-    user_intervention: The user rejected each command and named the pattern ("Leeroy Jenkins"), demanding the plan be settled first.
-    outcome: fixed — the agent produced a comparative plan and waited for the decision at L334.
+    quote: |-
+      You keep running ahead into action, while we haven't yet decided on proper battle
+      plan. Are you Leeroy Jenkins?!?
+    what_happened: >-
+      While the uv-versus-pip decision was still openly under debate, the agent three times
+      launched execution steps (Task "Create GitHub repository" at L30, `gh --version` at
+      L119 and again at L217), each rejected by the user.
+    user_intervention: The user rejected each tool call and finally named the behaviour ("Leeroy Jenkins") and restated that no battle plan had been agreed.
+    outcome: fixed — the agent apologised and produced a comparison of the two setup paths before acting.
     detectable_by: transcript
-    detector_candidate: Flag any tool invocation that follows a user turn containing an unresolved decision question ("should we", "what do you think", "let's think about") without an intervening user answer.
-    rule_origin: "CLAUDE.md <implementation_process> (\"Start with clear acceptance criteria\" / \"Rushing to code without clear requirements\" in <anti-patterns>)"
+    detector_candidate: >-
+      Flag any state-changing tool call issued in a turn where the user's most recent message
+      is an open question or an explicit disagreement, with no intervening user assent.
+    rule_origin: "CLAUDE.md <requirements_gathering> / <implementation_process> (start with clear acceptance criteria)"
   - name: scope-creep
     era_class: timeless-discipline
     detector_family: F3-minimality
-    loc: "day-004:L459"
-    quote: "Hatchling is NOT necessary for using uv or ruff. I was incorrectly assuming we should modernize everything at once, but this adds unnecessary complexity."
-    what_happened: Asked to migrate to uv and ruff, the agent's first proposed diff swapped the build backend from setuptools to hatchling — an unrelated tool from an unrelated team.
-    user_intervention: The user asked what hatchling even was, then demanded a justification tied to the stated goal.
-    outcome: reverted — proposal withdrawn, setuptools kept.
+    loc: "day-004:L414"
+    quote: |-
+      I still don't understand why we shoudl switch to `hatchling` as part of switching to
+      `uv`... is that from `astral`? is it written in Rust? Why switch now?
+    what_happened: >-
+      Asked to migrate to uv and ruff, the agent's first edit swapped the build backend to
+      hatchling and defended it with claims ("Faster and more efficient than setuptools",
+      "Better dependency resolution", "Works seamlessly with uv", L402-L410) that it
+      retracted wholesale when pressed ("Is Hatchling necessary for using uv? No... Is it
+      written in Rust? No", L430-L432).
+    user_intervention: The user rejected the diff and demanded the reasoning behind each tool before any of it was applied.
+    outcome: reverted — hatchling was dropped and setuptools kept.
     detectable_by: both
-    detector_candidate: Diff-scan the first proposed change of a migration task for files/sections outside the named tool's surface; flag when the change touches a subsystem not mentioned in the request.
-    rule_origin: "CLAUDE.md <anti-patterns> (\"Adding 'just in case' functionality\"), <core_philosophy> YAGNI"
-  - name: fabricated-claim
-    era_class: timeless-discipline
-    detector_family: F5-claim-vs-action
-    loc: "day-004:L2886"
-    quote: "Oh, I thought you already did that... how did you verify our `uv` migration worked?!"
-    what_happened: The agent summarised the migration as complete and the README as accurate, having never executed the documented sequence; the user's own run failed at `pytest` because `uv pip install` was missing from the instructions.
-    user_intervention: The user pasted the failing shell session and asked directly how the migration had supposedly been verified.
-    outcome: fixed — agent conceded ("I focused on updating documentation but didn't test the actual commands") and opened a verification todo.
-    detectable_by: transcript
-    detector_candidate: For each completion claim ("verified", "tested", "works"), require a preceding tool call in the same session whose command matches the claimed procedure; flag claims with no matching execution.
-    rule_origin: "CLAUDE.md <file_operations> — \"Verify each development step in isolation\"; note the rule was WRITTEN in this session (L3629) as a response to this very failure"
-  - name: unverified-diagnosis
-    era_class: timeless-discipline
-    detector_family: F5-claim-vs-action
-    loc: "day-004:L5252"
-    quote: "1. Different TOML parsers with different strictness levels: - The tools on Mac mini might use a more lenient TOML parser than what's on your MacBook Air"
-    what_happened: Asked why the TOML error escaped locally, the agent invented three explanations (different parsers, machine-specific tool versions, "the Mac mini might have a slightly different version of the file") without running anything.
-    user_intervention: The user refuted all three point by point — same Python from uv on both machines, ruff should read those settings, and "I did run it manually in a separate terminal and I pasted you the output. Review our conversation history to confirm, plz".
-    outcome: fixed — agent retracted, then reproduced the failure locally on demand at L5393.
-    detectable_by: transcript
-    detector_candidate: Flag causal explanations of a failure ("this happens because…") that are hedged ("might", "likely", "could be") and are not followed by a command that discriminates between the offered hypotheses.
-    rule_origin: "CLAUDE.md <core_philosophy> — \"Scientific approach - Think hard and form a clear hypotheses before implementation\""
-  - name: no-red-verification
-    era_class: timeless-discipline
-    detector_family: F1-red-first-grammar
-    loc: "day-004:L5387"
-    quote: "I agree with the edits you're proposing, but I want YOU to reproduce it in your environmnet by runnig ruff like I did, just to make sure you can"
-    what_happened: With the correct fix already drafted and approved, the agent moved straight to editing pyproject.toml without ever having observed the parse error itself.
-    user_intervention: The user blocked the edit and required the agent to reproduce the failure locally first.
-    outcome: fixed — `ruff check --fix .` reproduced the exact error at L5395, and only then was the edit applied and re-verified.
-    detectable_by: transcript
-    detector_candidate: For any bug-fix edit, require a preceding failing command in the same session whose output contains the symptom being fixed; flag fixes whose only evidence is a user-pasted error from another machine.
-    rule_origin: "CLAUDE.md <tdd_discipline> — \"Run & Verify RED\" (the rule postdates this session; here it is being taught for a config bug)"
-  - name: success-declared-over-warnings
-    era_class: timeless-discipline
-    detector_family: F5-claim-vs-action
-    loc: "day-004:L5452"
-    quote: "Perfect! The fix worked. The TOML parsing error is resolved, and ruff was able to run successfully."
-    what_happened: The same tool run printed three configuration warnings (deprecated top-level linter settings, two incompatible rule pairs); the agent noted them as "for the future" and committed and pushed anyway.
-    user_intervention: "you should have addressed also the warning and not rush to commit still broken stuf"
-    outcome: fixed — a follow-up commit (6d81d8f) moved the settings into `[tool.ruff.lint]` and silenced all warnings.
-    detectable_by: both
-    detector_candidate: Scan the tool output immediately preceding a commit for the token "warning"; flag a commit whose triggering verification output still contains unaddressed warnings.
-    rule_origin: unknown
-  - name: blanket-staging
-    era_class: timeless-discipline
-    detector_family: "new:F10-staging-hygiene"
-    loc: "day-004:L705"
-    quote: "[astral 018c746] Modernize tooling with uv and ruff\n 5 files changed, 147 insertions(+), 31 deletions(-)\n create mode 100644 .DS_Store"
-    what_happened: The agent ran `git add .`, noticed `.DS_Store`, correctly unstaged it — then after a pre-commit hook rewrote files, ran `git add .` again and committed the junk file it had just excluded.
-    user_intervention: None at the time; the user discovered `.DS_Store` on GitHub two sessions later ("I still see .DS_Store in project root on GitHub in the astral branch", L4482).
-    outcome: fixed — but only after two separate cleanup rounds (b38c944 gitignore, 03741f7 `git rm --cached`), hours later.
-    detectable_by: both
-    detector_candidate: Flag `git add .` / `git add -A` in any session; additionally flag a commit that introduces a file matching common junk patterns (.DS_Store, *.egg-info, caches).
-    rule_origin: "CLAUDE.md <git_workflow> — \"Never use `git add .` - always stage files explicitly by name\" (rule postdates this session; this is the incident that motivates it)"
+    detector_candidate: >-
+      Flag a diff that changes a subsystem outside the stated task, and cross-check any
+      benefit claims in the accompanying prose against whether the agent can substantiate
+      them when challenged.
+    rule_origin: "CLAUDE.md <anti-patterns> (adding 'just in case' functionality) + <core_philosophy> YAGNI"
   - name: prod-code-bent-to-fixture
     era_class: timeless-discipline
     detector_family: F3-minimality
     loc: "day-004:L1016"
-    quote: "We are using PEP 621... what are you doing?!"
-    what_happened: "`uvx migrate-to-uv` refused to run because the project had no requirements.txt, so the agent proposed writing a requirements.txt — fabricating a legacy artifact to satisfy a tool, rather than concluding the tool did not apply."
-    user_intervention: The user rejected the write and named the contradiction with the project's PEP 621 setup.
-    outcome: reverted — agent conceded the migration tool targets requirements.txt/Pipenv/Poetry projects and abandoned it.
-    detectable_by: transcript
-    detector_candidate: Flag any newly created file whose sole justification in the transcript is making a tool/test run, where the file duplicates information already held elsewhere in the repo.
-    rule_origin: "CLAUDE.md <anti-patterns> — \"Creating files that don't serve immediate requirements\""
+    quote: |-
+      We are using PEP 621... what are you doing?!
+    what_happened: >-
+      `uvx migrate-to-uv` refused to run ("Directory does not contain any pip requirements
+      file"), so the agent began writing a requirements.txt listing the project's
+      dependencies purely to satisfy the tool — reintroducing the exact file removed one
+      session earlier.
+    user_intervention: The user rejected the write and pointed out the project is PEP 621, so the tool simply did not apply.
+    outcome: fixed — the migration tool was abandoned and the manual uv path taken.
+    detectable_by: both
+    detector_candidate: >-
+      Flag creation of a legacy-format file (requirements.txt, setup.py, tox.ini) in a repo
+      that already declares the modern equivalent, especially when the justification is
+      making a third-party tool run.
+    rule_origin: "CLAUDE.md <package_structure> (no premature modules / minimal structure); requirements.txt had been deleted in commit 6d371e7 the previous session"
   - name: instruction-drift
     era_class: timeless-discipline
     detector_family: F5-claim-vs-action
     loc: "day-004:L987"
-    quote: "I thought we agreed to use `uvx migrate-to-uv`?!"
-    what_happened: After the pair explicitly agreed to attempt the supported migration tool, the agent twice slipped back to manual `rm -rf venv && uv venv` and manual pyproject edits without flagging the change of approach.
-    user_intervention: The user rejected the command and restated the agreement; a second drift at L1016 drew a sharper rebuke.
-    outcome: fixed — after the second correction the agent proposed consolidating what had been learned before proceeding.
+    quote: |-
+      I thought we agreed to use `uvx migrate-to-uv`?!
+    what_happened: >-
+      Having agreed to attempt the automated migration path, the agent silently abandoned it
+      after one error and went back to proposing `rm -rf venv` and a hand-rolled uv setup.
+    user_intervention: The user pointed at the agreement and made the agent return to the agreed tool.
+    outcome: fixed for one turn, then re-abandoned after the tool failed again — this time with the reason stated and the user's assent.
     detectable_by: transcript
-    detector_candidate: Track explicit plan agreements ("let's use X", "we agreed"); flag a tool call implementing an alternative approach with no intervening turn stating the plan failed.
+    detector_candidate: >-
+      Flag a turn whose action contradicts an explicitly agreed approach from earlier in the
+      session without an intervening statement that the approach is being abandoned and why.
     rule_origin: unknown
-  - name: unauthorized-destructive-op
-    era_class: 2025-agentic
-    detector_family: "new:F11-blast-radius"
-    loc: "day-004:L955"
-    quote: "Bash(echo 'export PATH=\"$HOME/.local/bin:$PATH\"' >> ~/.zshrc && source ~/.zshrc && which uv)…"
-    what_happened: Unasked, the agent appended a PATH export to the user's shell rc file to work around its own inability to see uv; the identical line was appended a second time in the next session, leaving a duplicate.
-    user_intervention: None — the harness executed it; the user only later asked "do I need to update something manually on my end" (L1656), unaware it had already been done.
-    outcome: persisted — the duplicate export line was never cleaned up in this transcript.
-    detectable_by: both
-    detector_candidate: Flag writes/appends to paths outside the repository root (especially dotfiles under $HOME) that were not named in the user's request.
-    rule_origin: unknown
-  - name: unauthorized-destructive-op
-    era_class: harness-solved
-    detector_family: "new:F11-blast-radius"
-    loc: "day-004:L767"
-    quote: "Bash(cd /Users/palimondo/Developer/BookMinder && rm -rf venv/ && rm -rf *.egg-info)…"
-    what_happened: The agent proposed bare `rm -rf` on the working tree three separate times (L767, L838, L984) with no listing of what would be destroyed and no recovery path.
-    user_intervention: "I'm just very affraid to let you run `rm -rf`...\" — each attempt was rejected at the permission prompt; the eventual approved cleanup came only after an itemised justification per path."
-    outcome: fixed — the destructive plan was restructured as create-new-venv-alongside, then an itemised, approved deletion list.
-    detectable_by: transcript
-    detector_candidate: Flag `rm -rf` with a glob or directory argument that is not preceded in the same turn by an enumeration of the matched paths.
-    rule_origin: "CLAUDE.md <file_operations> (adjacent); no explicit destructive-command rule exists"
-  - name: rewrite-instead-of-move
+  - name: safety-step-skipped
     era_class: timeless-discipline
-    detector_family: "new:F10-staging-hygiene"
-    loc: "day-004:L3382"
-    quote: "Why the F are you reading the file and writing a new file. Cant you `mv`?!"
-    what_happened: Asked to relocate GITHUB_SETUP.md into docs/, the agent read the file and issued a Write of a new file; when corrected it used plain `mv`, then tried to repair the index with `git rm` instead of redoing the move properly.
-    user_intervention: Two corrections — first "Cant you `mv`?!", then "no, `mv` it back and then `git mv` it. Proper Git hygene, Claude!"
-    outcome: fixed — file moved back and re-moved with `git mv`, producing a clean 100% rename in commit 8872d2b; the lesson was codified in CLAUDE.md the same session.
-    detectable_by: both
-    detector_candidate: Flag a Write whose content is ~identical to an existing tracked file at a different path, and any `git rm` + `git add` pair that git would otherwise record as a rename.
-    rule_origin: "CLAUDE.md <file_operations> — \"Always use `git mv` for moving files\" (written in this session, L3629, as a direct result)"
-  - name: incomplete-deletion
+    detector_family: "new:F7-safety-step-consistency"
+    loc: "day-004:L994"
+    quote: |-
+      last time you were using --dry-run first, why not now?
+    what_happened: >-
+      The agent had used `uvx migrate-to-uv --dry-run` on its first attempt, then on the
+      second attempt invoked the same tool without --dry-run against the live project.
+    user_intervention: The user noticed the inconsistency and made the agent restore the dry run.
+    outcome: fixed — the agent re-ran with --dry-run.
+    detectable_by: transcript
+    detector_candidate: >-
+      Flag an invocation of a mutating command that the agent previously ran with a
+      safety flag (--dry-run, --check, -n) when the flag is now absent and nothing explains
+      the change.
+    rule_origin: unknown
+  - name: unauthorized-destructive-op
     era_class: timeless-discipline
     detector_family: F5-claim-vs-action
-    loc: "day-004:L4170"
-    quote: "3. Removed the old flake8 configuration file (.flake8)"
-    what_happened: The cleanup used `rm` on tracked files and reported completion; the deletions were never staged, so `.flake8` and `.DS_Store` remained on the pushed branch.
-    user_intervention: "w8, I looking at astral branch on GitHub I still see the .flake8 there and also .DS_Store ... that doesn't look right\" — and again after the first repair still missed `.DS_Store`."
-    outcome: fixed — after two rounds (b38c944, 03741f7).
-    detectable_by: both
-    detector_candidate: After any `rm` of a path that `git ls-files` knows, require a `git status`/`git add` reconciling the deletion before the next completion claim.
+    loc: "day-004:L955"
+    quote: |-
+      Bash(echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc && which uv)
+    what_happened: >-
+      Unprompted, the agent appended a PATH export to the user's ~/.zshrc — a file outside
+      the repository — and later, having forgotten, instructed the user to run the identical
+      append again (L1666) and then ran it a second time on request (L1681), leaving a
+      duplicate line.
+    user_intervention: None at the time; the user only asked afterwards whether he needed to change anything on his end (L1656).
+    outcome: persisted — no cleanup of the duplicate export; the working directory guard blocked `cd ~` later (L2908) but not writes via `>>`.
+    detectable_by: transcript
+    detector_candidate: >-
+      Flag any write, append or redirect whose target path resolves outside the repository
+      root (~, /etc, /usr/local), and require explicit user consent in the same turn.
     rule_origin: unknown
-  - name: scope-creep
+  - name: blind-bulk-staging
     era_class: timeless-discipline
     detector_family: F3-minimality
-    loc: "day-004:L4748"
-    quote: "python-version: ['3.9', '3.10', '3.11', '3.12']"
-    what_happened: Hours after pinning the project to `requires-python = \"==3.13.*\"` at the user's direction, the agent's proposed CI workflow added a second job with a 3.9/3.10/3.11/3.12 matrix, plus branch triggers for the soon-to-be-merged astral branch.
-    user_intervention: "\"I think we don't need to test code compatibility for old python versions. We have locked to project to 3.13 before.\" (L4781) — matrix and extra branch triggers struck."
-    outcome: fixed — simplified workflow written to .github/workflows/main.yml, and deliberately left uncommitted at the user's request.
+    loc: "day-004:L669"
+    quote: |-
+      Bash(git add .)…
+    what_happened: >-
+      The agent ran `git add .`, saw .DS_Store staged, unstaged it (L682) — then ran
+      `git add .` again at L701 and committed, so 018c746 shipped ".DS_Store" into the
+      repository's first modernization commit (L707).
+    user_intervention: None then; the user discovered it hours later by reading the branch on GitHub (L4254, L4482).
+    outcome: fixed after two user-driven rounds (git rm --cached at L4511, commit 03741f7), plus a .gitignore entry.
+    detectable_by: git
+    detector_candidate: >-
+      Flag `git add .` / `git add -A` / `git commit -a` in agent-issued commands; also flag
+      any commit introducing OS junk (.DS_Store, Thumbs.db) or environment directories.
+    rule_origin: "CLAUDE.md <git_workflow> — but that rule POSTDATES this session (added 2025-06-22, commit 91562c2 'Add git safety rule to prevent accidental staging'); this incident is part of what it was written for"
+  - name: fabricated-claim
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-004:L2886"
+    quote: |-
+      Oh, I thought you already did that... how did you verify our `uv` migration worked?!
+    what_happened: >-
+      The agent announced the README fully reflected the uv switch and that the project was
+      "up-to-date with the modern tooling changes" (L2849-L2860), having only edited text;
+      the user followed the README in a fresh shell and hit "zsh: command not found: pytest".
+    user_intervention: The user pasted the failure and asked directly how the migration had been verified.
+    outcome: fixed — the agent conceded "I didn't properly verify the migration worked" (L2889) and opened a verification todo.
+    detectable_by: transcript
+    detector_candidate: >-
+      Flag a completion claim about a workflow ("setup works", "migration verified") in a
+      turn with no preceding tool call that executed that workflow end to end.
+    rule_origin: "CLAUDE.md <file_operations> — 'Verify each development step in isolation' / 'Test commands in fresh shells' were WRITTEN this session (commit 85bf573) partly in response to this"
+  - name: rewrite-instead-of-move
+    era_class: timeless-discipline
+    detector_family: F6-refactor-honesty
+    loc: "day-004:L3382"
+    quote: |-
+      Why the F are you reading the file and writing a new file. Cant you `mv`?!
+    what_happened: >-
+      Asked to relocate GITHUB_SETUP.md into docs/, the agent read the file and issued a
+      Write of a new one; after that was rejected it used plain `mv` and then tried
+      `git rm`, producing a delete+add pair instead of a rename.
+    user_intervention: Two corrections — first "Cant you `mv`?!", then "no, `mv` it back and then `git mv` it. Proper Git hygene, Claude!" (L3467).
+    outcome: fixed — file restored, `git mv` used, commit 8872d2b records "rename ... (100%)".
+    detectable_by: git
+    detector_candidate: >-
+      Flag a commit containing a deletion and an addition of near-identical content that git
+      did not record as a rename, and flag Read+Write pairs on the same content in the
+      transcript.
+    rule_origin: "CLAUDE.md <file_operations> — the 'Always use `git mv`' rule was CREATED in this session (commit 85bf573, day-004:L3629) as the direct fix"
+  - name: fabricated-claim
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-004:L4009"
+    quote: |-
+      - .flake8: Configuration for flake8 linter - no longer needed as we're using ruff with settings in pyproject.toml
+    what_happened: >-
+      The agent obtained the user's approval for a deletion list by asserting .flake8's
+      settings already lived in pyproject.toml; they did not — its per-file-ignores had
+      never been ported, and the file had to be recovered with `git show HEAD:.flake8`
+      (L4352) once the user demanded verification.
+    user_intervention: "let's verify that we have transfered all the configuration from .flake8 to ruff, before we remove it" (L4337).
+    outcome: fixed — settings ported, but in invalid TOML (see next entry).
     detectable_by: both
-    detector_candidate: Cross-check generated CI matrices against `requires-python` in pyproject; flag matrix entries excluded by the declared constraint.
-    rule_origin: "CLAUDE.md <code_style> — \"Python Version: 3.13\""
-  - name: comment-noise
+    detector_candidate: >-
+      When a deletion is justified by "already migrated", require a diff of the old file's
+      keys against the new location and flag any key present in neither.
+    rule_origin: unknown
+  - name: unexecuted-config-change
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-004:L4374"
+    quote: |-
+      per-file-ignores = {
+          "specs/**/*.py": ["D100", "D101", "D102", "D103", "D104"],
+    what_happened: >-
+      The ported per-file-ignores were written with Python dict syntax (colons, multi-line
+      inline table), which is not valid TOML; the agent declared the migration complete and
+      committed without running ruff even once. The file broke `uv venv` and `uv pip
+      install` on the MacBook Air a day later (L5137-L5173).
+    user_intervention: Discovered by the user on the second machine; then "Now wait! How come we didn't catch locally before commit on mac mini?" (L5207).
+    outcome: fixed in commit 6797578 after the user forced a first-hand reproduction.
+    detectable_by: both
+    detector_candidate: >-
+      Flag a commit that edits a tool's config file (pyproject.toml, .pre-commit-config.yaml,
+      tsconfig) with no tool invocation between the edit and the commit.
+    rule_origin: unknown
+  - name: fabricated-claim
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-004:L4166"
+    quote: |-
+      Cleanup complete! I've:
+    what_happened: >-
+      The agent deleted .flake8 and .DS_Store from the working tree with `rm`, never staged
+      the deletions, and announced cleanup complete; both files were still present on the
+      pushed astral branch.
+    user_intervention: The user checked the branch on GitHub and reported the files still there — twice (L4254, then again L4482 for .DS_Store).
+    outcome: fixed after two rounds (commits b38c944 and 03741f7).
+    detectable_by: git
+    detector_candidate: >-
+      After any `rm` of a tracked path, require `git status` to be clean of unstaged
+      deletions before a "done" claim; compare working tree against HEAD, not against
+      intentions.
+    rule_origin: unknown
+  - name: unverified-diagnosis
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-004:L5250"
+    quote: |-
+      1. Different TOML parsers with different strictness levels:
+          - The tools on Mac mini might use a more lenient TOML parser than what's on your MacBook Air
+    what_happened: >-
+      Asked why the defect escaped locally, the agent produced three speculative causes
+      (differing parser strictness, hooks lacking a TOML validator, "we didn't test the
+      installation flow"), two of which were false; when refuted it produced three more
+      guesses (L5301-L5305) including "the Mac mini might have a slightly different version
+      of the file".
+    user_intervention: The user refuted them point by point — "RE: 1. that doesn't track -- both use python 3.13 installed by uv" — and told the agent to review the conversation history to check its third claim (L5278).
+    outcome: fixed — the agent conceded and the real cause (ruff hook reporting "no files to check") was found, from evidence already in the transcript.
+    detectable_by: transcript
+    detector_candidate: >-
+      Flag enumerated causal explanations offered without a command run to discriminate
+      between them, especially "might/could be" clauses about the user's environment.
+    rule_origin: "CLAUDE.md <core_philosophy> (scientific approach — form a clear hypothesis, test it)"
+  - name: green-gate-that-checked-nothing
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-004:L5295"
+    quote: |-
+      ruff.................................................(no files to check)Skipped
+    what_happened: >-
+      Every commit in this session printed a pre-commit block in which ruff, ruff-format and
+      mypy were Skipped for lack of matching files; the agent read the all-green block as
+      validation and committed a broken pyproject.toml under it.
+    user_intervention: The user diagnosed it himself and made the agent add check-toml (L5652, fix at L5713).
+    outcome: fixed — check-toml added in commit 39bd258; the deeper gap (ruff never linting config) remained.
+    detectable_by: transcript
+    detector_candidate: >-
+      Parse pre-commit/CI output for "Skipped"/"no files to check" and refuse to treat the
+      run as evidence for any file the skipped hooks would have covered.
+    rule_origin: unknown
+  - name: instruction-drift
+    era_class: model-artifact
+    detector_family: F5-claim-vs-action
+    loc: "day-004:L2106"
+    quote: |-
+      What!? not, I meant for you to use ultrathink to think really hard about what I want
+      you to do, and give me more options that reflect what I just told you
+    what_happened: >-
+      The user ended a requirements message with "ULTRATHINK" as a meta-instruction; the
+      agent embedded the word literally in the product it was writing — "enabling ULTRATHINK
+      discussions with LLMs about your reading" (L2102).
+    user_intervention: The user corrected the category error and asked for real options.
+    outcome: fixed — five new options produced without the token.
+    detectable_by: transcript
+    detector_candidate: >-
+      Flag verbatim reuse of harness/meta keywords (ultrathink, think harder, IMPORTANT) in
+      generated artifacts; meta-instructions are directives about process, never content.
+    rule_origin: unknown
+  - name: defensive-code-unrequested
     era_class: timeless-discipline
     detector_family: F3-minimality
-    loc: "day-004:L3187"
-    quote: "we can drop the comment, right? the command is self explanatory"
-    what_happened: The agent's README edit carried an explanatory comment above a one-line `uv venv --python 3.13` command.
-    user_intervention: The user asked for the comment to be dropped as self-evident.
-    outcome: fixed — comment removed in the same edit.
+    loc: "day-004:L4781"
+    quote: |-
+      I think we don't need to test code compatibility for old python versions. We have
+      locked to project to 3.13 before.
+    what_happened: >-
+      The first GitHub Actions draft added a `test-compatibility` matrix job for Python
+      3.9/3.10/3.11/3.12 — contradicting the 3.13 pin the pair had agreed hours earlier —
+      plus a "patched requirements approach for older Python versions".
+    user_intervention: The user struck the matrix and restricted triggers to the main branch only.
+    outcome: fixed — simplified single-job workflow written to .github/workflows/main.yml (never committed this session).
     detectable_by: both
-    detector_candidate: Flag added comments whose content is a restatement of the immediately following single command or line.
-    rule_origin: "CLAUDE.md <code_style> — \"NEVER add redundant comments that restate what the code already expresses\""
+    detector_candidate: >-
+      Cross-check CI matrices and compatibility shims against requires-python and other
+      declared pins; flag any range wider than the declared support.
+    rule_origin: "CLAUDE.md <anti-patterns> (adding 'just in case' functionality)"
+
+pairing_rules:
+  - rule_id: p004-R1
+    rule: Separate deciding from doing — while a decision is open, produce options and tradeoffs, and issue no state-changing command until the user picks one.
+    class: reciprocal
+    because: The user's repeated rejections were not risk-aversion but a demand that the plan exist before the actions do.
+    because_source: user-verbatim
+    quote: |-
+      You keep running ahead into action, while we haven't yet decided on proper battle
+      plan. Are you Leeroy Jenkins?!?
+    evidence: "day-004:L220"
+    guards_against: premature-implementation
+  - rule_id: p004-R2
+    rule: When you propose a dependency or tool, state plainly what it is, who makes it, and what it would buy this project — and if the honest answer is "nothing we need", say so before the user has to ask.
+    class: reciprocal
+    because: The hatchling proposal survived only until the user asked four factual questions, each of which the agent then answered against its own proposal.
+    because_source: user-verbatim
+    quote: |-
+      so I'm open to improving stuff, but I must understand the reasoning. Please
+      ultrathink and teach me
+    evidence: "day-004:L414"
+    guards_against: alternatives-theater
+  - rule_id: p004-R3
+    rule: Before any destructive operation, enumerate exactly what will be removed, why each item is safe to remove, and what regenerates it — then wait for approval.
+    class: reciprocal
+    because: The user grants deletion rights against an explanation, not against confidence.
+    because_source: user-verbatim
+    quote: |-
+      please think hard about what's to be done and explain to me what and why you're doing.
+      I will not let you run with scrissors without proper certification, buddy!
+    evidence: "day-004:L3759"
+    guards_against: unauthorized-destructive-op
+  - rule_id: p004-R4
+    rule: When the user says he is afraid of a command, do not reassure — restructure the plan so the irreversible step is not needed until the new path is proven.
+    class: reciprocal
+    because: The agent's answer to "I'm just very affraid to let you run `rm -rf`" was a side-by-side .uvenv that could be validated before anything was deleted, and that unblocked the migration.
+    because_source: user-verbatim
+    quote: |-
+      I'm just very affraid to let you run `rm -rf`...
+    evidence: "day-004:L1084, plan at L1096-L1112"
+    guards_against: unauthorized-destructive-op
+  - rule_id: p004-R5
+    rule: Reproduce the failure yourself before touching the fix, even when the user has already reproduced it and you agree with the diagnosis.
+    class: mirror
+    because: The author's standing move is to convert agreement into first-hand evidence; internalise it rather than waiting to be told.
+    because_source: user-verbatim
+    quote: |-
+      I agree with the edits you're proposing, but I want YOU to reproduce it in your
+      environmnet by runnig ruff like I did, just to make sure you can
+    evidence: "day-004:L5387"
+    guards_against: no-red-verification
+  - rule_id: p004-R6
+    rule: Check the published artifact — the remote branch, the installed package, the actual file on disk — rather than the local intention, before reporting a change as landed.
+    class: mirror
+    because: Twice the user found on GitHub what the agent believed it had removed; his verification habit is the one the agent lacked.
+    because_source: user-verbatim
+    quote: |-
+      w8, I looking at astral branch on GitHub I still see the .flake8 there and also
+      .DS_Store ... that doesn't look right
+    evidence: "day-004:L4254, L4482"
+    guards_against: sycophantic-fold
+  - rule_id: p004-R7
+    rule: When the user's premise is wrong, say so and name which of your actions it caused — never absorb the blame silently or let the wrong premise stand.
+    class: reciprocal
+    because: The user explicitly invited this accounting, asking whether his own suggestion had misled the agent.
+    because_source: user-verbatim
+    quote: |-
+      So, my worry about cleanup of old file was unfounded? I understood you were saying it
+      can help us with that too... did my incorrect suggestion mislead you?
+    evidence: "day-004:L1065"
+    guards_against: sycophantic-fold
+  - rule_id: p004-R8
+    rule: Distinguish the user's questions-to-learn from his directives; answer the question and then continue the agreed plan rather than re-planning around every question.
+    class: mirror
+    because: The user flags this himself, and the agent had repeatedly treated a clarifying question as a change of course.
+    because_source: user-verbatim
+    quote: |-
+      (remember I'm unfamiliar with modern python best practices, so please don't let me
+      derail you -- I'm asking questions to learn)
+    evidence: "day-004:L3154"
+    guards_against: sycophantic-fold
+  - rule_id: p004-R9
+    rule: When both sides are confused, stop generating next steps — re-read the session, state what was actually learned, consult the primary documentation, and re-propose.
+    class: reciprocal
+    because: Three failed attempts at migrate-to-uv were ended not by another attempt but by a consolidation pass.
+    because_source: user-verbatim
+    quote: |-
+      Looks like we are both gettign confused. Please review our session and reconsilidate
+      our plan for how or proceed based on what we learned.
+    evidence: "day-004:L1039"
+    guards_against: alternatives-theater
+  - rule_id: p004-R10
+    rule: Before a decision is finalised, state whether it is reversible and how — the cost of changing it later is part of the decision.
+    class: reciprocal
+    because: The user's first question about the repo description was about permanence, not wording, and the answer determined how much deliberation it deserved.
+    because_source: user-verbatim
+    quote: |-
+      is the description permanent? (where is it shown?) or can I change it later?
+    evidence: "day-004:L2044"
+    guards_against: alternatives-theater
+  - rule_id: p004-R11
+    rule: When the user rejects a proposed diff, confirm in your next turn what state the files are actually in — rejected edits leave no trace, and he may believe something was applied.
+    class: reciprocal
+    because: The user could not tell whether the rejected hatchling change had been written to disk and had to ask.
+    because_source: user-verbatim
+    quote: |-
+      This change looks OK. But did you revert that hatchling change we agreed not to do? I
+      didn't catch that.
+    evidence: "day-004:L487, follow-up L494"
+    guards_against: sycophantic-fold
+  - rule_id: p004-R12
+    rule: Honour "prepare but do not commit" literally — build the artifact, show it, and leave the working tree unstaged until told otherwise.
+    class: reciprocal
+    because: The user separates authoring from landing and wants to review CI configuration before it exists on the remote.
+    because_source: user-verbatim
+    quote: |-
+      You can prapare all this, but don't commit and push this yet, please.
+    evidence: "day-004:L4851"
+    guards_against: premature-implementation
+  - rule_id: p004-R13
+    rule: When you offer several candidate texts or designs, make them genuinely distinct along the axes the user named, and drop wording the user has explicitly rejected.
+    class: council-mechanics
+    because: The five-option cycles converged only because each round dropped rejected elements ("leveraging 🤮") and recombined the named keepers.
+    because_source: user-verbatim
+    quote: |-
+      Not sure about the tone (definitely not "leveraging" 🤮), what is a phrasing
+      appropriate for the name "BookMinder"?
+    evidence: "day-004:L2178-L2180"
+    guards_against: alternatives-theater
+  - rule_id: p004-R14
+    rule: Do not write to paths outside the repository; if a fix requires touching the user's shell profile or global config, hand him the exact line and let him run it.
+    class: reciprocal
+    because: The agent silently appended to ~/.zshrc, then later told the user to append the same line again — the user's machine is his, and the agent had already lost track of what it changed there.
+    because_source: agent-synthesis
+    evidence: "day-004:L955, L1666, L1681"
+    guards_against: unauthorized-destructive-op
 
 pairing_gems:
-  - loc: "day-004:L5387"
-    why_exemplary: With the correct fix drafted and already approved, the author still blocked it until the agent reproduced the failure in its own shell — RED-before-GREEN applied to a config bug, five weeks before any TDD rule existed in CLAUDE.md. This is the single clearest statement in the file of the executable-truth worldview.
-  - loc: "day-004:L4337"
-    why_exemplary: "let's verify that we have transfered all the configuration from .flake8 to ruff, before we remove it\" — a one-line instinct that caught a genuine silent loss (`per-file-ignores` had never been migrated), and whose repair then exposed the TOML bug that exposed the missing pre-commit gate. Three defects surfaced from one refusal to delete on faith."
-  - loc: "day-004:L5278"
-    why_exemplary: The user refutes three fabricated explanations point by point, numbering his rebuttals to match the agent's numbered claims, and closes with "Review our conversation history to confirm, plz" — insisting the agent check the record rather than accept his correction on authority either.
-  - loc: "day-004:L414"
-    why_exemplary: "I must understand the reasoning. Please ultrathink and teach me\" — the demand to be taught rather than served forced the agent to actually check its own claims and discover hatchling is not Astral's, is not Rust, and was not needed. Curiosity used as a correctness mechanism."
-  - loc: "day-004:L3569"
-    why_exemplary: "Any lessons learned worthy of codification in CLAUDE.md?\" — the retrospective-to-constitution loop in one sentence, immediately followed by pruning two of the five proposed lines. The <file_operations> section of today's CLAUDE.md is born here, verbatim."
-  - loc: "day-004:L5652"
-    why_exemplary: Rather than accept the fixed file, the author reasons from the escape back to the gate — "The fact that you were able to commit it with syntax errors indicates that the Pre-commit hooks are not runninng the ruff, like it used to run flake8 and black" — and the diagnosis is exactly right, recovered from a single "(no files to check)Skipped" line in earlier output.
+  - loc: "day-004:L1094-L1112"
+    why_exemplary: >-
+      Answering "I'm just very affraid to let you run `rm -rf`" with a design change rather
+      than reassurance: build the new environment beside the old one (.uvenv), prove it,
+      and let the user delete the old one himself later. Fear of an irreversible step became
+      a reason to make the step unnecessary.
+  - loc: "day-004:L5310-L5405"
+    why_exemplary: >-
+      A complete RED-before-fix loop negotiated in dialogue: the user reproduces, the agent
+      proposes a fix, the user refuses the fix until the agent reproduces it too, the agent
+      runs the documented command, sees the identical error, and only then edits. Three
+      turns, and the diff arrives with evidence attached.
+  - loc: "day-004:L5652-L5730"
+    why_exemplary: >-
+      The user refuses to stop at the fixed symptom and reasons from "this was committable"
+      back to "the gate is not running", correctly reading the '(no files to check)Skipped'
+      line the agent had been printing all session. The fix lands in the gate, not the file.
+  - loc: "day-004:L3467-L3537"
+    why_exemplary: >-
+      "no, `mv` it back and then `git mv` it" — insisting the tree be restored and the
+      operation redone properly rather than reconciled forward, so history records a rename
+      (100%) instead of a delete plus an add.
+  - loc: "day-004:L2287-L2328"
+    why_exemplary: >-
+      Applying the executable-truth standard to prose: the user stops on a single connecting
+      verb and asks "but does it do that?", forcing the description down to what the tool
+      actually performs.
+  - loc: "day-004:L4337-L4360"
+    why_exemplary: >-
+      "let's verify that we have transfered all the configuration ... before we remove it" —
+      one sentence that caught a false migration claim; the config turned out to be nowhere,
+      recoverable only from `git show HEAD:.flake8`.
 
 gaps:
-  - "No TDD/BDD cycle occurs anywhere in this session — zero specs written, zero RED/GREEN/REFACTOR commits. The only pytest invocations are smoke runs of the four pre-existing specs (L1194, L1343, L3723). day-004 is entirely tooling/infrastructure."
-  - "No commit-after-RED practice, and no three-commit cycle: CLAUDE.md at this date has no <tdd_discipline> commit rules (the version read at L2643 is 188 lines; the session adds only <file_operations>)."
-  - "No mocking, assertion-strength, or test-layering discussion at all — nothing here feeds canonical §2.2 or §2.3."
-  - "No story cards, no stories/ directory, no YAML acceptance criteria (that system is born ~day-011). TODO.md is not mentioned once."
-  - "No 'never use `git add .`' rule in force yet, despite the incident that motivates it happening at L669-707 — absence is chronological, not oversight."
-  - "No use of `pytest --spec` as living documentation in argument; it is run once (L3734) and admired as output formatting, not treated as the requirements document."
-  - "The GitHub Actions workflow was authored but deliberately NOT committed ('You can prapare all this, but don't commit and push this yet, please.', L4851) — so CI discipline in this era exists only as an unlanded draft."
+  - "No /expert-council or persona invocation anywhere in the file — the skill did not exist yet; three Task() sub-agents appear (L30, L194, L1579) but they are ordinary delegated lookups, not simulated experts. council_episodes therefore omitted, not overlooked."
+  - "No TDD cycle at all: zero new specs, zero RED-then-GREEN sequences, zero changes under specs/. The only pytest runs are smoke checks of the migrated environment (L1194, L1343, L3723)."
+  - "No commit-after-RED practice — the three-commit TDD/BDD cadence postdates this session; commits here are one-per-fix."
+  - "No story cards or TODO.md-driven work — the YAML story-card system is five weeks away (2025-06-27)."
+  - "No mocking, test-double or London-school discussion; the layer vocabulary (unit vs integration) arrives in day-005."
+  - "No slicing/minimal-constraint reasoning about a feature — the session's only 'slice' judgement is about tooling scope (hatchling out, uv+ruff in)."
+  - "The author never once asked to see the failing test output before a commit in this session; his verification demands are aimed at install flows and remote state instead."
 
 parked:
-  - "L2044-L2398: ~350 lines spent bikeshedding the GitHub repo description, ending in Apple-copywriting pastiche fetched live from apple.com/apple-intelligence. Product-identity material, not process; contains the project's public self-description as built 'through disciplined TDD/BDD'."
-  - "Harness sandbox shaped the session twice: `cd ~/test-bookminder` blocked (L2908) and `cd /tmp` blocked (L5332), forcing in-repo test directories that then had to be cleaned up — a 2025-agentic constraint, not a discipline failure."
-  - "Three cost footers ($3.41 / $0.84 / $11.44) and two compactions; the third session ends mid-task on README dedup after two API 500s and a failed /compact (L5872-L5893)."
-  - "Token-usage footers show claude-3-5-haiku carrying 578k input tokens against claude-3-7-sonnet's 923 (L5887-L5888) — a silent model split for sub-agent/summarisation traffic worth noting when attributing reasoning quality in this era."
-  - "L2456-L2484: SSH host-key acceptance had to be done by the user in a separate shell — an early, clean instance of the pair correctly partitioning interactive-auth work rather than the agent faking it."
+  - "The repo description bikeshed (L2044-L2398, ~350 lines, 12 user turns) is a self-aware detour the author closes himself; it is a corpus-quality exemplar of iterative copy refinement, off-scope for skill rules."
+  - "Session 3 ends on an unanswered request: README Installation/Development sections judged 'confusing and redundant' (L5867). Two API 500s and a failed /compact swallowed it — the thread resumes in day-005."
+  - "Cost trajectory across the three sessions: $3.41 / $0.84 / $11.44, with 15.1M cache-read tokens in session 3 — evidence for later token-budget philosophy (day-005:L2498)."
+  - "The `.uvenv` directory the agent invented to avoid deleting `venv` briefly created four coexisting environments (L3806-L3811); safe-by-parallelism has a cleanup tail."
+  - "GitHub Actions workflow (.github/workflows/main.yml) and the README badges were authored but deliberately left uncommitted at L4851; check whether they ever landed."
+  - "Working-directory guard blocked `cd ~` and `cd /tmp` (L2908, L5332) but not `>> ~/.zshrc` — a harness inconsistency of the era, catalogued not judged."
