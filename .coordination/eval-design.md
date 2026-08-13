@@ -61,6 +61,9 @@ Mining output = the DEBUG BUILD: every claim fully back-referenced (loc, date, p
 
 Contradiction resolution happens at compile, on the evidence base, ranked: (1) user-verbatim > user-paraphrase > agent-synthesis; (2) among user statements, later date overrides earlier (session numbering = chronology); (3) agent-era artifacts (YOLO period, post-downgrade Flash) never override an earlier user ruling. Output is a CONTRADICTION LEDGER — both quotes, dates, proposed resolution — for user ratification, never silent resolution. The ratified ledger also drives the gardening pass over stale README/CLAUDE.md.
 
+## Claims-verification design (proposed 2026-08-13, user prompted after stale-tense relay incidents; awaiting user go for first run)
+Principle: a claim ships with its falsification procedure, as a requirement ships as a spec. (1) TYPED CLAIMS: workers emit present-tense repo assertions only as {claim, check} where check is an executable probe (grep/file:line/command+expected); untyped present-tense = source-time narrative by definition. (2) VERIFIER STAGE: standard post-fan-out stage runs every check against current tree, stamps VERIFIED@sha | STALE | FALSE — F5 detector pointed at our own pipeline. (3) FRESHNESS STAMPS: compile phase forbids present-tense claims in skills/backlogs/guide without verified_against: <sha>; stamps age visibly, re-verification = re-running checks. FIRST RUN (offered, not yet approved): sweep 24 YAMLs + canonical §5 for present-tense assertions → verified-residue.md, the stamped true repair backlog. KNOWN TRUST LIMITATION: validator audits quote: fields only — quoted-looking text in other fields (user_intervention etc.) is unverified corpus-wide; one fabricated instance already caught in day-018 by the repair agent.
+
 ## Open design questions
 
 - Schema v2: `philosophy` section shape — verbatim quote + paraphrase + which skill/rubric element it feeds.
