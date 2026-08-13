@@ -1,5 +1,12 @@
 # Session Coordination Log
 
+## ⚡ HANDOFF — READ FIRST AFTER COMPACTION (2026-08-13)
+STATE: Mining phase COMPLETE — 24/24 units in .coordination/mining/v2/*.yaml (schema v2.2, validated by .coordination/tools/validate_mining.py; run it, expect OK or near-OK — a repair agent was fixing 11 minor quote/provenance violations, verify it landed). Pairing trial (richer council schema) in mining/pairing/. v1 pilots in mining/v1/ (superseded, kept for method comparison).
+NEXT PHASE: COMPILE — but only after user-led design refinement discussion. Compile policy lives in eval-design.md (debug→optimized builds; contradiction ledger with provenance ranks user-verbatim>paraphrase>synthesis, later-user-overrides-earlier, agent-era never overrides user; THREE skills: tdd-bdd / pair-programming / bookminder project-memory; council rules split principle-vs-era-conditioned; detector families F1-F6). DO NOT start compile without explicit user go.
+PENDING USER INPUTS: (1) later-session JSONL upload (post-2025-07-12 corpus gap incl. commit-after-RED era); (2) wholesale ratification of bdd-style-canonical.md; (3) compile-phase design refinement + go.
+CONDUCT RULES: see Working style section — terse, no flattery, no meta-narration, falsify-before-assert, drain-before-kill, check-worker-liveness-before-preempting, no temporal promises, swarm launches need explicit yes.
+STOP-HOOK: user ordered the git-check stop hook DISABLED (single-agent invariant, misfires on multi-agent repo); coordinator's overwrite of ~/.claude/stop-hook-git-check.sh was classifier-blocked — user must disable it themselves or grant permission.
+
 Persistent record for the reevaluation session (started 2026-08-10, first CC cloud-infra test drive). Survives compaction and container loss. Maintained by coordinator; updated as threads open/close.
 
 ## Session goal
