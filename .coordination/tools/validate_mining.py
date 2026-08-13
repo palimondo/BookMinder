@@ -13,7 +13,7 @@ ENUMS = {
     "source": {"user-verbatim", "user-paraphrase", "agent-synthesis"},
     "because_source": {"user-verbatim", "user-paraphrase", "agent-synthesis"},
     "taught_or_enforced": {"taught-once", "repeated", "needed-enforcement"},
-    "skill_target": {"tdd-bdd", "project-memory", "claude-md"},
+    "skill_target": {"tdd-bdd", "project-memory", "pair-programming", "claude-md"},
     "era_class": {"timeless-discipline", "2025-agentic", "harness-solved", "model-artifact"},
     "detectable_by": {"git", "transcript", "both"},
 }
@@ -29,14 +29,23 @@ REQUIRED = {
 LOC_RE = re.compile(r"^day-\d{3}(-s\d)?:L\d+")
 
 
+GLYPHS = "│╭╮╰╯─┃|✦⏺⎿»✻"
+
+
 def norm(s: str) -> str:
-    return "".join(str(s).split())
+    t = "".join(str(s).split())
+    return t.translate({ord(c): None for c in GLYPHS})
+
+
+def norm_source(text: str) -> str:
+    # shard files prefix each line with "NNNN\t" — strip before normalizing
+    return norm(re.sub(r"^\d+\t", "", text, flags=re.M))
 
 
 def source_text(day: str) -> str:
     for base in (DIARY / f"{day}.md", SHARDS / f"{day}.md"):
         if base.exists():
-            return norm(base.read_text(errors="replace"))
+            return norm_source(base.read_text(errors="replace"))
     return ""
 
 
@@ -76,7 +85,16 @@ def check(path: Path) -> list[str]:
             if q and body:
                 if len(str(q).splitlines()) > 3:
                     errs.append(f"{where}: quote exceeds 3 lines")
-                if norm(q)[:120] not in body:
+                frags = [norm(f) for f in re.split(r"\.\.\.|…|\n", str(q)) if norm(f)]
+                pos = 0
+                ok = True
+                for frag in frags:
+                    i = body.find(frag[:120], pos)
+                    if i < 0:
+                        ok = False
+                        break
+                    pos = i + 1
+                if not ok:
                     errs.append(f"{where}: quote NOT verbatim in source ({str(q)[:50]!r}...)")
     return errs
 
