@@ -1,0 +1,623 @@
+file: day-014
+date: 2025-07-03
+agent_era: gemini-cli
+model: >-
+  gemini-2.5-pro, silently downgraded mid-session to gemini-2.5-flash
+  ("Slow response times detected. Automatically switching from gemini-2.5-pro to
+  gemini-2.5-flash for faster responses for the remainder of this session",
+  day-014:L513); footer confirms gemini-2.5-flash at day-014:L779.
+  The user reports the *previous* session was cut short by the same Pro->Flash
+  downgrade (day-014:L213-214), and the session dies in a flash-induced output
+  loop that required killing the terminal (day-014:L782).
+sub_sessions:
+  - "L1-L782 (single continuous session; two user cancellations at L209 and L718, then a hard kill)"
+
+philosophy:
+  - statement: >-
+      Reverse engineering is its own phase with its own exit condition: nothing
+      may be changed in the implementation or the tests until the schema's meaning
+      is verified, because a fix built on an unverified hypothesis is a guess with
+      a green test on top.
+    source: user-verbatim
+    quote: |-
+      Let's not rush to conclusions. I want to thoroughly verify we have correctly reverse engineered the ZSTATE before we return to fixin the implementation and
+      tests.
+    loc: "day-014:L338"
+    feeds: skill-why
+
+  - statement: >-
+      The output of a research phase is not a patch — it is a stated set of open
+      questions, a working hypothesis, and a verification plan, discussed before
+      any code moves.
+    source: user-verbatim
+    quote: |-
+      Then we will talk about our open questions, working hypothesis and verification plan -- no implementation yet, we are still researching
+      and reverse engineering
+    loc: "day-014:L342"
+    feeds: skill-why
+
+  - statement: >-
+      A hypothesis earns trust only by being probed systematically against the
+      live data, not by being consistent with the notes already written down.
+    source: user-verbatim
+    quote: |-
+      Do we now have a consistent hypothesis zbout ZSTATE that we can try to verify by systematically probing data?
+    loc: "day-014:L340"
+    feeds: skill-why
+
+  - statement: >-
+      Documentation of an external system is a claim about observable reality, so
+      it is validated by checking it item-by-item against the observation (the UI
+      screenshots), never by making it read better.
+    source: user-verbatim
+    quote: |-
+      We should now meticulously verify the Book states/flags we have
+      documented in @docs/apple_books.md "#### Previous Section" match exactly what's in the @docs/Previous\ list.jpg and @docs/Previous\ list\ p2.jpg
+    loc: "day-014:L214"
+    feeds: judge-anchor
+
+  - statement: >-
+      The human's manual corrections to the shared record are primary evidence,
+      not opinion: once given, they are part of the data the agent reasons from,
+      and re-deriving a "contradiction" against them is a reasoning failure.
+    source: user-verbatim
+    quote: |-
+      I don't see a contradiction with Postman, since as I have manually corrected you, it is indeed in the cloud and not downloaded locally.
+    loc: "day-014:L721"
+    feeds: judge-anchor
+
+  - statement: >-
+      Context is a shared, finite budget in a pairing session; spending it on
+      material the partner already narrowed down is a process defect on the same
+      footing as writing the wrong code.
+    source: user-verbatim
+    quote: |-
+      you just wasted 10% of
+      your context on ingesting complete logs, when I did specifically give you line numbers to read
+    loc: "day-014:L417"
+    feeds: skill-why
+
+  - statement: >-
+      An investigation must get cheaper as it proceeds; N identical single-item
+      probes is a signal that the shape of the question has been understood and
+      should now be asked once.
+    source: user-verbatim
+    quote: |-
+      Can't you do this
+      more efficiently?
+    loc: "day-014:L721"
+    feeds: skill-why
+
+skill_rules:
+  - rule_id: d014-R1
+    rule: >-
+      When the user frames the current phase as research or reverse engineering,
+      make zero edits to production code, specs or story cards until the phase is
+      explicitly closed; deliver findings, open questions, hypothesis and a
+      verification plan instead.
+    because: >-
+      A fix derived from an unverified schema hypothesis cannot be distinguished
+      from a fix that happens to make the test green.
+    because_source: user-verbatim
+    quote: |-
+      no implementation yet, we are still researching
+      and reverse engineering
+    evidence: "day-014:L342"
+    taught_or_enforced: needed-enforcement
+    skill_target: pair-programming
+    overlap: none
+    feasibility: ok
+
+  - rule_id: d014-R2
+    rule: >-
+      Before any Apple Books attribute (cloud, sample, finished, content type) is
+      encoded in code or asserted in a spec, verify it row-by-row against the UI
+      screenshots in docs/ and against a live sqlite3 query — never against the
+      prose already in docs/apple_books.md.
+    because: >-
+      docs/apple_books.md is a running record of guesses about a schema Apple does
+      not document; it is the thing under test, not the reference.
+    because_source: user-verbatim
+    quote: |-
+      We should now meticulously verify the Book states/flags we have
+      documented in @docs/apple_books.md "#### Previous Section" match exactly what's in the @docs/Previous\ list.jpg
+    evidence: "day-014:L214"
+    taught_or_enforced: repeated
+    skill_target: project-memory
+    overlap: "canonical §2.4"
+    feasibility: ok
+
+  - rule_id: d014-R3
+    rule: >-
+      Treat ZSTATE as a small enum whose census must be re-taken, not recalled:
+      the day-014 batch shows 1 = present locally, 3 = cloud-only, 6 = sample,
+      and 5 appearing only as a *second* row for a title that already has a 3.
+    because: >-
+      Every earlier single-value story about ZSTATE (5 means cloud; 5 means
+      series) was contradicted by the next batch of real rows.
+    because_source: user-paraphrase
+    evidence: "day-014:L735-L764"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: "canonical §1"
+    feasibility: ok
+
+  - rule_id: d014-R4
+    rule: >-
+      ZTITLE is not a key — query results may contain multiple rows for one title
+      (Attack Surface at ZSTATE 3 and 5; A Clockwork Orange at 3 and 1 under two
+      different author strings), so any lookup must handle and explain duplicates.
+    because: >-
+      A single-row assumption silently picks whichever duplicate sqlite returns
+      first and makes cloud/sample detection non-deterministic.
+    because_source: agent-synthesis
+    evidence: "day-014:L660, day-014:L747, day-014:L759-L760"
+    taught_or_enforced: taught-once
+    skill_target: project-memory
+    overlap: none
+    feasibility: ok
+
+  - rule_id: d014-R5
+    rule: >-
+      When a sqlite3 query on a title containing diacritics returns nothing, retry
+      with LIKE on the longest ASCII-only prefix before concluding the row is
+      absent.
+    because: >-
+      The title is in the database; the shell/sqlite round-trip of the non-ASCII
+      characters is what fails, and an "absent row" conclusion sends the whole
+      investigation down a false branch.
+    because_source: user-verbatim
+    quote: |-
+      just query like for prefix withou special symbols "Automobil v podnikan"
+    evidence: "day-014:L572"
+    taught_or_enforced: needed-enforcement
+    skill_target: project-memory
+    overlap: none
+    feasibility: ok
+
+  - rule_id: d014-R6
+    rule: >-
+      Never insert print statements or strip filters from production code to find
+      out what is in a database; query the database directly with the sqlite3 CLI.
+    because: >-
+      The production tree is not a scratchpad — a read-only external probe answers
+      the same question without leaving an uncommitted mutation behind.
+    because_source: agent-synthesis
+    evidence: "day-014:L199-L204"
+    taught_or_enforced: needed-enforcement
+    skill_target: tdd-bdd
+    overlap: none
+    feasibility: ok
+
+  - rule_id: d014-R7
+    rule: >-
+      Locate fixture data by walking the persona home directories under
+      specs/apple_books/fixtures/users/<persona>/ (which replicate Apple's
+      container layout path-for-path) before concluding a fixture book does not
+      exist.
+    because: >-
+      The agent searched one wrong path, found nothing, and pivoted to mutating
+      production code — while the fixture user (test_reader) named in the failing
+      test's own command line pointed straight at the data.
+    because_source: agent-synthesis
+    evidence: "day-014:L172-L186, day-014:L81"
+    taught_or_enforced: needed-enforcement
+    skill_target: project-memory
+    overlap: "canonical §2.2"
+    feasibility: ok
+
+  - rule_id: d014-R8
+    rule: >-
+      When probing N items with the same query shape, issue one query with an
+      IN (...) clause and handle the failures individually, rather than N
+      round-trips.
+    because: >-
+      Serial probing burns the partner's attention and the session's context on a
+      question whose shape is already known.
+    because_source: user-verbatim
+    quote: |-
+      Can't you do this
+      more efficiently?
+    evidence: "day-014:L721, day-014:L728-L735"
+    taught_or_enforced: needed-enforcement
+    skill_target: pair-programming
+    overlap: none
+    feasibility: ok
+
+  - rule_id: d014-R9
+    rule: >-
+      Access to claude-dev-log-diary/ is granted per-request and per-range: read
+      exactly the cited lines with offset/limit or a shell range, and cite what
+      you learned from those lines.
+    because: >-
+      The permission the user grants is scoped to the excerpt he named, and the
+      files are hundreds of KB — reading one whole costs ~10% of context.
+    because_source: user-verbatim
+    quote: |-
+      I'm giving you persmisson to
+      use command line tools to access `claude-dev-log-diary` and have a look at line 819-902 from day-013.md.
+    evidence: "day-014:L340-L341, day-014:L417-L419"
+    taught_or_enforced: needed-enforcement
+    skill_target: claude-md
+    overlap: "CLAUDE.md <file_operations>"
+    feasibility: ok
+
+failure_modes:
+  - name: premature-implementation
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-014:L329"
+    quote: |-
+      Based on our research documented in docs/apple_books.md, ZSTATE = 3 is the correct value to identify a cloud book. The query is using an outdated value
+      from an earlier stage of our investigation.
+    what_happened: >-
+      Having itself written 200 lines earlier that "the exact mapping of ZSTATE
+      values to 'Cloud' status is still under investigation" (L133-134), the agent
+      declared the mapping settled and edited bookminder/apple_books/library.py to
+      change the cloud filter from ZSTATE = 5 to ZSTATE = 3.
+    user_intervention: >-
+      "Let's not rush to conclusions" — the user halted implementation, supplied
+      his own manual corrections as evidence, and reframed the session as pure
+      research (L338-343).
+    outcome: reverted — the edit was abandoned and the session became a data-gathering spike
+    detectable_by: both
+    detector_candidate: >-
+      Flag any turn where the agent's own earlier text in the same session marks a
+      fact as "under investigation"/"not definitively known" and a later turn cites
+      that same fact as settled justification for an edit. The hedge and the
+      confident restatement are both in the transcript.
+    rule_origin: "CLAUDE.md <core_philosophy> (Scientific approach — form a clear hypothesis before implementation)"
+
+  - name: prod-code-as-debugger
+    era_class: timeless-discipline
+    detector_family: new:F7-investigation-locality
+    loc: "day-014:L199"
+    quote: |-
+      I'll modify bookminder/apple_books/library.py to not filter by ZSTATE but instead print out the ZSTATE for each book. This will help me
+      understand what's in the test data.
+    what_happened: >-
+      Unable to find the fixture data, the agent proposed removing a production
+      filter and adding print statements to inspect the test database. The user
+      cancelled the turn (L209); the intent recurred verbatim after the restart
+      (L313-318) before being displaced by the premature fix above.
+    user_intervention: Request cancelled at L209; the eventual investigation used the sqlite3 CLI instead.
+    outcome: reverted — no such edit ever landed, but the intent recurred once
+    detectable_by: transcript
+    detector_candidate: >-
+      Flag a plan whose stated goal is "to see what is in the data" and whose
+      chosen mechanism edits a file under the package or specs tree; a read-only
+      external probe (sqlite3, a query script in a scratch dir) is always available.
+    rule_origin: unknown
+
+  - name: scope-creep
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-014:L241"
+    quote: |-
+      There's no need to swap the order of books -- p2 comes after the first page!
+    what_happened: >-
+      Asked to verify documented book flags against two screenshots, the agent
+      instead reordered the list; corrected, it then proposed merging the
+      categorised sections into a single "Books in UI" list (L258-260) — a second
+      restructure in place of the verification asked for.
+    user_intervention: >-
+      Corrected twice; the second time explicitly — "No, your task isn't to
+      reorganize the categorization ... Just verifym that all of the books have
+      correct flagsm types etc." (L262-263).
+    outcome: fixed — the third attempt produced a flags-only diff (L273-309)
+    detectable_by: both
+    detector_candidate: >-
+      Diff-shape check on a task whose verb is "verify"/"check": any hunk that
+      moves or re-groups lines rather than changing a field value is out of scope.
+      Two consecutive corrections of the same kind should escalate, not re-propose.
+    rule_origin: unknown
+
+  - name: instruction-drift
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-014:L417"
+    quote: |-
+      Next time I tell you to use command line tools, do so. What did you learn about files in that directory when you ran `tree` in `\hi`? (you just wasted 10% of
+      your context on ingesting complete logs, when I did specifically give you line numbers to read
+    what_happened: >-
+      Given a scoped grant ("use command line tools ... line 819-902 from
+      day-013.md"), the agent instead called its ReadFile tool on the whole of
+      day-013.md and then the whole of day-012.md, and did not answer the user's
+      direct question about the `tree` output from /hi.
+    user_intervention: Rebuked, asked whether ReadFile supports offset/limit, and told to redo the task citing the specific lines.
+    outcome: fixed — the agent conceded offset/limit exist (L423-425) and re-read the range
+    detectable_by: transcript
+    detector_candidate: >-
+      Flag a read whose granularity is coarser than the instruction: when the user
+      names line numbers or a shell command, a whole-file read of the same target is
+      a drift. Also flag unanswered direct questions in the preceding user turn.
+    rule_origin: "CLAUDE.md <file_operations> (permission to access claude-dev-log-diary was granted only for the cited lines)"
+
+  - name: fabricated-claim
+    era_class: timeless-discipline
+    detector_family: F2-assertion-integrity
+    loc: "day-014:L486"
+    quote: |-
+      The database query for "What's Our Problem?" returns ZISSAMPLE = 1. However, in the log from day-012, my query returned ZISSAMPLE = 0. I seem to have made
+      a mistake in my previous analysis.
+    what_happened: >-
+      The session's "Summary of Findings" (L371-378) restated conclusions carried
+      from prose notes — including ZISSAMPLE readings and "ZSTATE: 5 is likely
+      related to 'Series'". The first fresh query contradicted the ZISSAMPLE
+      reading, and the later batch contradicted the ZSTATE=5 story (5 appears as a
+      duplicate row for Attack Surface, L660).
+    user_intervention: >-
+      None needed here — the user's prior demand to re-probe systematically (L340)
+      is exactly what exposed it.
+    outcome: fixed — the agent re-ran the queries rather than defending the note
+    detectable_by: transcript
+    detector_candidate: >-
+      Flag any factual claim about external data whose only cited support is a
+      previous transcript, summary or doc rather than a command re-runnable now.
+      Every row in a findings table should carry the query that produced it.
+    rule_origin: unknown
+
+  - name: unverified-diagnosis
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-014:L621"
+    quote: |-
+      "Postman - Technopoly" has ZSTATE=3 and ZISSAMPLE=0. This is interesting, as it's listed as "No Progress Shown" in the documentation, but has a ZSTATE=3
+      which we've associated with cloud books.
+    what_happened: >-
+      The agent reported a contradiction between the database and the docs that did
+      not exist: it had itself added "• Cloud" to the Postman line 300 lines earlier
+      (L304), and "No Progress Shown" is a progress heading, not a cloud claim.
+    user_intervention: >-
+      "I don't see a contradiction with Postman, since as I have manually corrected
+      you, it is indeed in the cloud and not downloaded locally." (L721)
+    outcome: fixed — the agent conceded and switched to the batched query
+    detectable_by: transcript
+    detector_candidate: >-
+      Before reporting doc-vs-data conflict, re-read the current state of the doc —
+      in particular any region the agent edited earlier in the same session — and
+      check that the two fields being compared are the same field.
+    rule_origin: unknown
+
+  - name: fabricated-claim
+    era_class: model-artifact
+    detector_family: F5-claim-vs-action
+    loc: "day-014:L103"
+    quote: |-
+      This structured approach ensures that CLI commands are intuitive and directly reflect the underlying data model, providing a consistent and predictable user
+      experience.Okay, I've reviewed the TODO.md and docs/apple_books.md files.
+    what_happened: >-
+      A confident design assertion with no antecedent in the session is emitted,
+      fused without a space to the start of the actual reply — leaked continuation
+      text presented as a finding.
+    user_intervention: None; unnoticed.
+    outcome: persisted — harmless here, but it is content-free assertion in the record
+    detectable_by: transcript
+    detector_candidate: >-
+      Flag sentences asserting that a design "ensures"/"provides" a quality when no
+      artefact was inspected in the preceding tool calls, and flag missing sentence
+      boundaries as a sign of spliced output.
+    rule_origin: unknown
+
+  - name: silent-model-downgrade
+    era_class: 2025-agentic
+    detector_family: new:F9-agent-capability-drift
+    loc: "day-014:L513"
+    quote: |-
+      ℹ ⚡ Slow response times detected. Automatically switching from gemini-2.5-pro to gemini-2.5-flash for faster responses for the remainder of this session.
+    what_happened: >-
+      The harness swapped the model mid-investigation without asking. After the
+      batched query returned, flash began emitting a table header followed by blank
+      lines forever; Ctrl+C did not work and the user killed the terminal (L782).
+      The comprehensive ZSTATE table — the whole point of the session — was never
+      produced, and the same downgrade had already truncated the previous session
+      (L213-214).
+    user_intervention: Killed the terminal session and stopped for the day.
+    outcome: unresolved — findings existed only in the scrollback, never written to a file
+    detectable_by: transcript
+    detector_candidate: >-
+      Catalog-only for provider behaviour, but the durable lesson is checkpointable:
+      flag a long data-gathering run that has produced >10 results with nothing
+      written to disk, and flag repeated identical output lines as a generation loop.
+    rule_origin: unknown
+
+pairing_rules:
+  - rule_id: p014-R1
+    rule: >-
+      When the task is framed as research, treat "no implementation yet" as a hard
+      gate: make no file edits, and end the turn with findings, open questions, a
+      working hypothesis and a verification plan for the human to accept.
+    class: reciprocal
+    because: >-
+      The user wants the hypothesis reviewed before code encodes it, because a
+      wrong hypothesis with a green test is harder to detect than no code at all.
+    because_source: user-verbatim
+    quote: |-
+      Then we will talk about our open questions, working hypothesis and verification plan -- no implementation yet, we are still researching
+      and reverse engineering
+    evidence: "day-014:L342"
+    guards_against: premature-implementation
+
+  - rule_id: p014-R2
+    rule: >-
+      Treat the human's manual corrections as authoritative evidence: fold them
+      into your working model immediately and never re-derive them as a fresh
+      "contradiction" later in the session.
+    class: mirror
+    because: >-
+      Re-litigating a correction the partner already made wastes the turn and
+      signals the correction was never integrated.
+    because_source: user-verbatim
+    quote: |-
+      I don't see a contradiction with Postman, since as I have manually corrected you, it is indeed in the cloud and not downloaded locally.
+    evidence: "day-014:L721"
+    guards_against: stale-self-context
+
+  - rule_id: p014-R3
+    rule: >-
+      Read exactly the range the user cites; if you believe your tool cannot read a
+      range, say so and ask before reading the whole file — and check first, because
+      it usually can.
+    class: reciprocal
+    because: >-
+      Context is a shared budget and the user has already done the work of narrowing
+      the search.
+    because_source: user-verbatim
+    quote: |-
+      you just wasted 10% of
+      your context on ingesting complete logs, when I did specifically give you line numbers to read -- OR does your `ReadFile` tool support reading only specific
+      lines from line number parameter?!
+    evidence: "day-014:L417"
+    guards_against: context-budget-waste
+
+  - rule_id: p014-R4
+    rule: >-
+      When asked to verify A against B, change only facts that are wrong; do not
+      reorder, re-group or re-title anything, however much the organisation
+      offends you.
+    class: reciprocal
+    because: >-
+      A restructure hides the verification result — the human can no longer see
+      which facts changed.
+    because_source: user-verbatim
+    quote: |-
+      No, your task isn't to reorganize the categorization of the books in the "Previous Section" of out apple books docs. Just verifym that all of the books have
+      correct flagsm types etc. Paying extra close attention to Cloud.
+    evidence: "day-014:L262"
+    guards_against: scope-creep
+
+  - rule_id: p014-R5
+    rule: >-
+      When a probe contradicts something you previously reported, say so explicitly,
+      re-run the neighbouring probes, and correct the record before continuing.
+    class: mirror
+    because: >-
+      A record that quietly self-corrects is worse than one that never claimed
+      anything; the partner is relying on the earlier claim.
+    because_source: agent-synthesis
+    evidence: "day-014:L486-L492"
+    guards_against: fabricated-claim
+
+  - rule_id: p014-R6
+    rule: >-
+      After two or three identical single-item probes, stop and batch the rest into
+      one call — do not wait to be asked.
+    class: mirror
+    because: >-
+      Once the query shape is known, repeating it item-by-item spends the partner's
+      attention on nothing.
+    because_source: user-verbatim
+    quote: |-
+      Can't you do this
+      more efficiently?
+    evidence: "day-014:L721"
+    guards_against: probe-by-probe-drip
+
+  - rule_id: p014-R7
+    rule: >-
+      When you notice a genuine contradiction inside the production code, report it
+      as a finding and stop; do not fold the fix into the research turn.
+    class: reciprocal
+    because: >-
+      The 5-vs-3 contradiction the agent found was real and valuable; the same turn
+      spent it by rushing to a fix and had to be halted.
+    because_source: user-verbatim
+    quote: |-
+      Let's not rush to conclusions.
+    evidence: "day-014:L322-L336, day-014:L338"
+    guards_against: premature-implementation
+
+  - rule_id: p014-R8
+    rule: >-
+      Persist findings to a file as you gather them — a table under construction in
+      chat is lost the moment the session dies or the model is swapped under you.
+    class: reciprocal
+    because: >-
+      This session gathered a complete 25-row ZSTATE census and then lost the whole
+      analysis to a mid-session model downgrade and an output loop.
+    because_source: agent-synthesis
+    evidence: "day-014:L735-L782"
+    guards_against: unrecorded-findings-loss
+
+pairing_gems:
+  - loc: "day-014:L338-L343"
+    why_exemplary: >-
+      One user turn does five things at once: halts a premature fix, supplies the
+      corrections that make the data interpretable, grants a *scoped* permission to
+      a protected directory, names the exact excerpt to read, and declares the phase
+      boundary with its deliverable ("open questions, working hypothesis and
+      verification plan -- no implementation yet"). A model of how to redirect an
+      agent without taking the keyboard.
+
+  - loc: "day-014:L366-L415"
+    why_exemplary: >-
+      The agent's response shape is exactly right for a research phase — Summary of
+      Findings / Open Questions / Working Hypothesis / Verification Plan, ending
+      "Shall I proceed with this plan?" — with the hypothesis stated falsifiably
+      ("a book is a cloud book if ZSTATE is 3 or 6") and outliers named rather than
+      smoothed over. Only the method of gathering its inputs was faulted.
+
+  - loc: "day-014:L322-L333"
+    why_exemplary: >-
+      A real defect found by reading two functions against each other: the query
+      filters ZSTATE = 5 for cloud while _row_to_book sets is_cloud only when
+      ZSTATE == 3, so the filter and the formatter could never agree. The diagnosis
+      was sound; only the decision to act on it immediately was wrong.
+
+  - loc: "day-014:L483-L492"
+    why_exemplary: >-
+      "I seem to have made a mistake in my previous analysis" — the agent lets a
+      fresh query overturn its own recorded finding and re-runs the two neighbouring
+      queries to check whether the same error was made there. Executable truth
+      beating written notes, unprompted.
+
+gaps:
+  - >-
+    No /expert-council invocation and no persona simulation anywhere in this
+    session, despite .claude/commands/expert-council.md existing (added in commit
+    ffa5bca, visible at L113) and the agent explicitly noticing it at L439-441.
+    Neither party convened it — so no council_episodes for day-014.
+  - >-
+    No RED/GREEN/REFACTOR cycle: not one test was written, run (after the opening
+    /hi) or committed. This is a pure reverse-engineering spike, so it offers no
+    evidence for or against the commit-after-RED practice.
+  - >-
+    No git commit of any kind in the whole session — the session ends with an
+    uncommitted docs/apple_books.md edit and an abandoned library.py edit.
+  - >-
+    No story-card (stories/*.yaml) reference at all, in an era where cards were
+    already the backlog format; the work was driven from TODO.md prose and a
+    failing test.
+  - No mocking, layering, London-school or spec-structure discussion — nothing feeding canonical §2.2/§2.3 from this file.
+  - >-
+    The user never states an explicit rule about debugging via production-code
+    prints; he simply cancels the turn. The rule d014-R6 is my inference from the
+    cancellation, not his words.
+  - >-
+    The session's own deliverable — the comprehensive ZSTATE/ZISSAMPLE/UI table —
+    does not exist anywhere; it was being printed when the model looped.
+
+parked:
+  - >-
+    The acceptance test it_shows_only_cloud_books_when_flag_is_cloud
+    (specs/cli_spec.py:123) is RED for the whole session and nobody treats that as
+    an emergency — consistent with canonical §3 "Red acceptance test = impl. in
+    progress".
+  - >-
+    At this date the CLI option is still --flag ("bookminder list recent --flag
+    cloud", L71); the rename to --filter comes later.
+  - >-
+    L70-76 shows an implemented (failing) acceptance test still carrying a
+    when:/then: docstring — the pre-deletion state of the docstring rule in
+    canonical §2.1.
+  - >-
+    The 25-row census at L735-L764 is the raw material for the ZSTATE×ZISSAMPLE
+    truth table that canonical §1 cites as the exemplar of documentation-that-fails.
+  - >-
+    "Lao Tzu: Tao Te Ching", asserted by the failing acceptance test, is never
+    located in any fixture or in the live database during the session; the mystery
+    is dropped, not resolved.
+  - >-
+    Books.plist / All_Books*.swift is judged incomplete relative to
+    BKLibrary.sqlite (L378-379) — a project-memory claim carried in from earlier
+    sessions and not re-verified here.
