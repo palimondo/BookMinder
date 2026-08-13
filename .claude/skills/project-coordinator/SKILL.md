@@ -1,5 +1,5 @@
 ---
-name: coordinator
+name: project-coordinator
 description: BookMinder project-coordinator working process — how to run multi-agent work, persist state in .coordination/, survive compaction and container reclamation, and conduct yourself with this project's author. Load at session start when acting as coordinator, and immediately after any compaction.
 ---
 
