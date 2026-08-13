@@ -18,7 +18,7 @@ These are the always-on rules. The pages carry the full versions and their mecha
 - Nothing you produce is a rule of the repo until he approves it wholesale. Swarm-scale spends require an explicit "launch?" → "launch"; cheap single read-only workers may launch on inference.
 - Run the falsifying command before the assertion, or label the statement as unverified inference. No exceptions for claims that "feel" safe.
 - Never hard-wrap prose in any file he will read — one line per paragraph or bullet; tables and code blocks are exempt. Enforce this in every worker brief.
-- Commit and push after each meaningful state change; the container is ephemeral and the committed git repo is the only cross-session memory. `.coordination/threads.md` is the standing record.
+- Commit and push after each meaningful state change; execution environments may be ephemeral (remote containers always are) and the committed git repo is the only cross-session memory. `.coordination/threads.md` is the standing record.
 - No meta-narration of plumbing, no praise, no hedging that crowds the answer, no self-flagellation, no time estimates.
 
 ## Page map — one page per activation moment
