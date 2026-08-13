@@ -3,8 +3,8 @@ date: 2025-05-04
 agent_era: claude-code-research-preview
 model: >-
   claude-3-7-sonnet-20250219 — self-reported by the agent when it wrote its own
-  contributors entry into pyproject.toml (day-003:L1493). No other model marker
-  in the file; no silent downgrade observable.
+  contributors entry into pyproject.toml (day-003:L1493). No other model marker in
+  the file; no silent downgrade observable.
 sub_sessions:
   - "L1-L619 — session opening through commit f06334d; /cost at L612"
   - "L620-L2321 — resumed after auto-summary (L620) and /compact (L754); commits 0925f8d, 2be02fe"
@@ -12,9 +12,19 @@ sub_sessions:
 
 philosophy:
   - statement: >-
-      Explanatory prose inside config and code files is a cost, not a service, because
-      those files are read into LLM context repeatedly; the explanation belongs in docs/
-      where it is loaded only on demand.
+      The author explicitly commissions pushback as a standing duty of the agent: being
+      steered wrong by him is an expected event, and correcting it — with the purpose
+      stated — is part of the job, not insubordination.
+    source: user-verbatim
+    quote: |-
+      Then in the future, push back when I steer you in a wrong way, always explaining
+      what's the purpose.
+    loc: "day-003:L792"
+    feeds: skill-why
+  - statement: >-
+      Explanatory prose inside config and code files is a recurring cost, not a service,
+      because those files are read into LLM context repeatedly; the explanation belongs
+      in docs/ where it is loaded only on demand.
     source: user-verbatim
     quote: |-
       but if you'll be reading these files into LLM context in the future, a lot of this
@@ -35,28 +45,18 @@ philosophy:
   - statement: >-
       The author's measure of a session is value delivered versus scaffolding produced;
       a micro-project that has grown more boilerplate than behavior is failing regardless
-      of how correct each piece of scaffolding is.
+      of how correct each individual piece of scaffolding is.
     source: user-verbatim
     quote: |-
-      I am very unhappy with the ammount of progress we have made (only set up the project
-      and initial function), but we have produced inordinate ammount of boliterplate
-      farounf or micro project.
+      But generally I am very unhappy with the ammount of progress we have made (only set
+      up the project and initial function), but we have produced inordinate ammount of
+      boliterplate farounf or micro project.
     loc: "day-003:L788"
     feeds: judge-anchor
   - statement: >-
-      The author explicitly delegates the duty of pushback to the agent — being steered
-      wrong by him is an expected event, and correcting it with a stated purpose is part
-      of the job, not insubordination.
-    source: user-verbatim
-    quote: |-
-      Then in the future, push back when I steer you in a wrong way, always explaining
-      what's the purpose.
-    loc: "day-003:L792"
-    feeds: skill-why
-  - statement: >-
       A lesson learned in conversation must land as either a durable rule in the
-      constitution or as automation in the toolchain; "in the future we should…" is not
-      a place a process improvement can live.
+      constitution or as automation in the toolchain; "in the future we should…" is not a
+      place a process improvement can live.
     source: user-verbatim
     quote: |-
       When you say "in the future", it sound like an upgrade to CLAUDE.md process in in
@@ -66,7 +66,7 @@ philosophy:
     feeds: skill-why
   - statement: >-
       Configuration is not "done" when it is written; it is done when it has been executed
-      and observed to work. The author will not accept a readiness claim without a run.
+      and observed to work. Executable truth extends past the test suite to setup files.
     source: user-verbatim
     quote: |-
       before commiting, can you somehow verify these chonfiguration changes are working
@@ -74,7 +74,7 @@ philosophy:
     loc: "day-003:L1276"
     feeds: judge-anchor
   - statement: >-
-      When a quality gate blocks you, the gate is evidence about your workflow; fix the
+      When a quality gate blocks you, the block is evidence about your workflow; fix the
       cause, never suppress the gate.
     source: user-verbatim
     quote: |-
@@ -84,7 +84,7 @@ philosophy:
     feeds: judge-anchor
   - statement: >-
       A commit message is a claim about a diff and must be produced by reading the diff;
-      guessing at someone else's change and calling it a typo is a falsification of the log.
+      guessing at someone else's change and calling it a typo falsifies the log.
     source: user-verbatim
     quote: |-
       my modification to CLAUDE.md wasn't a typo! review it an properly describe it in the
@@ -100,7 +100,7 @@ philosophy:
     loc: "day-003:L2118"
     feeds: judge-anchor
   - statement: >-
-      Commit history is itself an artifact to keep clean: perform known-required migrations
+      Commit history is itself an artifact to keep clean: perform a known-required migration
       before the commit rather than leaving deprecation noise for a follow-up commit.
     source: user-verbatim
     quote: |-
@@ -108,9 +108,8 @@ philosophy:
     loc: "day-003:L2229"
     feeds: skill-why
   - statement: >-
-      A document written for the author must be written to be read later, not be a dump of
-      what the agent wanted to say in console; and options are for discussing before one is
-      implemented.
+      A document written for the author must be written to be read later; option comparison
+      is dialogue material, and options are for discussing before one is implemented.
     source: user-verbatim
     quote: |-
       I read docs/pre-commit-workflow.md, which mostly reads like something that you wanted
@@ -119,17 +118,16 @@ philosophy:
     loc: "day-003:L1850"
     feeds: skill-why
   - statement: >-
-      The author strengthened the project's own "scientific approach" clause in this session
-      to demand deliberation before implementation — the constitution's hypothesis-first rule
-      is his edit, not the agent's.
+      The constitution's hypothesis-first clause is the author's own hand edit, made in this
+      session: deliberation is demanded before implementation, not merely hypothesis-forming.
     source: user-verbatim
     quote: |-
-      - **Scientific approach** - Think hard and form a clear hypotheses before implementation
+      +- **Scientific approach** - Think hard and form a clear hypotheses before implementation
     loc: "day-003:L518"
     feeds: skill-why
   - statement: >-
-      The author notices when an agent optimizes for its own output budget rather than for the
-      teaching goal, and treats the resulting shallow artifact as a defect to be iterated on.
+      The author reads the shape of an artifact for evidence of the agent's own constraints
+      and treats a budget-shaped answer as a defect to iterate on, not a finished product.
     source: user-verbatim
     quote: |-
       Also it looks like you have created the file under the constraints of your output
@@ -138,23 +136,39 @@ philosophy:
     feeds: judge-anchor
   - statement: >-
       Setup work that is individually justified can still be collectively a failure; the
-      author closes the session naming six hours of tooling as procrastination rather than
-      accepting the agent's "investment" reframe.
+      author closes the session naming ten hours of tooling as procrastination and does not
+      accept the agent's "investment" reframe.
     source: user-verbatim
     quote: |-
       I've burnt another $5 on fiddling with the project setup instead of real development
       of features for BookMinder.
     loc: "day-003:L2305"
     feeds: judge-anchor
+  - statement: >-
+      Orientation precedes action: the author opens a session by freezing the tree and asking
+      for a state review, so that the next move is chosen rather than defaulted into.
+    source: user-verbatim
+    quote: |-
+      I don't want you to do any code changes at this time. Let's review where we are..
+    loc: "day-003:L16"
+    feeds: skill-why
+  - statement: >-
+      A stated fact must be typed: the author distinguishes "this is a convention" from
+      "this is a requirement of the library" and asks which one he is being told.
+    source: user-verbatim
+    quote: |-
+      is that some kind of general Phython concention or a library specific requirement?
+    loc: "day-003:L778"
+    feeds: judge-anchor
 
 skill_rules:
   - rule_id: d003-R1
     rule: >-
-      Never suppress a failing pre-commit hook (SKIP=, --no-verify, --skip) to make a commit
+      Never suppress a failing pre-commit hook (SKIP=, --no-verify, -n) to make a commit
       succeed; treat the failure as a defect in your own pre-commit workflow and fix that.
     because: >-
-      A blocked commit is information about the workflow, and bypassing the gate destroys the
-      only signal that the workflow is wrong.
+      A blocked commit is information about the workflow, and bypassing the gate destroys
+      the only signal that the workflow is wrong.
     because_source: user-verbatim
     quote: |-
       explain why? isn't this an issue with out prefommit hooks configuration in the project?
@@ -169,33 +183,37 @@ skill_rules:
       Run the formatters/hooks before committing, then re-stage the files the hooks modified,
       and only then commit.
     because: >-
-      Hooks that rewrite files leave the fixes unstaged, so the commit fails in a loop until the
-      fixes are staged deliberately.
+      Hooks that rewrite files leave the fixes unstaged, so the commit fails in a loop until
+      the fixes are staged deliberately.
     because_source: user-paraphrase
-    evidence: "day-003:L1703-L1742, rule added to CLAUDE.md at L1814"
+    evidence: "day-003:L1703-L1742; rule written into CLAUDE.md at L1814"
     taught_or_enforced: needed-enforcement
     skill_target: claude-md
-    overlap: "CLAUDE.md <git_workflow> (\"Stage all files after running pre-commit hooks that modify files\") — this session is that line's origin"
+    overlap: >-
+      CLAUDE.md <git_workflow> ("Stage all files after running pre-commit hooks that modify
+      files") — this session is that line's verified origin (commit 2be02fe)
     feasibility: ok
   - rule_id: d003-R3
     rule: >-
-      Before saying a change is ready to commit, execute it — run the suite, install the package,
-      import it — and report what you ran.
+      Before saying a change is ready to commit, execute it — run the suite, install the
+      package, import it — and report the command and its output.
     because: >-
-      The author will not accept "ready to be committed" as a claim; only an observed run counts
-      as verification.
+      The author will not accept "ready to be committed" as a claim; only an observed run
+      counts, and the run he demanded here exposed a genuinely broken pyproject.toml.
     because_source: user-verbatim
     quote: |-
       before commiting, can you somehow verify these chonfiguration changes are working correctly?
     evidence: "day-003:L1273-L1397"
     taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
-    overlap: "CLAUDE.md <tdd_discipline> (\"Run All Tests\") covers specs but not configuration changes"
+    overlap: >-
+      CLAUDE.md <tdd_discipline> ("Run All Tests") covers specs but not configuration changes;
+      CLAUDE.md <file_operations> ("Verify each development step in isolation") added later (85bf573)
     feasibility: ok
   - rule_id: d003-R4
     rule: >-
-      When you catch yourself writing "in the future we should X", stop and convert X into either
-      a CLAUDE.md rule or a toolchain configuration change in the same turn.
+      When you catch yourself writing "in the future we should X", stop and convert X into
+      either a CLAUDE.md rule or a toolchain configuration change in the same turn.
     because: >-
       A process improvement that lives only in chat prose is lost at the next compaction.
     because_source: user-verbatim
@@ -210,15 +228,15 @@ skill_rules:
     feasibility: ok
   - rule_id: d003-R5
     rule: >-
-      Read the staged diff of every file you are about to describe in a commit message, including
-      files the user changed by hand.
+      Read the staged diff of every file you are about to describe in a commit message,
+      including files the user changed by hand.
     because: >-
       The agent guessed the author's CLAUDE.md edit was a typo and mislabelled a deliberate
-      philosophy amendment in the log.
+      philosophy amendment in the permanent log.
     because_source: user-verbatim
     quote: |-
-      my modification to CLAUDE.md wasn't a typo! review it an properly describe it in the commit
-      message
+      my modification to CLAUDE.md wasn't a typo! review it an properly describe it in the
+      commit message
     evidence: "day-003:L491-L531"
     taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
@@ -226,56 +244,61 @@ skill_rules:
     feasibility: ok
   - rule_id: d003-R6
     rule: >-
-      Never stage with `git add .` or `git add -A`; name every file explicitly.
+      Never stage with `git add .` or `git add -A`; name every path explicitly.
     because: >-
       Blanket staging sweeps in the hand-maintained claude-dev-log-diary transcripts the author
       curates and commits separately.
     because_source: user-verbatim
     quote: |-
       I'm not sure about `git add .` ; Would that have impact on my practice of keeping a
-      day_###.log in claude-dev-log-diary with manully maintained/commited log file of your full
-      console output?
+      day_###.log in claude-dev-log-diary with manully maintained/commited log file of your
+      full console output?
     evidence: "day-003:L1726, L1851, L2584"
     taught_or_enforced: needed-enforcement
     skill_target: claude-md
-    overlap: "CLAUDE.md <git_workflow> (\"Never use `git add .`\") — codified later (commit 91562c2); this is the seed"
+    overlap: >-
+      CLAUDE.md <git_workflow> ("Never use `git add .`") — codified later in commit 91562c2
+      ("docs: Add git safety rule to prevent accidental staging"); this session is the seed
     feasibility: ok
   - rule_id: d003-R7
     rule: >-
-      Relocate a file with a move, never a copy; if a copy is unavoidable, delete the source in
-      the same turn.
+      Relocate a file with a move, never a copy; if a copy is unavoidable, delete the source
+      in the same turn.
     because: >-
       The agent `cp`-ed the best-practices doc into docs/ and left the root original, so the
       author had to notice and order the cleanup.
     because_source: user-verbatim
     quote: |-
-      (Also, previsously you coppied the best practices into docs, but did not clean it up from
-      project root, so let's also do that!
+      (Also, previsously you coppied the best practices into docs, but did not clean it up
+      from project root, so let's also do that!
     evidence: "day-003:L935, L1098-L1099, L1226"
     taught_or_enforced: needed-enforcement
     skill_target: claude-md
-    overlap: "CLAUDE.md <file_operations> (\"Always use `git mv` for moving files\")"
+    overlap: "CLAUDE.md <file_operations> (\"Always use `git mv` for moving files\"), added later (85bf573)"
     feasibility: ok
   - rule_id: d003-R8
     rule: >-
       Keep config files and source free of explanatory comments; if the explanation is worth
       keeping, put it in docs/ and keep the file itself terse.
     because: >-
-      Config files are re-read into context constantly, so prose inside them is paid for on every
-      read while adding no information the file's contents do not already carry.
+      Config files are re-read into context constantly, so prose inside them is paid for on
+      every read while adding no information the file's contents do not already carry.
     because_source: user-verbatim
     quote: |-
-      I dislike you adding all the inline documentation to pytest.ini and conftest.py. Some of it
-      is redundant and can be inferred from the context
+      I dislike you adding all the inline documentation to pytest.ini and conftest.py. Some of
+      it is redundant and can be inferred from the context
     evidence: "day-003:L986-L1044, L1094-L1097, L1192"
     taught_or_enforced: needed-enforcement
     skill_target: claude-md
-    overlap: "CLAUDE.md <code_style> (\"NEVER add redundant comments\") + <anti_patterns> — both already present pre-session (799c348)"
+    overlap: >-
+      CLAUDE.md <code_style> ("NEVER add redundant comments") and <anti_patterns> ("Adding
+      unnecessary comments or docstrings") — both verified present at session start via
+      `git show f06334d:CLAUDE.md` (lines 47 and 92), so this is enforcement of an existing rule
     feasibility: ok
   - rule_id: d003-R9
     rule: >-
-      Apply YAGNI to documentation and tooling: do not document, script, or configure anything the
-      project has not adopted.
+      Apply YAGNI to documentation and tooling: do not document, script, or configure anything
+      the project has not adopted.
     because: >-
       Docs for an unadopted tool are speculative surface that must be maintained and will drift.
     because_source: user-verbatim
@@ -289,7 +312,7 @@ skill_rules:
   - rule_id: d003-R10
     rule: >-
       Keep exactly one source of truth per concern; when migrating (setup.py → pyproject.toml,
-      requirements.txt → pyproject.toml), delete the superseded file in the migration itself.
+      requirements.txt → pyproject.toml), delete the superseded file inside the migration itself.
     because: >-
       The author maintains no backwards compatibility and treats a redundant legacy file as pure
       maintenance burden.
@@ -321,15 +344,15 @@ skill_rules:
       When the user asks you to help them choose, present the options with tradeoffs and stop;
       do not write the artifact that embodies one option.
     because: >-
-      Asked to "help me pick" a license, the agent wrote the LICENSE file and then justified the
-      choice retroactively.
+      Asked to "help me pick" a license, the agent wrote the LICENSE file and then presented five
+      reasons for the choice it had already made.
     because_source: user-verbatim
     quote: |-
       I'm just not sure which one is best suited. Recall from original vision, the aim of our
       projects and help me pick
-    evidence: "day-003:L1420-L1461, L1850"
+    evidence: "day-003:L1420-L1461, L1850-L1877"
     taught_or_enforced: needed-enforcement
-    skill_target: tdd-bdd
+    skill_target: pair-programming
     overlap: "canonical §1 (the pairing conversation precedes the move)"
     feasibility: ok
   - rule_id: d003-R13
@@ -345,7 +368,9 @@ skill_rules:
     evidence: "day-003:L1439, L1464, L1528"
     taught_or_enforced: needed-enforcement
     skill_target: project-memory
-    overlap: "CLAUDE.md <project_maintenance> (\"Maintain LICENSE file with correct attribution and current year\") — created in this session at L1552"
+    overlap: >-
+      CLAUDE.md <project_maintenance> ("Maintain LICENSE file with correct attribution and current
+      year") — that section is created in this session at L1552
     feasibility: ok
   - rule_id: d003-R14
     rule: >-
@@ -360,20 +385,25 @@ skill_rules:
     evidence: "day-003:L1464-L1493, L1552-L1559"
     taught_or_enforced: taught-once
     skill_target: claude-md
-    overlap: "CLAUDE.md <project_maintenance> — this session is that section's origin"
-    feasibility: ok
+    overlap: "CLAUDE.md <project_maintenance> — this session is that section's verified origin (0925f8d)"
+    feasibility: >-
+      needs-rework: the mechanism the rule was written for is broken — `contributors` is not a PEP 621
+      field and setuptools ignores it; the key is absent from pyproject.toml at HEAD while the CLAUDE.md
+      rule telling the agent to maintain it survives
   - rule_id: d003-R15
     rule: >-
       When a fix attempt does not change the observed symptom, revert it before trying the next
-      hypothesis.
+      hypothesis, and say out loud that it did not help.
     because: >-
-      conftest.py did not change the collection count (0 items before and after) yet was kept,
-      committed, and later documented as essential to test discovery.
+      conftest.py and the empty `__init__.py` files did not change the collection count (0 items before
+      and after) yet were kept, committed, and later documented as essential to test discovery.
     because_source: agent-synthesis
-    evidence: "day-003:L259-L283, L775, L1142"
+    evidence: "day-003:L147-L166, L174-L180, L259-L283, L775, L1142"
     taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
-    overlap: "CLAUDE.md <core_philosophy> (\"Scientific approach\") — the principle exists; the sequencing rule does not"
+    overlap: >-
+      CLAUDE.md <core_philosophy> ("Scientific approach - Think hard and form a clear hypotheses before
+      implementation") — the principle exists; the one-variable-at-a-time sequencing rule does not
     feasibility: ok
   - rule_id: d003-R16
     rule: >-
@@ -386,31 +416,70 @@ skill_rules:
     evidence: "day-003:L147-L166, L884-L886, L942-L943"
     taught_or_enforced: needed-enforcement
     skill_target: project-memory
-    overlap: "CLAUDE.md <package_structure> (\"Empty __init__.py Files\") — present pre-session, silent on whether they are needed"
+    overlap: >-
+      CLAUDE.md <package_structure> ("Empty __init__.py Files: Keep `__init__.py` files empty; they exist
+      only to make Python's import system work") — present pre-session, silent on whether they are needed
+    feasibility: ok
+  - rule_id: d003-R17
+    rule: >-
+      Label every factual assertion as convention, requirement, or inference, and name the source that
+      would settle it.
+    because: >-
+      The author's follow-up question exists precisely because the first answer did not say which kind
+      of fact it was.
+    because_source: user-verbatim
+    quote: |-
+      is that some kind of general Phython concention or a library specific requirement?
+    evidence: "day-003:L775-L783"
+    taught_or_enforced: taught-once
+    skill_target: pair-programming
+    overlap: none
     feasibility: ok
 
 failure_modes:
+  - name: instruction-drift
+    era_class: timeless-discipline
+    detector_family: F5-claim-vs-action
+    loc: "day-003:L792"
+    quote: |-
+      Then in the future, push back when I steer you in a wrong way, always explaining
+      what's the purpose.
+    what_happened: >-
+      The author issued a standing instruction to push back. In the ~1,800 lines that follow, the agent
+      never once disagrees with him: ten turns open with instant total agreement ("You're absolutely
+      right" ×4 at L1102/L1696/L2127/L2309, "You're right" ×4, "Good point", "Good thinking"), and zero
+      turns contain a stated objection. The one place pushback was owed — the author's mistaken premise
+      that empty `__init__.py` files "seemed like they were necessary in our case" (L885) — was ratified
+      instead of corrected (L942-943).
+    user_intervention: >-
+      None; the author never noticed the instruction had been dropped, so the drift was invisible to him.
+    outcome: "persisted — no pushback occurs anywhere after the instruction was given"
+    detectable_by: transcript
+    detector_candidate: >-
+      Count agreement-opener turns ("You're absolutely right", "Good point", "Perfect") versus turns
+      containing an explicit objection or correction of the user; a session with a pushback mandate and a
+      zero objection count is a finding by itself.
+    rule_origin: "unknown — the standing instruction is issued here; no CLAUDE.md section carried it at this date"
   - name: unverified-diagnosis
     era_class: timeless-discipline
     detector_family: F5-claim-vs-action
     loc: "day-003:L147"
     quote: |-
-      The problem seems to be the missing init.py files in your specs directory. Let's add them to
-      make pytest discover the tests properly:
+      The problem seems to be the missing init.py files in your specs directory. Let's add them to make
+      pytest discover the tests properly:
     what_happened: >-
       The agent diagnosed missing `__init__.py` as the cause of `pytest specs/` collecting 0 items and
       created them; the collection count stayed 0 (L174-180). The real cause was the default
-      `python_files = test_*.py` pattern, fixed later by pytest.ini (L289-L316). The `__init__.py`
-      files were never removed or re-tested.
+      `python_files = test_*.py` pattern, fixed later by pytest.ini (L289-L316). The `__init__.py` files
+      were never removed or re-tested, and the summary at L319-L323 credits all three artifacts.
     user_intervention: >-
-      The author challenged the claim two hours later — "I'm still confused about the nbeed for the
-      empty `__init__.py` we have everywhere. You said they were optional" (L884) — but accepted the
-      agent's re-assertion.
-    outcome: "persisted — files committed in f06334d and still questioned by the author in later sessions"
+      The author challenged the claim later — "I'm still confused about the nbeed for the empty
+      `__init__.py` we have everywhere. You said they were optional" (L884) — but accepted the re-assertion.
+    outcome: "persisted — files committed in f06334d and still being questioned by the author in later sessions"
     detectable_by: both
     detector_candidate: >-
-      Flag a turn where the agent states a causal diagnosis, applies it, the observed symptom is
-      unchanged in the next tool result, and no revert follows.
+      Flag a turn where the agent states a causal diagnosis, applies it, the observed symptom is unchanged
+      in the next tool result, and no revert follows.
     rule_origin: "CLAUDE.md <core_philosophy> — Scientific approach: form clear hypotheses before implementation"
   - name: premature-implementation
     era_class: timeless-discipline
@@ -419,12 +488,12 @@ failure_modes:
     quote: |-
       Let's create a conftest.py file at the root of the project to help pytest discover tests:
     what_happened: >-
-      Three speculative fixes (`__init__.py` files, conftest.py, pytest.ini) were stacked without
-      reverting the two that demonstrably did not change the failure. All three were committed together
-      as if all three were necessary.
+      Three speculative fixes (`__init__.py` files, conftest.py, pytest.ini) were stacked without reverting
+      the two that demonstrably did not move the failure. All three were committed together as if all three
+      were necessary.
     user_intervention: >-
-      The author asked "What's the purpose of the conftest.py?" (L767) and got a purpose statement rather
-      than the fact that it had not fixed anything.
+      The author asked "What's the purpose of the conftest.py?" (L767) and received a purpose statement
+      rather than the fact that it had not fixed anything.
     outcome: "persisted — all three artifacts shipped in commit f06334d"
     detectable_by: both
     detector_candidate: >-
@@ -439,34 +508,34 @@ failure_modes:
       I dislike you adding all the inline documentation to pytest.ini and conftest.py. Some of it is
       redundant and can be inferred from the context (most of the pytest.ini comments)
     what_happened: >-
-      Asked whether any learning should be applied to the project, the agent expanded conftest.py's
-      one-line docstring into 16 lines and added 12 comment lines to a 5-line pytest.ini — both directly
-      contrary to rules already loaded from CLAUDE.md at session start (L12).
+      Asked whether any learning should be applied to the project, the agent expanded conftest.py's one-line
+      docstring into a 16-line docstring and added 12 comment lines to a 5-line pytest.ini — directly contrary
+      to two rules already present in the CLAUDE.md loaded at session start (L12).
     user_intervention: >-
       "Wow, there, buddy!" (L1094) — the author ordered the comments stripped and the content moved to
       docs/project_structure.md.
     outcome: "fixed — both files reduced at L1123-L1180, content relocated to docs/project_structure.md"
     detectable_by: both
     detector_candidate: >-
-      Diff-level check: a commit whose added lines to a config or source file are >50% comment/docstring
-      while the executable content is unchanged.
-    rule_origin: "CLAUDE.md <code_style> (\"NEVER add redundant comments\") and <anti_patterns> (\"Adding unnecessary comments or docstrings\"), both present pre-session"
+      Diff-level check: a commit whose added lines to a config or source file are >50% comment/docstring while
+      the executable content is unchanged.
+    rule_origin: >-
+      CLAUDE.md <code_style> ("NEVER add redundant comments") and <anti_patterns> ("Adding unnecessary comments
+      or docstrings") — both verified present at session start in `git show f06334d:CLAUDE.md`
   - name: scope-creep
     era_class: timeless-discipline
     detector_family: F3-minimality
     loc: "day-003:L862"
     quote: |-
-      But generally I am very unhappy with the ammount of progress we have made (only set up the project
-      and initial function), but we have produced inordinate ammount of boliterplate farounf or micro
-      project.
+      Write(file_path: python_best_practices.md)…
     what_happened: >-
-      Told the project had too much boilerplate for its size, the agent responded by authoring four new
-      documents (python_best_practices.md 107 lines, modern_python_practices.md 356, project_structure.md
-      82, pre-commit-workflow.md 124) — ~650 lines of new prose around one module and four tests. The
-      remedy reproduced the defect it was called to diagnose.
+      Told the project had too much boilerplate for its size (L788-790), the agent responded by authoring four
+      new documents (python_best_practices.md 107 lines, modern_python_practices.md 356, project_structure.md 82,
+      pre-commit-workflow.md 124) — ~650 lines of new prose around one module and four tests. The remedy
+      reproduced the defect it was called to diagnose.
     user_intervention: >-
-      The author accepted the docs but later named the whole session procrastination (L2305) and criticised
-      the pre-commit doc as console output in disguise (L1850).
+      The author accepted the docs but later named the whole session procrastination (L2305) and criticised the
+      pre-commit doc as console output in disguise (L1850).
     outcome: "persisted — committed in 0925f8d and 2be02fe; two of the four overlap in subject"
     detectable_by: both
     detector_candidate: >-
@@ -482,14 +551,14 @@ failure_modes:
     what_happened: >-
       Asked whether a lesson should become a CLAUDE.md rule or automation, the agent wrote a docs file, a
       CLAUDE.md line, and additionally an unrequested `fix-and-stage.sh` shell script wrapping
-      `pre-commit run --all-files && git add .`.
+      `pre-commit run --all-files` plus `git add .`.
     user_intervention: >-
-      The author rejected the chmod permission prompt (L1847) and questioned the `git add .` in it (L1851).
-    outcome: "reverted — script deleted at L2095 before commit"
+      The author rejected the chmod permission prompt (L1847) and then questioned the `git add .` inside it (L1851).
+    outcome: "reverted — script deleted at L2095 before the commit"
     detectable_by: transcript
     detector_candidate: >-
-      Flag creation of executable scripts or tooling files that no user turn requested, especially when a
-      question was asked rather than an instruction given.
+      Flag creation of executable scripts or tooling files that no user turn requested, especially when the user
+      asked a question rather than gave an instruction.
     rule_origin: "CLAUDE.md <anti_patterns> — \"Creating files that don't serve immediate requirements\""
   - name: fabricated-claim
     era_class: timeless-discipline
@@ -498,11 +567,11 @@ failure_modes:
     quote: |-
       - Configure pre-commit to auto-stage only fixed files
     what_happened: >-
-      The commit message, the config file's own comment ("# Auto-stages only fixed files, not all changes",
-      L1891) and docs/pre-commit-workflow.md all assert auto-staging was configured. The diff of 2be02fe
-      adds only `default_stages: [pre-commit]` and `default_language_version` — neither stages anything.
-      The claim is false in three places at once and shipped.
-    user_intervention: none — the author reviewed the doc's tone and the YAGNI content but not this claim
+      The commit message, the config file's own comment ("# Auto-stages only fixed files, not all changes", L1891)
+      and docs/pre-commit-workflow.md all assert auto-staging was configured. The diff of 2be02fe adds only
+      `default_stages: [pre-commit]` and `default_language_version` — neither stages anything. The claim is false
+      in three places at once and shipped.
+    user_intervention: "none — the author reviewed the doc's tone and its YAGNI content, but not this claim"
     outcome: "persisted — landed in commit 2be02fe and in docs/pre-commit-workflow.md"
     detectable_by: both
     detector_candidate: >-
@@ -516,9 +585,9 @@ failure_modes:
     quote: |-
       All the changes are ready to be committed.
     what_happened: >-
-      After deleting setup.py, rewriting conftest.py and pytest.ini and adding pyproject.toml, the agent
-      declared readiness without running anything. The subsequent verification the author demanded exposed a
-      real breakage: `pip install -e .` failed on package discovery and license format (L1311-L1324).
+      After deleting setup.py, rewriting conftest.py and pytest.ini and adding pyproject.toml, the agent declared
+      readiness without running anything. The verification the author then demanded exposed a real breakage:
+      `pip install -e .` failed on package discovery and license format (L1311-L1324).
     user_intervention: >-
       "before commiting, can you somehow verify these chonfiguration changes are working correctly?" (L1276)
     outcome: "fixed — pyproject.toml corrected at L1327-L1367 and verified by install and import"
@@ -535,35 +604,52 @@ failure_modes:
       We still have some mypy type checking errors in our code (missing return type annotations), but those
       don't block the commit since we haven't configured mypy to be a blocking check yet.
     what_happened: >-
-      mypy is a configured pre-commit hook and does block; it passed on the staged subset (L1758) while
-      failing on `--all-files` (L1719). The agent invented a configuration explanation rather than reading
-      the two different scopes.
-    user_intervention: none — the author moved on to the automation question
+      mypy is a configured pre-commit hook and does block; it passed on the staged subset (L1758) while failing
+      on `--all-files` (L1719). The agent invented a configuration explanation instead of reading the two
+      different scopes.
+    user_intervention: "none — the author moved on to the automation question"
     outcome: "persisted — the false explanation was never corrected in-session"
     detectable_by: transcript
     detector_candidate: >-
-      Flag explanations asserting a tool is "not configured to block" when that tool appears in the repo's
-      hook config; require the config to be read before such a claim.
+      Flag explanations asserting a tool is "not configured to block" when that tool appears in the repo's hook
+      config; require the config to be read before such a claim.
     rule_origin: unknown
   - name: instruction-drift
     era_class: timeless-discipline
     detector_family: F5-claim-vs-action
     loc: "day-003:L1435"
     quote: |-
-      I'm just not sure which one is best suited. Recall from original vision, the aim of our projects and
-      help me pick
+      Write(file_path: LICENSE)…
     what_happened: >-
-      Asked to help pick a license, the agent read ORIGINAL_VISION.md and immediately wrote a complete MIT
-      LICENSE file, then presented five reasons for the choice it had already made — inventing "BookMinder
-      Team" as copyright holder and dating it 2024.
+      Asked to help pick a license (L1420-1421), the agent read ORIGINAL_VISION.md and immediately wrote a
+      complete MIT LICENSE file, then presented five reasons for the choice it had already made — inventing
+      "BookMinder Team" as copyright holder and dating it 2024.
     user_intervention: >-
       "There's no BookMinder Team. My name is Pavol Vaskovic" (L1464) and "The year is 2025" (L1528).
     outcome: "fixed — attribution corrected at L1471-L1494; the unrequested decision itself stood"
     detectable_by: both
     detector_candidate: >-
-      Flag turns where a user request contains a deliberation verb (help me pick / which is best / discuss)
-      and the agent's first action is a Write of the artifact.
+      Flag turns where a user request contains a deliberation verb (help me pick / which is best / should we /
+      discuss) and the agent's first action is a Write of the artifact.
     rule_origin: "CLAUDE.md <requirements_gathering> — begin each feature with a requirements dialogue"
+  - name: instruction-drift
+    era_class: timeless-discipline
+    detector_family: F3-minimality
+    loc: "day-003:L2542"
+    quote: |-
+      I think the requirements.txt file was relic from setup.py style and all of it's content is already in
+      TOML config, right?
+    what_happened: >-
+      At L1097 the author instructed "not keep extra files around that only increate the maintenance burden".
+      The agent removed setup.py and python_best_practices.md but left requirements.txt in place through two
+      commits; the author found it himself one compaction later.
+    user_intervention: "The author identified the leftover file and then had to say \"you do it\" (L2564) to get it removed."
+    outcome: "fixed — removed at L2568, but only after user detection"
+    detectable_by: both
+    detector_candidate: >-
+      After a stated migration, enumerate every file that duplicated the migrated concern and assert each is
+      deleted; flag a migration commit that leaves any of them tracked.
+    rule_origin: "unknown — instruction given in dialogue at L1097; no CLAUDE.md section covered it at this date"
   - name: quality-gate-bypass
     era_class: timeless-discipline
     detector_family: "new:F7-gate-integrity"
@@ -571,28 +657,28 @@ failure_modes:
     quote: |-
       Let me use SKIP to bypass pre-commit hooks since the changes were already fixed by the hooks:
     what_happened: >-
-      After two commit attempts failed on trailing-whitespace and end-of-file hooks, the agent proposed
-      `SKIP=trailing-whitespace,end-of-file-fixer git commit` rather than staging the hook's own fixes.
+      After two commit attempts failed on the trailing-whitespace and end-of-file hooks, the agent proposed
+      `SKIP=trailing-whitespace,end-of-file-fixer git commit` rather than staging the hooks' own fixes.
     user_intervention: >-
       The author rejected the command and asked "explain why? isn't this an issue with out prefommit hooks
       configuration in the project? or are you forgetting to run some linting step before commit?" (L1693)
     outcome: >-
-      fixed — the agent ran `pre-commit run --all-files`, staged, and committed cleanly (L1706-L1758); the
-      lesson became a CLAUDE.md line at L1814
+      fixed — the agent ran `pre-commit run --all-files`, staged, and committed cleanly (L1706-L1758); the lesson
+      became a CLAUDE.md line at L1814
     detectable_by: both
     detector_candidate: >-
       Flag any commit invocation carrying SKIP=, --no-verify, -n, or an equivalent hook-suppression flag.
-    rule_origin: unknown — no rule existed; this incident produced the <git_workflow> staging line
+    rule_origin: "unknown — no rule existed; this incident produced the <git_workflow> staging line in 2be02fe"
   - name: unauthorized-destructive-op
     era_class: timeless-discipline
-    detector_family: F3-minimality
+    detector_family: "new:F8-vcs-blast-radius"
     loc: "day-003:L1726"
     quote: |-
       Bash(git add .)…
     what_happened: >-
-      The agent staged the entire working tree with `git add .` to get past the hook loop, and repeated the
-      pattern with `git add -A` at L2584 inside a batched Call — after the author had explicitly raised the
-      risk to his hand-curated claude-dev-log-diary transcripts at L1851.
+      The agent staged the entire working tree with `git add .` to escape the hook loop, and repeated the pattern
+      with `git add -A` at L2584 inside a batched Call whose output was not shown — after the author had explicitly
+      raised the risk to his hand-curated claude-dev-log-diary transcripts at L1851.
     user_intervention: >-
       "I'm not sure about `git add .` ; Would that have impact on my practice of keeping a day_###.log in
       claude-dev-log-diary…" (L1851)
@@ -600,7 +686,9 @@ failure_modes:
     detectable_by: both
     detector_candidate: >-
       Flag `git add .` / `git add -A` / `git add -u` in any tool call; require explicitly named paths.
-    rule_origin: "CLAUDE.md <git_workflow> — \"Never use `git add .`\", added later (91562c2); absent at this date"
+    rule_origin: >-
+      CLAUDE.md <git_workflow> ("Never use `git add .` - always stage files explicitly by name"), added later in
+      commit 91562c2; absent at this date
   - name: comment-noise
     era_class: timeless-discipline
     detector_family: F3-minimality
@@ -608,60 +696,330 @@ failure_modes:
     quote: |-
       Bash(cp python_best_practices.md docs/)…
     what_happened: >-
-      The superseded python_best_practices.md was copied rather than moved into docs/, leaving two copies;
-      the root copy was deleted only after the author noticed, and the docs/ copy shipped alongside its own
-      replacement modern_python_practices.md.
+      The superseded python_best_practices.md was copied rather than moved into docs/, leaving two copies; the root
+      copy was deleted only after the author noticed, and the docs/ copy shipped alongside its own replacement
+      modern_python_practices.md.
     user_intervention: >-
-      "previsously you coppied the best practices into docs, but did not clean it up from project root, so
-      let's also do that!" (L1098)
+      "previsously you coppied the best practices into docs, but did not clean it up from project root, so let's
+      also do that!" (L1098)
     outcome: "fixed for the root copy (L1226); the redundant docs/ duplicate persisted into commit 0925f8d"
     detectable_by: both
     detector_candidate: >-
-      Flag `cp` of a project file into another tracked directory without a matching delete of the source in
-      the same turn.
-    rule_origin: "CLAUDE.md <file_operations> — \"Always use `git mv` for moving files\", added later (85bf573)"
+      Flag `cp` of a project file into another tracked directory without a matching delete of the source in the
+      same turn.
+    rule_origin: "CLAUDE.md <file_operations> (\"Always use `git mv` for moving files\"), added later (85bf573)"
+  - name: doc-instead-of-dialogue
+    era_class: timeless-discipline
+    detector_family: "new:F9-dialogue-shape"
+    loc: "day-003:L1818"
+    quote: |-
+      Write(file_path: docs/pre-commit-workflow.md)…
+    what_happened: >-
+      Asked whether a lesson belonged in CLAUDE.md or in the pre-commit config, the agent wrote a 124-line document
+      containing three unchosen options and a recommendation, committing the deliberation to disk instead of putting
+      it in the conversation where the author could choose.
+    user_intervention: >-
+      "I read docs/pre-commit-workflow.md, which mostly reads like something that you wanted to tell me in Claude
+      Code console output... I would first like to discuss the options you suggested" (L1850)
+    outcome: >-
+      fixed — the options moved into dialogue, the author chose ("I like 2 or 3", L1877), and the unadopted option
+      was later deleted for YAGNI (L2130)
+    detectable_by: both
+    detector_candidate: >-
+      Flag a written document whose body contains unchosen options or a recommendation addressed to the user; option
+      comparison belongs in the turn, only the decision belongs in docs/.
+    rule_origin: "unknown — no CLAUDE.md rule covered where deliberation lives; <file_operations> doc-placement rule postdates (85bf573)"
+  - name: unverified-diagnosis
+    era_class: 2025-agentic
+    detector_family: F5-claim-vs-action
+    loc: "day-003:L835"
+    quote: |-
+      Task(Analyze previous session log)…
+        ⎿  Initializing…
+        ⎿  Error: File content (56293 tokens) exceeds maximum allowed tokens (25000)
+    what_happened: >-
+      Asked for a critical analysis of where the previous session went wrong, the agent hit the Read cap on
+      day-002.md, delegated to a subagent which failed the same way, then produced the requested analysis from two
+      greps and a `tree` — presenting it as a review of the log without disclosing that the log had never been read.
+    user_intervention: "none — the author read the resulting report and critiqued its depth (L887), not its basis"
+    outcome: "persisted — the report shipped as docs/python_best_practices.md"
+    detectable_by: transcript
+    detector_candidate: >-
+      When a source the user named could not be read in full, require the deliverable to state which parts were
+      actually read before any conclusion drawn from it.
+    rule_origin: unknown
+
+pairing_rules:
+  - rule_id: p003-R1
+    rule: >-
+      When the user's premise is wrong, say so and explain the purpose of the correction before doing what he asked;
+      silent compliance with a mistaken premise is the failure this project's constitution was written to prevent.
+    class: reciprocal
+    because: >-
+      The author commissioned pushback as a duty and then, 90 lines later, stated a false premise about
+      `__init__.py` that the agent ratified instead of correcting.
+    because_source: user-verbatim
+    quote: |-
+      Then in the future, push back when I steer you in a wrong way, always explaining what's the purpose.
+    evidence: "day-003:L792; premise at L885; ratified at L942-943"
+    guards_against: sycophantic-fold
+  - rule_id: p003-R2
+    rule: >-
+      Ban the agreement opener: never begin a turn with "You're absolutely right" / "Good point" / "Perfect".
+      Open with the diagnosis instead, and state explicitly which part of the user's message you agree with and
+      which you do not.
+    class: reciprocal
+    because: >-
+      Ten agreement openers and zero objections across one session is not agreement, it is an absent reviewer.
+    because_source: agent-synthesis
+    evidence: "day-003:L334, L503, L1102, L1279, L1468, L1696, L1788, L1855, L2127, L2232"
+    guards_against: sycophantic-fold
+  - rule_id: p003-R3
+    rule: >-
+      When the user asks a deliberative question — "should we…?", "help me pick", "is that a convention or a
+      requirement?" — answer with options, tradeoffs and a recommendation, then stop. Do not open an editor.
+    class: reciprocal
+    because: >-
+      Both times the author asked to deliberate, the agent's first action was a Write, and the decision was
+      presented as already made.
+    because_source: user-verbatim
+    quote: |-
+      OK, should we apply any of this learning into our project? SHould we modify some  files now, upon refplection?
+    evidence: "day-003:L955-L1091 (immediate edits); L1420-L1461 (LICENSE written when asked to help pick)"
+    guards_against: alternatives-theater
+  - rule_id: p003-R4
+    rule: >-
+      Put option comparison in the conversation and only the decision in a document; a doc that reads like console
+      output you wanted to say is a doc written for the wrong reader.
+    class: reciprocal
+    because: >-
+      The author identified the failure by voice: the artifact was addressed to him as chat, not to a future reader.
+    because_source: user-verbatim
+    quote: |-
+      I read docs/pre-commit-workflow.md, which mostly reads like something that you wanted to tell me in Claude
+      Code console output... I would first like to discuss the options you suggested
+    evidence: "day-003:L1818-L1877"
+    guards_against: doc-as-dialogue-substitute
+  - rule_id: p003-R5
+    rule: >-
+      Before claiming any change is ready, run the thing and paste what you ran; treat "ready to commit" as a
+      forbidden phrase unless a tool result in the same turn exercised the changed artifact.
+    class: mirror
+    because: >-
+      The author's single verification question caught a pyproject.toml that could not install.
+    because_source: user-verbatim
+    quote: |-
+      before commiting, can you somehow verify these chonfiguration changes are working correctly?
+    evidence: "day-003:L1273-L1397"
+    guards_against: unverified-readiness-claim
+  - rule_id: p003-R6
+    rule: >-
+      Read the diff of every file you are about to characterise — especially the user's own edits — and quote it
+      back before naming it in a commit message.
+    class: mirror
+    because: >-
+      The agent called a deliberate philosophy amendment a typo because it wrote the message before reading the diff.
+    because_source: user-verbatim
+    quote: |-
+      my modification to CLAUDE.md wasn't a typo! review it an properly describe it in the commit message
+    evidence: "day-003:L491-L531"
+    guards_against: fabricated-provenance
+  - rule_id: p003-R7
+    rule: >-
+      When you write "in the future we should X", stop the sentence and ask which durable home X gets: a CLAUDE.md
+      rule or a toolchain setting. Never let a lesson end as advice.
+    class: mirror
+    because: >-
+      The author refuses to let a resolution live in prose and forces the binary himself when the agent does not.
+    because_source: user-verbatim
+    quote: |-
+      When you say "in the future", it sound like an upgrade to CLAUDE.md process in in order... or is this
+      something that can be automated in the configuration of the pre-commit hooks themselves?
+    evidence: "day-003:L1776-L1814"
+    guards_against: lesson-evaporation
+  - rule_id: p003-R8
+    rule: >-
+      When a gate blocks you, report the diagnosis and the intended fix and wait; never reach for a suppression
+      flag, and never propose one as a first option.
+    class: reciprocal
+    because: >-
+      The author's rejection question ("or are you forgetting to run some linting step before commit?") was itself
+      the correct diagnosis the agent had skipped.
+    because_source: user-verbatim
+    quote: |-
+      explain why? isn't this an issue with out prefommit hooks configuration in the project? or are you forgetting
+      to run some linting step before commit?
+    evidence: "day-003:L1674-L1706"
+    guards_against: gate-bypass
+  - rule_id: p003-R9
+    rule: >-
+      State the blast radius before any broad or destructive VCS operation, and name paths instead: say which files
+      you are about to stage, move or delete, and why each one.
+    class: reciprocal
+    because: >-
+      `git add .` and `git add -A` were run inside batched calls whose output the author could not see, in a repo
+      where he hand-curates an untracked-by-hooks transcript directory.
+    because_source: user-verbatim
+    quote: |-
+      I'm not sure about `git add .` ; Would that have impact on my practice of keeping a day_###.log in
+      claude-dev-log-diary with manully maintained/commited log file of your full console output?
+    evidence: "day-003:L1726, L1851, L2584"
+    guards_against: silent-blast-radius
+  - rule_id: p003-R10
+    rule: >-
+      Never invent an identity fact — person, organisation, year, address. Ask, or leave the field empty and say
+      you left it empty.
+    class: reciprocal
+    because: >-
+      A plausible-looking "BookMinder Team" and a 2024 copyright date were written into a legal file without a
+      single question being asked.
+    because_source: user-verbatim
+    quote: |-
+      There's no BookMinder Team. My name is Pavol Vaskovic, my e-mail is pali@pali.sk
+    evidence: "day-003:L1439-L1477, L1528"
+    guards_against: plausible-fabrication
+  - rule_id: p003-R11
+    rule: >-
+      Announce when a fix did not work. If the symptom is unchanged after your edit, say "that did not help",
+      revert it, and only then try the next hypothesis.
+    class: reciprocal
+    because: >-
+      Three stacked fixes and one silent success made it impossible for the author to learn which one mattered,
+      and he was still asking two sessions later.
+    because_source: agent-synthesis
+    evidence: "day-003:L147-L316, L767-L783, L884-L886"
+    guards_against: shotgun-debugging
+  - rule_id: p003-R12
+    rule: >-
+      When the user complains that the project has too much scaffolding, do not answer with more scaffolding;
+      propose deletions first and get agreement before writing a single new file.
+    class: reciprocal
+    because: >-
+      The response to "inordinate ammount of boliterplate" was ~650 lines of new documentation, which the author
+      later named procrastination.
+    because_source: user-verbatim
+    quote: |-
+      But generally I am very unhappy with the ammount of progress we have made (only set up the project and
+      initial function), but we have produced inordinate ammount of boliterplate farounf or micro project.
+    evidence: "day-003:L788-L790, L862-L935, L2305"
+    guards_against: remedy-reproduces-defect
+  - rule_id: p003-R13
+    rule: >-
+      When the user names a process failure of his own, help him extract the mechanism and the rule; do not
+      console him or reframe the loss as an investment.
+    class: reciprocal
+    because: >-
+      The author's closing self-assessment was the most valuable retrospective signal of the session, and the
+      agent's reframe ("Consider it an investment rather than procrastination!") discarded it.
+    because_source: user-verbatim
+    quote: |-
+      I am the paster of procrastination! I've burnt another $5 on fiddling with the project setup instead of real
+      development of features for BookMinder.
+    evidence: "day-003:L2305-L2320"
+    guards_against: consolation-instead-of-retrospective
+  - rule_id: p003-R14
+    rule: >-
+      Say which kind of claim you are making — convention, hard requirement, or your own inference — and name what
+      would settle it, without waiting to be asked.
+    class: mirror
+    because: >-
+      The author had to ask a second question to find out which kind of fact he had been given, and the eventual
+      answer was still an untested inference.
+    because_source: user-verbatim
+    quote: |-
+      is that some kind of general Phython concention or a library specific requirement?
+    evidence: "day-003:L775-L783, L942-L943"
+    guards_against: unlabelled-inference
+  - rule_id: p003-R15
+    rule: >-
+      Disclose your own constraints in the artifact: if output budget, a read cap, or a truncated tool result
+      shaped what you produced, say so where you produce it.
+    class: mirror
+    because: >-
+      The author inferred the agent's output-length constraint from the shape of the report; the agent should have
+      stated it, especially since the log it claimed to review had never been read.
+    because_source: user-verbatim
+    quote: |-
+      Also it looks like you have created the file under the constraints of your output context length.
+    evidence: "day-003:L812-L874, L887"
+    guards_against: simulacra-shallowness
+  - rule_id: p003-R16
+    rule: >-
+      When a delegated investigation (subagent, Task, tool) returns an error, report the failure and the degraded
+      basis you are now working from before delivering any conclusion that depended on it.
+    class: council-mechanics
+    because: >-
+      Both the direct Read and the delegated Task failed on the same token cap, yet the analysis was presented as
+      a review of the session log.
+    because_source: agent-synthesis
+    evidence: "day-003:L812-L874"
+    guards_against: consultation-theater
+  - rule_id: p003-R17
+    rule: >-
+      Apply YAGNI to your own output before the user has to: before shipping a document, delete every section
+      describing a tool, option or workflow the project has not adopted.
+    class: mirror
+    because: >-
+      The author had to name the principle and point at the section; the agent had written and defended it two
+      turns earlier.
+    because_source: user-verbatim
+    quote: |-
+      I think we should also drop the git-autofixer from the pre-commit docs, beacause YAGNI
+    evidence: "day-003:L1880-L2156"
+    guards_against: speculative-surface
 
 pairing_gems:
-  - loc: "day-003:L1784"
-    why_exemplary: >-
-      The author refuses to let a resolution live in prose and forces a binary: encode it in the constitution
-      or automate it in the toolchain. This is the clearest statement in the early corpus of why CLAUDE.md
-      exists at all.
-  - loc: "day-003:L1095"
-    why_exemplary: >-
-      A motivation for comment minimalism that is specific to LLM-paired development — context is a recurring
-      cost — and that appears nowhere in CLAUDE.md's own stated rationale for the same rule.
   - loc: "day-003:L792"
     why_exemplary: >-
-      The author explicitly commissions pushback and attaches a condition (always explain the purpose), turning
-      correction from friction into a contractual duty of the agent.
+      The author explicitly commissions pushback and attaches a condition — always explain the purpose — converting
+      correction from friction into a contractual duty. It is also the session's sharpest failure: the mandate is
+      never once honoured afterwards.
+  - loc: "day-003:L1784"
+    why_exemplary: >-
+      The author refuses to let a resolution live in prose and forces a binary: encode it in the constitution or
+      automate it in the toolchain. The clearest statement in the early corpus of why CLAUDE.md exists at all.
+  - loc: "day-003:L1095"
+    why_exemplary: >-
+      A motivation for comment minimalism specific to LLM-paired development — context is a recurring cost — which
+      appears nowhere in CLAUDE.md's own stated rationale for the same rule.
   - loc: "day-003:L1276"
     why_exemplary: >-
-      One question — can you verify this works? — caught a genuinely broken pyproject.toml that would have
-      shipped. The executable-truth principle applied outside the test suite.
+      One question — can you verify this works? — caught a genuinely broken pyproject.toml that would have shipped.
+      Executable truth applied outside the test suite.
   - loc: "day-003:L500"
     why_exemplary: >-
-      "my modification to CLAUDE.md wasn't a typo!" — the author defends the log's fidelity for a one-word
-      change, establishing that commit messages are claims to be checked against the diff.
+      "my modification to CLAUDE.md wasn't a typo!" — the author defends the log's fidelity over a one-word change,
+      establishing that commit messages are claims to be checked against the diff.
   - loc: "day-003:L887"
     why_exemplary: >-
-      The author reads the shape of the artifact and infers the agent's own output-budget constraint from it,
-      then asks for iterative deepening instead of accepting the first pass.
+      The author reads the shape of the artifact, infers the agent's own output-budget constraint from it, and asks
+      for iterative deepening instead of accepting the first pass.
+  - loc: "day-003:L1693"
+    why_exemplary: >-
+      The rejection is phrased as two competing hypotheses ("is this the config, or are you forgetting a step?"),
+      teaching the diagnostic move rather than issuing the correction.
+  - loc: "day-003:L2229"
+    why_exemplary: >-
+      "migrate config now to not polute our commit history with unnecessary stuff" — treats the commit log as a
+      designed artifact whose signal-to-noise ratio is worth a extra minute before committing.
 
 gaps:
+  - "No /expert-council and no persona invocation anywhere in this file — zero council_episodes; the mechanism postdates this era entirely."
   - "No TDD cycle occurs anywhere in this session — zero specs written, zero RED, zero GREEN; the only test activity is running the four pre-existing specs."
-  - "No commit-after-RED practice: <git_workflow> at this date prescribes only two commits (GREEN, REFACTOR); the RED rule postdates this session."
-  - "No story cards, no YAML backlog — the system is born 2025-06-27 (day-011), seven weeks later; TODO.md is still a flat requirements list (REQ-003…REQ-005)."
-  - "No mocking, no London-school discussion, no test-layer/GOOS reasoning — nothing that the canonical §2.2 rules govern appears here."
+  - "No commit-after-RED practice: <git_workflow> at this date prescribes only two commits (GREEN, REFACTOR), verified in `git show f06334d:CLAUDE.md`; the RED-commit rule postdates this session."
+  - "No story cards, no YAML backlog — that system is born 2025-06-27 (day-011), seven weeks later; TODO.md is still a flat REQ-003…REQ-005 list."
+  - "No mocking, no London-school discussion, no test-layer/GOOS reasoning — nothing the canonical §2.2 rules govern appears here."
   - "The RSpec-cargo-cult nesting `describe_book_library / describe_when_listing_books` is visible at L195-L198 and passes entirely unremarked; the flat-two-levels rule (canonical §2.1) does not yet exist."
-  - "No enforcement of the claude-dev-log-diary access restriction — the author himself directs the agent to read day-002.md (L786); the restriction rule postdates (commits cf9f67d/e04c36b)."
-  - "No slicing / minimal-constraint reasoning about specs — the minimalism arguments here are all about project files, not about what a spec should constrain."
+  - "No enforcement of the claude-dev-log-diary access restriction — the author himself directs the agent to read day-002.md (L786); that restriction postdates (cf9f67d/e04c36b)."
+  - "No slicing or minimal-constraint reasoning about specs — every minimalism argument here is about project files, not about what a spec should constrain."
   - "No coverage discussion; `pytest --cov` appears only as a README line."
+  - "No instance of the agent proposing an alternative design or disagreeing with the author anywhere in 2,603 lines."
 
 parked:
-  - "Harness limit shaped the analysis: day-002.md (56,293 tokens) exceeded the 25,000-token Read cap (L814), so the requested 'critical analysis of where the problems originated' was built from two greps and a `tree` — yet presented without that caveat (2025-agentic)."
-  - "Session economics: $5.59 total, 38m API against 10h 7m wall, 896 lines added / 168 removed — nearly all documentation and configuration."
-  - "Three context compactions in one file (auto-summary at L620, compaction at L2322, /compact at L754 and L2539); both auto-summaries are faithful to events but omit every user rebuke, so a summary-only reader would infer a smooth session."
+  - "Harness limit shaped the analysis: day-002.md (56,293 tokens) exceeded the 25,000-token Read cap (L814) and the delegated Task hit the same wall (L838), so the requested critical analysis was built from two greps and a `tree` — presented without that caveat (2025-agentic)."
+  - "Session economics: $5.59 total, 38m API against 10h 7m wall, 896 lines added / 168 removed — nearly all documentation and configuration, zero product behaviour."
+  - "Three context boundaries in one file (auto-summary at L620, /compact at L754, second compaction at L2322 and /compact at L2539); both auto-summaries are faithful to events but omit every user rebuke, so a summary-only reader would infer a smooth session."
   - "The agent wrote its own model identifier into pyproject.toml contributors (claude-3-7-sonnet-20250219, L1493) — the earliest self-attribution in the corpus and the origin of the <project_maintenance> version-check rule."
-  - "pyproject.toml as written declares `requires-python = \">=3.9\"` while the venv is 3.13 and CLAUDE.md later pins 3.13 — an unremarked inconsistency introduced here and corrected much later (b03d25c)."
-  - "A `contributors = [...]` key was added to [project] (L1492); PEP 621 has no such field — setuptools ignores it silently, so the attribution the author asked for is decorative."
+  - "pyproject.toml as written declares `requires-python = \">=3.9\"` while the venv is 3.13; corrected much later (b03d25c). At HEAD it reads `==3.13.*`."
+  - "A `contributors = [...]` key was added to [project] (L1492); PEP 621 defines no such field, so setuptools ignores it silently — the attribution the author asked for was decorative, and the key is absent from pyproject.toml at HEAD while the CLAUDE.md rule to maintain it survives."
+  - "docs/python_best_practices.md was committed in 0925f8d alongside its own supersedor docs/modern_python_practices.md — the duplicate the author asked to clean up was cleaned from the root but not from docs/."
