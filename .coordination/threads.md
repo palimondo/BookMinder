@@ -110,6 +110,7 @@ P5. Hooks prototype (TDD-guard-style PreToolUse: block impl edits without a fail
 7. Cloud-infra quirks log: shallow clone (unshallowed), no tree cmd, no .venv, hook nags on untracked files
 
 ## Failure modes observed THIS session (meta-lab data)
+- ROOT GENERATOR (consolidates praise-flourish, "tonight" fiction, kill-waste, false worker-commit claim): coordinator publishes operational claims at composition time, verifying only on challenge — the user served as the RED phase. Knowing-vs-performing, reproduced live. Fix hierarchy per stickiness law: durable = F5 claim-vs-action detector over coordinator transcript (eval infrastructure); immediate = falsify-before-assert or label as unverified inference. Prose rules alone will not hold this
 - Coordinator committed unverified-diagnosis: claimed "worker self-commits failing consistently" from stop-hook nags — actually observation-selection bias (hook fires only on mid-pipeline transients; successes emit no signal); git log falsified it (workers committed nearly everything). RULE: on hook nag, check worker liveness first; batch-commit only true orphans. The 2025 corpus's unverified-diagnosis mode, performed live by the coordinator while miners catalogued it
 - Coordinator killed a workflow with ~357K tokens of nearly-complete in-flight work (day-004/005) to re-slice for parallelism — RULE ADOPTED: drain before kill (let in-flight agents finish + self-commit, then stop)
 - Coordinator misstated per-workflow concurrency (~3; actual min(16, nproc-2)=2 with nproc=4)
