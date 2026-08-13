@@ -67,9 +67,9 @@ COORDINATOR FAILURE MODES logged this session: wall-of-text relapses (2x warned)
 At every watchdog firing, every task-notification, and before ending any substantial turn: sweep "what exists only in conversation context" vs "what is committed" and persist the difference. The watchdog prompt itself carries this instruction so the protocol survives compaction and restarts. Audit that triggered this: coordinator had been logging decisions reactively but ran no systematic sweep; missed items are now in the ledger below.
 
 ## OPERATIONS LEDGER (live state — update on every change)
-- PAIRING TRIAL: workflow wf_54cdd934-64f running (day-010/019/021, self-committing workers) → .coordination/mining/pairing/
-- FULL SWARM v2.1: STOPPED by user decision (pairing-first sequencing); script at .coordination/tools/diary-mining-full-v2.1.js; resume = fresh launch (4 cached v2.0 results invalidated by v2.1 schema); awaits explicit "launch?"→yes AFTER pairing trial evaluated
-- WATCHDOG: trigger trig_017AEzVrHX8xv7VkY2BGSro9 — was left DISABLED during pairing trial (the audit's worst finding); re-armed 2026-08-13 with persistence-sweep + liveness + batch-commit duties, self-re-arming
+- PAIRING TRIAL: COMPLETE (day-010/019/021 → .coordination/mining/pairing/, all self-committed). Headline: fidelity tracked available primary material not deliberation budget; ~40% caricature/fabrication rate; disagreement 1-in-15; verdict-reversal-on-pushback; zero book citations
+- FULL SWARM v2.2: RUNNING as 3 sliced workflows (~9 concurrent; nproc=4 caps each workflow at ~3): A wf_7f5844a7-f36 (day-004..011), B wf_74d3c6ae-84c (day-012..018), C wf_0679c5e1-50b (day-019, 021, 020-s1..s5). Script: .coordination/tools/mining-slice-v2.2.js (arg-sliced). BANKED v2.2: day-002, day-003. Stale v2.0 files day-004/005 in mining/v2/ will be overwritten by v2.2 workers. Workers self-commit; watchdog 20-min cadence with per-slice resume
+- WATCHDOG: trig_017AEzVrHX8xv7VkY2BGSro9 armed, 20-min self-re-arming, duties: liveness×3, batch-commit, persistence sweep, progress report; validate+repair+harvest-summary on completion
 - TOOLS committed: .coordination/tools/{validate_mining.py, dupescan.py, diary-mining-full-v2.1.js}; v1 pilot artifacts: .coordination/mining/v1/
 - METRIC CORRECTION on record: compiled-pilot's "57% NEW" was measured vs canonical guide ONLY; hand-check vs CLAUDE.md deflates to ~50% (1 full + 2 partial duplicates)
 
