@@ -8,6 +8,14 @@ Attribution note: quotes marked user-verbatim are reproduced character-exact fro
 
 Entries: 20 total — internal 10 (4 judgment-calls), corpus-vs-repo 10 (3 judgment-calls).
 
+## Ratification record (2026-08-13, author rulings + coordinator triage)
+
+- L-01 DISSOLVED by recovered source context (day-020:L13020-L13093, read in-session): the rejected count was `assert len(books) > 10` encoding the recent-vs-all limit contract via incidental fixture size — a different assertion kind than census identity sets. Author's independent recollection matched ("maybe from a different use case… guarding against future growth of examples in the fixture", user-verbatim 2026-08-13). Compile BOTH rules: (a) fixture-backed specs assert exact identity sets where membership IS the requirement; (b) behavioral contracts (e.g. limit properties) are never asserted via fixture cardinality — test them at the layer that controls volume.
+- L-02 RULED by author (2026-08-13): "Skeleton phase exempt" — while the walking skeleton is being stood up, ceremony is relaxed generally. Compile as a phase-scoped exemption, day-007 quote as the WHY; the narrower plumbing-only scoping is rejected.
+- L-03, L-04 WITHDRAWN as self-litigation (author correction, 2026-08-13): both sides were coordinator session records of rulings already made, not corpus contradictions. L-03: MIRROR always meant the author's self-verification moves as agent reflexes, never partner-claim-policing. L-04: already adjudicated by the council-modernization design (principle survives; ungrounded simulacra channeling = anti-pattern). Ledger briefs must treat threads.md as settled adjudications, not as a contradiction source.
+- L-11, L-13 DEFERRED to gardening pass (author decision pending there; does not block skill extraction). L-12: hedged-until-reverified stands (no live DB in this environment).
+- L-05..L-10, L-14..L-20 rule-mechanical: stand under the author-approved ranks; author may overrule any individually.
+
 ---
 
 ## Class A — INTERNAL (corpus vs corpus)
