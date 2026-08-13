@@ -105,6 +105,8 @@ P5. Hooks prototype (TDD-guard-style PreToolUse: block impl edits without a fail
 7. Cloud-infra quirks log: shallow clone (unshallowed), no tree cmd, no .venv, hook nags on untracked files
 
 ## Failure modes observed THIS session (meta-lab data)
+- Coordinator killed a workflow with ~357K tokens of nearly-complete in-flight work (day-004/005) to re-slice for parallelism — RULE ADOPTED: drain before kill (let in-flight agents finish + self-commit, then stop)
+- Coordinator misstated per-workflow concurrency (~3; actual min(16, nproc-2)=2 with nproc=4)
 - Coordinator misattributed analyst finding to user ("your own finding") — user flagged; standing guard
 - Wall-of-text spiral risk from incremental reading + long replies
 - Worker self-resolved hook nag via .gitignore * (silenced symptom, preempted pending decision)
