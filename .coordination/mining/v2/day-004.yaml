@@ -532,7 +532,10 @@ failure_modes:
       settings already lived in pyproject.toml; they did not — its per-file-ignores had
       never been ported, and the file had to be recovered with `git show HEAD:.flake8`
       (L4352) once the user demanded verification.
-    user_intervention: "let's verify that we have transfered all the configuration from .flake8 to ruff, before we remove it" (L4337).
+    user_intervention: >-
+      The user blocked the `git rm` and demanded proof of the transfer — "let's verify that
+      we have transfered all the configuration from .flake8 to ruff, before we remove it"
+      (L4337).
     outcome: fixed — settings ported, but in invalid TOML (see next entry).
     detectable_by: both
     detector_candidate: >-
@@ -589,7 +592,10 @@ failure_modes:
       installation flow"), two of which were false; when refuted it produced three more
       guesses (L5301-L5305) including "the Mac mini might have a slightly different version
       of the file".
-    user_intervention: The user refuted them point by point — "RE: 1. that doesn't track -- both use python 3.13 installed by uv" — and told the agent to review the conversation history to check its third claim (L5278).
+    user_intervention: >-
+      The user refuted them point by point ("that doesn't track -- both use python 3.13
+      installed by uv") and told the agent to review the conversation history to check its
+      third claim (L5278).
     outcome: fixed — the agent conceded and the real cause (ruff hook reporting "no files to check") was found, from evidence already in the transcript.
     detectable_by: transcript
     detector_candidate: >-
