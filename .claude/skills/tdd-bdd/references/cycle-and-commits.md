@@ -1,0 +1,38 @@
+# The cycle and its commits — RED, GREEN, REFACTOR
+
+## RED — earn the failure
+
+- **T-10** Run the specific new spec and observe it fail before writing any implementation, and say so explicitly; re-run it after every edit to the spec itself — a spec that has never been executed in a failing state has not been shown to be capable of failing at all.
+- **T-11** Any failure that tells you what to build next is legitimate RED — import errors, missing modules, and unfinished environment setup included; record the failure and let it drive the next minimal step rather than clearing it before declaring RED, because demanding an assertion failure specifically would skip the steps that build the package itself.
+- **T-12** When a newly written spec passes on its first run, stop and treat that as a defect in the spec, not a completed step — a test that was never red proves nothing about the behavior it names.
+- **T-13** To prove a new assertion on already-green code can fail, implement the opposite behavior on purpose, watch the red, then revert — adding an assertion that has never failed proves nothing about the assertion.
+- **T-14** Commit after RED: commit the failing spec before writing any implementation — because the commit-per-phase record makes every cycle state rewindable, the log becomes the proof that a falsifier preceded the implementation, and the bet is rigorous process over one-shotting. RED commits and deliberately-red acceptance specs are the sanctioned exceptions to all-commits-passing.
+
+## GREEN — the minimum that passes
+
+- **T-15** Write the minimum production code that passes the failing spec: only the branch the red spec demands, never the symmetric or negated case — the opposite case is a separate scenario with no failing spec pulling it into existence, so it would ship untested.
+- **T-16** When adding an element to working output, append to the existing expression rather than restructuring it in the same change — a rewrite silently alters output other specs already own, converting a feature addition into an unreviewed regression.
+- **T-17** Run the full suite, then commit the passing spec plus minimal implementation immediately after GREEN, before starting any refactoring — refactoring on top of an uncommitted GREEN destroys the revertible checkpoint the cycle exists to create.
+
+## REFACTOR — a phase, not an afterthought
+
+- **T-18** After every GREEN, explicitly ask whether to refactor and either name the duplication found or state that there is none, before starting the next behavior; if the refactor phase gets abandoned for a digression, return to it before the next story — a cycle left at GREEN is unfinished, and the next story buries the evidence.
+- **T-19** Refactor the specs too, in their own commit — tests are code and decay exactly like implementation.
+- **T-20** One refactoring per commit; when two improvements entangle, land the one that is ready and return to the other — a commit that mixes two refactorings can be neither reviewed nor reverted as either. Commit after REFACTOR as the cycle's third commit whenever any refactoring was done.
+- **T-21** A `refactor:` label is a machine-checkable claim that behavior was preserved; never use it on a commit that changes behavior, removes an error path, or rewrites the expectations that would have caught the change — mislabelling destroys the log's audit property.
+- **T-22** A rename lands as its own increment and replaces: delete every occurrence of the old name in one sweep across production and specs, run the full suite before committing, and never un-skip a pending scenario or start the next feature inside the same change — a half-finished rename fails only at the untouched call site, and a mixed increment is unsafe to verify or revert.
+- **T-23** Before changing or relaxing a declaration you did not write, run git blame on it and grep every call site, then state the motivation you recovered — the constraint may be load-bearing for a path you have not read, and the history is cheap to consult while the removal is not.
+- **T-24** Fix a whole class of failures at its single origin, never case-by-case at each site — per-site patching leaves the same defect available to the next spec that is written.
+- **T-25** State which phase of the cycle you are in before proposing the next action — improvements offered in the wrong phase are undisciplined work however good they look.
+
+## Feedback loop and gates
+
+- **T-26** Run the suite and coverage after every single edit, combined into one command, not after a batch — batching hides which change broke or un-covered what and destroys the incremental commit boundary.
+- **T-27** Before committing, run the whole gate explicitly — formatter, linter, type check, full suite, coverage — and show each output rather than claiming you ran it; run the full suite locally before every push, never using CI as the first place a change is exercised.
+- **T-28** Never bypass a failing quality gate (skip flags, no-verify, silencing markers): the block is information about your workflow, so fix the cause and let the gate itself prove the fix. Treat tool warnings and "Skipped / no files to check" as part of the failing state — a gate that inspected nothing is a gap, never a pass.
+- **T-29** Nothing is done until it has been executed and observed: before claiming a change is ready, run it — the documented command, the suite, the config, the migration — and report the command and its output. Reproduce a reported failure by running the project's own documented command before proposing a fix, verify locally before publishing, and confirm on the remote that a pushed change actually landed.
+- **T-30** Treat a failing or empty test run as a fact about your own invocation until proven otherwise — activate the environment, retry, and read the retry's output before any conclusion that depends on it — because an unexamined tool error silently becomes a false premise for every downstream claim.
+- **T-31** When a fix attempt does not change the observed symptom, revert it before trying the next hypothesis, and say out loud that it did not help — keeping inert fixes stacks unverified variables and later gets them documented as essential.
+- **T-32** Undo a landed change with git revert, never by hand-reconstructing the earlier state — a hand-written inverse is unverifiable and loses the record that the change was deliberately undone; after a revert, grep the tree for the reverted mechanism rather than trusting the revert's range to have removed all of it.
+- **T-33** Commit story-card and requirements changes on their own before touching any spec or implementation — separating what-we-want from how-we-did-it keeps the requirement revertible and citable from the implementation commit.
+- **T-34** To establish what a codebase actually implements, run its suite and read the `--spec` output — never infer implemented scope from directory listings, module names, or summaries, because the executing suite is the only description of the system that cannot silently rot away from it.
