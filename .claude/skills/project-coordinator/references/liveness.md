@@ -1,5 +1,7 @@
 # Liveness — reclamation survival, watchdogs, resume
 
+**Scope: remote cloud sessions only** (Claude Code on claude.ai/code — web, iOS, desktop-remote). There the session container is reclaimed on inactivity and background work does not keep it alive, so everything below applies. It does NOT apply to local Claude Code (process lives as long as the machine) or to GitHub-Actions-style CI infra (job-scoped lifetime, no mid-run reclamation, no watchdog needed). Check which environment you are in before applying this page.
+
 
 The platform reclaims the session container after inactivity, and background workflows **do not** count as activity. This is documented only as existing; the window and the definition of activity are undocumented, and the relevant GitHub issues (#51052, #32050) are closed as not-planned. Assume any unattended run will die silently to it unless the architecture below is in place.
 

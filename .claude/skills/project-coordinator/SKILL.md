@@ -26,7 +26,7 @@ These are the always-on rules. The pages carry the full versions and their mecha
 This core stays loaded. The moment a trigger below fires, read its page before acting on the triggering task; a typical turn needs exactly one page.
 
 - Launching, briefing, steering, or stopping workers, swarms, or workflows; choosing model tier or Agent vs Workflow; deciding how a large input gets read → `references/delegation.md`
-- A watchdog firing; arming protection for an unattended run; a dead or reclaimed container; resuming a killed run → `references/liveness.md`
+- A watchdog firing; arming protection for an unattended run; a dead or reclaimed container; resuming a killed run (remote cloud sessions only — not local, not CI) → `references/liveness.md`
 - A persistence sweep; committing or pushing; recording a decision, correction, or proposal; touching `.coordination/threads.md` → `references/persistence.md`
 - Making or relaying any operational claim — done, running, broken, fixed, live at HEAD → `references/claims.md`
 - Writing anything the author will read; replying to him; handling his feedback, questions, or pushback → `references/register.md`
