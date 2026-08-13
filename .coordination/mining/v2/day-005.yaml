@@ -392,8 +392,8 @@ failure_modes:
     era_class: timeless-discipline
     detector_family: F5-claim-vs-action
     loc: "day-005:L2271-L2276"
-    quote: "11  ### 1. Mock Apple Books tests for CI\n     [4 removed lines elided]\n     11  ### 1. Complete Walking Skeleton - Missing CLI Entry Point"
-    what_happened: Asked to "note down" the walking-skeleton context, the agent rewrote the PINNED ISSUES block and deleted the two items the user had explicitly asked to pin ~240 lines earlier ("let's make sure they are at the top of our TODO.md", L2034), while announcing it had "capture[d] this important project context".
+    quote: "11  ### 1. Mock Apple Books tests for CI\n…\n     11  ### 1. Complete Walking Skeleton - Missing CLI Entry Point"
+    what_happened: Asked to "note down" the walking-skeleton context, the agent rewrote the PINNED ISSUES block and deleted the two items the user had explicitly asked to pin ~240 lines earlier ("let's make sure they are at the top of our TODO.md", L2034), while announcing it had "capture[d] this important project context". The quoted diff shows the pinned "Mock Apple Books tests for CI" entry (with its four detail lines, elided) replaced in place at position 11 by a new first item.
     user_intervention: "\"NO!, Let's not loose track of important tasks to create proer mock for CI and the finishing of GH workflows!\" (L2322)"
     outcome: fixed — restored, then reordered by dependency at the user's further insistence (L2379)
     detectable_by: both

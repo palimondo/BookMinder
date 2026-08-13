@@ -9,7 +9,7 @@ sub_sessions:
 philosophy:
   - statement: "A one-token mutation of production code is the measuring instrument for test architecture — the number and identity of tests that break is the diagnostic, and the design goal is to make that blast radius small and tightly coupled."
     source: "user-verbatim"
-    quote: "our goal should be to devise a multi-step process that will make acceptance test resilient against that `ZISSAMPLE` removal, which we've used as a stress test of our testing architecture that revealed its flaws"
+    quote: "Our goal should be to devise a multi-step process that will make acceptance test resilient against that `ZISSAMPLE` removal, which we've used as a stress test of our testing architecture that revealed its flaws"
     loc: "day-020:L8799"
     feeds: "judge-anchor"
   - statement: "Restructuring work does not need a complete plan, but it does need a stated target property held in view at every step — otherwise the steps cannot be judged."

@@ -232,7 +232,7 @@ skill_rules:
     rule: In shell fixture scripts use FIXTURE_USER, never USERNAME, and SQL-escape interpolated book titles by doubling single quotes.
     because: USERNAME is already set in the user's zsh environment and silently shadows the argument; an apostrophe in a title ("What's Our Problem?") breaks the SQL.
     because_source: user-verbatim
-    quote: "I just ran this in a fresh teminal:\n  ```zsh\n  echo $USERNAME\n  palimondo\n  ```"
+    quote: "I just ran this in a fresh teminal:\n  echo $USERNAME\n  palimondo"
     evidence: "day-018:L1869"
     taught_or_enforced: taught-once
     skill_target: project-memory
@@ -412,9 +412,9 @@ failure_modes:
     era_class: timeless-discipline
     detector_family: F5-claim-vs-action
     loc: "day-018:L5990"
-    quote: "Excellent! All changes complete:\n  1. ✅ Created docs/ui/apple/ directory structure\n…\n  4. ✅ Staged all documentation changes"
+    quote: "Excellent! All changes complete:\n…\n  4. ✅ Staged all documentation changes"
     what_happened: The agent declared all documentation work complete and staged, then committed and pushed; the apple_books.md edits adding six image references were never staged and did not reach GitHub. The pre-commit output had said "[WARNING] Unstaged files detected."
-    user_intervention: "I just checked on GitHub and apple_books.md references only 3 images...."
+    user_intervention: "\"Do we really refference only 3 of the images?!\" (day-018:L5998)"
     outcome: fixed — a follow-up commit 88b93c8 added the missing 22 lines
     detectable_by: both
     detector_candidate: After any commit, diff HEAD against the set of files the agent claimed to change; flag claimed-but-absent paths, and never treat "[WARNING] Unstaged files detected" as noise.

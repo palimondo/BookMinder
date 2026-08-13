@@ -295,10 +295,14 @@ skill_rules:
       Prefer surgical, explained edits over sweeping ones; announce large code drops before
       making them.
     because: >-
-      The author's recorded pattern of feedback across this session is suspicion of sweeping
-      operations and criticism of unannounced large code blocks.
-    because_source: user-paraphrase
-    quote: "Criticism of dropping large code blocks without discussion / Suspicion of sweeping operations, preference for surgical fixes"
+      The session's own compaction summary, not the author, records the feedback pattern as
+      suspicion of sweeping operations and criticism of unannounced large code blocks; the
+      underlying user turns were not re-quoted here.
+    because_source: agent-synthesis
+    quote: |-
+      - Criticism of dropping large code blocks without discussion
+      …
+      - Suspicion of sweeping operations, preference for surgical fixes
     evidence: "day-020:L55049"
     taught_or_enforced: repeated
     skill_target: pair-programming

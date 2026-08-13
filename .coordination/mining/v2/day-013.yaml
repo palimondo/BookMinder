@@ -312,7 +312,7 @@ failure_modes:
     era_class: timeless-discipline
     detector_family: F3-minimality
     loc: "day-013:L1909-L1912"
-    quote: "✔  WriteFile Writing to GEMINI.md [frame borders elided]\n    1    - # BookMinder Development Guidelines for Gemini\n    1    + ## Custom Slash Commands"
+    quote: "✔  WriteFile Writing to GEMINI.md\n    1    - # BookMinder Development Guidelines for Gemini\n    1    + ## Custom Slash Commands"
     what_happened: Asked to add a 'Custom Slash Commands' section, the agent issued a whole-file write containing only that section, deleting all 221 lines of the project constitution (philosophy, TDD discipline, checklists, story-card schema, git workflow) in one call.
     user_intervention: "\"There was some issue using WriteFile tool, where you accidentally overwrote everythin with your last edit. Fix it\" (L2161)"
     outcome: fixed — restored at L2170-L2415; the commit diffstat \"2 files changed, 28 insertions(+), 2 deletions(-)\" (L2471) is the evidence the restoration was byte-accurate

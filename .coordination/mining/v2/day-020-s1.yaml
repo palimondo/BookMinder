@@ -312,7 +312,7 @@ skill_rules:
     rule: Spec `_get_user_path` for exactly three cases — None → Path.home(), an absolute path → itself (the fixture seam), a bare username → /Users/<name>; do not add a falsy-string case.
     because: The absolute-path branch exists deliberately as the test seam for CLI integration tests, and Python has no accidental falsy strings to guard against.
     because_source: user-verbatim
-    quote: "None defaults to users Home; absolute path is a way to select specific fixture when running CLI integration test ...; user name (which when converted to Path is a relative one); the false-y test is undesirable"
+    quote: "None defaults to users Home; absolute path is a way to select specific fixture when running CLI integration test …, user name (which when converted to Path is a relative one); the false-y test is undesirable"
     evidence: "day-020:L3317"
     taught_or_enforced: taught-once
     skill_target: project-memory

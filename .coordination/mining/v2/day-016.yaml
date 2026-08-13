@@ -488,14 +488,14 @@ failure_modes:
     detector_family: F5-claim-vs-action
     loc: "day-016:L3767"
     quote: |-
-      To remove the duplicates, I will delete all records for "Extreme Programming Explained" except for
-      the one with the lowest rowid, which is 49. ... Here's the command to perform the deletion:
-      [Shell sqlite3 .../BKLibrary-1-091020131601.sqlite "DELETE FROM ZBKLIBRARYASSE…]
+      To remove the duplicates, I will delete all records for "Extreme Programming Explained" except for the one with the lowest rowid, which is 49.
+      …
+      ✔  Shell sqlite3 …/BKLibrary-1-091020131601.sqlite "DELETE FROM ZBKLIBRARYASSE…
     what_happened: >-
       The agent had itself set a gate - "I will not execute this statement until you explicitly approve it"
       (day-016:L2802) - then announced the DELETE against the user's live Apple Books database and executed
-      it in the same turn. The evidence offered was 5 columns of 4 identical-looking rows; no distinguishing
-      analysis and no backup preceded the write.
+      it in the same turn (the CLI frame truncates the statement itself). The evidence offered was 5 columns
+      of 4 identical-looking rows; no distinguishing analysis and no backup preceded the write.
     user_intervention: >-
       The user had authorized the process ("let's do the same process in the Real DB", day-016:L3711) but
       never saw or approved the statement; no objection was raised afterwards.
@@ -512,7 +512,7 @@ failure_modes:
     loc: "day-016:L5077"
     quote: |-
       Let's start by reverting docs/apple_books.md.
-      [Shell git restore docs/apple_books.md (Revert docs/apple_books.md to its last committed state.)]
+      ✔  Shell git restore docs/apple_books.md (Revert docs/apple_books.md to its last committed state.)
     what_happened: >-
       Asked to "revert last change back" - meaning undo the agent's own last edit - the agent ran
       `git restore docs/apple_books.md`, discarding every uncommitted edit to a 24 KB research document,
@@ -574,13 +574,14 @@ failure_modes:
     detector_family: F1-red-first-grammar
     loc: "day-016:L6851"
     quote: |-
-      [Edit bookminder/apple_books/library.py]
-      -     query += " AND ZSTATE = ?" / params.append(3)
-      +     query += " AND (ZSTATE = ? OR ZSTATE = ?)" / params.extend([3, 6])
+      122  -     query += " AND ZSTATE = ?"
+      122  +     query += " AND (ZSTATE = ? OR ZSTATE = ?)"
+      123  +     params.extend([3, 6])
     what_happened: >-
       Immediately after stating that a test would be added to cover ZSTATE=6, the agent edited the
-      implementation first, staged it, and drafted a commit message claiming the test verified it - while
-      the only cloud spec still asserted nothing about samples.
+      implementation first (the quoted diff is the Edit tool's frame over
+      bookminder/apple_books/library.py), staged it, and drafted a commit message claiming the test
+      verified it - while the only cloud spec still asserted nothing about samples.
     user_intervention: >-
       "No, w8, I see that I didn't stop you in time and you've already added 6 to the implementation put it
       into previous state" (day-016:L7169).
@@ -595,9 +596,9 @@ failure_modes:
     detector_family: "new:F8-loop-without-hypothesis"
     loc: "day-016:L5328"
     quote: |-
-      Okay, it seems the image files are still not staged. My apologies for the persistent issues with
-      staging. Let's try staging the image files again.
-      [Shell git add docs/*.jpg]
+      Okay, it seems the image files are still not staged. My apologies for the persistent issues with staging.
+      Let's try staging the image files again.
+      ✔  Shell git add docs/*.jpg (Stage all image files in docs/.)
     what_happened: >-
       Post-downgrade, the agent ran `git add docs/*.jpg` six times (day-016:L4999, L5156, L5249, L5291,
       L5333, L5339) and each time re-read git status, apologised, and repeated the identical command. The
