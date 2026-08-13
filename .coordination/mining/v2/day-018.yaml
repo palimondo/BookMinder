@@ -288,6 +288,26 @@ skill_rules:
     skill_target: project-memory
     overlap: none
     feasibility: ok
+  - rule_id: d018-R22b
+    rule: When the author asks to be taught, explain in the conversation and leave the code clean; never convert an explanation into code comments.
+    because: The author uses the pairing session as a just-in-time tutorial, and an explanation belongs where it is read once, not where it must be maintained forever.
+    because_source: user-verbatim
+    quote: "looks good, but please explain each of the regexes to me (don't add comments to the script), teach me"
+    evidence: "day-018:L143"
+    taught_or_enforced: taught-once
+    skill_target: pair-programming
+    overlap: "CLAUDE.md <code_style> ('Prefer self-documenting code over verbose docstrings')"
+    feasibility: ok
+  - rule_id: d018-R22c
+    rule: When the author proposes a simplification framed as a question, answer the technical question first — say whether it changes behavior and how — before agreeing.
+    because: The author asks "or would that have a different meaning that would mess things up?" expecting an analysis, and a reflexive "You're absolutely right!" discards the check they asked for.
+    because_source: user-verbatim
+    quote: "can't 1 and 2 be combined into `r'git add \\.\\s?.*$` or would that have a different meaning that wou;d mess things up? same with all the other duplications... do we really need 6 expressions or can this be collapsed to 3 as before?"
+    evidence: "day-018:L186"
+    taught_or_enforced: repeated
+    skill_target: pair-programming
+    overlap: none
+    feasibility: ok
   - rule_id: d018-R23
     rule: In a guardrail hook, block only actions that are objectively wrong in this project; leave context-dependent tool choices to the agent's reasoning.
     because: Blanket blocking of grep/find/cat/head/ls turned every legitimate analysis command into a refusal and derailed the session's actual task twice.
