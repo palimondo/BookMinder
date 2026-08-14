@@ -20,7 +20,7 @@ from pathlib import Path
 CORPUS_DIRS = [Path(".coordination/mining/v2"), Path(".coordination/mining/pairing")]
 RULE_INDEX_GLOB = ".coordination/compile/rule-index-*.md"
 DIARY = Path("claude-dev-log-diary")
-ID_LINE = re.compile(r"^\s*-\s+(?:rule_id|gem_id|id):\s*(\S+)\s*$")
+ID_LINE = re.compile(r"^\s*-\s+(?:rule_id|gem_id|id):\s*['\"]?([^'\"\s]+)['\"]?\s*$")
 CORPUS_ID = re.compile(r"\b[dp]\d{3}[a-z0-9]*-R\d+\b")
 LOC_REF = re.compile(r"(day-\d{3})[a-z0-9-]*:L(\d+)(?:\s*[-–]\s*L?(\d+))?")
 
@@ -48,7 +48,11 @@ def resolve_compiled(rids):
             cells = [c.strip() for c in line.strip().strip("|").split("|")]
             if cells and cells[0] in rids:
                 seen_rows.append(cells[0])
-                corpus_ids += CORPUS_ID.findall(line)
+                matched = CORPUS_ID.findall(line)
+                corpus_ids += matched
+                leftovers = [t for t in re.findall(r"\b[a-z0-9]*-?R\d+\b", line) if t not in matched and not CORPUS_ID.fullmatch(t)]
+                if leftovers:
+                    print(f"# WARNING {cells[0]}: abbreviated/unresolvable id tokens in index row, fetch by hand: {', '.join(leftovers)}", file=sys.stderr)
     for rid in rids:
         if rid not in seen_rows:
             print(f"# NOT IN ANY RULE-INDEX: {rid}", file=sys.stderr)
