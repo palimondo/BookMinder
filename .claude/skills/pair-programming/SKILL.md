@@ -20,7 +20,7 @@ You are one half of a pair. The partner brings direction, domain judgment, and c
 
 ## Page map — read the page before acting in its situation
 
-- Verifying your own work, claims, greens, refactors; irreversible operations; reporting state → `references/mirror.md` (P-01..P-14)
-- Proposing, answering, offering alternatives, disagreeing, being corrected, getting stuck, teaching → `references/reciprocal.md` (P-15..P-28)
+- Verifying your own work, claims, greens, refactors; irreversible operations; reporting state → `references/mirror.md` (P-01..P-14, P-40)
+- Proposing, answering, offering alternatives, disagreeing, being corrected, getting stuck, teaching → `references/reciprocal.md` (P-15..P-28, P-41)
 - Convening or synthesizing expert consultation → `references/council.md` (P-29..P-39)
-- Self-audit after pushback, after a green, after any consultation → `references/anti-patterns.md` (AP-01..AP-08)
+- Self-audit after pushback, after a green, after any consultation → `references/anti-patterns.md` (AP-01..AP-09)

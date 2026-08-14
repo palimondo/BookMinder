@@ -2,7 +2,7 @@
 
 Every pairing-shaped item in the mining corpus, dispositioned. Corpora covered: all v2 `pairing_rules` (314), all v2 `pairing_gems` (155, keyed by loc), all v2 `skill_rules` with `skill_target: pair-programming` (45), and all council-fidelity trial `pairing_rules` (92). Vocabulary: compiled→P-NN (primary source of the compiled rule), merged-duplicate→P-NN (folded into that rule), rejected(reason), reroute:tdd-bdd|project-memory|coordinator (conduct belongs to that skill, not to pairing). For gems, merged-duplicate→P-NN means the exemplary episode grounds that rule; gems carry no separate rule text.
 
-Tallies: 606 items — compiled 37, merged-duplicate 427, reroute 132 (tdd-bdd 75, coordinator 41, project-memory 16), rejected 10. Two further rules have non-corpus primaries: P-32 and P-33 compile ledger ratifications L-08 and L-04.
+Tallies (v2, 2026-08-14): 606 items — compiled 39, merged-duplicate 424, reroute 132 (tdd-bdd 75, coordinator 41, project-memory 16), rejected 11. Two further rules have non-corpus primaries: P-32 and P-33 compile ledger ratifications L-08 and L-04. v2 changes: p013-R7 and p003-R13 promoted merged→compiled (P-40, P-41); p006-R4 merged→rejected on transcript verification; eight sources re-dispositioned between rules — all itemized in skill-v2-changelog-pair-programming.md.
 
 ## v2 pairing_rules
 
@@ -34,7 +34,7 @@ Tallies: 606 items — compiled 37, merged-duplicate 427, reroute 132 (tdd-bdd 7
 | p003-R10 | merged-duplicate→P-23 |
 | p003-R11 | merged-duplicate→P-27 |
 | p003-R12 | merged-duplicate→P-17 |
-| p003-R13 | merged-duplicate→P-28 |
+| p003-R13 | compiled→P-41 (was merged-duplicate→P-28; standalone expression per pilot P-12/P-14 program — expressed by neither P-28 nor P-14) |
 | p003-R14 | compiled→P-09 |
 | p003-R15 | merged-duplicate→P-09 |
 | p003-R16 | reroute:coordinator (delegated-investigation failure reporting) |
@@ -70,7 +70,7 @@ Tallies: 606 items — compiled 37, merged-duplicate 427, reroute 132 (tdd-bdd 7
 | p006-R1 | merged-duplicate→P-09 |
 | p006-R2 | merged-duplicate→P-01 |
 | p006-R3 | merged-duplicate→P-14 |
-| p006-R4 | merged-duplicate→P-19 |
+| p006-R4 | rejected(verification 2026-08-14: cited turn day-006:L3455 is an evidence-backed reversal after a demanded evidence pass — the behaviour P-19 endorses, not a pressure flip) |
 | p006-R5 | merged-duplicate→P-20 |
 | p006-R6 | merged-duplicate→P-15 |
 | p006-R7 | merged-duplicate→P-15 |
@@ -152,7 +152,7 @@ Tallies: 606 items — compiled 37, merged-duplicate 427, reroute 132 (tdd-bdd 7
 | p012-R2 | reroute:tdd-bdd (fixture-bent-to-test) |
 | p012-R3 | merged-duplicate→P-10 |
 | p012-R4 | merged-duplicate→P-04 |
-| p012-R5 | merged-duplicate→P-22 |
+| p012-R5 | merged-duplicate→P-23 (was →P-22; an underspecified card is a question to ask, not a minimal-constraint lesson) |
 | p012-R6 | merged-duplicate→P-10 |
 | p012-R7 | merged-duplicate→P-14 |
 | p012-R8 | merged-duplicate→P-29 |
@@ -165,7 +165,7 @@ Tallies: 606 items — compiled 37, merged-duplicate 427, reroute 132 (tdd-bdd 7
 | p013-R4 | merged-duplicate→P-24 |
 | p013-R5 | merged-duplicate→P-05 |
 | p013-R6 | merged-duplicate→P-10 |
-| p013-R7 | merged-duplicate→P-14 |
+| p013-R7 | compiled→P-40 (was merged-duplicate→P-14; standalone expression per pilot P-12/P-14 program) |
 | p013-R8 | rejected(harness identity mechanics) |
 | p013-R9 | rejected(era-specific slash-command file mechanics) |
 | p013-R10 | merged-duplicate→P-15 |
@@ -204,7 +204,7 @@ Tallies: 606 items — compiled 37, merged-duplicate 427, reroute 132 (tdd-bdd 7
 | p017-R3 | merged-duplicate→P-15 |
 | p017-R4 | reroute:tdd-bdd (plan ordering from discipline) |
 | p017-R5 | merged-duplicate→P-19 |
-| p017-R6 | merged-duplicate→P-23 |
+| p017-R6 | merged-duplicate→P-15 (was →P-23; substance is change-only-what-was-named, per pairing-2) |
 | p017-R7 | merged-duplicate→P-24 |
 | p017-R8 | merged-duplicate→P-24 |
 | p017-R9 | merged-duplicate→P-33 |
@@ -212,7 +212,7 @@ Tallies: 606 items — compiled 37, merged-duplicate 427, reroute 132 (tdd-bdd 7
 | p017-R11 | compiled→P-39 |
 | p017-R12 | rejected(project-specific restricted-path mechanics) |
 | p018-R1 | merged-duplicate→P-01 |
-| p018-R2 | merged-duplicate→P-23 |
+| p018-R2 | merged-duplicate→P-15 (was →P-23; sources P-15's fix-must-not-disable-built-behaviour clause) |
 | p018-R3 | merged-duplicate→P-14 |
 | p018-R4 | reroute:coordinator (read-freely/ask-before-writes authorization) |
 | p018-R5 | merged-duplicate→P-10 |
@@ -258,7 +258,7 @@ Tallies: 606 items — compiled 37, merged-duplicate 427, reroute 132 (tdd-bdd 7
 | p020s1-R16 | compiled→P-19 |
 | p020s1-R17 | merged-duplicate→P-01 |
 | p020s2-R1 | merged-duplicate→P-15 |
-| p020s2-R2 | merged-duplicate→P-21 |
+| p020s2-R2 | merged-duplicate→P-28 (was →P-21; sources P-28's explain-the-name-you-chose clause) |
 | p020s2-R3 | merged-duplicate→P-21 |
 | p020s2-R4 | merged-duplicate→P-01 |
 | p020s2-R5 | merged-duplicate→P-15 |
@@ -313,7 +313,7 @@ Tallies: 606 items — compiled 37, merged-duplicate 427, reroute 132 (tdd-bdd 7
 | p021-R4 | merged-duplicate→P-09 |
 | p021-R5 | compiled→P-25 |
 | p021-R6 | compiled→P-18 |
-| p021-R7 | merged-duplicate→P-28 |
+| p021-R7 | merged-duplicate→P-13 (was →P-28; the lesson is count-before-arguing, same author turn as trial p021t-R14) |
 | p021-R8 | merged-duplicate→P-14 |
 | p021-R9 | merged-duplicate→P-10 |
 | p021-R10 | reroute:coordinator (delegation briefing) |
@@ -545,11 +545,11 @@ Tallies: 606 items — compiled 37, merged-duplicate 427, reroute 132 (tdd-bdd 7
 | day-011:L11634 | merged-duplicate→P-22 |
 | day-011:L4598 | merged-duplicate→P-04 |
 | day-012:L946 | reroute:tdd-bdd (spec inviolability rationale) |
-| day-012:L1073 | merged-duplicate→P-28 |
+| day-012:L1073 | merged-duplicate→P-15 (was →P-28; an author decomposing one edit into a reviewable sequence) |
 | day-012:L2465 | merged-duplicate→P-10 |
 | day-012:L2628 | merged-duplicate→P-04 |
 | day-013:L1445-L1448 | merged-duplicate→P-15 (pre-flight read-back) |
-| day-013:L1603 | merged-duplicate→P-14 (comprehension check after correction) |
+| day-013:L1603 | merged-duplicate→P-40 (was →P-14; comprehension check after correction, now standalone) |
 | day-013:L2820-L2822 | rejected(era-specific model-switch diagnosis) |
 | day-013:L996-L1000 | reroute:project-memory (screenshots-in-repo policy) |
 | day-013:L740-L741 | merged-duplicate→P-15 (context reacquisition named as goal) |
