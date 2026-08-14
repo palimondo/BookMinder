@@ -33,7 +33,7 @@ Each of the 194 tdd-bdd-targeted rules in .coordination/mining/v2/ dispositioned
 | d005-R6 | compiled -> T-68 |
 | d006-R1 | compiled -> T-34 |
 | d006-R2 | compiled -> T-30 |
-| d006-R3 | merged-duplicate -> T-29 (no capability/methodology claims without an observed run) |
+| d006-R3 | compiled -> T-100 (v2: methodology-improvement claims split out of T-29 per provenance verification — T-29 governs executing a change before calling it ready, not claiming method efficacy; incomparable-stages clause added) |
 | d007-R3 | compiled -> T-06 (as ratified by ledger L-02: phase-scoped exemption, miner narrowing rejected) |
 | d007-R4 | compiled -> T-69 |
 | d007-R5 | merged-duplicate -> T-27 |
@@ -60,7 +60,7 @@ Each of the 194 tdd-bdd-targeted rules in .coordination/mining/v2/ dispositioned
 | d009-R12 | compiled -> T-27 |
 | d009-R13 | compiled -> T-44 |
 | d010-R1 | merged-duplicate -> T-10 |
-| d010-R2 | merged-duplicate -> T-39 |
+| d010-R2 | merged-duplicate -> T-39 (v2: also feeds T-91's skip-as-stand-in clause, with the enforcement at day-010:L2881-L2908) |
 | d010-R3 | compiled -> T-91 |
 | d010-R4 | compiled -> T-74 |
 | d010-R5 | compiled -> T-72 (front-door seam wins per ledger L-09) |
@@ -83,7 +83,7 @@ Each of the 194 tdd-bdd-targeted rules in .coordination/mining/v2/ dispositioned
 | d012-R2 | merged-duplicate -> T-71 (as reconciled by later layer rulings: the ONE subprocess wiring spec runs mock-free; boundary mocks are sanctioned by T-70) |
 | d012-R3 | compiled -> T-40 |
 | d012-R4 | compiled -> T-39 |
-| d012-R5 | compiled -> T-04 |
+| d012-R5 | compiled -> T-04 (v2: also listed under T-40 — it supplies the skip-marker half T-40's other source lacks) |
 | d012-R6 | compiled -> T-15 |
 | d012-R7 | compiled -> T-16 |
 | d012-R8 | compiled -> T-77 |
@@ -104,7 +104,7 @@ Each of the 194 tdd-bdd-targeted rules in .coordination/mining/v2/ dispositioned
 | d017-R4 | compiled -> T-22 |
 | d017-R5 | merged-duplicate -> T-22 |
 | d017-R13 | compiled -> T-07 |
-| d017-R14 | merged-duplicate -> T-10 |
+| d017-R14 | merged-duplicate -> T-22 (v2: verification found the cited loc L1556 holds no author turn; the quoted "Focus on TDD discipline" opens the rename-scope turn at day-017:L1608, already T-22's — previously misfiled under T-10, whose re-run clause it alone supported) |
 | d018-R1 | merged-duplicate -> T-04 |
 | d018-R2 | merged-duplicate -> T-59 |
 | d018-R3 | merged-duplicate -> T-59 |
@@ -181,7 +181,7 @@ Each of the 194 tdd-bdd-targeted rules in .coordination/mining/v2/ dispositioned
 | d020s5-R2 | merged-duplicate -> T-87 |
 | d020s5-R3 | merged-duplicate -> T-89 |
 | d020s5-R4 | compiled -> T-56 |
-| d020s5-R5 | merged-duplicate -> T-61 |
+| d020s5-R5 | rejected (v2: retracted on verification — the cited line sits inside a diff the author rejected for non-equivalence and unrecovered motivation, day-020:L56044-L56046; no turn in the window concerns message coupling; T-56 carries the episode's actual lesson) |
 | d020s5-R6 | merged-duplicate -> T-32 |
 | d020s5-R9 | merged-duplicate -> T-21 |
 | d021-R1 | compiled -> T-48 |
@@ -199,4 +199,4 @@ Each of the 194 tdd-bdd-targeted rules in .coordination/mining/v2/ dispositioned
 | d021-R21 | compiled -> T-78 |
 | d021-R25 | rejected (general debugging technique — reduce-to-one-line diff iteration — outside the discipline's activation moments; candidate for a future debugging skill) |
 
-Tallies: 194 entries — compiled 97, merged-duplicate 92, rejected 3, reroute:project-memory 2.
+Tallies: 194 entries — compiled 98, merged-duplicate 90, rejected 4, reroute:project-memory 2. (v2: d006-R3 merged→compiled as T-100; d017-R14 refiled T-10→T-22; d020s5-R5 merged→rejected.)
