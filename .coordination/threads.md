@@ -60,6 +60,7 @@ Reevaluate dormant project (~1yr) with fresh perspective. No new feature code. C
 - Removed worker-added self-ignoring .gitignore (hid artifacts instead of preserving them)
 
 ## Review ledger (user's read state; NOTHING is repo rule until user approves wholesale)
+- SKILL REVIEW IN PROGRESS (2026-08-14, one skill at a time, smallest first): pair-programming — SKILL.md router spot-checked earlier; mirror.md: P-04 example reworded per author (62bd078), P-12 trigger-restore fix PROPOSED (census-at-stopping-point, awaiting author yes), P-14 examined via dry-run-then-provenance test (holds, trigger crisp, no change); reciprocal.md APPROVED AS-IS (author verbatim: "it is approved as is"); council.md + anti-patterns.md not yet reviewed. Then: bookminder (34.7K), tdd-bdd (35.7K). Review method that works: author dry-run-tests a rule's interpretation blind, then we look up inciting incidents from rule-index → mining YAMLs — surfaced one real compile defect (P-12 dropped its source's census trigger).
 - bdd-style-canonical.md: §1 reviewed in earlier form (gist approved, phrasing not); post-revision version NOT yet reviewed. NOT RATIFIED — not a rule of this repo
 - claude-experiments.md: exec summary read via chat; doc itself skimmed at most
 - process-evolution.md, repo-map.md, comparisons, bdd-style-fable/opus2: NOT read by user (reference only)
