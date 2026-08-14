@@ -1,5 +1,7 @@
 # Disposition ledger — bookminder project-memory compile
 
+v2 2026-08-14 (judge pass over provenance-verification-bookminder-{1,2}.md): d006-R4 re-filed B-31→B-20; d020s4-R17 reclassified merged-duplicate of d020s2-R14 (day-020 re-logs whole regions — see also d020s3-R11, d020s4-R12, and the d020s1-R20 = d020s3-R11 = d020s4-R10 Gemini-relay identity in rule-index-bookminder.md); tallies updated. Full change record: skill-v2-changelog-bookminder.md.
+
 Every `skill_target: project-memory` entry in .coordination/mining/v2/*.yaml (134 total) and every fragment in .coordination/skill-removals-for-project-skills.md, dispositioned. Vocabulary: **compiled→B-NN** (content shipped in that rule) | **merged-duplicate→B-NN** (same content as another compiled source; no information lost) | **rejected(reason)** | **reroute:tdd-bdd** / **reroute:pair-programming**. B-NN definitions and provenance: rule-index-bookminder.md.
 
 ## Corpus entries
@@ -18,7 +20,7 @@ Every `skill_target: project-memory` entry in .coordination/mining/v2/*.yaml (13
 | d005-R7 | compiled→B-41 |
 | d005-R8 | compiled→B-07 |
 | d005-R14 | compiled→B-31 |
-| d006-R4 | compiled→B-31 (kernel: exclude venv/caches from metrics; also B-20) |
+| d006-R4 | compiled→B-20 (kernel: exclude venv/caches from metrics; v2 re-filing from B-31, whose compiled text carries no line-count content) |
 | d006-R5 | compiled→B-30 |
 | d006-R6 | compiled→B-06 |
 | d006-R7 | compiled→B-06 |
@@ -120,7 +122,7 @@ Every `skill_target: project-memory` entry in .coordination/mining/v2/*.yaml (13
 | d020s1-R17 | reroute:tdd-bdd (spec docstring style) |
 | d020s1-R18 | compiled→B-24/B-26 |
 | d020s1-R19 | compiled→B-26 |
-| d020s1-R20 | compiled→B-26/B-49 |
+| d020s1-R20 | compiled→B-26/B-49 (v2: relabeled agent-synthesis (Gemini relay) — cites an AI-written day-010 summary, not an author turn; primary evidence day-010:L1261-L1290) |
 | d020s1-R21 | compiled→B-27 |
 | d020s2-R13 | compiled→B-22 (re-verified: subprocess CLI driving present at HEAD, specs/cli_spec.py:1,19-38) |
 | d020s2-R14 | compiled→B-24 |
@@ -129,9 +131,9 @@ Every `skill_target: project-memory` entry in .coordination/mining/v2/*.yaml (13
 | d020s3-R10 | merged-duplicate→B-27 (d020s1-R21) |
 | d020s3-R11 | merged-duplicate→B-26 (d010-R17 + d020s1-R20) |
 | d020s3-R12 | compiled→B-26 |
-| d020s4-R10 | compiled→B-26 (error-message distinction between personas) |
+| d020s4-R10 | compiled→B-26 (error-message distinction between personas — v2: distinction now verified@tree, library.py:26-37 + fixture tree; cited loc is the third re-log of the Gemini day-010 summary, relay provenance) |
 | d020s4-R12 | merged-duplicate→B-24 (d020s1-R18) |
-| d020s4-R17 | compiled→B-24 |
+| d020s4-R17 | merged-duplicate→B-24 (d020s2-R14 — v2: day-020 re-log, byte-identical edit sequence at a different offset) |
 | d020s5-R7 | compiled→B-21 |
 | d021-R14 | compiled→B-62 (and B-23 practical rule) |
 | d021-R15 | compiled→B-23 |
@@ -174,6 +176,6 @@ Every `skill_target: project-memory` entry in .coordination/mining/v2/*.yaml (13
 
 ## Tallies
 
-- Corpus entries: 134 = compiled 120 + merged-duplicate 9 (d009-R22, d011-R19, d012-R10, d013-R17, d013-R18, d018-R17, d020s3-R10, d020s3-R11, d020s4-R12) + rejected 2 (d011-R21, d017-R6) + reroute:tdd-bdd 3 (d016-R10, d016-R12, d020s1-R17).
+- Corpus entries: 134 = compiled 119 + merged-duplicate 10 (d009-R22, d011-R19, d012-R10, d013-R17, d013-R18, d018-R17, d020s3-R10, d020s3-R11, d020s4-R12, d020s4-R17) + rejected 2 (d011-R21, d017-R6) + reroute:tdd-bdd 3 (d016-R10, d016-R12, d020s1-R17).
 - skill-removals fragments: 26 = compiled 10 + merged-duplicate 2 + rejected 14.
 - reroute:pair-programming: 0 (no pm-targeted entry belonged there).
