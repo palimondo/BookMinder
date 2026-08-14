@@ -60,7 +60,15 @@ def resolve_compiled(rids):
 
 
 def print_transcript_windows(text, ctx):
-    for day, start, end in {m.groups() for m in LOC_REF.finditer(text)}:
+    refs = {m.groups() for m in LOC_REF.finditer(text)}
+    days = {day for day, _, _ in refs}
+    if len(days) == 1:
+        day = next(iter(days))
+        cited = {int(s) for _, s, e in refs} | {int(e) for _, s, e in refs if e}
+        for m in re.finditer(r"(?<![-\w:])L(\d+)(?:\s*[-–]\s*L?(\d+))?", text):
+            if int(m.group(1)) not in cited:
+                refs.add((day, m.group(1), m.group(2)))
+    for day, start, end in refs:
         start, end = int(start), int(end or start)
         day_file = DIARY / f"{day}.md"
         if not day_file.exists():
