@@ -85,7 +85,7 @@
   - Automated via pre-commit hooks
   - Run manually: `mypy .`
 - **Imports**: Group standard library, third-party, local imports; alphabetize within groups
-- **Types**: Use type hints for all functions and parameters
+- **Types**: Use type hints for all functions and parameters in `bookminder/`; not required in spec files (mypy excludes `specs/`)
 - **Documentation**:
   - Prefer self-documenting code over verbose docstrings
   - Minimal, focused docstrings for complex functions only
@@ -247,7 +247,7 @@ This system ensures clarity, machine-readability, and granular progress tracking
 - Keep package metadata current and accurate in pyproject.toml
 - Review docs/ directory content periodically to ensure documentation reflects current state
 - Maintain LICENSE file with correct attribution and current year
-- These instructions are duplicated in AGENTS.md and GEMINI.md for use with other agentic coding systems, therefore when updating these instructions, always ask the user if changes should be applied to CLAUDE.md, AGENTS.md, and GEMINI.md
+- AGENTS.md and GEMINI.md are symlinks to CLAUDE.md, so other agentic coding systems read this same file — it is the single source of these instructions and there is nothing to keep in sync
 </project_maintenance>
 
 <file_operations>
