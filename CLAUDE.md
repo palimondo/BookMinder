@@ -199,6 +199,8 @@ The project includes `xs` (explore_session), a powerful meta-analysis tool for e
 - This creates a natural rhythm in `pytest --spec` output
 - Implementation order in TODO.md should reflect natural feature progression and dependencies
 - Mark stories as partially complete with specific notes about what remains
+- The story card's `status` field is the single source of status truth; TODO.md is a derived overview and must agree with the cards
+- Record deferred work as a pinned entry at the top of TODO.md at the moment of deferral; never delete, demote, or renumber an existing entry while editing the file for another purpose
 
 ### Story Card Structure
 Each story card is a YAML file with the following structure:
@@ -235,26 +237,32 @@ This system ensures clarity, machine-readability, and granular progress tracking
 - Commit messages should be descriptive and explain the "why" behind changes
 - Reference the specific requirements being addressed in commit messages
 - Focus on what the change accomplishes, not just what files were modified
+- A commit message may claim only what the staged diff actually does: verify it against the diff, never attribute a benefit the change does not deliver, drop references to work-in-progress states the reader cannot see, and state the why without "This commit..." preamble or filename inventories
 - Each commit should be small, focused, and preserve working state (all tests passing; the sole exception is the deliberately-red acceptance test of a feature in progress, per outside-in ATDD).
 - Stage all files after running pre-commit hooks that modify files, to ensure fixes are included in commit
-- Never use `git add .` - always stage files explicitly by name to avoid accidentally committing large or sensitive files
+- Never use `git add .`, `git add -A`/`--all`, or `git add -u` - always stage files explicitly by name; the PreToolUse hook (.claude/validate_git_commands.py) blocks bulk staging and must never be worked around
 </git_workflow>
 
 <project_maintenance>
 ## Project Maintenance
 - Regularly verify the AI's model version in the pyproject.toml contributors list
-- Update the contributors list whenever Claude is upgraded to a newer version
+- Append to the contributors list whenever the acting model changes; never replace or remove a past contributor
+- Never change the package version as a side effect of other work; a version bump is a separate decision with its own reason and commit
 - Keep package metadata current and accurate in pyproject.toml
 - Review docs/ directory content periodically to ensure documentation reflects current state
 - Maintain LICENSE file with correct attribution and current year
+- CLAUDE.md is the single canonical rules file: never create a parallel principles document, and add a new rule by extending the section that already owns its concern, as a targeted edit against the current text — never a whole-file rewrite
+- When consolidating or removing rules text, enumerate every line it contained and show where each one lands before committing; a deletion may never ride along unshown
 - AGENTS.md and GEMINI.md are symlinks to CLAUDE.md, so other agentic coding systems read this same file — it is the single source of these instructions and there is nothing to keep in sync
 </project_maintenance>
 
 <file_operations>
 ## File Operations and Git Hygiene
 - **Always use `git mv` for moving files**: When relocating tracked files, always use `git mv` instead of regular `mv` to maintain proper Git history
+- **Remove tracked files with `git rm`**, never plain `rm`, so the removal is staged and visible
 - **Place documentation in docs/ directory**: Keep all documentation files in the docs/ directory with lowercase, underscore-separated names
-- **Never access `claude-dev-log-diary/` directory without first asking for explicit user permission**: This directory contains complete console transcripts (hundreds of KBs) for historical analysis
+- **Never access `claude-dev-log-diary/` directory without first asking for explicit user permission**: This directory contains complete console transcripts (hundreds of KBs) for historical analysis; a grant is scoped to the exact file (and line range) named in it — never load a day file in full; search with ripgrep or read the paired gemini-summary first
+- **Plain markdown, word markers**: use markers such as [COMPLETED] — no emoji status decoration in TODO.md, docs/, or commit bodies; keep bash blocks in docs comment-free and copy-pasteable, with explanation in the surrounding prose
 - **Verify each development step in isolation**: Test each step of the development workflow to ensure it works as expected before documenting it
 - **Test project setup on a clean environment**: Regularly verify that project setup works correctly from scratch
 - **Test commands in fresh shells**: Ensure all documented commands work in new terminal sessions
