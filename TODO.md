@@ -10,19 +10,15 @@ in the `stories/` directory, following the format defined in `vision.md`.
 - **ZSTATE Values for Cloud Status:** (Research completed, mapping updated in `docs/apple_books.md`)
 - **Filter by Cloud Status:** (See `stories/discover/filter-by-cloud-status.yaml`)
 - **Documentation Cleanup:** Removed retrospective AI meta-docs (commit eea59e3)
-- **Validate Filter Values:** (See `stories/discover/validate-filter-values.yaml`)
-- **Filter by Sample Flag:** (See `stories/discover/filter-by-sample-flag.yaml`)
+- **Validate Filter Values:** (See `stories/discover/validate-filter-values.yaml`) [REOPENED: outside-in lapse after 6f786cc — kept working code, debt is the vacuous-spec repair below]
+- **Filter by Sample Flag:** (See `stories/discover/filter-by-sample-flag.yaml`) [REOPENED: same lapse — kept working code, debt is the vacuous-spec repair below]
 
 ## In Progress
 
-### Filter Implementation Restoration
-- **Issue:** After commit 6f786cc, ATDD practice wasn't followed properly
-- **Action:** Manually restore proper ATDD discipline to re-establish gold standard of specs and implementation
-- **Stories that need proper ATDD reimplementation:**
-  - `stories/discover/validate-filter-values.yaml`
-  - `stories/discover/filter-by-sample-flag.yaml` 
-  - `stories/discover/filter-by-reading-status.yaml`
-- **Goal:** Create exemplar specifications that demonstrate correct ATDD approach
+### Reopened-filter spec repair
+- **Ruling (2026-08-15):** keep the working post-6f786cc implementation; the process lapse (unit-first without an acceptance test, acceptance backfilled) left correct code with two vacuous specs. Full re-implementation rejected as costing ~35 production lines and ~10 green specs to repair 2 assertions.
+- **Debt:** `library_spec.py it_filters_by_sample_status` and `cli_spec.py it_filters_recent_books_by_sample_status` pass vacuously — no fixture sample has reading progress, so `list recent --filter sample` matches nothing. Repair: copy a real in-progress sample into the fixture via `copy_book_to_fixture.sh` (author's machine), then tighten both assertions to exact expected titles.
+- PR #18 (semantic revert) is superseded by this ruling and unmergeable since the spec-tree restore.
 
 ## Current Backlog (Stories in `stories/` directory)
 

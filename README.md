@@ -60,11 +60,15 @@ pytest --spec
 
 ## Usage
 
+Library API (pre-release): the plist-backed functions below are the seed of the future EPUB content path (only Books.plist carries EPUB file paths); the CLI does not use them yet.
+
 ```python
+from pathlib import Path
+
 from bookminder.apple_books.library import list_books, find_book_by_title
 
-books = list_books()
-book = find_book_by_title("Growing Object-Oriented Software, Guided by Tests")
+books = list_books(Path.home())
+book = find_book_by_title("Growing Object-Oriented Software, Guided by Tests", Path.home())
 ```
 
 ### Command Line Usage
