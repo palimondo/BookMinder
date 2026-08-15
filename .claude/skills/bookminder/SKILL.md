@@ -9,7 +9,7 @@ BookMinder is a CLI (heading for MCP) that reads a user's Apple Books library â€
 
 This skill is the project's cross-session memory â€” the environment has none, the repo is the only substrate. Facts here carry their WHY and their verification status; where state can rot, the page points at the command or file that holds truth instead of restating it.
 
-Sibling skill `tdd-bdd` carries the process discipline; CLAUDE.md owns the constitution and build commands. This skill repeats neither.
+Sibling skill `tdd-bdd` carries the process discipline; this skill carries the project.
 
 ## Page map
 
