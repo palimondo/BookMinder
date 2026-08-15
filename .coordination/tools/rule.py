@@ -22,7 +22,9 @@ RULE_INDEX_GLOB = ".coordination/compile/rule-index-*.md"
 DIARY = Path("claude-dev-log-diary")
 ID_LINE = re.compile(r"^\s*-\s+(?:rule_id|gem_id|id):\s*['\"]?([^'\"\s]+)['\"]?\s*$")
 CORPUS_ID = re.compile(r"\b[dp]\d{3}[a-z0-9]*-R\d+\b")
+LOOSE_ID = re.compile(r"\b[a-z0-9]*-?R\d+\b")
 LOC_REF = re.compile(r"(day-\d{3})[a-z0-9-]*:L(\d+)(?:\s*[-–]\s*L?(\d+))?")
+BARE_LOC = re.compile(r"(?<![-\w:])L(\d+)(?:\s*[-–]\s*L?(\d+))?")
 
 
 def find_fragments(wanted):
@@ -50,7 +52,7 @@ def resolve_compiled(rids):
                 seen_rows.append(cells[0])
                 matched = CORPUS_ID.findall(line)
                 corpus_ids += matched
-                leftovers = [t for t in re.findall(r"\b[a-z0-9]*-?R\d+\b", line) if t not in matched and not CORPUS_ID.fullmatch(t)]
+                leftovers = [t for t in LOOSE_ID.findall(line) if t not in matched and not CORPUS_ID.fullmatch(t)]
                 if leftovers:
                     print(f"# WARNING {cells[0]}: abbreviated/unresolvable id tokens in index row, fetch by hand: {', '.join(leftovers)}", file=sys.stderr)
     for rid in rids:
@@ -65,7 +67,7 @@ def print_transcript_windows(text, ctx):
     if len(days) == 1:
         day = next(iter(days))
         cited = {int(s) for _, s, e in refs} | {int(e) for _, s, e in refs if e}
-        for m in re.finditer(r"(?<![-\w:])L(\d+)(?:\s*[-–]\s*L?(\d+))?", text):
+        for m in BARE_LOC.finditer(text):
             if int(m.group(1)) not in cited:
                 refs.add((day, m.group(1), m.group(2)))
     for day, start, end in refs:
