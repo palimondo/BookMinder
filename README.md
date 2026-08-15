@@ -5,9 +5,19 @@
 
 A tool to extract content and highlights from Apple Books for LLM analysis.
 
+BookMinder is both a working tool and an open experiment: a benchmark and methodology testbed for disciplined AI-paired development, where the process - story cards, executable specifications, strict outside-in ATDD - is as much the product as the code. See [vision.md](vision.md) for the thesis and benchmark design.
+
 ## Features
 
-- List books from Apple Books library
+- List recently read books with reading progress: `bookminder list recent`
+- List all books in your library: `bookminder list all`
+- Filter by cloud or sample status: `--filter cloud`, `!cloud`, `sample`, `!sample`
+- Examine another user's library: `--user <name>`
+
+## Roadmap
+
+Planned toward the vision of book-grounded LLM consultation ([vision.md](vision.md)):
+
 - Extract table of contents from EPUB files
 - Extract highlighted passages with context
 - Export in Markdown format for LLM consumption
