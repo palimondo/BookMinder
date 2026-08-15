@@ -111,8 +111,8 @@ LIMIT 10;
 ### Content Type Identification
 
 **In BKLibrary Database**:
-- `ZCONTENTTYPE = 1`: Regular books (EPUB)
-- `ZCONTENTTYPE = 3`: PDF documents
+- `ZCONTENTTYPE = 1`: Likely regular books (EPUB) - unverified against a live database
+- `ZCONTENTTYPE = 3`: Likely PDF documents - unverified against a live database
 - `ZISSAMPLE = 1`: Sample/preview books
 - `ZKIND = "ebook"`: Standard ebook format
 - `ZKIND = "pdf"`: PDF document
@@ -334,7 +334,7 @@ Apple Books groups books by series, showing both owned and unowned titles. Serie
 |:--------------:|:-----------------:|
 | ![Series - Hainish](ui/apple/Series%20-%20Hainish.jpg) | ![Series - The Baroque Cycle](ui/apple/Series%20-%20The%20Baroque%20Cycle.jpg) |
 
-**Key Discovery**: This UI provides visual evidence that `ZSTATE = 5` in the database represents series entities and unowned books within a series.
+**Working Hypothesis**: This UI suggests `ZSTATE = 5` may be associated with series entities and unowned books within a series. Unverified: a later census (2025-07-03) also observed 5 only as a *second* row for a title that already had a `ZSTATE = 3` row - consistent with the series structure but not settling it. Open until a fresh live-database re-census.
 
 #### Want to Read Section
 Books displayed for future reading. Appears to be composed of books with 0% progress and any samples:
@@ -629,16 +629,16 @@ Additional properties that can apply to any content type or reading status.
     -   *Note:* The `ZISSAMPLE` flag alone is not a reliable indicator. We have confirmed cases (e.g., "Snow Crash") where a book is a sample in the UI but has `ZISSAMPLE = 0` in the database, being identified instead by its `ZSTATE` of `6`.
 -   **Cloud:** The book is stored in iCloud and not fully downloaded locally.
     -   *Mapping:* `BKLibrary.sqlite` where `ZSTATE` indicates cloud/local status.
-    -   *Verified ZSTATE Mappings:*
+    -   *Observed ZSTATE Mappings (2025 census - re-verify against a live database before relying on these):*
         - `ZSTATE = 3`: **Cloud Book**. The book is stored in iCloud.
         - `ZSTATE = 6`: **Cloud Sample (Not Downloaded)**. Sample added to library/wishlist but not downloaded yet. Shows in "My Samples" on Mac and "In Your Library" as Sample on iOS. Has no ZKIND, ZPATH, or reading progress until downloaded.
         - `ZSTATE = 1`: **Local Book**. The book is stored on the device. This includes:
             - Regular downloaded books
             - Downloaded samples (where `ZISSAMPLE = 1`)
-        - `ZSTATE = 5`: **Series Entity / Unowned Series Book**. This `ZSTATE` value is associated with:
+        - `ZSTATE = 5`: **Open hypothesis - Series Entity / Unowned Series Book?** Observed carried by:
             - The **series entity itself** (e.g., "Hainish"), where `ZTITLE` matches the series name.
             - **Unowned books within a series** (e.g., "Five Ways to Forgiveness"), where `ZTITLE` is the individual book title.
-        Both are linked to individual books via `ZSERIESID`.
+        Both are linked to individual books via `ZSERIESID`. However, a later census (2025-07-03) observed 5 only as a *second* row for a title that already had a `ZSTATE = 3` row - consistent with the series structure but not settling it. Treat 5 as unmapped until a fresh live-database re-census.
 
 ## CLI Mapping (Proposed Commands)
 
