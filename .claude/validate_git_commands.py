@@ -15,7 +15,9 @@ def main() -> None:
         dangerous_patterns = [
             r'git add \.(\s|$)',
             r'git add -A(\s|$)',
-            r'git add --all(\s|$)'
+            r'git add --all(\s|$)',
+            r'git add -u(\s|$)',
+            r'git add --update(\s|$)'
         ]
 
         for pattern in dangerous_patterns:
