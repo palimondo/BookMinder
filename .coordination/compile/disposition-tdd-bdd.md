@@ -200,3 +200,5 @@ Each of the 194 tdd-bdd-targeted rules in .coordination/mining/v2/ dispositioned
 | d021-R25 | rejected (general debugging technique — reduce-to-one-line diff iteration — outside the discipline's activation moments; candidate for a future debugging skill) |
 
 Tallies: 194 entries — compiled 98, merged-duplicate 90, rejected 4, reroute:project-memory 2. (v2: d006-R3 merged→compiled as T-100; d017-R14 refiled T-10→T-22; d020s5-R5 merged→rejected.)
+
+v2.1 retirement cascade note (2026-08-15): commit-after-RED retired per author ruling (threads.md "COMMIT-AFTER-RED RETIRED" + "RULING CONFIRMED"). No disposition rows change — the rule postdates the mined corpus (the miners recorded its absence explicitly), so T-14 never had a corpus source: it entered the skill via ledger L-14 and the then-current CLAUDE.md, and its rewrite to the surviving core (RED proven by the observed failing run, quoted) is recorded in rule-index-tdd-bdd.md and skill-v2-changelog-tdd-bdd.md. Recorded here so the tallies' silence is legible.

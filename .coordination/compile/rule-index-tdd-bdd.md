@@ -1,29 +1,29 @@
 # Rule index — tdd-bdd skill
 
-Every T-NN in `.claude/skills/tdd-bdd/` traced to its sources. Provenance ranks per compile policy: user-verbatim > user-paraphrase > agent-synthesis; ledger resolutions override all. Flags: detector-covered (F1-red-first-grammar / F2-assertion-integrity / F3-minimality / F4-layering / F5-claim-vs-action / F6-refactor-honesty), detector_candidate (mechanically checkable, no established family), rubric-item (LLM-judge assessable), UNFALSIFIABLE (no test exists — flagged per the author's own falsifiability principle).
+Every T-NN in `.claude/skills/tdd-bdd/` traced to its sources. Provenance ranks per compile policy: user-verbatim > user-paraphrase > agent-synthesis; ledger resolutions override all. Flags: detector-covered (F1b-red-first-in-time (transcript; replaced the retired F1 commit-grammar family per commit-after-red-review.md) / F2-assertion-integrity / F3-minimality / F4-layering / F5-claim-vs-action / F6-refactor-honesty), detector_candidate (mechanically checkable, no established family), rubric-item (LLM-judge assessable), UNFALSIFIABLE (no test exists — flagged per the author's own falsifiability principle).
 
 | T | source | provenance | flag |
 |---|--------|------------|------|
-| T-01 | v2/day-009.yaml d009-R1 (day-009:L945-L946) | user-verbatim (because: agent-synthesis) | detector-covered F1 |
-| T-02 | CLAUDE.md:123-124 + ledger L-14 | author-restored CLAUDE.md + ledger | detector-covered F1 |
-| T-03 | v2/day-019.yaml d019-R8 (day-019:L1951, L3899) | user-verbatim | detector-covered F1 |
-| T-04 | v2/day-012.yaml d012-R5 (L1338); v2/day-019.yaml d019-R7 (L1859); v2/day-018.yaml d018-R1 (L1242) | user-verbatim (because: agent-synthesis in d012-R5, d018-R1) | detector-covered F1 |
+| T-01 | v2/day-009.yaml d009-R1 (day-009:L945-L946) | user-verbatim (because: agent-synthesis) | rubric-item (F1 retired; F1b examined: boundary choice needs story-card semantics, red-first component subsumed by F1b edit-before-red) |
+| T-02 | CLAUDE.md:123-124 + ledger L-14 (2026-08-14 flip keeps the red-acceptance allowance) | author-restored CLAUDE.md + ledger | rubric-item (F1 retired; F1b examined: feature-completeness not transcript-decidable, fake-green is F2 territory) |
+| T-03 | v2/day-019.yaml d019-R8 (day-019:L1951, L3899) | user-verbatim | rubric-item (F1 retired; F1b examined: acceptance-vs-unit not path-derivable in the concern-based spec tree, ordering subsumed by edit-before-red) |
+| T-04 | v2/day-012.yaml d012-R5 (L1338); v2/day-019.yaml d019-R7 (L1859); v2/day-018.yaml d018-R1 (L1242) | user-verbatim (because: agent-synthesis in d012-R5, d018-R1) | rubric-item (F1 retired; F1b examined: sanctioned deliberately-red acceptance spec defeats failing-count thresholds) |
 | T-05 | ledger L-05 (winner: v2/day-009.yaml d009-R2, day-009:L7329-L7331) | user-verbatim via ledger | detector_candidate (fake-green: hardcoded literal matching acceptance expectation) |
 | T-06 | ledger L-02 (author ruling 2026-08-13; root v2/day-007.yaml d007-R3, day-007:L570-L573) | author-ruled + user-verbatim | UNFALSIFIABLE (a permission whose phase boundary has no crisp test; only the say-so clause is observable) |
 | T-07 | v2/day-017.yaml d017-R13 (day-017:L1877) | user-verbatim | rubric-item |
 | T-08 | v2/day-015.yaml d015-R13 (day-015:L691; quote at L787-L788) | user-verbatim | rubric-item |
 | T-09 | v2/day-011.yaml d011-R8 (L7172); v2/day-012.yaml d012-R9 (L2804) | user-verbatim | detector-covered F5 |
-| T-10 | v2/day-002.yaml d002-R1 (L1516); v2/day-010.yaml d010-R1 (L2872-L2881, revert L2928) | user-verbatim | detector-covered F1 |
-| T-11 | v2/day-002.yaml d002-R2 (day-002:L1768) | user-verbatim | detector-covered F1 |
-| T-12 | v2/day-019.yaml d019-R2 (day-019:L336) | agent-synthesis (agent self-narration; no author turn in window) | detector-covered F1 |
+| T-10 | v2/day-002.yaml d002-R1 (L1516); v2/day-010.yaml d010-R1 (L2872-L2881, revert L2928) | user-verbatim | detector-covered F1b |
+| T-11 | v2/day-002.yaml d002-R2 (day-002:L1768) | user-verbatim | detector-covered F1b |
+| T-12 | v2/day-019.yaml d019-R2 (day-019:L336) | agent-synthesis (agent self-narration; no author turn in window) | detector-covered F1b |
 | T-13 | v2/day-019.yaml d019-R3 (L3806); v2/day-021.yaml d021-R6 (L4170) | user-verbatim | rubric-item |
-| T-14 | ledger L-14; CLAUDE.md:127, :235-238; threads.md:27 rationale | author-restored + user-paraphrase | detector-covered F1 |
+| T-14 | author ruling 2026-08-14 (commit-after-RED retired; threads.md "COMMIT-AFTER-RED RETIRED" + "RULING CONFIRMED"); ledger L-14 flipped; CLAUDE.md tdd_discipline (Run & Verify RED) + git_workflow (stable points) — rewritten 2026-08-15 to surviving core: RED proven by the observed failing run, quoted; commit clause retired, spec lands with the GREEN commit | author-ruled | detector-covered F1b |
 | T-15 | v2/day-012.yaml d012-R6 (L1772); v2/day-019.yaml d019-R4 (L3718); CLAUDE.md:128 | user-verbatim | detector-covered F3 |
 | T-16 | v2/day-012.yaml d012-R7 (day-012:L1975) | user-verbatim | detector-covered F3 |
-| T-17 | v2/day-018.yaml d018-R6 (L817); v2/day-016.yaml d016-R9 (L6889); CLAUDE.md:129-130 | user-verbatim | detector-covered F1 |
+| T-17 | v2/day-018.yaml d018-R6 (L817); v2/day-016.yaml d016-R9 (L6889); CLAUDE.md:128-129 | user-verbatim | detector-covered F1b |
 | T-18 | v2/day-019.yaml d019-R6 (L3131; because's "three times" unsupported — one instance at loc); v2/day-018.yaml d018-R7 (L1125) | user-verbatim (because: agent-synthesis in d019-R6) | rubric-item |
-| T-19 | v2/day-020-s1.yaml d020s1-R3 (L1394; same turn re-exported: s2-R1 L10111, s4-R1 L23603 — one episode) | user-verbatim | detector-covered F1 |
-| T-20 | v2/day-020-s1.yaml d020s1-R13 (L1823; same turn re-exported: s4-R3 L24302 — one episode; all-sites clause at L1862/L24347); CLAUDE.md:132 (per L-14: third commit) | user-verbatim | detector-covered F6 |
+| T-19 | v2/day-020-s1.yaml d020s1-R3 (L1394; same turn re-exported: s2-R1 L10111, s4-R1 L23603 — one episode) | user-verbatim | rubric-item (F1 retired; F1b examined: positive obligation with no transcript event marking its absence) |
+| T-20 | v2/day-020-s1.yaml d020s1-R13 (L1823; same turn re-exported: s4-R3 L24302 — one episode; all-sites clause at L1862/L24347); CLAUDE.md:131 (commit after refactor; third-commit clause dropped 2026-08-15 per author ruling) | user-verbatim | detector-covered F6 |
 | T-21 | v2/day-010.yaml d010-R9 (L3944); v2/day-020-s3.yaml d020s3-R19 (L14822); s5-R9 (L55723) | agent-synthesis | detector-covered F6 |
 | T-22 | v2/day-017.yaml d017-R4 (L1608), d017-R5 (L1609); v2/day-020-s2.yaml d020s2-R12 (L11629) | user-verbatim + user-paraphrase | detector_candidate (old name surviving a rename commit) |
 | T-23 | v2/day-020-s2.yaml d020s2-R11 (L10211; same turn re-exported: s4-R4 L23690 — one episode) | user-verbatim | detector-covered F5 |
@@ -36,7 +36,7 @@ Every T-NN in `.claude/skills/tdd-bdd/` traced to its sources. Provenance ranks 
 | T-30 | v2/day-006.yaml d006-R2 (day-006:L3277) | user-verbatim | detector-covered F5 |
 | T-31 | v2/day-003.yaml d003-R15 (day-003:L147-L166, L259-L283) | agent-synthesis | detector-covered F5 |
 | T-32 | v2/day-020-s1.yaml d020s1-R25 (L7061; same turn re-exported: s4-R18 L30976 — one episode); s5-R6 (L55976, distinct episode) | user-verbatim + agent-synthesis | detector_candidate (hand-reversal diff vs revert commit in DAG) |
-| T-33 | v2/day-021.yaml d021-R12 (day-021:L7469) | user-verbatim (because: agent-synthesis, day-021:L7474-L7484) | detector-covered F1 |
+| T-33 | v2/day-021.yaml d021-R12 (day-021:L7469) | user-verbatim (because: agent-synthesis, day-021:L7474-L7484) | detector-covered F1b |
 | T-34 | v2/day-006.yaml d006-R1 (day-006:L2996) | user-verbatim | detector-covered F5 |
 | T-35 | v2/day-002.yaml d002-R6 (day-002:L926); CLAUDE.md code_style Tests | user-verbatim | detector_candidate (filename check) |
 | T-36 | v2/day-009.yaml d009-R8 (L5508); v2/day-017.yaml d017-R2 (L2453); v2/day-020-s1.yaml d020s1-R14 (L2528; same turn re-exported: s2-R8 L12825 — three episodes total) | user-verbatim (mechanism-noun enumeration: agent-synthesis, day-009:L7319) | detector_candidate (spec-tree-naming: mechanism nouns in names) |
@@ -105,6 +105,8 @@ Every T-NN in `.claude/skills/tdd-bdd/` traced to its sources. Provenance ranks 
 | T-99 | v2/day-021.yaml d021-R11 (day-021:L2432; scope narrowed to shared fixtures/cross-spec helpers — inline data builders exempt per T-81, day-019:L4869-L4928) | user-verbatim | detector-covered F3 |
 | T-100 | v2/day-006.yaml d006-R3 (day-006:L1793-L1797; corrections at L2956-L2988) | user-verbatim | detector-covered F5 |
 
-Tallies: 100 rules. detector-covered 58 (F1: 11, F2: 11, F3: 12, F4: 9, F5: 13, F6: 2), detector_candidate 24, rubric-item 17, UNFALSIFIABLE 1 (T-06).
+Tallies: 100 rules. detector-covered 53 (F1b: 6, F2: 11, F3: 12, F4: 9, F5: 13, F6: 2), detector_candidate 24, rubric-item 22, UNFALSIFIABLE 1 (T-06).
 
 v2 revision note (transcript-level provenance verification, 2026-08-14): day-020.md contains five renderings of one conversation (banners at L3/L7207/L21811/L31130/L45521), so day-020 multi-source rows above are deduplicated to episodes — "same turn re-exported" marks locs that are one authorial moment, not corroboration. Sources removed on verification: d017-R14 from T-10 (quote belongs to T-22's turn), d020s5-R5 from T-61 (line inside a rejected diff), d006-R3 from T-29 (relocated to new T-100). No rule was left without support.
+
+v2.1 retirement cascade note (2026-08-15, per author ruling recorded in threads.md "COMMIT-AFTER-RED RETIRED" + "RULING CONFIRMED"): the commit-after-RED step is retired. T-14 rewritten to its surviving core (RED proven by the observed failing run, quoted; the failing spec lands with the GREEN commit) — no rule was purely the commit ceremony, so no row is retired outright; T-20's third-commit clause dropped. The F1 commit-grammar detector family is retired as an instrument (.coordination/commit-after-red-review.md); its successor is the transcript family F1b (.coordination/detectors/README.md, f1b_red_first_in_time.md), which covers T-10, T-11, T-12, T-14, T-17, T-33 — those rows now read detector-covered F1b. The five formerly F1-flagged rules F1b cannot mechanize (T-01, T-02, T-03, T-04, T-19) are re-flagged rubric-item with per-row reasons.

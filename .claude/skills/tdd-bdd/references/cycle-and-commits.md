@@ -1,12 +1,14 @@
 # The cycle and its commits — RED, GREEN, REFACTOR
 
+The cycle is unchanged and non-negotiable: earn the failure, implement the minimum, refactor under green. Commits are not phases of the cycle — they land at stable points: after GREEN, after REFACTOR, per feature. Every commit leaves all tests passing; the sole exception is the deliberately-red acceptance spec of a feature in progress, per outside-in ATDD.
+
 ## RED — earn the failure
 
 - **T-10** Run the specific new spec and observe it fail before writing any implementation, and say so explicitly — even when the defect was just observed in a real run on a real machine, because real-world feedback is not a licence to bypass RED; a spec that has never been executed in a failing state has not been shown to be capable of failing at all.
 - **T-11** Any failure that tells you what to build next is legitimate RED — import errors, missing modules, and unfinished environment setup included; record the failure and let it drive the next minimal step rather than clearing it before declaring RED, because demanding an assertion failure specifically would skip the steps that build the package itself.
 - **T-12** When a newly written spec passes on its first run, stop and treat that as a defect in the spec, not a completed step — a test that was never red proves nothing about the behavior it names.
 - **T-13** To prove a new assertion on already-green code can fail, implement the opposite behavior on purpose, watch the red, then revert — adding an assertion that has never failed proves nothing about the assertion.
-- **T-14** Commit after RED: commit the failing spec before writing any implementation — because the commit-per-phase record makes every cycle state rewindable, the log becomes the proof that a falsifier preceded the implementation, and the bet is rigorous process over one-shotting. RED commits and deliberately-red acceptance specs are the sanctioned exceptions to all-commits-passing.
+- **T-14** RED is proven by running, never by committing: quote the failing command and its output when you declare RED — the observed failing run is the record that a falsifier preceded the implementation, a record no commit can supply because a commit orders tree states, not the work that produced them. The failing spec earns no commit of its own; it lands with its implementation in the GREEN commit.
 
 ## GREEN — the minimum that passes
 
@@ -18,7 +20,7 @@
 
 - **T-18** After every GREEN, explicitly ask whether to refactor and either name the duplication found or state that there is none, before starting the next behavior; if the refactor phase gets abandoned for a digression, return to it before the next story — a cycle left at GREEN is unfinished, and the next story buries the evidence.
 - **T-19** Refactor the specs too, in their own commit — tests are code and decay exactly like implementation.
-- **T-20** One refactoring per commit; when two improvements entangle, land the one that is ready and return to the other — a commit that mixes two refactorings can be neither reviewed nor reverted as either. And one refactoring means all of it: apply the change to every site it covers in that commit, never one call site per commit — the trickle is as unreviewable as the mixture. Commit after REFACTOR as the cycle's third commit whenever any refactoring was done.
+- **T-20** One refactoring per commit; when two improvements entangle, land the one that is ready and return to the other — a commit that mixes two refactorings can be neither reviewed nor reverted as either. And one refactoring means all of it: apply the change to every site it covers in that commit, never one call site per commit — the trickle is as unreviewable as the mixture. Commit after REFACTOR whenever any refactoring was done.
 - **T-21** A `refactor:` label is a machine-checkable claim that behavior was preserved; never use it on a commit that changes behavior, removes an error path, or rewrites the expectations that would have caught the change — mislabelling destroys the log's audit property.
 - **T-22** A rename lands as its own increment and replaces: delete every occurrence of the old name in one sweep across production and specs, run the full suite before committing, and never un-skip a pending scenario or start the next feature inside the same change — a half-finished rename fails only at the untouched call site, and a mixed increment is unsafe to verify or revert.
 - **T-23** Before changing or relaxing a declaration you did not write, run git blame on it and grep every call site, then state the motivation you recovered — the constraint may be load-bearing for a path you have not read, and the history is cheap to consult while the removal is not.
