@@ -15,10 +15,11 @@ in the `stories/` directory, following the format defined in `vision.md`.
 
 ## In Progress
 
-### Reopened-filter spec repair
-- **Ruling (2026-08-15):** keep the working post-6f786cc implementation; the process lapse (unit-first without an acceptance test, acceptance backfilled) left correct code with two vacuous specs. Full re-implementation rejected as costing ~35 production lines and ~10 green specs to repair 2 assertions.
-- **Debt:** `library_spec.py it_filters_by_sample_status` and `cli_spec.py it_filters_recent_books_by_sample_status` pass vacuously — no fixture sample has reading progress, so `list recent --filter sample` matches nothing. Repair: copy a real in-progress sample into the fixture via `copy_book_to_fixture.sh` (author's machine), then tighten both assertions to exact expected titles.
-- PR #18 (semantic revert) is superseded by this ruling and unmergeable since the spec-tree restore.
+### Reopened filters: revert and redo through outside-in ATDD
+- **Ruling (2026-08-15, revised same day):** the post-6f786cc filter implementations will be reverted and re-derived through the full outside-in process — story card first, failing acceptance test, then inward. The discipline is the point; working code derived unit-first without an acceptance test driving it is not kept on the strength of working.
+- **Timing:** deferred until the compiled skills are ratified and in place — the redo then doubles as the first conditioned trial of the eval (same stories, proper process, skill-guided).
+- **Kept now:** the story cards (refined requirements) stay, status reopened; implementation and specs stay in the tree untouched until the redo begins, so nothing is half-removed.
+- PR #18 (the earlier semantic-revert attempt) is unmergeable since the spec-tree restore; only its intent carries forward into this plan.
 
 ## Current Backlog (Stories in `stories/` directory)
 
