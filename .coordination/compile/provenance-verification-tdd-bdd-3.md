@@ -1,3 +1,5 @@
+> NOTE (2026-08-15): day-007 line refs in this report cite the pre-repair day-007.md (blob 2b1776656183cce5c73dd82a7c89eed6c69eeec0). Locs ≤6213 are unchanged in the repaired file; locs 7660-7661 resolve to 3116-3117; locs ≥7664 correspond to repaired line minus offset — subtract 1450. See .coordination/tools/day-007-remap.md.
+
 > NOTE (2026-08-15): line refs in this report cite the pre-repair day-020.md (blob 27a5ad7d51f6de8db0ef3361df7bc9c9adc034a2). Locs ≤31128 are unchanged in the repaired file; locs ≥45520 correspond to repaired line minus offset — subtract 23710. See .coordination/day-020-repair-report.md.
 
 # Provenance verification — tdd-bdd T-51 through T-75

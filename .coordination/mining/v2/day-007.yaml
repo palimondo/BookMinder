@@ -63,12 +63,12 @@ philosophy:
   - statement: Platform lock-in is a deliberate scope decision, not a defect — a change must not be sold as buying portability the product does not want.
     source: user-verbatim
     quote: "we're still completely locked to apple platform because that's where Apple Books run. We are not trying to make a cross platform tool!"
-    loc: "day-007:L7759-L7760"
+    loc: "day-007:L6309-L6310"
     feeds: judge-anchor
   - statement: Verification is demanded proportionally — prove the change against the real data before committing, but skip the ceremony if the evidence already exists.
     source: user-verbatim
     quote: "can you test locally against real binary Books.plist, before we commit and push, to be sure we handle both? (I saw you ran some ad-hoc test before... You can skip and commit directly if the implementaion in library.py is identical to your test before)"
-    loc: "day-007:L7731-L7732"
+    loc: "day-007:L6281-L6282"
     feeds: skill-why
   - statement: The provenance of test data is part of the artifact — how a fixture was derived from reality must be written down or the fixture becomes unfalsifiable folklore.
     source: user-verbatim
@@ -218,7 +218,7 @@ skill_rules:
     because: Removing a `plutil` subprocess did not loosen the Apple lock-in, and saying so would have written a false capability into the log.
     because_source: user-verbatim
     quote: "don't say in the commit message we removed the macOS dependency. we're still completely locked to apple platform because that's where Apple Books run."
-    evidence: "day-007:L7755-L7760 (commit denied), corrected message lands at L7764"
+    evidence: "day-007:L6305-L6310 (commit denied), corrected message lands at L7764"
     taught_or_enforced: needed-enforcement
     skill_target: claude-md
     overlap: "CLAUDE.md <git_workflow> (\"Focus on what the change accomplishes\") — this sharpens it into a prohibition on overclaiming"
@@ -228,7 +228,7 @@ skill_rules:
     because: Apple Books is the product's entire subject, so platform independence is not a goal the project has.
     because_source: user-verbatim
     quote: "We are not trying to make a cross platform tool!"
-    evidence: "day-007:L7759-L7760; the CI workflow pins `runs-on: macos-latest` (L5990)"
+    evidence: "day-007:L6309-L6310; the CI workflow pins `runs-on: macos-latest` (L5990)"
     taught_or_enforced: taught-once
     skill_target: project-memory
     overlap: none
@@ -238,7 +238,7 @@ skill_rules:
     because: The subprocess was pure ceremony, and the author spotted that `plistlib` on the very next line already did the job.
     because_source: user-verbatim
     quote: "since on line 34 we use `plistlib.loads`, what's the purpose of invoking the conversion with `plistutil`... from what I gathered, `loads` should be able to work with binary and XML plist format directly"
-    evidence: "day-007:L7660-L7661; research confirms autodetect at L6079-L6081; change at L7670-L7699; verified against the real 178-book binary plist at L7736-L7751"
+    evidence: "day-007:L3116-L3117; research confirms autodetect at L6079-L6081; change at L7670-L7699; verified against the real 178-book binary plist at L7736-L7751"
     taught_or_enforced: taught-once
     skill_target: project-memory
     overlap: none
@@ -287,7 +287,7 @@ skill_rules:
     because: The author asked directly whether `Book(...)` yields dot-notation properties, and the answer decides whether the type is doing anything at runtime at all.
     because_source: user-verbatim
     quote: "are these now also properties on the Book class instances that could be accessed via dot notation? Or am I misunderstanding how TypedDict works?"
-    evidence: "day-007:L7877-L7879, probed empirically at L7891-L7897 (\"book.title fails: 'dict' object has no attribute 'title'\")"
+    evidence: "day-007:L6427-L6429, probed empirically at L7891-L7897 (\"book.title fails: 'dict' object has no attribute 'title'\")"
     taught_or_enforced: taught-once
     skill_target: project-memory
     overlap: "canonical §2.5 (the `Book` TypedDict with `NotRequired` optionals is the descendant of the type introduced here at L2443-L2448)"
@@ -429,7 +429,7 @@ failure_modes:
   - name: scope-creep
     era_class: timeless-discipline
     detector_family: F3-minimality
-    loc: "day-007:L7767-L7769"
+    loc: "day-007:L6317-L6319"
     quote: "5 files changed, 5880 insertions(+), 12 deletions(-)\n      create mode 100644 specs/apple_books/fixtures/All_Books.swift\n      create mode 100644 specs/apple_books/fixtures/Books.swift"
     what_happened: "The same `git add -A` habit committed two of the author's scratch Swift files and the in-progress diary transcript alongside a two-line library change. The agent noticed only from the commit summary: \"Wait, it looks like some Swift files got added accidentally!\" (L7777)."
     user_intervention: "None on this specific slip — but the user had already denied this exact commit twice (L7729, L7757) on other grounds, which is what kept it local."
@@ -440,7 +440,7 @@ failure_modes:
   - name: fabricated-claim
     era_class: timeless-discipline
     detector_family: F5-claim-vs-action
-    loc: "day-007:L7759-L7760"
+    loc: "day-007:L6309-L6310"
     quote: "don't say in the commit message we removed the macOS dependency. we're still completely locked to apple platform because that's where Apple Books run. We are not trying to make a cross platform tool!"
     what_happened: "The commit message for the plutil removal claimed the change removed a macOS dependency. It removed one subprocess call to a macOS binary; the module still reads an Apple Books container path and the CI still pins `macos-latest`. The claimed benefit did not exist, and the message body is elided in the transcript — only the user's objection records it."
     user_intervention: "The user denied the commit and named the false claim directly (L7759)."
@@ -462,7 +462,7 @@ failure_modes:
   - name: premature-implementation
     era_class: timeless-discipline
     detector_family: F3-minimality
-    loc: "day-007:L7938"
+    loc: "day-007:L6488"
     quote: "⏺ The issue is we're losing data! We only extract 4 fields and discard everything else from the plist. If you want to preserve all the original data, we should do:"
     what_happened: "The user asked a conceptual question — whether TypedDict permits extra untyped keys \"in case we need that\" — and the agent answered by rewriting `list_books` to copy every plist key into every Book, explicitly speculative work with no spec demanding it. mypy then rejected it, a `cast` was added to force it through, and the whole branch was reverted."
     user_intervention: "\"Is our type checker happy with this?\" (L8015) — one question exposed the cast and collapsed the branch."
@@ -561,7 +561,7 @@ pairing_rules:
     because: Removing one subprocess call did not loosen an Apple-only product's platform lock-in, and the log would have recorded a capability that does not exist.
     because_source: user-verbatim
     quote: "don't say in the commit message we removed the macOS dependency. we're still completely locked to apple platform because that's where Apple Books run."
-    evidence: "day-007:L7755-L7766"
+    evidence: "day-007:L6305-L6316"
     guards_against: fabricated-claim
   - rule_id: p007-R10
     rule: When you delete a guard or a check, delete in the same commit everything that existed only to satisfy it — fixture values, placeholder files, comments — and say what you swept.
@@ -583,7 +583,7 @@ pairing_rules:
     because: A question about what TypedDict permits produced a speculative rewrite of `list_books`, a cast to silence mypy, and a full revert two turns later.
     because_source: user-verbatim
     quote: "I think hard we should, if the TypedDict allows it also other untyped keys from the \"book\" dictionary returned from Plist, in case we need that. Is that possible?"
-    evidence: "day-007:L7877-L7879 → L7940-L7961 (edit) → L8058-L8090 (revert)"
+    evidence: "day-007:L6427-L6429 → L7940-L7961 (edit) → L8058-L8090 (revert)"
     guards_against: premature-implementation
   - rule_id: p007-R13
     rule: "Treat reaching for `cast`, `type: ignore` or `noqa` as a design signal — say out loud that you are silencing a checker, name the alternative, and get agreement before committing it."
@@ -604,7 +604,7 @@ pairing_rules:
     class: council-mechanics
     because: The one delegated research pass in this session (WebSearch plus python.org's plistlib page) settled in seven minutes a question the agent had answered wrongly from memory two sessions earlier.
     because_source: agent-synthesis
-    evidence: "day-007:L7665-L7668; the sub-agent's sourced finding at L6079-L6081 (\"When `fmt=None` (the default), it will 'Autodetect the file format'\"), contrasted with the unsourced mechanism narrated at L3094-L3105"
+    evidence: "day-007:L6215-L6218; the sub-agent's sourced finding at L6079-L6081 (\"When `fmt=None` (the default), it will 'Autodetect the file format'\"), contrasted with the unsourced mechanism narrated at L3094-L3105"
     guards_against: attribution-to-unread-source
 
 pairing_gems:
@@ -612,9 +612,9 @@ pairing_gems:
     why_exemplary: "\"Yes, let's listen to our coverage report... we have implementation that's not covered by test. Your prior self was eager to code more that we've pinned down in the spec.\" — reframes a coverage number from a quality metric into evidence about process history, and makes deletion rather than retrofitting the obvious move. Canonical §2.4 is built on this turn."
   - loc: "day-007:L2707"
     why_exemplary: "A single turn that lands six independent review findings — a vacuous sort assertion, an unexplained domain field, an orphan comment, repeated per-test imports, illogical describe grouping, and NumPy docstring bloat — each stated as an observation with a question attached rather than an instruction. It produced the flat two-level describe structure and the `sort_by` deletion that canonical §2.1 and §2.5 now codify."
-  - loc: "day-007:L7660"
+  - loc: "day-007:L3116"
     why_exemplary: "\"since on line 34 we use `plistlib.loads`, what's the purpose of invoking the conversion with `plistutil`\" — the author reads two adjacent lines of the agent's own code and notices the subprocess is redundant, immediately after the agent had written a confident explanation of why it was necessary. The cheapest possible probe: comparing a claim against the file it describes."
-  - loc: "day-007:L7731"
+  - loc: "day-007:L6281"
     why_exemplary: "\"can you test locally against real binary Books.plist, before we commit and push, to be sure we handle both? (I saw you ran some ad-hoc test before... You can skip and commit directly if the implementaion in library.py is identical to your test before)\" — demands the falsifier and simultaneously offers to waive it if the evidence already exists. Verification calibrated to what is actually unknown."
   - loc: "day-007:L570"
     why_exemplary: "The author suspends his own methodology, in his own words, with a stated reason and a stated scope — \"since we are just at the step of trying to get the Walking skeleton up and running\". Rare and load-bearing: a rules author showing where his rules do not apply is more informative than the rules."

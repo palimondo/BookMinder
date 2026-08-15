@@ -509,8 +509,8 @@ Tallies (v2, 2026-08-14): 606 items — compiled 39, merged-duplicate 424, rerou
 | day-006:L1039 | reroute:coordinator (front-load permission requests) |
 | day-007:L1799 | reroute:tdd-bdd (coverage as spec-drift signal) |
 | day-007:L2707 | merged-duplicate→P-22 |
-| day-007:L7660 | merged-duplicate→P-10 |
-| day-007:L7731 | merged-duplicate→P-01 |
+| day-007:L3116 | merged-duplicate→P-10 |
+| day-007:L6281 | merged-duplicate→P-01 |
 | day-007:L570 | reroute:tdd-bdd (skeleton-phase exemption, L-02) |
 | day-007:L2996 | merged-duplicate→P-01 |
 | day-007:L1454 | merged-duplicate→P-23 (ask which reading was meant) |

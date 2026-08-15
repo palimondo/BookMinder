@@ -1,3 +1,5 @@
+> NOTE (2026-08-15): day-007 line refs in this report cite the pre-repair day-007.md (blob 2b1776656183cce5c73dd82a7c89eed6c69eeec0). Locs ≤6213 are unchanged in the repaired file; locs 7660-7661 resolve to 3116-3117; locs ≥7664 correspond to repaired line minus offset — subtract 1450. See .coordination/tools/day-007-remap.md.
+
 # Provenance verification — bookminder skill, B-40 … B-66
 
 Transcript-level verification of every corpus source behind `references/apple-books-domain.md` (B-40 … B-53) and `references/current-state-and-open-decisions.md` (B-60 … B-66). Each entry was re-read against the primary transcript at its evidence loc (~60 lines each side, `rule.py -r <id> -c 60`), on the four axes of the P-12/P-14 pilot: quote exactness, episode fidelity, generalization fit, missed context in the read window. 59 corpus rows.
