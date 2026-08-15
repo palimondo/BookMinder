@@ -1,3 +1,5 @@
+> NOTE (2026-08-15): line refs in this report cite the pre-repair day-020.md (blob 27a5ad7d51f6de8db0ef3361df7bc9c9adc034a2). Locs ≤31128 are unchanged in the repaired file; locs ≥45520 correspond to repaired line minus offset — subtract 23710. See .coordination/day-020-repair-report.md.
+
 # Provenance verification — P-21…P-39 and AP-01…AP-08
 
 Second verification slice, same method and format as `provenance-verification-P12-P14.md`. Every corpus source listed in `rule-index-pair-programming.md` for these rules was resolved with `.coordination/tools/rule.py` and judged against the primary transcript at its evidence loc, never against the YAML summary alone. Non-corpus sources (ledger L-04, L-08; brief-mandate) are marked OUT OF SCOPE and carry no verdict — they are author-ratified.

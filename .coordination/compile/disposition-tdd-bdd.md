@@ -181,7 +181,7 @@ Each of the 194 tdd-bdd-targeted rules in .coordination/mining/v2/ dispositioned
 | d020s5-R2 | merged-duplicate -> T-87 |
 | d020s5-R3 | merged-duplicate -> T-89 |
 | d020s5-R4 | compiled -> T-56 |
-| d020s5-R5 | rejected (v2: retracted on verification — the cited line sits inside a diff the author rejected for non-equivalence and unrecovered motivation, day-020:L56044-L56046; no turn in the window concerns message coupling; T-56 carries the episode's actual lesson) |
+| d020s5-R5 | rejected (v2: retracted on verification — the cited line sits inside a diff the author rejected for non-equivalence and unrecovered motivation, day-020:L32334-L32336; no turn in the window concerns message coupling; T-56 carries the episode's actual lesson) |
 | d020s5-R6 | merged-duplicate -> T-32 |
 | d020s5-R9 | merged-duplicate -> T-21 |
 | d021-R1 | compiled -> T-48 |

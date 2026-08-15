@@ -1,3 +1,5 @@
+> NOTE (2026-08-15): line refs in this report cite the pre-repair day-020.md (blob 27a5ad7d51f6de8db0ef3361df7bc9c9adc034a2). Locs ≤31128 are unchanged in the repaired file; locs ≥45520 correspond to repaired line minus offset — subtract 23710. See .coordination/day-020-repair-report.md.
+
 # Provenance verification — bookminder skill, B-01 … B-31
 
 Transcript-level verification of every corpus source behind the compiled facts/rules B-01 … B-10 and B-20 … B-31 of `.claude/skills/bookminder/`. B-32 is excluded by construction (post-compile author directive, no mining provenance). Each corpus entry was resolved with `.coordination/tools/rule.py` and judged against the primary transcript window at its cited loc (~±55 lines, wider where the entry cites a chain), on four axes: quote exactness, episode fidelity, generalization fit, missed context in the window.

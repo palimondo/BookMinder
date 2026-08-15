@@ -1,3 +1,5 @@
+> NOTE (2026-08-15): line refs in this report cite the pre-repair day-020.md (blob 27a5ad7d51f6de8db0ef3361df7bc9c9adc034a2). Locs ≤31128 are unchanged in the repaired file; locs ≥45520 correspond to repaired line minus offset — subtract 23710. See .coordination/day-020-repair-report.md.
+
 # Provenance verification — tdd-bdd T-26 … T-50
 
 Every source listed for `T-26`–`T-50` in `rule-index-tdd-bdd.md` was re-read against the primary transcript at its evidence loc (≈45–60 lines each side). Four axes per entry: quote exactness, episode fidelity, generalization fit, missed context in the read window. Non-corpus sources (ledger rulings, CLAUDE.md lines) are carried as rows marked OUT-OF-SCOPE and were not judged.

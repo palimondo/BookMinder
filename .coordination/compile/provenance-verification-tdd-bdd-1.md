@@ -1,3 +1,5 @@
+> NOTE (2026-08-15): line refs in this report cite the pre-repair day-020.md (blob 27a5ad7d51f6de8db0ef3361df7bc9c9adc034a2). Locs ≤31128 are unchanged in the repaired file; locs ≥45520 correspond to repaired line minus offset — subtract 23710. See .coordination/day-020-repair-report.md.
+
 # Provenance verification — tdd-bdd T-01…T-25
 
 Transcript-level verification of every corpus source behind `references/outside-in.md` T-01…T-09 and `references/cycle-and-commits.md` T-10…T-25. Each entry was re-read against the primary transcript at its evidence loc (~60 lines each side, extended by hand where the entry cites locs the tool does not resolve), and against git where a claim about a commit was checkable. Four axes per entry: quote exactness at the cited loc, episode fidelity, generalization fit, missed context in the read window.

@@ -615,11 +615,11 @@ Tallies (v2, 2026-08-14): 606 items — compiled 39, merged-duplicate 424, rerou
 | day-020:L28428 | merged-duplicate→P-05 (silent mutation destroyed evidence) |
 | day-020:L30678 | merged-duplicate→P-14 |
 | day-020:L29593 | reroute:coordinator (verbatim subagent output rationale) |
-| day-020:L55643 | merged-duplicate→P-01 |
-| day-020:L54929 | merged-duplicate→P-19 (refuse the comfortable conclusion) |
-| day-020:L55954 | merged-duplicate→P-11 |
-| day-020:L56044 | merged-duplicate→P-22 (itemized properties before rejection) |
-| day-020:L55538 | reroute:tdd-bdd (coverage as search instrument) |
+| day-020:L31933 | merged-duplicate→P-01 |
+| day-020:L31219 | merged-duplicate→P-19 (refuse the comfortable conclusion) |
+| day-020:L32244 | merged-duplicate→P-11 |
+| day-020:L32334 | merged-duplicate→P-22 (itemized properties before rejection) |
+| day-020:L31828 | reroute:tdd-bdd (coverage as search instrument) |
 | day-021:L1722 | merged-duplicate→P-26 (inferior-then-superior commits) |
 | day-021:L1529 | merged-duplicate→P-22 (reusable questions handed over) |
 | day-021:L4169 | merged-duplicate→P-36 |

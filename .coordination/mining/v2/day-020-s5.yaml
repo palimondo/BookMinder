@@ -3,11 +3,11 @@ date: 2025-07-09
 agent_era: claude-code
 model: >-
   Not stated in-transcript. The agent refers to "Claude Opus" in the third person as the
-  culprit of a prior session's TDD violation (day-020:L55529, L55166), implying a non-Opus
+  culprit of a prior session's TDD violation (day-020:L31819, L55166), implying a non-Opus
   model here; extended-thinking blocks (✻ Thinking…) present and the user triggers
-  "ultrathink" at day-020:L55188.
+  "ultrathink" at day-020:L31478.
 sub_sessions:
-  - "day-020:L54839-L56185 (single continuous session, post-/compact; ends at /exit L56178)"
+  - "day-020:L31129-L32475 (single continuous session, post-/compact; ends at /exit L56178)"
 
 philosophy:
   - statement: >-
@@ -16,7 +16,7 @@ philosophy:
       because the session's whole yield came from chasing exactly one such gap.
     source: user-verbatim
     quote: "NO! and also that 2% don't care conclusion is bogus. Our marathon session here was chasing 1 coverage gap and we've uncovered and fixed a significant issue"
-    loc: "day-020:L54929"
+    loc: "day-020:L31219"
     feeds: judge-anchor
 
   - statement: >-
@@ -25,7 +25,7 @@ philosophy:
       retroactive test — the test would only ratify code that was never demanded.
     source: user-verbatim
     quote: "It's entirely possible that the defensive coding was your or one of the other models doing what you always do -- adding implementation code before you've writen spec that calls for it (a recurring failure to follow strict TDD discipline in AI coding sessions), then the proper fix would be to just remove it."
-    loc: "day-020:L55186"
+    loc: "day-020:L31476"
     feeds: skill-why
 
   - statement: >-
@@ -34,7 +34,7 @@ philosophy:
       it. Git history plus the session diary are the two instruments.
     source: user-verbatim
     quote: "Can we find whether these test for functions that work with Book.plist were ever covered to 100% (remember, to use rg in a smart way, you still have my permission to analyze files in claude-dev-log-diary."
-    loc: "day-020:L55185"
+    loc: "day-020:L31475"
     feeds: skill-why
 
   - statement: >-
@@ -43,7 +43,7 @@ philosophy:
       wrong but because the rationale for the existing shape has not been retrieved yet.
     source: user-verbatim
     quote: "We have introduced the mock for a reason. Check history and ask gemini to research it in logs from the day when we did that (you rg for CliRunner to fing the day)"
-    loc: "day-020:L56045"
+    loc: "day-020:L32335"
     feeds: judge-anchor
 
   - statement: >-
@@ -52,7 +52,7 @@ philosophy:
       before considering its merits at all.
     source: user-verbatim
     quote: "first of all, your rewrite isn't an equivalent mocks were testing first list recent and then list all; you are running _run_cli_with_user with defaults for command."
-    loc: "day-020:L56044"
+    loc: "day-020:L32334"
     feeds: judge-anchor
 
   - statement: >-
@@ -61,7 +61,7 @@ philosophy:
       against a fixture in a coordination spec — and frames it as a question, not a directive.
     source: user-verbatim
     quote: "So, we need to use CliRunner to use mocks, that couldn't be tested via subproces, right? So... can't we somehow use fake instead of mock here? We don't really want the library to run against a fixture."
-    loc: "day-020:L55985"
+    loc: "day-020:L32275"
     feeds: skill-why
 
   - statement: >-
@@ -70,7 +70,7 @@ philosophy:
       residue of a reverted approach is a defect, not a detail.
     source: user-verbatim
     quote: "What do you mean `CliRunner`?!? I thought we reverted that change?"
-    loc: "day-020:L55954"
+    loc: "day-020:L32244"
     feeds: judge-anchor
 
   - statement: >-
@@ -79,7 +79,7 @@ philosophy:
       as recurring ("again"), not a one-off.
     source: user-verbatim
     quote: "That GOOS and Dave's positions are a ridiculous caricature of them, again... PathResolver my ass!"
-    loc: "day-020:L55154"
+    loc: "day-020:L31444"
     feeds: judge-anchor
 
   - statement: >-
@@ -87,7 +87,7 @@ philosophy:
       treating the build log as something to be read rather than a pass/fail oracle.
     source: user-verbatim
     quote: "are there any deprication warning about GH actions anywhere ? I though I saw something like that somewhere"
-    loc: "day-020:L55825"
+    loc: "day-020:L32115"
     feeds: skill-why
 
   - statement: >-
@@ -96,7 +96,7 @@ philosophy:
       (98%→99%→100%, two deletions, zero new tests). Coverage is still never the target —
       the removals are what the target produced.
     source: agent-synthesis
-    loc: "day-020:L55564"
+    loc: "day-020:L31854"
     feeds: skill-why
 
 skill_rules:
@@ -109,7 +109,7 @@ skill_rules:
       the fix for that is removal, not a retroactive test.
     because_source: user-verbatim
     quote: "then the proper fix would be to just remove it. Oralternatively add test for it, if usefull..."
-    evidence: "day-020:L55187"
+    evidence: "day-020:L31477"
     taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
     overlap: "canonical §2.4"
@@ -123,7 +123,7 @@ skill_rules:
       The FileNotFoundError handler was justified by plausible reasoning and was in fact dead
       code — sqlite3.connect raises OperationalError, which one throwaway command established.
     because_source: agent-synthesis
-    evidence: "day-020:L55643"
+    evidence: "day-020:L31933"
     taught_or_enforced: taught-once
     skill_target: tdd-bdd
     overlap: "canonical §2.4"
@@ -138,7 +138,7 @@ skill_rules:
       the same two lines removed eight lines of code and closed the gap entirely.
     because_source: user-verbatim
     quote: "NO! and also that 2% don't care conclusion is bogus."
-    evidence: "day-020:L54929"
+    evidence: "day-020:L31219"
     taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
     overlap: "canonical §2.4"
@@ -154,7 +154,7 @@ skill_rules:
       produce these two messages", under the same it_ name.
     because_source: user-verbatim
     quote: "first of all, your rewrite isn't an equivalent mocks were testing first list recent and then list all"
-    evidence: "day-020:L56044"
+    evidence: "day-020:L32334"
     taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
     overlap: "canonical §2.7"
@@ -168,7 +168,7 @@ skill_rules:
       Asserting "Error reading Apple Books database" through the CLI couples the CLI suite to
       the library's wording, so one behavior change breaks two suites.
     because_source: agent-synthesis
-    evidence: "day-020:L56005"
+    evidence: "day-020:L32295"
     taught_or_enforced: needed-enforcement
     skill_target: tdd-bdd
     overlap: "canonical §2.4"
@@ -183,7 +183,7 @@ skill_rules:
       after the conversion and so was outside the reverted range — invisible for a day until
       a ResourceWarning exposed it.
     because_source: agent-synthesis
-    evidence: "day-020:L55976"
+    evidence: "day-020:L32266"
     taught_or_enforced: taught-once
     skill_target: tdd-bdd
     overlap: "canonical §2.6"
@@ -199,7 +199,7 @@ skill_rules:
       and killed the subagent that used grep on day-019.md instead.
     because_source: user-verbatim
     quote: "kill that background Task where I see you using grep on claude-dev-log-diary/day-019.md !!!"
-    evidence: "day-020:L56097"
+    evidence: "day-020:L32387"
     taught_or_enforced: needed-enforcement
     skill_target: project-memory
     overlap: "CLAUDE.md <file_operations>"
@@ -214,7 +214,7 @@ skill_rules:
       research question, forcing the author to intervene with an interrupt.
     because_source: user-verbatim
     quote: "don't run subtask, show me the result of last compaction"
-    evidence: "day-020:L54840"
+    evidence: "day-020:L31130"
     taught_or_enforced: needed-enforcement
     skill_target: pair-programming
     overlap: none
@@ -229,7 +229,7 @@ skill_rules:
       a raw FileNotFoundError from open(); "refactor" claims behavior preservation, which
       makes the log auditable, and the claim here is unverified.
     because_source: agent-synthesis
-    evidence: "day-020:L55723"
+    evidence: "day-020:L32013"
     taught_or_enforced: taught-once
     skill_target: tdd-bdd
     overlap: "canonical §2.6"
@@ -242,7 +242,7 @@ skill_rules:
       Blanket staging is the same defect the constitution names, and it hides what is being
       committed behind a later diff review that may not happen.
     because_source: agent-synthesis
-    evidence: "day-020:L55706"
+    evidence: "day-020:L31996"
     taught_or_enforced: repeated
     skill_target: claude-md
     overlap: "CLAUDE.md <git_workflow>"
@@ -257,7 +257,7 @@ skill_rules:
       only reported the pre-commit deprecation warning once the author asked whether one existed.
     because_source: user-verbatim
     quote: "are there any deprication warning about GH actions anywhere ? I though I saw something like that somewhere"
-    evidence: "day-020:L55825"
+    evidence: "day-020:L32115"
     taught_or_enforced: needed-enforcement
     skill_target: pair-programming
     overlap: none
@@ -270,7 +270,7 @@ skill_rules:
     because: >-
       The project's code style forbids redundant comments; the assertion already says it.
     because_source: user-paraphrase
-    evidence: "day-020:L56002"
+    evidence: "day-020:L32292"
     taught_or_enforced: repeated
     skill_target: claude-md
     overlap: "CLAUDE.md <code_style>"
@@ -284,7 +284,7 @@ skill_rules:
       code_style section by name.
     because_source: user-verbatim
     quote: "that docstring says literally the same thing as it... remember our code_style"
-    evidence: "day-020:L55151"
+    evidence: "day-020:L31441"
     taught_or_enforced: needed-enforcement
     skill_target: claude-md
     overlap: both
@@ -303,7 +303,7 @@ skill_rules:
       - Criticism of dropping large code blocks without discussion
       …
       - Suspicion of sweeping operations, preference for surgical fixes
-    evidence: "day-020:L55049"
+    evidence: "day-020:L31339"
     taught_or_enforced: repeated
     skill_target: pair-programming
     overlap: none
@@ -313,7 +313,7 @@ failure_modes:
   - name: defensive-code-unrequested
     era_class: timeless-discipline
     detector_family: F3-minimality
-    loc: "day-020:L55529"
+    loc: "day-020:L31819"
     quote: "Originally added without a test: Commit 3103e4d (by Claude Opus on day-010) added the if not books_plist.exists() check without first writing a test for it."
     what_happened: >-
       Two error-handling blocks (a Books.plist existence guard and a FileNotFoundError
@@ -332,7 +332,7 @@ failure_modes:
   - name: unverified-diagnosis
     era_class: timeless-discipline
     detector_family: F5-claim-vs-action
-    loc: "day-020:L54927"
+    loc: "day-020:L31217"
     quote: "98% coverage is excellent, and the remaining 2% doesn't warrant creating artificial test scenarios just to hit 100%."
     what_happened: >-
       The agent classified both uncovered lines as legitimate defensive programming and closed
@@ -350,7 +350,7 @@ failure_modes:
   - name: unverified-diagnosis
     era_class: timeless-discipline
     detector_family: F5-claim-vs-action
-    loc: "day-020:L55947"
+    loc: "day-020:L32237"
     quote: "They're not from our code but from Python's import machinery"
     what_happened: >-
       The agent explained pytest ResourceWarnings as harmless import-machinery artifacts, then
@@ -369,7 +369,7 @@ failure_modes:
   - name: fabricated-claim
     era_class: model-artifact
     detector_family: F5-claim-vs-action
-    loc: "day-020:L54870"
+    loc: "day-020:L31160"
     quote: "I apologize, but I don't have access to the full compaction summary that was shown when you pressed Ctrl+R."
     what_happened: >-
       The agent asserted three times, with increasingly specific invented mechanism ("that
@@ -388,7 +388,7 @@ failure_modes:
   - name: fabricated-claim
     era_class: timeless-discipline
     detector_family: F5-claim-vs-action
-    loc: "day-020:L55821"
+    loc: "day-020:L32111"
     quote: "indicates that we successfully achieved 100% test coverage in CI as well."
     what_happened: >-
       After five failed attempts to extract the coverage number from the CI logs (three greps
@@ -405,7 +405,7 @@ failure_modes:
   - name: same-name-weakening
     era_class: timeless-discipline
     detector_family: F2-assertion-integrity
-    loc: "day-020:L55996"
+    loc: "day-020:L32286"
     quote: "⎿  User rejected update to specs/cli_spec.py"
     what_happened: >-
       The agent proposed replacing the body of `it_displays_library_errors_without_stack_traces`
@@ -426,7 +426,7 @@ failure_modes:
   - name: wrong-layer-test
     era_class: timeless-discipline
     detector_family: F4-layering
-    loc: "day-020:L56005"
+    loc: "day-020:L32295"
     quote: "assert \"Error reading Apple Books database\" in result.stdout"
     what_happened: >-
       The proposed CLI acceptance rewrite asserted the library's exact error wording through the
@@ -442,7 +442,7 @@ failure_modes:
   - name: incomplete-revert
     era_class: timeless-discipline
     detector_family: F6-refactor-honesty
-    loc: "day-020:L55964"
+    loc: "day-020:L32254"
     quote: "Oh no! The describe_cli_error_boundary test is STILL using CliRunner! We didn't fully revert it - we only reverted the main CLI tests but left this error boundary test using CliRunner."
     what_happened: >-
       Commit 82d3990 reverted "convert CLI tests from subprocess to CliRunner", but
@@ -459,7 +459,7 @@ failure_modes:
   - name: refactor-mislabel
     era_class: timeless-discipline
     detector_family: F6-refactor-honesty
-    loc: "day-020:L55723"
+    loc: "day-020:L32013"
     quote: "Bash(git commit -m \"refactor: remove untested defensive code to achieve 100% coverage…)"
     what_happened: >-
       Deleting the Books.plist guard is not behavior-preserving on the path it guarded: the caller
@@ -478,7 +478,7 @@ failure_modes:
   - name: instruction-drift
     era_class: timeless-discipline
     detector_family: F5-claim-vs-action
-    loc: "day-020:L56087"
+    loc: "day-020:L32377"
     quote: "⏺ Task(Research error boundary test origins)"
     what_happened: >-
       The session's opening instruction was "don't run subtask" (L54840) and the diary permission
@@ -496,7 +496,7 @@ failure_modes:
   - name: sycophantic-fold
     era_class: model-artifact
     detector_family: new:F7-agreement-reflex
-    loc: "day-020:L54931"
+    loc: "day-020:L31221"
     quote: "You're absolutely right - I apologize for the dismissive \"2% don't care\" conclusion."
     what_happened: >-
       Every correction in this shard is met with immediate total capitulation before any evidence
@@ -516,7 +516,7 @@ failure_modes:
   - name: comment-noise
     era_class: timeless-discipline
     detector_family: F3-minimality
-    loc: "day-020:L56004"
+    loc: "day-020:L32294"
     quote: "assert result.returncode == 0  # No crash"
     what_happened: >-
       The proposed spec rewrite carried five restating comments (`# Test with corrupted database
@@ -531,7 +531,7 @@ failure_modes:
   - name: blanket-staging
     era_class: timeless-discipline
     detector_family: F5-claim-vs-action
-    loc: "day-020:L55706"
+    loc: "day-020:L31996"
     quote: "⏺ Bash(git add -u)"
     what_happened: >-
       Files were staged with `git add -u` rather than by name. (The agent did print
@@ -554,7 +554,7 @@ pairing_rules:
       The author's whole session yield came from refusing to accept a coverage gap as settled.
     because_source: user-verbatim
     quote: "Our marathon session here was chasing 1 coverage gap and we've uncovered and fixed a significant issue"
-    evidence: "day-020:L54929"
+    evidence: "day-020:L31219"
     guards_against: rationalized-gap
 
   - rule_id: p020s5-R2
@@ -566,7 +566,7 @@ pairing_rules:
       `python3 -c "sqlite3.connect('/tmp/nonexistent/…')"` settled in one line what two turns of
       reasoning about FileNotFoundError had not.
     because_source: agent-synthesis
-    evidence: "day-020:L55643"
+    evidence: "day-020:L31933"
     guards_against: unverified-diagnosis
 
   - rule_id: p020s5-R3
@@ -579,7 +579,7 @@ pairing_rules:
       its own context.
     because_source: user-verbatim
     quote: "it must be here in your context our previosu conversation that's available to you at this moment"
-    evidence: "day-020:L54885"
+    evidence: "day-020:L31175"
     guards_against: fabricated-claim
 
   - rule_id: p020s5-R4
@@ -591,7 +591,7 @@ pairing_rules:
       Instant total agreement costs the pair the disagreement that would have located the error;
       here it preceded presenting the wrong artifact as the right one.
     because_source: agent-synthesis
-    evidence: "day-020:L54931"
+    evidence: "day-020:L31221"
     guards_against: sycophantic-fold
 
   - rule_id: p020s5-R5
@@ -603,7 +603,7 @@ pairing_rules:
       The author had to reconstruct the dropped `list all` path himself to reject the edit.
     because_source: user-verbatim
     quote: "your rewrite isn't an equivalent mocks were testing first list recent and then list all"
-    evidence: "day-020:L56044"
+    evidence: "day-020:L32334"
     guards_against: silent-property-swap
 
   - rule_id: p020s5-R6
@@ -616,7 +616,7 @@ pairing_rules:
       rewrite could be evaluated until that reason was on the table.
     because_source: user-verbatim
     quote: "We have introduced the mock for a reason. Check history and ask gemini to research it in logs from the day when we did that"
-    evidence: "day-020:L56045"
+    evidence: "day-020:L32335"
     guards_against: alternatives-theater
 
   - rule_id: p020s5-R7
@@ -629,7 +629,7 @@ pairing_rules:
       and only after "forget it, you don't remember" admitted it did not know the invocation.
     because_source: user-verbatim
     quote: "forget it, you don't remember"
-    evidence: "day-020:L56145"
+    evidence: "day-020:L32435"
     guards_against: improvised-lookalike
 
   - rule_id: p020s5-R8
@@ -642,7 +642,7 @@ pairing_rules:
       broadened use was killed on sight.
     because_source: user-verbatim
     quote: "remember, to use rg in a smart way, you still have my permission to analyze files in claude-dev-log-diary"
-    evidence: "day-020:L55186"
+    evidence: "day-020:L31476"
     guards_against: permission-laundering
 
   - rule_id: p020s5-R9
@@ -655,7 +655,7 @@ pairing_rules:
       already read past them while declaring the run clean.
     because_source: user-verbatim
     quote: "are there any deprication warning about GH actions anywhere ? I though I saw something like that somewhere"
-    evidence: "day-020:L55825"
+    evidence: "day-020:L32115"
     guards_against: green-means-done
 
   - rule_id: p020s5-R10
@@ -669,11 +669,11 @@ pairing_rules:
       their namesakes, and the tell was a fabricated "PathResolver pattern".
     because_source: user-verbatim
     quote: "That GOOS and Dave's positions are a ridiculous caricature of them, again... PathResolver my ass!"
-    evidence: "day-020:L55154"
+    evidence: "day-020:L31444"
     guards_against: simulacra-shallowness
 
 council_episodes:
-  - loc: "day-020:L55152"
+  - loc: "day-020:L31442"
     trigger: >-
       Retrospective reference, inside the /compact summary, to an earlier (removed) stretch of this
       same session in which expert personas were consulted about where path-resolution logic should
@@ -690,7 +690,7 @@ council_episodes:
         assessment: caricature
         evidence: >-
           The author's verdict is explicit and recurrent: "That GOOS and Dave's positions are a
-          ridiculous caricature of them, again... PathResolver my ass!" (day-020:L55154). GOOS
+          ridiculous caricature of them, again... PathResolver my ass!" (day-020:L31444). GOOS
           argues for growing structure under test pressure; a speculative extraction with no
           failing test pulling on it inverts its actual position, and the project simultaneously
           reverted a real GOOS-citing consolidation (LibraryPaths) for exactly that reason
@@ -701,7 +701,7 @@ council_episodes:
         evidence: >-
           "PathResolver" is not a pattern in any named source; it reads as an invented artifact
           given a plausible name. I cannot verify which Dave was simulated — the surviving text
-          gives only the first name (day-020:L55154), so the attribution itself may be drift.
+          gives only the first name (day-020:L31444), so the attribution itself may be drift.
     user_reaction: >-
       Flat rejection with profanity, and the word "again" marking it as a repeat offence rather
       than a one-off miss.
@@ -710,32 +710,32 @@ council_episodes:
       not the expert's judgement; the falsifiable test is whether a current requirement pulls on it.
 
 pairing_gems:
-  - loc: "day-020:L55643"
+  - loc: "day-020:L31933"
     why_exemplary: >-
       Instead of reasoning further about whether FileNotFoundError could ever fire, the agent ran
       `python3 -c "import sqlite3; conn = sqlite3.connect('/tmp/nonexistent/path/to/db.sqlite')"`
       and read the actual exception. Executable truth applied to a claim about the code's own
       environment — the one move that turned an opinion into a deletion.
 
-  - loc: "day-020:L54929"
+  - loc: "day-020:L31219"
     why_exemplary: >-
       The author refuses a conclusion that was comfortable for both parties ("98% is excellent") by
       citing the session's own evidence against it, converting a wrap-up into the most productive
       stretch of the day.
 
-  - loc: "day-020:L55954"
+  - loc: "day-020:L32244"
     why_exemplary: >-
       A single unexpected word in the agent's explanation ("CliRunner") triggers a memory check
       against a revert made a day earlier — catching an incomplete revert that no test, coverage
       report, or CI run had surfaced.
 
-  - loc: "day-020:L56044"
+  - loc: "day-020:L32334"
     why_exemplary: >-
       The rejection is itemized before it is argued: which command paths the old test covered, what
       the new call actually does, and only then "But all that's beside the point" — separating
       correctness of the diff from correctness of the idea.
 
-  - loc: "day-020:L55538"
+  - loc: "day-020:L31828"
     why_exemplary: >-
       Delete, measure, repeat: remove one block → coverage 98%→99% → the report itself points at the
       next suspect line → remove it → 100%. Coverage used as a search instrument for dead code

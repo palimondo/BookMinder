@@ -59,7 +59,7 @@ Every T-NN in `.claude/skills/tdd-bdd/` traced to its sources. Provenance ranks 
 | T-53 | ledger L-01(b); v2/day-020-s1.yaml d020s1-R11 (L2575; same turn re-exported: s2-R9 L13073 — one episode; FIXME suggestion retracted in-thread at L2605, rule reworded accordingly) | user-verbatim via ledger | detector-covered F2 |
 | T-54 | v2/day-015.yaml d015-R2 (L1060-L1061); v2/day-016.yaml d016-R7 (L2642) | user-verbatim | detector-covered F2 |
 | T-55 | v2/day-011.yaml d011-R1 (L2091), d011-R2 (L3629) | agent-synthesis | detector-covered F2 |
-| T-56 | v2/day-020-s5.yaml d020s5-R4 (day-020:L56044) | user-verbatim | rubric-item |
+| T-56 | v2/day-020-s5.yaml d020s5-R4 (day-020:L32334) | user-verbatim | rubric-item |
 | T-57 | v2/day-019.yaml d019-R1 (day-019:L303, L574) | agent-synthesis (diagnosis is the agent's own council voice; author supplied dissatisfaction at L546/L614, not the rule) | detector-covered F2 |
 | T-58 | v2/day-009.yaml d009-R3 (day-009:L7266-L7326) | user-verbatim | detector-covered F2 |
 | T-59 | v2/day-018.yaml d018-R4 (L592), d018-R2 (L1260), d018-R3 (L516) | user-verbatim | detector-covered F2 |

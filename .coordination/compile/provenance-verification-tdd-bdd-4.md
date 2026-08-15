@@ -1,3 +1,5 @@
+> NOTE (2026-08-15): line refs in this report cite the pre-repair day-020.md (blob 27a5ad7d51f6de8db0ef3361df7bc9c9adc034a2). Locs ≤31128 are unchanged in the repaired file; locs ≥45520 correspond to repaired line minus offset — subtract 23710. See .coordination/day-020-repair-report.md.
+
 # Provenance verification — tdd-bdd T-76 … T-99
 
 Every corpus source listed in `rule-index-tdd-bdd.md` for T-76 through T-99 was re-read against the primary transcript at its evidence loc. Four axes per entry: quote exactness, episode fidelity, generalization fit, missed context in the read window. 52 source rows (51 corpus + 1 non-corpus). `CLAUDE.md package_structure` under T-85 is author-ratified and out of scope, marked so in the table.
