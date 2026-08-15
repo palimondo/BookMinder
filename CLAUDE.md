@@ -124,12 +124,11 @@
   - We follow the **outside-in ATDD** approach: the acceptance test stays RED until the feature is fully implemented and that's OK. When it passes, we know the feature is complete.
 - **Write Failing Test**: Define the next behavior using a `describe_...` / `it_...` structure and assertion.
 - **Run & Verify RED**: Execute the *specific new test* (e.g., `pytest path/to/test.py::describe_context::it_behavior`) and confirm it fails.
-- **Commit After RED**: Commit the failing spec before writing any implementation.
 - **Implement GREEN**: Write the minimum production code to pass the failing test.
 - **Run All Tests**: Execute `pytest` to confirm success and no regressions.
 - **Commit After GREEN**: Commit passing test and minimal implementation.
 - **Refactor**: Improve code while keeping all tests green.
-- **Commit After Refactor**: Make second commit if any refactoring was done.
+- **Commit After Refactor**: Commit again if any refactoring was done.
 - **Coverage Check**: Verify code coverage (via `pytest --cov`) after implementation.
 - **Update TODO.md**: Move completed stories to "Completed Features" section.
 - Repeat cycle for each behavior.
@@ -232,14 +231,11 @@ This system ensures clarity, machine-readability, and granular progress tracking
 
 <git_workflow>
 ## Git Workflow
-- Make three distinct commits in the TDD/BDD cycle:
-  1. After RED phase (new failing spec, committed before implementation).
-  2. After GREEN phase (passing BDD test + minimal implementation).
-  3. After REFACTOR phase (code improvements, tests still passing).
+- Commit per feature at stable points; within the TDD/BDD cycle the natural ones are after GREEN (passing spec + minimal implementation) and after REFACTOR (code improvements, tests still passing).
 - Commit messages should be descriptive and explain the "why" behind changes
 - Reference the specific requirements being addressed in commit messages
 - Focus on what the change accomplishes, not just what files were modified
-- Each commit should be small, focused, and preserve working state (all tests passing).
+- Each commit should be small, focused, and preserve working state (all tests passing; the sole exception is the deliberately-red acceptance test of a feature in progress, per outside-in ATDD).
 - Stage all files after running pre-commit hooks that modify files, to ensure fixes are included in commit
 - Never use `git add .` - always stage files explicitly by name to avoid accidentally committing large or sensitive files
 </git_workflow>
