@@ -36,6 +36,7 @@ day-020.md re-logs whole transcript regions at differing offsets, so its `s1`/`s
 | B-30 | d004-R15, d004-R17, d004-R18, d006-R5, d009-R26, d010-R23, d011-R22, d012-R10; pyproject pins re-verified (pyproject.toml:11 `==3.13.*`, :71 `py312`) | user-verbatim/paraphrase, verified@tree |
 | B-31 | d003-R10, d003-R13, d003-R16, d015-R9, d018-R21, d005-R14 (d006-R4 re-filed to B-20 in v2 — B-31 carries no line-count content) | user-verbatim |
 | B-32 | user directive 2026-08-14, session a42b9c92 (transcript: claude-dev-log-diary/jsonl/cloud-2026/a42b9c92-c0e6-588e-bc6f-3d5e4f37b895.jsonl; mechanism doc claude-dev-log-diary/jsonl/README.md); post-compile addition, not from mining corpus | user-paraphrase |
+| B-67 (in goals-and-history.md) | user ruling 2026-08-14, session a42b9c92 ("This whole project is public. We are developing the methodology [in] the open."); post-compile addition, not from mining corpus | user-verbatim core |
 
 ## apple-books-domain.md (DB-schema stamps)
 
