@@ -2,7 +2,25 @@
 
 ## Overview
 
-BookMinder evolves beyond a simple Apple Books integration tool to become a comprehensive benchmark for AI-augmented product development. This benchmark tests AI collaboration across the entire product lifecycle - from product vision to working software.
+BookMinder is two things at once: a working tool that extracts content and highlights from Apple Books for LLM analysis, and a live benchmark for AI-augmented product development. The benchmark tests AI collaboration across the entire product lifecycle - from product vision to working software - under strict BDD/ATDD/TDD discipline.
+
+## The Empirical Thesis
+
+The project exists to test a bet: that BDD/ATDD/TDD process discipline leads to measurably better architecture, because the discipline provides more learning opportunities to discover more optimal solutions. It creates a better environment for requirements discovery and forces co-evolution of the executable specification alongside the implementation - the spec and the code improve each other instead of one trailing the other.
+
+The thesis carries a precondition: LLMs, or the harnesses around them, must be able to encode and enforce the process - walk the walk, not merely describe it. How much enforcement the harness must supply at each step is itself an open question the benchmark probes: an enforcement ladder from bare instructions up to hard tooling.
+
+The testbed is chosen deliberately. The Apple Books database schema evolves with each release, so the project tests long-term software evolution - the opposite of one-shotting problems the model already knows from pretraining.
+
+### Comparative Axes
+
+- **Model x harness**: can cheaper models perform each step of the process under stronger harnesses? The target is the Pareto frontier on performance, cost, and speed - not a single champion model.
+- **Language**: is one programming language better suited than another for this process?
+- **Library**: does one library produce better results than another?
+
+## Why Books: Product Feeds Process
+
+Pretrained simulacra of TDD/BDD experts proved shallow - skewed, non-actionable summaries of real positions. A core BookMinder motivation is giving the model access to full books as consultation material, so actionable principles can be extracted from primary sources rather than from what survived pretraining summarization. The product (book access) feeds the process (disciplined development) that builds the product.
 
 ## The Story Mapping Approach
 
@@ -54,6 +72,8 @@ acceptance_criteria:
 
 ## Three-Level Benchmark
 
+Each level can be run across the comparative axes above - varying the model tier and the rung of the enforcement ladder - to locate where discipline survives and where it needs harness support.
+
 ### Level 1: Product Owner Augmentation
 - **Input**: High-level product vision and user needs
 - **AI Task**: Create story map and break down into story cards
@@ -62,15 +82,15 @@ acceptance_criteria:
 
 ### Level 2: Technical Translation
 - **Input**: Story cards with acceptance criteria
-- **AI Task**: Convert to executable Gherkin specifications
-- **Output**: Feature files ready for BDD
+- **AI Task**: Convert to executable specifications
+- **Output**: `describe_`/`it_` spec skeletons ready for outside-in BDD
 - **Evaluation**: Do specs capture all acceptance criteria? Are they testable?
 
 ### Level 3: Implementation
-- **Input**: Gherkin specifications
+- **Input**: Executable specifications
 - **AI Task**: Implement code following TDD discipline
 - **Output**: Working software with comprehensive tests
-- **Evaluation**: Do all acceptance tests pass? Is coverage complete? Is code maintainable?
+- **Evaluation**: Do all acceptance tests pass? Is coverage complete? Is code maintainable? Did the process hold - and does the resulting architecture show it?
 
 ## Value Proposition
 
@@ -93,27 +113,18 @@ acceptance_criteria:
 
 ```
 BookMinder/
-├── vision.md                 # This file - product vision
+├── vision.md                 # This file - product vision and benchmark thesis
 ├── stories/                  # User story cards (YAML format)
-│   ├── discover/
-│   │   ├── list-recent-books.yaml
-│   │   └── filter-by-collection.yaml
-│   ├── access/
-│   │   ├── open-at-position.yaml
-│   │   └── extract-content.yaml
-│   ├── review/
-│   │   └── view-highlights.yaml
-│   └── export/
-│       ├── export-markdown.yaml
-│       └── sync-obsidian.yaml
-├── story-map.md             # Visual journey map
-├── features/                # Generated Gherkin specs
-├── bookminder/              # Implementation
-├── specs/                   # Test implementation
-└── benchmarks/
-    ├── po-augmentation.md   # How to evaluate story generation
-    ├── spec-generation.md   # How to evaluate Gherkin creation
-    └── implementation.md    # How to evaluate code generation
+│   └── discover/             # First journey column; later columns added when reached
+│       ├── list-recent-books.yaml
+│       └── ...
+├── bookminder/               # Implementation: cli.py → apple_books/library.py
+└── specs/                    # Executable specifications (pytest-describe, organized by concern)
+    ├── cli_spec.py
+    ├── cli_formatting_spec.py
+    └── apple_books/
+        ├── library_spec.py
+        └── library_integration_spec.py
 ```
 
 ## Next Steps
