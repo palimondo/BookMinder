@@ -5,11 +5,11 @@ description: Project memory for the BookMinder repo — goals and history, Apple
 
 # BookMinder — Project Memory
 
-BookMinder is a Python 3.13 CLI (heading for MCP) that reads a user's Apple Books library — macOS-only by design — built as a live experiment in whether an LLM can be a good pair programmer under strict outside-in ATDD. The process is as much the product as the code: story cards, acceptance specs, and commit grammar are deliverables. The production package is ~290 lines (`bookminder/cli.py` → `bookminder/apple_books/library.py`); the suite under `specs/` is the system's documentation (`pytest --spec`).
+BookMinder is a CLI (heading for MCP) that reads a user's Apple Books library — macOS-only by design — built as a live experiment in whether an LLM can be a good pair programmer under strict outside-in ATDD. It is a deliberately tiny product and a process laboratory: story cards, acceptance specs, and disciplined commits are deliverables alongside the code. The production package (`bookminder/cli.py` → `bookminder/apple_books/library.py`) is small enough to read whole before any task, and the suite under `specs/` is the system's documentation (`pytest --spec`).
 
 This skill is the project's cross-session memory — the environment has none, the repo is the only substrate. Facts here carry their WHY and their verification status; where state can rot, the page points at the command or file that holds truth instead of restating it.
 
-Sibling skills: `tdd-bdd` carries the process discipline; CLAUDE.md is always loaded and owns the build commands and constitution. This skill does not repeat them.
+Sibling skill `tdd-bdd` carries the process discipline; CLAUDE.md owns the constitution and build commands. This skill repeats neither.
 
 ## Page map
 
