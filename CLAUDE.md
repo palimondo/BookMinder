@@ -161,6 +161,7 @@ Before committing, verify:
 
 <session_workflow>
 ## Session Workflow
+- Load the `bookminder` skill at session start — it is the project's committed memory; its router names the episodic head to read. Coordination/meta sessions load `project-coordinator` as well
 - Start sessions with clear, limited scope
 - Define acceptance criteria upfront through requirements dialogue
 - Save logs after completing acceptance tests
