@@ -63,10 +63,10 @@ day-020.md re-logs whole transcript regions at differing offsets, so its `s1`/`s
 |----|--------|------------|
 | B-60 | verified-residue.md (pointer), threads.md HANDOFF convention; CLAUDE.md build commands — **corpus-unverified (author-attested)** | agent-synthesis, point-at-truth |
 | B-61 | ledger L-11 (OPEN, deferred to gardening by author 2026-08-13); README.md:53-58 + library.py:89,:105 + zero-caller grep re-verified at HEAD — **corpus-unverified (author-attested)** | ratified ledger, verified@tree |
-| B-62 | ledger L-13 (OPEN, deferred); d021-R14 (verified FAITHFUL — the one corpus source on this page); TODO.md:7-24 + stories/*.yaml statuses re-verified at HEAD | ratified ledger + user-verbatim, verified@tree |
+| B-62 | ledger L-13 (RESOLVED: revert-and-redo ruling landed in TODO.md + card statuses); d021-R14 RETIRED by author ruling 2026-08-16 (inciting incident resolved at source — statuses reconciled at HEAD; standing suspicion rule judged counterproductive, its clauses removed from B-62, B-23, and the router) — B-62 now **corpus-unverified (author-attested)** | ratified ledger, verified@tree |
 | B-63 | verified-residue R1; threads.md:107 (P2, parked); cli.py:10 + library_spec.py:21 set-equality re-verified at HEAD — **corpus-unverified (author-attested)** | agent-synthesis + user-endorsed proposal, verified@tree |
 | B-64 | ledger L-14..L-19 (rule-mechanical, gardening-gated); verified-residue.md pointer — **corpus-unverified (author-attested)** | ratified ledger |
 | B-65 | threads.md:77 (restorations), :13 (stop-hook ruling), :4 (validator blind spot), :59 (graduation deferred); skill-removals persistence/claims/delegation fragments (substrate map, evidence-architecture pointer) — **corpus-unverified (author-attested)** | user-paraphrase + coordinator record |
 | B-66 | threads.md:96-97 (memory-architecture insight, user-validated 2026-08-13) — **corpus-unverified (author-attested)** | user-paraphrase |
 
-**needs-live-DB stamps: 7. hypothesis stamps: 4 (ZSTATE 5, sample lifecycle, B-47, B-48). Corpus-unverified (author-attested) rules: B-02, B-03, B-04, B-09, B-10, B-45, B-60, B-61, B-63, B-64, B-65, B-66 — plus the threads/ledger/tree halves of every other rule.**
+**needs-live-DB stamps: 7. hypothesis stamps: 4 (ZSTATE 5, sample lifecycle, B-47, B-48). Corpus-unverified (author-attested) rules: B-02, B-03, B-04, B-09, B-10, B-45, B-60, B-61, B-62 (since d021-R14's retirement), B-63, B-64, B-65, B-66, B-68 — plus the threads/ledger/tree halves of every other rule.**

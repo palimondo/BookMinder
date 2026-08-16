@@ -135,7 +135,7 @@ Every `skill_target: project-memory` entry in .coordination/mining/v2/*.yaml (13
 | d020s4-R12 | merged-duplicate→B-24 (d020s1-R18) |
 | d020s4-R17 | merged-duplicate→B-24 (d020s2-R14 — v2: day-020 re-log, byte-identical edit sequence at a different offset) |
 | d020s5-R7 | compiled→B-21 |
-| d021-R14 | compiled→B-62 (and B-23 practical rule) |
+| d021-R14 | retired-by-author-ruling 2026-08-16 (was compiled→B-62 and B-23 practical rule; incident resolved at source, suspicion clauses removed from B-62/B-23/router — a recovery-state symptom must be resolved, not encoded as a standing rule) |
 | d021-R15 | compiled→B-23 |
 | d021-R16 | compiled→B-29 (with its needs-rework environment caveat compiled in) |
 | d021-R17 | compiled→B-53 |
