@@ -1,6 +1,6 @@
 # Memory architecture — two layers, one source of truth each
 
-Author-ratified 2026-08-16. This file is the reasoning record; it exists so the split is not re-litigated when the discussion is forgotten. Reopening it means arguing against the reasons below, not rediscovering them.
+This file is the author-ratified reasoning record; it exists so the split is not re-litigated when the discussion is forgotten. Reopening it means arguing against the reasons below, not rediscovering them.
 
 ## The problem it solves
 
