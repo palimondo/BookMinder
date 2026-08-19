@@ -25,12 +25,12 @@ Apple Books uses sandboxed containers to store its data:
 - `itemName`: Book title
 - `artistName`: Author name
 - `path`: Relative path to EPUB file
-- `updateDate`: Last modification date
+- `updateDate`: Timestamp of unestablished meaning - probably the publisher's revision date for the book, not reading activity
 - `BKPercentComplete`: Only present for **finished books** (always 1.0 = 100%)
 
 **Important Discovery**:
-- Contains all books in library (179 total in test case)
-- Only 22 books have `BKPercentComplete` field (12% of library)
+- **Not a complete catalog of the library**: titles the BKLibrary database knew about were missing from this file even in a freshly converted snapshot (e.g. "Lao Tzu: Tao Te Ching"), and the reason was never established - absence from Books.plist proves nothing about library membership or cloud status
+- 179 entries in the test case, of which only 22 have the `BKPercentComplete` field (12%)
 - All books with `BKPercentComplete` show 1.0 (100% complete)
 - Books without this field are either unread or partially read
 - **Does NOT contain actual reading progress for books in progress**
@@ -46,7 +46,7 @@ Apple Books uses sandboxed containers to store its data:
 **Key Table**: `ZBKLIBRARYASSET`
 
 **Critical Fields for Reading Progress**:
-- `ZTITLE`: Book title
+- `ZTITLE`: Book title - not a unique key: one title can occupy several rows, observed at different `ZSTATE` values and in one case under two different author strings
 - `ZAUTHOR`: Author name
 - `ZASSETID`: Asset identifier (matches Books.plist keys)
 - `ZREADINGPROGRESS`: Float value (0.0 to 1.0) representing actual reading progress
@@ -56,7 +56,7 @@ Apple Books uses sandboxed containers to store its data:
 - `ZCREATIONDATE`: When book was added to library
 
 **Additional Important Fields**:
-- `ZISSAMPLE`: Integer indicating if book is a sample (1 = sample, 0 = full book)
+- `ZISSAMPLE`: Integer flag carried by downloaded samples (1 = sample); 0 does not mean the book is not a sample - see [Sample Book Handling](#sample-book-handling)
 - `ZCONTENTTYPE`: Integer indicating content type (likely: 1 = Book, 3 = PDF)
 - `ZPATH`: Path to the book file (relative to Books directory)
 - `ZFILESIZE`: Size of the book file in bytes
@@ -113,7 +113,7 @@ LIMIT 10;
 **In BKLibrary Database**:
 - `ZCONTENTTYPE = 1`: Likely regular books (EPUB) - unverified against a live database
 - `ZCONTENTTYPE = 3`: Likely PDF documents - unverified against a live database
-- `ZISSAMPLE = 1`: Sample/preview books
+- `ZISSAMPLE = 1`: Downloaded samples - samples are not identified by this flag alone, see [Sample Book Handling](#sample-book-handling)
 - `ZKIND = "ebook"`: Standard ebook format
 - `ZKIND = "pdf"`: PDF document
 
@@ -168,7 +168,7 @@ def apple_timestamp_to_datetime(apple_timestamp):
 - `ZLASTOPENDATE`: When book was last opened
 - `ZDATEFINISHED`: When book was completed
 - `ZCREATIONDATE`: When book was added to library
-- `updateDate` (Books.plist): Last modification (ISO format)
+- `updateDate` (Books.plist): ISO-format timestamp, probably a publisher revision date rather than reading activity
 
 ### Database Performance and Access
 
@@ -337,7 +337,7 @@ Apple Books groups books by series, showing both owned and unowned titles. Serie
 **Working Hypothesis**: This UI suggests `ZSTATE = 5` may be associated with series entities and unowned books within a series. Unverified: a later census (2025-07-03) also observed 5 only as a *second* row for a title that already had a `ZSTATE = 3` row - consistent with the series structure but not settling it. Open until a fresh live-database re-census.
 
 #### Want to Read Section
-Books displayed for future reading. Appears to be composed of books with 0% progress and any samples:
+A list Apple Books computes rather than one the user marks. Across the observed titles its composition held as books with 0% progress plus any samples; what orders the list is unknown:
 
 ![Want to Read](ui/apple/Want%20to%20Read.jpg)
 
@@ -508,8 +508,8 @@ This information was discovered through systematic investigation:
 ### Progress Edge Cases
 - **Zero progress books**: May exist in library but never opened (ZREADINGPROGRESS = 0.0)
 - **Null progress**: Some books may have NULL progress values
-- **Finished books**: Always show ZREADINGPROGRESS = 1.0 AND ZISFINISHED = 1
-- **Sample books**: Can have partial progress but remain samples (ZISSAMPLE = 1)
+- **Finished books**: Marked by ZISFINISHED = 1 alone - finished books have been observed below 100% progress; the converse held in the same data (ZREADINGPROGRESS = 1.0 implied ZISFINISHED = 1)
+- **Sample books**: Read 0.0 progress in every observation, and are not identified by `ZISSAMPLE = 1` alone - see [Sample Book Handling](#sample-book-handling)
 
 ### Content Type Edge Cases  
 - **Mixed format books**: Some books may have mismatched file extensions
@@ -531,14 +531,16 @@ This information was discovered through systematic investigation:
 
 ### Sample Book Handling
 
-**Sample Lifecycle:**
+**Sample Lifecycle** (proposed mechanism - no sample's row was observed before and after being downloaded):
 1. A user adds a sample to their library from the store. The book appears with `ZSTATE=6` and `ZISSAMPLE=0`. It is a "Cloud Sample" that is not yet downloaded.
-2. When the user opens or downloads this sample, the database record is updated to `ZSTATE=1` and `ZISSAMPLE=1`, reflecting its new status as a "Local Sample".
+2. Once the sample is opened or downloaded, the record reads `ZSTATE=1` and `ZISSAMPLE=1`, a "Local Sample".
 
-**Important Discovery**: Samples do NOT track reading progress percentage (ZREADINGPROGRESS remains 0.0). Instead:
-- Reading positions are stored as annotations (type 3) in `AEAnnotation_v10312011_1727_local.sqlite`
-- This allows position syncing between devices without progress tracking
-- Progress % may briefly appear for cloud samples but disappears when downloaded
+The transition is inferred from one title's values changing between queries: "What's Our Problem?" read `ZISSAMPLE = 0` in one query and `ZSTATE = 1, ZISSAMPLE = 1` in a later one, while "Snow Crash" and "Tiny Experiments" held at `ZSTATE = 6, ZISSAMPLE = 0` across the same queries. Per-title `ZSTATE`/`ZISSAMPLE` values are therefore point-in-time observations rather than stable facts - re-run the query instead of quoting a title.
+
+**Working Hypothesis**: Samples may not track reading progress percentage at all - `ZREADINGPROGRESS` read 0.0 for every sample observed. Supporting and complicating observations:
+- A sample carried a type 3 annotation holding an `epubcfi` location in `AEAnnotation_v10312011_1727_local.sqlite`, which would let a reading position sync between devices without a progress percentage
+- The UI nevertheless renders some cloud samples at 1% (see [UI Behavior Insights](#ui-behavior-insights))
+- No sample's row was observed before and after reading it, so the 0.0 is not established as invariant
 
 ```sql
 -- Get downloaded samples (ZISSAMPLE = 1)
@@ -583,7 +585,7 @@ ORDER BY ZDATEFINISHED DESC;
 - **Database files include WAL/SHM** files (Write-Ahead Logging) - query main .sqlite file
 - **Handle NULL values** gracefully in all timestamp and progress fields
 - **Check ZISSAMPLE flag** to identify preview/trial books
-- **Use ZCONTENTTYPE** to distinguish between books and PDFs
+- **ZCONTENTTYPE appears to distinguish books from PDFs** - the value mapping is unverified against a live database
 - **Implement retry logic** for database lock errors
 - **Validate asset ID format** before cross-referencing with Books.plist
 
@@ -603,9 +605,9 @@ To ensure clarity and consistency in BookMinder's development and user interface
 Describes the fundamental format or origin of the content.
 
 -   **Book (EPUB):** A standard e-book, typically from the Apple Books store or sideloaded.
-    -   *Mapping:* `BKLibrary.sqlite` where `ZCONTENTTYPE = 1` or `ZKIND = "ebook"`.
+    -   *Mapping:* `BKLibrary.sqlite` where `ZCONTENTTYPE = 1` (mapping unverified against a live database) or `ZKIND = "ebook"`.
 -   **PDF:** A Portable Document Format file.
-    -   *Mapping:* `BKLibrary.sqlite` where `ZCONTENTTYPE = 3` or `ZKIND = "pdf"`.
+    -   *Mapping:* `BKLibrary.sqlite` where `ZCONTENTTYPE = 3` (mapping unverified against a live database) or `ZKIND = "pdf"`.
 -   **Audiobook:** (Future content type if data becomes available).
 
 ## 2. Reading Status (Where am I with it?)
@@ -635,10 +637,7 @@ Additional properties that can apply to any content type or reading status.
         - `ZSTATE = 1`: **Local Book**. The book is stored on the device. This includes:
             - Regular downloaded books
             - Downloaded samples (where `ZISSAMPLE = 1`)
-        - `ZSTATE = 5`: **Open hypothesis - Series Entity / Unowned Series Book?** Observed carried by:
-            - The **series entity itself** (e.g., "Hainish"), where `ZTITLE` matches the series name.
-            - **Unowned books within a series** (e.g., "Five Ways to Forgiveness"), where `ZTITLE` is the individual book title.
-        Both are linked to individual books via `ZSERIESID`. However, a later census (2025-07-03) observed 5 only as a *second* row for a title that already had a `ZSTATE = 3` row - consistent with the series structure but not settling it. Treat 5 as unmapped until a fresh live-database re-census.
+        - `ZSTATE = 5`: **Open hypothesis - Series Entity / Unowned Series Book?** Joining on `ZSERIESID` from an owned book ("The Left Hand of Darkness", `ZSTATE = 1`) returned three rows at `ZSTATE = 5` sharing its series id: one carrying the series name ("Hainish", author "MultipleAuthors") and two carrying individual titles the library does not own ("Five Ways to Forgiveness", "The Word for World is Forest"). No criterion for telling the series row from the unowned-title rows was established - the generic author string is not one, and the title alone was never confirmed as one. The value is not rare either: one 2025 library held 206 rows at `ZSTATE = 5`, dominated by store collections and public-domain titles (Cars, Ramses, Dune, Jane Eyre). A census on 2025-07-03 observed 5 only as a *second* row for a title that already had a `ZSTATE = 3` row - consistent with the series structure but not settling it. Treat 5 as unmapped until a fresh live-database re-census.
 
 ## CLI Mapping (Proposed Commands)
 
