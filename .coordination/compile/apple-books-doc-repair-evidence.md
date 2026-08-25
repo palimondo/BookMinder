@@ -1,50 +1,103 @@
-# Evidence table — docs/apple_books.md repair batch
+# Evidence record — docs/apple_books.md repair batch
 
 Ephemeral review aid: this file exists so the author can audit one batch of doc edits against their evidence, and is retired once consumed.
 
 Gate applied: an edit landed only where the session record shows a claim from the initial 2025 reverse-engineering research being corrected, or shows the claim's real (second-hand, never-probed) provenance. No live Apple Books database exists in this environment, so nothing was "fixed" from reasoning alone. Trust order: skill page `.claude/skills/bookminder/references/apple-books-domain.md` (B-40..B-53) > `.coordination/compile/rule-index-bookminder.md` > `.coordination/mining/v2/*.yaml` (only `quote:` fields are validator-verified; transcript windows read for verification of the rest).
 
-## Edits
+## Edits (14)
 
-| doc section | claim before | claim after | evidence |
-|---|---|---|---|
-| 1. Books.plist — Key Fields | "`updateDate`: Last modification date" | "Timestamp of unestablished meaning - probably the publisher's revision date for the book, not reading activity" | d007-R17, user-verbatim (day-007:L2708-L2711): "it's probably related to Book's revision, when the publisher pushes a new version no Apple Books? I think when working with BookMinder, we would focus on user's interactions with the book." Skill B-41: the reading is the author's hypothesis, never verified — doc had it as flat fact. |
-| 1. Books.plist — Important Discovery | "Contains all books in library (179 total in test case)" | "**Not a complete catalog of the library**: titles the BKLibrary database knew about were missing from this file even in a freshly converted snapshot (e.g. \"Lao Tzu: Tao Te Ching\"), and the reason was never established - absence from Books.plist proves nothing about library membership or cloud status" + entry counts kept on the following bullet | d013-R18 and d012-R14; author-verbatim verdict (day-013:L871-L872): "So why the \"Lao Tzu: Tao Te Ching\" is not in the All_Books.swift file (even the freshly converted one) is still a mystery to us." Freshly-converted plist step at day-013:L848-L860. Skill B-41: database is the authoritative catalogue; plist absence proves nothing in either direction. |
-| 2. BKLibrary — Critical Fields | "`ZTITLE`: Book title" | "…- not a unique key: one title can occupy several rows, observed at different `ZSTATE` values and in one case under two different author strings" | d014-R4; live batch census day-014:L735-L764 shows `Attack Surface|Cory Doctorow|3|0` and `Attack Surface|Cory Doctorow|5|0`, plus `A Clockwork Orange|Anthony Burgess & Andrew Biswell|3|0` and `A Clockwork Orange|Anthony Burgess|1|0`. Skill B-46. |
-| 2. BKLibrary — Additional Important Fields | "`ZISSAMPLE`: Integer indicating if book is a sample (1 = sample, 0 = full book)" | "Integer flag carried by downloaded samples (1 = sample); 0 does not mean the book is not a sample - see Sample Book Handling" | d012-R13, user-verbatim (day-012:L2975): "Snowcrash is a Book Sample, as is Tiny Experiments" — both read `ZISSAMPLE = 0` in the live database. Skill B-44 (composite predicate, verified@tree). "0 = full book" was the corrected claim. |
-| Content Type Identification | "`ZISSAMPLE = 1`: Sample/preview books" | "Downloaded samples - samples are not identified by this flag alone, see Sample Book Handling" | Same as above (d012-R13); d018-R16, user-verbatim (day-018:L2198): "Why do you insist on ZISSAMPLE=1? That's edge case. We want books with ZSTATE=6! (Actually we need both scenarios…)". |
-| Apple Timestamp Format Details — Common Timestamp Fields | "`updateDate` (Books.plist): Last modification (ISO format)" | "ISO-format timestamp, probably a publisher revision date rather than reading activity" | d007-R17 as above; edited for consistency with the Key Fields line so the doc does not contradict itself. |
-| Want to Read Section | "Books displayed for future reading. Appears to be composed of books with 0% progress and any samples" | "A list Apple Books computes rather than one the user marks. Across the observed titles its composition held as books with 0% progress plus any samples; what orders the list is unknown" | d018-R22, user-verbatim (day-018:L6120): "the books in Want to read aren[']t marked (this implies to me some kind of specific action by user) -- they are somehow computed, the details of that algorithm we haven't yet reverse engineered." d015-R8, user-verbatim: "We should try to find out what orders them into this list." Skill B-48: ordering never established; say "unknown" when the mechanism is unknown. |
-| Edge Cases — Progress Edge Cases | "**Finished books**: Always show ZREADINGPROGRESS = 1.0 AND ZISFINISHED = 1" | "Marked by ZISFINISHED = 1 alone - finished books have been observed below 100% progress; the converse held in the same data (ZREADINGPROGRESS = 1.0 implied ZISFINISHED = 1)" | d011-R18; correction recorded at day-011:L7647-L7655: "Your findings directly contradict our previous assumption about ZREADINGPROGRESS and ZISFINISHED… `ZISFINISHED = 1` does NOT necessarily mean `ZREADINGPROGRESS = 1.0`… `ZREADINGPROGRESS = 1.0` DOES imply `ZISFINISHED = 1`". The doc already carried the corrected form in its Reading Status section (line 617 pre-edit) and contradicted it here. Skill B-46. |
-| Edge Cases — Progress Edge Cases | "**Sample books**: Can have partial progress but remain samples (ZISSAMPLE = 1)" | "Read 0.0 progress in every observation, and are not identified by `ZISSAMPLE = 1` alone - see Sample Book Handling" | d012-R13 (flag is not the definition) and d019-R17 (`ZREADINGPROGRESS` 0.0 for samples); fixture-side corroboration day-019:L1544-L1545 ("ALL have 0% progress"). Skill B-44, B-47. |
-| Sample Book Handling — Sample Lifecycle | Flat two-step lifecycle stated as fact | Same two steps under "(proposed mechanism - no sample's row was observed before and after being downloaded)", plus the observation it rests on: "What's Our Problem?" read `ZISSAMPLE = 0` in one query and `ZSTATE = 1, ZISSAMPLE = 1` in a later one, while "Snow Crash" and "Tiny Experiments" held at `ZSTATE = 6, ZISSAMPLE = 0`; per-title values are point-in-time, re-run the query | d019-R16; the lifecycle text entered the doc from a document-review proposal (day-019:L963-L978, "Suggested New Text for `docs/apple_books.md`") with no before/after probe. Observed flip at day-014:L480-L486: "The database query for \"What's Our Problem?\" returns ZISSAMPLE = 1. However, in the log from day-012, my query returned ZISSAMPLE = 0." Stability of the other two at day-014:L495-L512. Skill B-44 stamps the lifecycle hypothesis and requires freshness stamps on per-title claims; ledger L-20 same. |
-| Sample Book Handling — sample progress | "**Important Discovery**: Samples do NOT track reading progress percentage (ZREADINGPROGRESS remains 0.0)" with three supporting bullets | "**Working Hypothesis**: Samples may not track reading progress percentage at all - `ZREADINGPROGRESS` read 0.0 for every sample observed", with the epubcfi annotation as supporting observation, the UI 1% rendering as complicating observation, and an explicit note that no row was observed before and after reading | d019-R17 (relayed log summary, day-019:L840-L844 — no live before/after probe); counter-observation same session, day-019:L1616-L1617: "Samples can occasionally have progress, contrary to my initial assumption. The UI shows some samples with minimal progress, like \"Tiny Experiments\" at 1%." Annotation probe day-018:L2457-L2466 (type 3 row holding an `epubcfi`, agent's own reading of what type 3 means). Skill B-47: hypothesis, both claims second-hand. |
-| Critical Implementation Notes | "**Use ZCONTENTTYPE** to distinguish between books and PDFs" | "**ZCONTENTTYPE appears to distinguish books from PDFs** - the value mapping is unverified against a live database" | Ledger L-12 ruling (contradiction-ledger.md:16, ":132-:139"): "hedged-until-reverified stands (no live DB in this environment)"; corpus flag day-008 ("a document contradicting itself about its own confidence"). Skill B-45: hypothesis; the hedged form governs. |
-| Domain Language — 1. Content Type | "`ZCONTENTTYPE = 1` or `ZKIND = \"ebook\"`" / "`ZCONTENTTYPE = 3` or `ZKIND = \"pdf\"`" (flat) | Same mappings with "(mapping unverified against a live database)" on the `ZCONTENTTYPE` half; `ZKIND` untouched | Ledger L-12 as above; the prior pass hedged the Content Type Identification section only, leaving these two flat. Skill B-45. |
-| Domain Language — 3. Attributes/Flags, ZSTATE = 5 | Entity/member discriminator stated by `ZTITLE` ("series entity itself… where `ZTITLE` matches the series name" / "unowned books… where `ZTITLE` is the individual book title"); "a later census (2025-07-03)" | The observed `ZSERIESID` join result stated instead (one row carrying the series name "Hainish" / author "MultipleAuthors", two carrying unowned titles, all sharing the owned book's series id), an explicit "no criterion for telling the series row from the unowned-title rows was established", the population scale (206 rows at `ZSTATE = 5`, dominated by store collections and public-domain titles), and "A census on 2025-07-03" without the ordering word | d015-R7, user-verbatim (day-015:L2084-L2085): "I don't think that's the correct differentiation criteria, it must be something with the entries and seriesid, the Multiple Authors is definitely a red herring" — the `ZTITLE` substitute was then written straight into the doc (day-015:L2092-L2108) with no probe behind it. Join rows day-015:L1708-L1715; count day-015:L1536-L1541 (206); ZSTATE-5 title population day-011:L7422-L7440. Skill B-43 names the `ZTITLE` discriminator as the agent's own substitute; rule-index B-43 row carries the chronology fix (the 2025-07-03 duplicate-row census PRECEDES the ZSERIESID join), which is why "later" was dropped. |
+### 1. Books.plist — Key Fields: updateDate
+- Was: "`updateDate`: Last modification date"
+- Now: timestamp of unestablished meaning — probably the publisher's revision date, not reading activity
+- Evidence: d007-R17, user-verbatim (day-007:L2708-L2711): "it's probably related to Book's revision, when the publisher pushes a new version no Apple Books? I think when working with BookMinder, we would focus on user's interactions with the book." Skill B-41: author's hypothesis, never verified — doc had it as flat fact.
 
-## NO-EDIT
+### 2. Books.plist — Important Discovery: completeness
+- Was: "Contains all books in library (179 total in test case)"
+- Now: NOT a complete catalog — DB-known titles were missing even from a fresh snapshot, cause never established; plist absence proves nothing about membership or cloud status (counts kept on the next bullet)
+- Evidence: d013-R18, d012-R14; author-verbatim (day-013:L871-L872): "So why the \"Lao Tzu: Tao Te Ching\" is not in the All_Books.swift file (even the freshly converted one) is still a mystery to us." Fresh-conversion step day-013:L848-L860. Skill B-41.
 
-| doc section | status | why untouched |
-|---|---|---|
-| Content Type Identification — `ZCONTENTTYPE = 1 / 3` | already correct | Hedged by the earlier pass (commit b06c722); not re-applied. |
-| Series Collections — "Working Hypothesis" on ZSTATE = 5 | already correct | Re-hedged by b06c722; its "later census" reads correctly there (the census does post-date the UI screenshots it qualifies). |
-| Domain Language — "Observed ZSTATE Mappings (2025 census - re-verify…)" heading | already correct | The over-claiming "Verified ZSTATE Mappings" heading named in the brief is already gone (b06c722). |
-| Domain Language — sample composite predicate + "Snow Crash" note | already correct | Matches skill B-44 (verified@tree, `ZSTATE = 6 OR ZISSAMPLE = 1`); the Snow Crash example held stable across re-queries (day-014:L495-L500), so no freshness caveat is owed here — the time-varying caveat lives once, in Sample Book Handling. |
-| Domain Language — Reading Status "Finished" note | already correct | Is itself the corrected form from day-011:L7670-L7675. |
-| ZSTATE 1 / 3 / 6 mappings | no recorded correction | 2025 observations, stamped needs-live-DB in skill B-43; the section already tells the reader to re-verify. |
-| Books.plist `BKPercentComplete` counts (22 of 179, all 1.0) | corroborated | d009-R20: "22 of 179 entries, every one of them exactly 1.0". |
-| `ZPATH` field entry / path correlation | no recorded correction | Skill B-51: whether the database carries a usable path column was never actually checked; nothing in the record corrects the doc's field listing, so it stays for the live-machine recon. |
-| Apple epoch conversion, WAL/SHM access, glob discovery | verified elsewhere | Skill B-40, B-42 (verified@tree); doc agrees. |
-| User State Scenarios (never-opened / fresh / legacy / active) | no recorded correction | Skill B-49 records the same states as observed on real machines. |
-| Continue section behaviour (~10 items, ~7 day recency, sort order) | no recorded correction | UI observation carrying its own "needs further investigation" hedge; no corpus evidence corrects it. |
-| Database to UI Mapping SQL, Sample Book Handling SQL, Content Filtering Strategies SQL | no recorded correction of a claim | The Content Filtering Strategies block is filtering-strategy SQL living outside the Database-to-UI-Mapping section, i.e. against the doc's own editing rules, but relocating or deleting it is a structural decision with no evidence gate behind it — flagged for the author, not executed. |
-| Edge Cases — NULL-handling, mixed formats, corrupted entries, future/zero timestamps | no recorded correction | Skill B-53 marks these sections speculation written in the observational voice, but no specific claim in them has a recorded correction; they wait for the live-machine recon. |
-| Asset ID Correlation System (numeric / hexadecimal ids, cross-reference chain) | no recorded correction | Nothing in the corpus revisits it. |
-| UI tables, screenshots, Validation Test Cases | no recorded correction | UI-side records of what the screenshots show; per skill B-53 the screenshots are the verification substrate, not the thing to edit. |
+### 3. BKLibrary — Critical Fields: ZTITLE
+- Was: "`ZTITLE`: Book title"
+- Now: adds "not a unique key" — one title in several rows, different ZSTATEs, once under two author strings
+- Evidence: d014-R4; census day-014:L735-L764 (Attack Surface at ZSTATE 3 and 5; A Clockwork Orange under two author strings). Skill B-46.
 
-## Doc vs skill disagreement, reported not edited
+### 4. BKLibrary — Additional Fields: ZISSAMPLE
+- Was: "1 = sample, 0 = full book"
+- Now: 1 = downloaded sample; 0 does NOT mean not-a-sample — see Sample Book Handling
+- Evidence: d012-R13, user-verbatim (day-012:L2975): "Snowcrash is a Book Sample, as is Tiny Experiments" — both read ZISSAMPLE = 0 live. Skill B-44 (composite predicate, verified@tree).
 
-| topic | doc | skill | why no edit |
-|---|---|---|---|
-| Which ZSTATE values carry a UI cloud icon | `ZSTATE = 1` is "**Local Book**. The book is stored on the device." | B-43: "books showing the UI cloud icon were observed at ZSTATE 1, 3, and 6" | The rows that would settle it are cross-device: the UI tables in the doc come from iPhone screenshots while the census queries ran against the Mac mini database, where the same title can legitimately be local on one machine and cloud on the other (the author makes exactly this point at day-013:L822-L823). No corpus evidence resolves it either way; a live re-census on one machine would. |
+### 5. Content Type Identification: ZISSAMPLE line
+- Was: "`ZISSAMPLE = 1`: Sample/preview books"
+- Now: downloaded samples — the flag alone does not identify samples
+- Evidence: d012-R13 as above; d018-R16, user-verbatim (day-018:L2198): "Why do you insist on ZISSAMPLE=1? That's edge case. We want books with ZSTATE=6! (Actually we need both scenarios…)".
+
+### 6. Timestamp Fields: updateDate
+- Was: "Last modification (ISO format)"
+- Now: ISO-format, probably publisher revision date, not reading activity
+- Evidence: d007-R17; consistency with edit 1 so the doc does not contradict itself.
+
+### 7. Want to Read Section
+- Was: "Books displayed for future reading. Appears to be composed of books with 0% progress and any samples"
+- Now: a list Apple computes, not user-marked; composition held as 0%-progress + samples across observed titles; ordering unknown
+- Evidence: d018-R22, user-verbatim (day-018:L6120): "the books in Want to read aren[']t marked (this implies to me some kind of specific action by user) -- they are somehow computed, the details of that algorithm we haven't yet reverse engineered." d015-R8, user-verbatim: "We should try to find out what orders them into this list." Skill B-48.
+
+### 8. Progress Edge Cases: finished books
+- Was: "Always show ZREADINGPROGRESS = 1.0 AND ZISFINISHED = 1"
+- Now: ZISFINISHED = 1 alone marks finished — observed below 100%; converse held (1.0 implied finished)
+- Evidence: d011-R18; correction at day-011:L7647-L7655 ("Your findings directly contradict our previous assumption… `ZISFINISHED = 1` does NOT necessarily mean `ZREADINGPROGRESS = 1.0`… the converse holds"). Doc already carried the corrected form in Reading Status and contradicted it here. Skill B-46.
+
+### 9. Progress Edge Cases: samples
+- Was: "Can have partial progress but remain samples (ZISSAMPLE = 1)"
+- Now: read 0.0 in every observation; not identified by the flag alone — see Sample Book Handling
+- Evidence: d012-R13; d019-R17 (0.0 for samples); fixture corroboration day-019:L1544-L1545 ("ALL have 0% progress"). Skill B-44, B-47.
+
+### 10. Sample Book Handling: lifecycle
+- Was: flat two-step lifecycle stated as fact
+- Now: same steps as "(proposed mechanism — no sample's row was observed before and after being downloaded)", with the observations it rests on ("What's Our Problem?" flipped between queries; Snow Crash and Tiny Experiments held at 6/0); per-title values are point-in-time — re-run the query
+- Evidence: d019-R16 — the lifecycle text entered the doc from a document-review proposal (day-019:L963-L978) with no probe. Observed flip day-014:L480-L486; stability day-014:L495-L512. Skill B-44; ledger L-20.
+
+### 11. Sample Book Handling: sample progress
+- Was: "**Important Discovery**: Samples do NOT track reading progress percentage" + three supporting bullets
+- Now: "**Working Hypothesis**: samples may not track progress — 0.0 in every observed row", with the epubcfi annotation as support, the UI-1% rendering as complication, and an explicit no-before/after-probe note
+- Evidence: d019-R17 (relayed log summary, day-019:L840-L844 — no live probe); counter-observation day-019:L1616-L1617 ("The UI shows some samples with minimal progress, like \"Tiny Experiments\" at 1%"). Annotation probe day-018:L2457-L2466. Skill B-47: both claims second-hand.
+
+### 12. Critical Implementation Notes: ZCONTENTTYPE
+- Was: "**Use ZCONTENTTYPE** to distinguish between books and PDFs"
+- Now: "appears to distinguish" — value mapping unverified against a live database
+- Evidence: ledger L-12 ruling (contradiction-ledger.md:16, :132-:139): hedged-until-reverified stands; day-008 corpus flag (doc contradicting itself about its own confidence). Skill B-45: the hedged form governs.
+
+### 13. Domain Language — Content Type mappings
+- Was: "`ZCONTENTTYPE = 1` or `ZKIND = \"ebook\"`" / "= 3 or pdf" (flat)
+- Now: same mappings with "(mapping unverified against a live database)" on the ZCONTENTTYPE half; ZKIND untouched
+- Evidence: ledger L-12; the earlier pass hedged Content Type Identification only, leaving these flat. Skill B-45.
+
+### 14. Domain Language — ZSTATE = 5
+- Was: entity/member discriminator by ZTITLE (series-name vs book-title), "a later census (2025-07-03)"
+- Now: the observed ZSERIESID join result stated instead (series row "Hainish"/"MultipleAuthors" + unowned titles sharing the owned book's series id), explicit "no discriminating criterion established", population scale (206 rows, store collections + public-domain), and "A census on 2025-07-03" without the ordering word
+- Evidence: d015-R7, user-verbatim (day-015:L2084-L2085): "I don't think that's the correct differentiation criteria, it must be something with the entries and seriesid, the Multiple Authors is definitely a red herring" — the ZTITLE substitute was then written into the doc (day-015:L2092-L2108) with no probe. Join rows day-015:L1708-L1715; count day-015:L1536-L1541; population day-011:L7422-L7440. Skill B-43; rule-index B-43 carries the chronology fix (duplicate-row census PRECEDES the join — "later" dropped).
+
+## NO-EDIT (16)
+
+- Content Type Identification ZCONTENTTYPE 1/3 — already hedged by the earlier pass (b06c722).
+- Series Collections ZSTATE-5 hypothesis — re-hedged by b06c722; its "later census" is correct there (post-dates the screenshots it qualifies).
+- "Observed ZSTATE Mappings (2025 census — re-verify…)" heading — the over-claiming "Verified" heading was already fixed (b06c722).
+- Domain Language sample composite predicate + Snow Crash note — matches skill B-44 (verified@tree); the example held stable across re-queries (day-014:L495-L500); the time-varying caveat lives once, in Sample Book Handling.
+- Reading Status "Finished" note — is itself the corrected form (day-011:L7670-L7675).
+- ZSTATE 1/3/6 mappings — no recorded correction; stamped needs-live-DB (B-43); section already says re-verify.
+- BKPercentComplete counts (22 of 179, all 1.0) — corroborated by d009-R20.
+- ZPATH field / path correlation — never actually checked (B-51); stays for the live recon.
+- Apple epoch, WAL/SHM, glob discovery — verified elsewhere (B-40, B-42); doc agrees.
+- User State Scenarios — matches B-49 (observed on real machines).
+- Continue section behaviour — UI observation carrying its own hedge; nothing corrects it.
+- Database-to-UI Mapping SQL + Sample Handling SQL — no recorded claim correction.
+- Content Filtering Strategies SQL — filtering-strategy SQL outside the single mapping section, against the doc's own editing rules, but relocation/deletion is structural with no evidence gate — FLAGGED FOR AUTHOR, not executed.
+- Edge Cases NULL/mixed/corrupted/timestamp speculation — B-53 marks these speculation, but no specific claim has a recorded correction; waits for the recon.
+- Asset ID Correlation System — nothing in the corpus revisits it.
+- UI tables, screenshots, Validation Test Cases — screenshots are the verification substrate, not the thing to edit (B-53).
+
+## Doc vs skill disagreement — reported, not edited
+
+- Topic: which ZSTATE values carry a UI cloud icon.
+- Doc: ZSTATE = 1 is "Local Book. The book is stored on the device."
+- Skill B-43: cloud-icon books observed at ZSTATE 1, 3, and 6.
+- Why no edit: the observations are cross-device — doc UI tables come from iPhone screenshots, censuses ran on the Mac mini, and the same title can legitimately be local on one machine and cloud on the other (the author's own point, day-013:L822-L823). No corpus evidence resolves it; a live single-machine re-census would.
