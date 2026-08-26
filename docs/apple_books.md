@@ -544,38 +544,7 @@ The transition is inferred from one title's values changing between queries: "Wh
 - The UI nevertheless renders some cloud samples at 1% (see [UI Behavior Insights](#ui-behavior-insights))
 - No sample's row was observed before and after reading it, so the 0.0 is not established as invariant
 
-```sql
--- Get downloaded samples (ZISSAMPLE = 1)
-SELECT * FROM ZBKLIBRARYASSET 
-WHERE ZISSAMPLE = 1 
-ORDER BY ZLASTOPENDATE DESC;
-
--- Get cloud samples not yet downloaded (ZSTATE = 6)
-SELECT * FROM ZBKLIBRARYASSET 
-WHERE ZSTATE = 6 
-ORDER BY ZTITLE;
-```
-
-### Content Filtering Strategies
-```sql
--- Active reading (excluding samples and finished)
-SELECT * FROM ZBKLIBRARYASSET 
-WHERE ZREADINGPROGRESS > 0 
-AND ZREADINGPROGRESS < 1.0 
-AND (ZISSAMPLE IS NULL OR ZISSAMPLE = 0)
-ORDER BY ZLASTOPENDATE DESC;
-
--- Include samples in recent reading
-SELECT * FROM ZBKLIBRARYASSET 
-WHERE ZREADINGPROGRESS > 0
-ORDER BY ZLASTOPENDATE DESC;
-
--- Only finished books this year
-SELECT * FROM ZBKLIBRARYASSET 
-WHERE ZISFINISHED = 1 
-AND ZDATEFINISHED > [year_start_timestamp]
-ORDER BY ZDATEFINISHED DESC;
-```
+Sample-related queries live in [Database to UI Mapping](#database-to-ui-mapping).
 
 ## Critical Implementation Notes
 
