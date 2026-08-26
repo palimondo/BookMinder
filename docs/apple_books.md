@@ -46,7 +46,9 @@ Apple Books uses sandboxed containers to store its data:
 **Key Table**: `ZBKLIBRARYASSET`
 
 **Critical Fields for Reading Progress**:
-- `ZTITLE`: Book title - not a unique key: one title can occupy several rows, observed at different `ZSTATE` values and in one case under two different author strings
+- `ZTITLE`: Book title - not a unique key: one title can occupy several rows, observed at different `ZSTATE` values and in one case under two different author strings. That case is two genuinely distinct editions of the same title in one library - separate covers, separate reading progress - as the UI itself shows (iPhone):
+
+  ![In Your Library - two editions of A Clockwork Orange](ui/apple/In%20Your%20Library%20duplicate%20editions%20iPhone.png)
 - `ZAUTHOR`: Author name
 - `ZASSETID`: Asset identifier (matches Books.plist keys)
 - `ZREADINGPROGRESS`: Float value (0.0 to 1.0) representing actual reading progress
