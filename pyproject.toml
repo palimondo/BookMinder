@@ -16,7 +16,10 @@ authors = [
     {name = "Claude AI (claude-sonnet-4-20250514)"},
     {name = "Claude AI (claude-opus-4-20250514)"},
     {name = "Gemini 2.5 Flash (gemini-2.5-flash)"},
-    {name = "Gemini 2.5 Pro (gemini-2.5-pro)"}
+    {name = "Gemini 2.5 Pro (gemini-2.5-pro)"},
+    {name = "Claude Opus 5 (claude-opus-5)"},
+    {name = "Claude Fable 5 (claude-fable-5)"},
+    {name = "Claude Fable 5.1 (claude-fable-5-1)"}
 ]
 keywords = ["ebooks", "apple-books", "highlights", "llm"]
 
