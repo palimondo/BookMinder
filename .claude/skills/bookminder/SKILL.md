@@ -15,12 +15,12 @@ Sibling skill `tdd-bdd` carries the process discipline; this skill carries the p
 
 - What the project is FOR, why Apple Books, the BookMind prehistory, burnout and the 2026 reevaluation, the benchmark ambition → `references/goals-and-history.md`
 - Working in the tree: land mines (the permission-gated diary, huge fixtures), spec layout, backlog/story practice, settled CLI design decisions, fixture personas and the front-door `--user` seam, fixture data discipline, toolchain → `references/repo-geography-and-fixtures.md`
-- Anything touching Apple Books data: containers, Books.plist vs BKLibrary sqlite, the Apple epoch, ZSTATE/ZISSAMPLE/ZCONTENTTYPE with verification status, the re-take-the-census reflex, query discipline, docs/apple_books.md's epistemic status → `references/apple-books-domain.md`
+- Anything touching Apple Books data: the two containers and the database glob, Books.plist vs the BKLibrary database, the Apple epoch, ZSTATE/ZISSAMPLE/ZCONTENTTYPE and the other columns with what is established and what is unknown, the display-vs-filter cloud divergence, plist and path mechanics, query discipline, docs/apple_books.md's standing and editing rules → `references/apple-books-domain.md`
 - Before judging or changing repo state: where truth lives, settled rulings (the plist-API seed, the reopened filters), the open author decisions (the unspecified SUPPORTED_FILTERS borrow, the silent list-all cloud filter), repair practice, the .coordination substrate → `references/current-state-and-open-decisions.md`
 
 ## Invariants that never wait for a page load
 
 - Never enter `claude-dev-log-diary/` without the author's explicit, scoped permission — including via `git diff`/`git show`.
 - Never propose features, platforms, or "improvements" the author has not asked for; scope discipline is the project's founding constraint.
-- Apple Books schema claims are hypotheses until re-verified against a live database; re-take the census, never recall it.
+- Schema truth lives in the specs: what a spec pins against the fixtures is established, and a claim no spec pins is exploration residue, not knowledge. Go to a live library only on drift — a real library breaking what the suite says works, or a new Apple Books or macOS release — or when a story needs a state the fixtures do not hold.
 - Nothing an agent produces is repo rule until the author ratifies it.
