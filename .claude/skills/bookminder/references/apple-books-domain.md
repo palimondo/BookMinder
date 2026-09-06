@@ -9,7 +9,7 @@ Apple Books keeps one library in two sandboxed containers under `~/Library/Conta
 - `com.apple.BKAgentService/Data/Documents/iBooks/Books/` holds `Books.plist` and the downloaded book files, one `<asset-id>.epub` per downloaded book.
 - `com.apple.iBooksX/Data/Documents/BKLibrary/` holds the library database, `BKLibrary-*.sqlite`. Find it by that glob, never by literal name: the numeric segments in the file name differ per install.
 
-The database is the library; the plist and the `.epub` files describe what has been downloaded from it. Books lazy-download from iCloud, so a library row with no `.epub` on disk is a normal row: presence on disk is a download state, never a membership test, and no code path stats a book file.
+The database is the library; the plist and the `.epub` files describe what has been downloaded from it. Books lazy-download from iCloud, so a library row with no `.epub` on disk is a normal row: presence on disk is a download state, never a membership test.
 
 Two further stores are known only second-hand. A relayed log analysis, never a live probe, traced a sample's reading position to a type-3 row holding an `epubcfi` location in an AEAnnotation database (`AEAnnotation_v10312011_1727_local.sqlite`), whose location and schema were never examined; a `BCRecentlyOpenedBooksDB` store is claimed with nothing in the record confirming or correcting it. Treat both as unmapped.
 
