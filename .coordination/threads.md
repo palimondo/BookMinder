@@ -52,6 +52,7 @@ Reevaluate dormant project (~1yr) with fresh perspective. No new feature code. C
 - User's view: dedicated transcript tool still better than ad-hoc scripts, but ecosystem churn ("move fast break things") makes maintaining one thankless
 
 ## Working style (user preferences)
+- NO TRAILING GLOSS (user, 2026-09-06, on "no code path stats a book file"): a fact is stated once; no appended clause restating it as a code description, a gloss, or a "which is why"; strip test per clause. ROOT CAUSE: my briefs demanded "fact + why it matters to the code" per item, so workers appended a consequence clause to every fact; drop that demand from briefs — the why belongs only where it is not implied.
 - TERSE console replies — user reads incrementally, fires feedback mid-read; avoid wall-of-text spiral
 - User quotes my text as a cursor showing where they are in reading
 - Voice input: expect mistranscriptions

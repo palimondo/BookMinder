@@ -35,7 +35,7 @@ Convert every timestamp column from the Apple epoch: values count seconds from 2
 ### Reading-state columns
 
 - `ZREADINGPROGRESS` runs 0.0 to 1.0; `list recent` is `ZREADINGPROGRESS > 0`, and `_row_to_book` reports `int(value * 100)`.
-- `ZLASTOPENDATE` is the recency source and the sort key. Leave its conversion unguarded: it was never seen NULL on a row with progress above 0, which is why `_row_to_book` converts it without a NULL check; the doc's NULL-timestamp warnings are speculation, not observations. Add or remove a guard only on live evidence and with a spec.
+- `ZLASTOPENDATE` is the recency source and the sort key. Leave its conversion unguarded: it was never seen NULL on a row with progress above 0; the doc's NULL-timestamp warnings are speculation, not observations. Add or remove a guard only on live evidence and with a spec.
 - `ZISFINISHED = 1`, alone, defines finished. Finished books exist below 100% progress, so never require `ZREADINGPROGRESS = 1.0`; and `ZDATEFINISHED` is not a marker either: one fixture row carries a `ZDATEFINISHED` with `ZISFINISHED` NULL and progress at 69%, for a reason never established. Know the fixture's shape before writing a not-finished predicate: it holds no finished book, and its unfinished rows carry NULL, not 0, in `ZISFINISHED`, so `= 0` or `!= 1` matches nothing there. No spec pins finished-ness yet; the library spec's finished-book TODO is where it lands.
 
 ### ZSTATE
@@ -50,7 +50,7 @@ Put sample listing on `list all`, not `list recent`. Samples were never seen wit
 
 ### Cloud: display versus filter
 
-`is_cloud` is `ZSTATE in (3, 6)`, pinned by the same `_row_to_book` spec, so a cloud sample renders with the cloud glyph; but `--filter cloud` on `list recent` matches `ZSTATE = 3` only and `!cloud` matches `ZSTATE != 3`, so a cloud sample displays as cloud yet is excluded by the cloud filter. Leave the two as they disagree. The 3-only filter is where the author's revert of an unauthorized 3-or-6 widening left it, reverted for landing before approval, not because the wider predicate was ruled wrong; change neither side without his direction and a spec. Know what the specs pin: only that filtered rows are cloud, not the predicate's width, and the `!cloud` spec passes only because no fixture row sits at ZSTATE 6 with progress, the one shape on which the two predicates would disagree. `list all` accepts the cloud values and applies no cloud predicate; that is the current-state page's silent cloud filter, a predicate missing rather than two predicates disagreeing.
+`is_cloud` is `ZSTATE in (3, 6)`, pinned by the same `_row_to_book` spec, so a cloud sample renders with the cloud glyph; but `--filter cloud` on `list recent` matches `ZSTATE = 3` only and `!cloud` matches `ZSTATE != 3`, so a cloud sample displays as cloud yet is excluded by the cloud filter. Leave the two as they disagree. The 3-only filter is where the author's revert of an unauthorized 3-or-6 widening left it, reverted for landing before approval, not because the wider predicate was ruled wrong; change neither side without his direction and a spec. Know what the specs pin: only that filtered rows are cloud, not the predicate's width, and the `!cloud` spec passes only because no fixture row sits at ZSTATE 6 with progress. `list all` accepts the cloud values and applies no cloud predicate; that is the current-state page's silent cloud filter.
 
 ### ZCONTENTTYPE
 
