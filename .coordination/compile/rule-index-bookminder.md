@@ -71,23 +71,23 @@ day-020.md re-logs whole transcript regions at differing offsets, so its `s1`/`s
 
 **needs-live-DB stamps: 7. hypothesis stamps: 4 (ZSTATE 5, sample lifecycle, B-47, B-48). Corpus-unverified (author-attested) rules: B-02, B-03, B-04, B-09, B-10, B-45, B-60, B-61, B-62 (since d021-R14's retirement), B-63, B-64, B-65, B-66, B-68 — plus the threads/ledger/tree halves of every other rule.**
 
-## Footer roster — apple-books-domain.md v3 id mapping
+## Footer roster — apple-books-domain.md id mapping
 
-The domain page was rewritten under the author's ruling that facts live in-page, per-entry stamps go, and ids may be renumbered; entries were split where one id carried several facts and renumbered sequentially in page order. The rows above stay keyed by the old ids as compile provenance; translate with this roster.
+The domain page went through two rewrites. v3, under the author's ruling that facts live in-page, per-entry stamps go, and ids may be renumbered, split entries that carried several facts and renumbered them B-40..B-59 in page order. v4 retired the ids altogether: the page is now a model of the storage organized by the storage's own structure, and its section headings are the only anchors. The rows above stay keyed by the v2 ids as compile provenance; translate v2 → v3 → v4 section heading with this roster.
 
-- B-40 → B-40: two containers and glob discovery (unchanged scope)
-- B-41 → B-41 (plist vs database roles, narrowed) + B-42 (updateDate unknown and the sort_by deletion, split out) + B-43 (never filter by on-disk existence, split out)
-- B-42 → B-44: Apple epoch
-- B-43 → B-45: ZSTATE — mapping, 5 unmapped, the cross-device cloud-icon question, the DB-first method line
-- B-44 → B-46 (sample composite predicate, lifecycle, point-in-time values) + B-47 (cloud display vs cloud filter and the revert governance, split out)
-- B-45 → B-48: ZCONTENTTYPE unverified
-- B-46 → B-49 (ZTITLE not a key) + B-50 (ZISFINISHED) + B-51 (ZLASTOPENDATE unguarded), split three ways
-- B-47 → B-52: samples and list recent
-- B-48 → B-53: Want to Read
-- B-49 → B-54: container lifecycle and sudo
-- B-50 → B-55: plist mechanics
-- B-51 → B-56: path correlation open
-- B-52 → B-57: query discipline
-- B-53 → B-58 (the doc's standing) + B-59 (the doc's editing rules, split out)
-- Retired: none. Merged: none. Fixture-derived facts with no prior row (ZISFINISHED NULL on unfinished rows, ZPATH on local rows, the !cloud spec's dependence on the fixture) live in B-50, B-56, and B-47.
-- Cross-references updated: current-state B-68 now cites B-47; the router page map was re-derived. The stamp column in the domain table above is retired from the skill; what still needs a live library is the checklist in .coordination/apple-books-recon.md.
+- B-40 → v3 B-40 → "What exists on disk"
+- B-41 → v3 B-41 → "Books.plist" (the plist's fields and limits) and "The BKLibrary database" with "Reading-state columns" (where reading state lives); v3 B-42 → "Books.plist" (updateDate, the sort_by deletion); v3 B-43 → "What exists on disk" (never filter by on-disk existence)
+- B-42 → v3 B-44 → "The BKLibrary database" (Apple epoch)
+- B-43 → v3 B-45 → "ZSTATE"
+- B-44 → v3 B-46 → "Samples" (first paragraph); v3 B-47 → "Cloud: display versus filter"
+- B-45 → v3 B-48 → "ZCONTENTTYPE"
+- B-46 → v3 B-49 → "Identity columns"; v3 B-50 → "Reading-state columns" (ZISFINISHED); v3 B-51 → "Reading-state columns" (ZLASTOPENDATE)
+- B-47 → v3 B-52 → "Samples" (second paragraph) and "What exists on disk" (the AEAnnotation store)
+- B-48 → v3 B-53 → "What the app computes"
+- B-49 → v3 B-54 → "What exists on a machine, by user state"
+- B-50 → v3 B-55 → "Books.plist" (mechanics paragraph)
+- B-51 → v3 B-56 → "ZPATH"
+- B-52 → v3 B-57 → "Working the database"
+- B-53 → v3 B-58 → "Reading docs/apple_books.md"; v3 B-59 → "Editing docs/apple_books.md", with its UI-quirk clauses (the fake 1%, per-platform vocabularies, macOS "Complete" as a percentage) under "What the app computes"
+- Retired: none; every v3 fact has a home. Fixture-derived facts with no prior row: ZISFINISHED NULL on unfinished rows and ZDATEFINISHED set on an unfinished row ("Reading-state columns"); ZPATH per row, including the DocumentRevisions path on one downloaded sample ("ZPATH"); the !cloud spec's dependence on the fixture ("Cloud: display versus filter"); the list-recent sample spec asserting no count ("Samples"); Books.swift as the fixture plist's Swift rendering ("Books.plist"). Doc-sourced claims with no prior row, stated as unprobed: the AEAnnotation file name and the BCRecentlyOpenedBooksDB store ("What exists on disk").
+- Cross-references updated: current-state B-68 cites "Cloud: display versus filter"; the router page map was re-derived from the section structure; .coordination/apple-books-recon.md keys its checklist by these headings. The stamp column in the domain table above is retired from the skill; what still needs a live library is the recon checklist.
