@@ -414,47 +414,6 @@ Use these specific books to validate database queries match UI display:
 6. **Finished books appear in multiple sections** (Previous + Year view, but never in Continue)
 7. **Zero progress books still appear in Previous** if accessed before
 
-## Implementation Strategy for "Recent Books"
-
-To implement `bookminder list recent` with accurate progress percentages:
-
-### Step 1: Locate Database
-```python
-import glob
-db_pattern = f"{home}/Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary/BKLibrary-*.sqlite"
-db_path = glob.glob(db_pattern)[0]  # Get first match
-```
-
-### Step 2: Query Reading Progress
-```sql
-SELECT 
-    ZTITLE,
-    ZAUTHOR, 
-    ZREADINGPROGRESS * 100 as PROGRESS_PERCENT,
-    ZLASTOPENDATE
-FROM ZBKLIBRARYASSET 
-WHERE ZREADINGPROGRESS > 0 
-ORDER BY ZLASTOPENDATE DESC 
-LIMIT 10;
-```
-
-### Step 3: Convert Apple Timestamps
-Apple uses reference date of January 1, 2001 (Core Data timestamp format).
-
-```python
-import datetime
-def apple_timestamp_to_datetime(timestamp):
-    apple_epoch = datetime.datetime(2001, 1, 1)
-    return apple_epoch + datetime.timedelta(seconds=timestamp)
-```
-
-### Step 4: Format Output
-```
-The Left Hand of Darkness - Ursula K. Le Guin (32%)
-Lao Tzu: Tao Te Ching - Ursula K. Le Guin (8%)
-The Beginning of Infinity - David Deutsch (59%)
-```
-
 ## User State Scenarios
 
 Through real-world testing on macOS, we discovered distinct Apple Books states for different users:
