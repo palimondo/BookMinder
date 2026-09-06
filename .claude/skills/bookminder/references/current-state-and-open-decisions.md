@@ -18,7 +18,7 @@ Read B-60 for where each kind of state lives, the settled rulings before reporti
 
 ## Standing practice for repairs
 
-- **B-64 — Repair docs and rules in author-approved passes, not on sight.** When you find rot in README, `docs/`, or the instruction layer, verify it, record it as a ledger entry carrying its check command, surface it, and then leave it alone; do not start a repair. The author green-lights a repair pass and that pass consumes the ledger: the README's built-vs-roadmap split, the deletion of a stale toolchain doc, and the instruction-layer corrections all landed that way. Expect every pass to leave residue: retired toolchain names still sit in `docs/`, and a pre-commit test comment still sits in production code.
+- **B-64 — Repair docs and rules in author-approved passes, not on sight.** When you find rot in README, `docs/`, or `AGENTS.md`, verify it, record it as a ledger entry carrying its check command, surface it, and then leave it alone; do not start a repair. The author green-lights a repair pass and that pass consumes the ledger: the README's built-vs-roadmap split, the deletion of a stale toolchain doc, and the `AGENTS.md` corrections all landed that way. Expect every pass to leave residue: retired toolchain names still sit in `docs/`, and a pre-commit test comment still sits in production code.
 
 ## The meta layer and this skill's place in it
 
