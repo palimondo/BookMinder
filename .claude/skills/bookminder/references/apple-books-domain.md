@@ -11,7 +11,7 @@ Apple Books keeps one library in two sandboxed containers under `~/Library/Conta
 
 The database is the library; the plist and the `.epub` files describe what has been downloaded from it. Books lazy-download from iCloud, so a library row with no `.epub` on disk is a normal row: presence on disk is a download state, never a membership test.
 
-Two further stores are known only second-hand. A relayed log analysis, never a live probe, traced a sample's reading position to a type-3 row holding an `epubcfi` location in an AEAnnotation database (`AEAnnotation_v10312011_1727_local.sqlite`), whose location and schema were never examined; a `BCRecentlyOpenedBooksDB` store is claimed with nothing in the record confirming or correcting it. Treat both as unmapped.
+Two further stores exist that the code does not read: an AEAnnotation database holding highlights and annotations, where a sample's reading position lives as a type-3 row with an `epubcfi` location, and `BCRecentlyOpenedBooksDB`, holding reading sessions in `ZBCASSETREADINGSESSION`. Their schemas are in the doc only.
 
 ## Books.plist
 
@@ -46,7 +46,7 @@ Use the mapping the code encodes: 1 = present locally (downloaded books and down
 
 `is_sample` is `ZSTATE = 6 OR ZISSAMPLE = 1`, and the `_row_to_book` spec pins both halves. Never treat `ZISSAMPLE = 0` as proof of a full book: unmistakable samples carry 0 and are identifiable only by ZSTATE 6. Treat the lifecycle (a store sample enters as 6/0 and becomes 1/1 once opened) as a proposal, not an observation: it is inferred from one title flipping between queries, never from one row seen before and after. Re-run the query for any per-title value; never quote a title's state from notes.
 
-Put sample listing on `list all`, not `list recent`. Samples were never seen with `ZREADINGPROGRESS` above 0.0, and a sample's reading position was traced to the AEAnnotation database instead; both facts are second-hand, from the relayed analysis above. Because `list recent` filters on `ZREADINGPROGRESS > 0`, a sample filter there is structurally near-empty, and its spec asserts nothing about count, so it passes on an empty result. The `list all` sample spec pins the filter against the fixture's three sample titles.
+Put sample listing on `list all`, not `list recent`. Samples were never seen with `ZREADINGPROGRESS` above 0.0; their reading position lives in the AEAnnotation database instead. Because `list recent` filters on `ZREADINGPROGRESS > 0`, a sample filter there is structurally near-empty, and its spec asserts nothing about count, so it passes on an empty result. The `list all` sample spec pins the filter against the fixture's three sample titles.
 
 ### Cloud: display versus filter
 
