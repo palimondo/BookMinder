@@ -17,7 +17,7 @@ Two further stores exist: an AEAnnotation database holding highlights and annota
 
 The plist is a dict whose `Books` key holds a list of dicts, one per downloaded item, each carrying `itemName`, `artistName`, `path`, `updateDate`, and `itemId`, the asset id that also names its `.epub` file. It is the only store that carries a file path.
 
-Do not read reading state or membership from it. Its only progress field, `BKPercentComplete`, appears on finished books alone and always as 1.0, so it cannot express progress. Titles the database knows can be missing from the plist, even from a fresh copy, for a reason never established, so never infer membership or cloud status from plist absence. Do not sort or filter on `updateDate` either: its meaning is unverified, probably the publisher's revision date rather than reading activity. Take recency from the database's `ZLASTOPENDATE`.
+Do not read reading state or membership from it. Its only progress field, `BKPercentComplete`, appears on finished books alone and always as 1.0, so it cannot express progress. The plist is incomplete: it lacks titles the database holds, so never infer membership or cloud status from plist absence. Do not sort or filter on `updateDate` either: its meaning is unverified, probably the publisher's revision date rather than reading activity. Take recency from the database's `ZLASTOPENDATE`.
 
 Read the plist with `plistlib.load` on a binary-mode handle, which detects binary and XML itself; never shell out to `plutil -convert` from code. Guard for the list shape: a dict-keyed variant parses without error and yields zero books. For exploration, render a plist as Swift literals with `plutil -convert swift -o out.swift Books.plist`, far cheaper in tokens than XML.
 
@@ -35,30 +35,30 @@ Convert every timestamp column from the Apple epoch: values count seconds from 2
 ### Reading-state columns
 
 - `ZREADINGPROGRESS` runs 0.0 to 1.0; a value above 0 means the book has been opened.
-- `ZLASTOPENDATE` is the recency source and sort key. It was never seen NULL on a row with progress above 0; the doc's NULL-timestamp warnings are speculation, not observations.
-- `ZISFINISHED = 1`, alone, defines finished. Finished books exist below 100% progress, so never require `ZREADINGPROGRESS = 1.0`; `ZDATEFINISHED` is not a marker either, since one unfinished row at 69% carries a date in it, for a reason never established. Unfinished rows carry NULL, not 0, in `ZISFINISHED`, so a not-finished predicate written as `= 0` or `!= 1` matches nothing.
+- `ZLASTOPENDATE` is the recency source and sort key, set on every row with progress above 0.
+- `ZISFINISHED = 1`, alone, defines finished. Finished books exist below 100% progress, so never require `ZREADINGPROGRESS = 1.0`, and `ZDATEFINISHED` can be set on unfinished rows, so it is no marker either. Unfinished rows carry NULL, not 0, so not-finished is `ZISFINISHED IS NOT 1`.
 
 ### ZSTATE
 
-Use the mapping in force: 1 = present locally (downloaded books and downloaded samples), 3 = cloud book, 6 = cloud sample not yet downloaded. Treat 5 as unmapped: it was seen on a series entity row and on unowned member titles sharing a `ZSERIESID`, no criterion for telling those apart was established, and the population is large.
+Use the mapping in force: 1 = present locally (downloaded books and downloaded samples), 3 = cloud book, 6 = cloud sample not yet downloaded. 5 is unmapped: it appears on series entities and on unowned series members sharing a `ZSERIESID`, a large population, with no mapping established.
 
 ### Samples
 
-A sample is `ZSTATE = 6 OR ZISSAMPLE = 1`. Never treat `ZISSAMPLE = 0` as proof of a full book: unmistakable samples carry 0 and are identifiable only by ZSTATE 6. Treat the lifecycle (a store sample enters as 6/0 and becomes 1/1 once opened) as a proposal, not an observation: it is inferred from one title flipping between queries, never from one row seen before and after.
+A sample is `ZSTATE = 6 OR ZISSAMPLE = 1`: `ZISSAMPLE = 1` marks a downloaded sample, and cloud samples carry 0, so `ZISSAMPLE = 0` never proves a full book. The lifecycle, a store sample entering as 6/0 and becoming 1/1 once opened, is a proposal, not an observation.
 
 Samples were never seen with `ZREADINGPROGRESS` above 0.0; their reading position lives in the AEAnnotation database instead.
 
 ### ZCONTENTTYPE
 
-Treat the mapping as unverified: likely 1 = book (EPUB), 3 = PDF. Every row seen so far reads 1, so the PDF half is unconfirmed. Keep the doc's hedged wording; do not firm it up without a live query.
+1 = EPUB is observed; 3 = PDF is the doc's guess, unconfirmed.
 
 ### ZPATH
 
-Whether `ZPATH` is a usable path column was never checked on a live library. In copied real rows it holds the absolute `.epub` path on local full books, NULL on cloud rows and on one downloaded sample, and on another downloaded sample a path into a `.DocumentRevisions-V100` versions store rather than the Books directory; do not rely on it. The only path source in use is the plist, keyed by asset id.
+`ZPATH` holds the absolute `.epub` path for downloaded books and NULL for cloud rows; for samples its content varies. It was never checked on a live library, so the plist, keyed by asset id, is the path source in use.
 
 ## What the app computes
 
-Treat "Want to Read" as computed by Apple, not marked by the user: its observed composition is unread-or-sample, `ZREADINGPROGRESS = 0` and not finished, or a sample. Its ordering is unknown; do not reuse the recorded ZCREATIONDATE conclusion, which rests on an arithmetic error.
+Treat "Want to Read" as computed by Apple, not marked by the user: its observed composition is unread-or-sample, `ZREADINGPROGRESS = 0` and not finished, or a sample. Its ordering is unknown.
 
 Expect the UI's vocabulary to differ per platform and to lie a little: iPhone tiles and macOS list views use different attribute vocabularies, macOS "Complete" is a percentage rather than a status, and cloud samples render a fake "1%" progress.
 
