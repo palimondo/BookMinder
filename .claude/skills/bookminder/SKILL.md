@@ -14,7 +14,7 @@ Load the sibling skill `tdd-bdd` for the process discipline; this skill carries 
 ## Page map
 
 - What the project is FOR, why Apple Books, the BookMind prehistory, burnout and the 2026 reevaluation, the benchmark ambition → `references/goals-and-history.md`
-- Working in the tree: land mines (the permission-gated diary, huge fixtures), spec layout, backlog/story practice, settled CLI design decisions, fixture personas and the front-door `--user` seam, fixture data discipline, toolchain → `references/repo-geography-and-fixtures.md`
+- Working in the tree: what is in it and how to read it without flooding the context (the tree census, the permission-gated diary, binaries and huge fixtures), spec layout, backlog/story practice, settled CLI design decisions, fixture personas and the front-door `--user` seam, fixture data discipline, toolchain → `references/repo-geography-and-fixtures.md`
 - Anything touching Apple Books data: what exists on disk (the two containers, the plist, the BKLibrary database, the annotation and reading-session stores), what each store is authoritative for and when to read which, the library table's columns and what stays unknown (ZSTATE, samples, finished-ness, ZPATH), what the app computes, the machine's user states, query discipline, and how to read and edit docs/apple_books.md → `references/apple-books-domain.md`
 - Before judging or changing repo state: where truth lives, settled rulings (the plist-API seed, the reopened filters, the cloud display-vs-filter divergence, the empty path), the open author decisions (the unspecified SUPPORTED_FILTERS borrow, the silent list-all cloud filter), repair practice, the .coordination substrate → `references/current-state-and-open-decisions.md`
 

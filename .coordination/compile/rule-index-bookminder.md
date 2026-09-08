@@ -103,3 +103,13 @@ The "Fixture architecture" section describes a system the project built, so it b
 - B-29 → "Fixtures and a real library"
 - Retired from the text: the two error strings (code narration; the split's why is stated as two error paths), the corrupted-persona "plist check fires first" why (no plist check precedes the database error on the database path at HEAD), and the claim that a module-constant seam survives in the tree (none does at HEAD; the seam's limitation is kept as the why for the front door). B-30 and B-31, which sat under the fixture heading, moved to their own "Toolchain and maintenance" heading with ids intact.
 - Cross-references: none under `.claude/skills/` cited B-26..B-29; geography B-25 now cites current-state B-70 for the empty path instead of the domain page.
+
+## Footer roster — repo-geography-and-fixtures.md orientation rebuild
+
+The Orientation entries were compiled one-to-one from the corpus and never re-shaped; the author asked for the general rule instead of an enumeration of files, with the file facts kept as a short tree model. Ids stay as handles; every headline now states its rule.
+
+- B-20 → B-20 "Orient from a size-aware tree listing before reading anything, then read the package whole": the `/hi` census clause became the `tree` command itself (install if missing), the size-class reading rule, the package-whole and `pytest --spec` clauses, and the no-rederivation clause with its reason. "is what the author interrupts" retired (reaction as reason).
+- B-21 → B-21 "Never enter `claude-dev-log-diary/`…" keeps only the diary gate (indirect git paths, scoped grant, foreground, day-file structure). Its file enumeration moved to "What is in the tree": screenshots, `All_Books*.swift`, fixture `.sqlite`, `./xs`, zero-byte fixtures, `.venv`; `.coordination/` and `docs/apple_books.md` added there as tree facts.
+- B-22 → B-22 "Place specs by concern, not by test layer", taking the subprocess-coverage clause from B-20.
+- B-23, B-24, B-25, B-30, B-31: bodies unchanged except headlines rewritten as rules; B-31 loses "and the author calls them slop" (reaction as reason).
+- `/hi` retired: its `tree` step is B-20; its `docs/apple_books.md` load is superseded by the domain page; its `TODO.md` read is the router's; its "discuss and plan first" is pairing P-15/P-16.
