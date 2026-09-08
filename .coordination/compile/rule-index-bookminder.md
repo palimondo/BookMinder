@@ -92,3 +92,14 @@ The domain page went through two rewrites. v3, under the author's ruling that fa
 - Retired: none; every v3 fact has a home. Fixture-derived facts with no prior row: ZISFINISHED NULL on unfinished rows and ZDATEFINISHED set on an unfinished row ("Reading-state columns"); ZPATH per row, including the DocumentRevisions path on one downloaded sample ("ZPATH"); the !cloud spec's dependence on the fixture ("Cloud: display versus filter"); the list-recent sample spec asserting no count ("Samples"); Books.swift as the fixture plist's Swift rendering ("Books.plist"). Doc-sourced claims with no prior row, stated as unprobed: the AEAnnotation file name and the BCRecentlyOpenedBooksDB store ("What exists on disk").
 - Cross-references updated: current-state B-68 cites "Cloud: display versus filter"; the router page map was re-derived from the section structure; .coordination/apple-books-recon.md keys its checklist by these headings. The stamp column in the domain table above is retired from the skill; what still needs a live library is the recon checklist.
 - Cloud display-vs-filter ruling and the path-correlation debt moved from the domain page (formerly "Cloud: display versus filter" and "ZPATH") to current-state B-69 and B-70: product rulings, not storage facts.
+
+## Footer roster — repo-geography-and-fixtures.md fixture-section id mapping
+
+The "Fixture architecture" section describes a system the project built, so it became a short model organized by that system's structure, and its ids retired; the other sections of the page keep their numbered entries. The rows above stay keyed by the ids as compile provenance; translate with this roster.
+
+- B-26 → "Fixture architecture" (the tree), "Personas" (the roster and the legacy/never-opened split), "The `--user` seam" (the three cases, absolute paths, why the front door and not a module constant)
+- B-27 → "Populating a fixture"
+- B-28 → "What `test_reader` holds"
+- B-29 → "Fixtures and a real library"
+- Retired from the text: the two error strings (code narration; the split's why is stated as two error paths), the corrupted-persona "plist check fires first" why (no plist check precedes the database error on the database path at HEAD), and the claim that a module-constant seam survives in the tree (none does at HEAD; the seam's limitation is kept as the why for the front door). B-30 and B-31, which sat under the fixture heading, moved to their own "Toolchain and maintenance" heading with ids intact.
+- Cross-references: none under `.claude/skills/` cited B-26..B-29; geography B-25 now cites current-state B-70 for the empty path instead of the domain page.
