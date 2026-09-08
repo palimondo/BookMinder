@@ -268,3 +268,59 @@ The container claim is FALSE-AT-HEAD (C14 — files deleted by `eea59e3`), which
 3. **Doc rot healed by accident.** README.md:98 (C9) became correct again without anyone editing README.md.
 4. **The miners were more reliable than the synthesis documents.** Every line-anchored miner claim checked was exact; both NEVER-TRUE findings are the same miner (day-007) reasoning about directory layout from memory rather than from a listing, in the two fields that carry no `loc:` discipline — the `parked` section.
 5. **The largest unverified surface is invisible to the validator.** U3: the corpus's `loc:` layer is unaudited by construction and unreachable under current policy.
+
+---
+
+## 6. Second sweep — the skill pages — VERIFIED@`1fa6213`
+
+**verified_against: `1fa6213`** (branch `claude/bookminder-recall-5ite2s`) — swept while sweeping the skill pages. Working tree clean at sweep time; `pytest` = 53 passed.
+
+Five findings the skill-page sweep threw off, each converted to an executable check and run against the tree at `1fa6213` before it was written down here. Numbering continues §1's, and the verdict vocabulary is §1's plus **DECISION**, for an item that is an author call rather than a defect. Nothing in §§1-5 was re-swept: those stamps still read `d6df0c9`, and each of their checks still needs re-running before anyone acts on it.
+
+### R25 — The sample-filter wrapper is swallowing an empty listing — R5, RE-VERIFIED with the row count
+The construct §1 already records as R5, now measured rather than inferred. `list recent` filters `ZREADINGPROGRESS > 0` and both fixture samples sit at progress 0.0, so `--filter sample` returns nothing and the CLI prints `No books currently being read` — which contains the exact substring the spec's own guard at `:150` tests for. The guard is therefore false, the loop never runs, and `it_filters_recent_books_by_sample_status` passes having asserted nothing at all. Its `!sample` sibling eleven lines below is guarded with `assert len(output) > 0` at `:160` and is the shape this one is missing.
+```
+sed -n '144,153p' specs/cli_spec.py    # :150 `if output and "No books" not in output:` — no `assert len(...) > 0` anywhere in the body
+source .venv/bin/activate && python -m bookminder list recent --filter sample --user "$PWD/specs/apple_books/fixtures/users/test_reader"
+# observed at 1fa6213: `No books currently being read`, exit 0 — 0 rows, and the string trips the guard
+python3 -c "import sqlite3;c=sqlite3.connect('specs/apple_books/fixtures/users/test_reader/Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary/BKLibrary-fixture.sqlite');print(c.execute('SELECT COUNT(*) FROM ZBKLIBRARYASSET WHERE ZISSAMPLE = 1 AND ZREADINGPROGRESS > 0').fetchone())"
+# expect: (0,) — no fixture sample can reach `list recent` at all
+```
+Provision the venv first if it is absent: `uv venv && uv pip install -e ".[dev]"`.
+
+### R26 — The `!cloud` spec cannot discriminate the predicate it guards — NEW, found by this sweep
+`it_excludes_cloud_books_with_not_cloud_filter` is guarded for non-emptiness, so it is not vacuous in R4's sense; it is vacuous as a *discriminator*. The SQL it exercises is `ZSTATE != 3` while the assertion it makes is `is_cloud is not True`, and `is_cloud` is `ZSTATE in (3, 6)`. Those two predicates disagree on exactly one row shape — `ZSTATE` 6 with progress > 0 — and the fixture holds none: its only `ZSTATE` 6 row, Snow Crash, sits at progress 0.0 and is dropped by the base `WHERE ZREADINGPROGRESS > 0` before any filter is appended. Widening the filter to the display's 3-or-6, or narrowing the display to the filter's 3, would leave this spec green either way. This is the spec-side hole beneath B-69: the ruling that the display/filter divergence stands is untouched by it, and what is recorded here is only that no spec would notice the divergence being changed.
+```
+python3 -c "import sqlite3;c=sqlite3.connect('specs/apple_books/fixtures/users/test_reader/Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary/BKLibrary-fixture.sqlite');print(c.execute('SELECT ZTITLE, ZSTATE, ZREADINGPROGRESS FROM ZBKLIBRARYASSET WHERE ZSTATE = 6').fetchall(), c.execute('SELECT COUNT(*) FROM ZBKLIBRARYASSET WHERE ZSTATE = 6 AND ZREADINGPROGRESS > 0').fetchone())"
+# expect: [('Snow Crash', 6, 0.0)] (0,) — the one disagreeing shape is unrepresented
+sed -n '141,148p' specs/apple_books/library_spec.py      # the assertion: is_cloud is not True
+sed -n '76p;157,159p' bookminder/apple_books/library.py  # :76 is_cloud = ZSTATE in (3, 6) ; :157-159 !cloud = ZSTATE != 3
+```
+
+### R27 — A tracked fixture persona no spec reads — NEW, found by this sweep
+`specs/apple_books/fixtures/users/dummy_relative_user/` carries two tracked files — a `Books.plist` and a `BKLibrary-1-091020131601.sqlite` — and nothing anywhere in the tree names it. The personas are how a reader navigates fixture data that is far too expensive to read by eye, so a persona with no reader is a standing claim about the fixture set that nothing backs, and the next person to touch the fixtures has to re-derive that it is inert.
+```
+git ls-files specs/apple_books/fixtures/users/dummy_relative_user
+# expect: exactly 2 files — .../com.apple.BKAgentService/.../Books/Books.plist and .../BKLibrary/BKLibrary-1-091020131601.sqlite
+grep -rn dummy_relative specs bookminder docs    # expect: no output — no reference outside the directory's own path
+```
+
+### R28 — `docs/test_fixtures.md` documents a monkeypatch seam that does not exist — NEW, found by this sweep
+`:33-34` tell the reader that the fixture is reached by patching `BOOKS_PATH` and `BOOKS_PLIST`, "automatically used via pytest monkeypatch in `specs/apple_books/library_spec.py`". Neither name exists anywhere in `bookminder/` or `specs/`, and `monkeypatch` appears nowhere in either tree. The seam that does exist is the front door: `library_spec.py:13` builds `TEST_HOME` as a path and passes it in, the same `--user` seam the CLI takes. A reader trusting the doc goes looking for a fixture mechanism that was never built.
+```
+grep -n "BOOKS_PATH\|BOOKS_PLIST" docs/test_fixtures.md    # expect: 33, 34
+grep -rn "BOOKS_PATH\|BOOKS_PLIST" bookminder/ specs/      # expect: no output
+grep -rn "monkeypatch" bookminder/ specs/                  # expect: no output
+sed -n '13p' specs/apple_books/library_spec.py             # the real seam: TEST_HOME = Path(__file__).parent / "fixtures/users/test_reader"
+```
+
+### R29 — The ruff target-version bump is safe; the call is the author's — DECISION, extends R18
+R18 records the disagreement: `pyproject.toml` pins `requires-python = "==3.13.*"` at `:11` while ruff's `target-version` is `py312` — now at `:74`, not R18's `:71`, so re-run the grep rather than the line number. What this sweep adds is the datum R18 lacks: the pinned ruff accepts the newer target, and the lint outcome is byte-identical under both, so nothing blocks the bump and nothing depends on it either. Not a defect. Record it and leave the change to the author, per B-64.
+```
+source .venv/bin/activate && ruff --version                        # observed at 1fa6213: ruff 0.16.2
+grep -n "requires-python" pyproject.toml; grep -n "target-version" pyproject.toml   # expect: 11 and 74
+ruff check --target-version py313 bookminder/ specs/; echo $?      # expect: All checks passed! / 0
+ruff check --target-version py312 bookminder/ specs/; echo $?      # expect: identical — the bump changes no finding
+ruff check --target-version py313 . 2>&1 | tail -2                 # expect: 370 errors, the same count as py312
+```
+The whole-tree form of that last check is the misleading one. `.` reaches `.claude/skills/`, which sits outside `[tool.ruff] exclude`, so `ruff check .` exits non-zero under **both** targets, on 370 findings that have nothing to do with the target version. Whether that vendored tree belongs in ruff's scope at all is a separate question, and not one this sweep opens.
