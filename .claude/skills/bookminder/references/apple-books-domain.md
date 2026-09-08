@@ -1,6 +1,6 @@
 # Apple Books on disk
 
-How Apple Books stores a library on macOS, as far as the project has learned it. The page grows as storage is learned, one positive statement per fact in the section that owns it; the recon brief names which section each finding updates. `docs/apple_books.md` is evidence only, mapped at the end.
+How Apple Books stores a library on macOS, as far as the project has learned it. The page grows as storage is learned, one positive statement per fact in the section that owns it. `docs/apple_books.md` is evidence only, mapped at the end.
 
 ## What exists on disk
 
