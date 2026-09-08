@@ -31,5 +31,6 @@ This core stays loaded. The moment a trigger below fires, read its page before a
 - Making or relaying any operational claim — done, running, broken, fixed, live at HEAD → `references/claims.md`
 - Writing anything the author will read; replying to him; handling his feedback, questions, or pushback → `references/register.md`
 - Judging whether an instruction authorizes an action; scope questions; hooks, scanners, or permission-classifier events → `references/authorization.md`
+- Writing, revising, or reviewing a skill page, or briefing a worker to; compiling pages from a mined corpus → `references/skill-authoring.md`
 
 At session start and immediately after any compaction: read the HANDOFF section at the top of `.coordination/threads.md`, then the page the next action triggers.

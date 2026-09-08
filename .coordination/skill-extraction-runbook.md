@@ -138,3 +138,5 @@ Then, in order:
 
 - Because-clause form (threads.md 2026-08-15): the trailing "Because X" form is a hypothesis to A/B at BENCHMARK stage — C2 condition run with skill variants (because-trailing / stripped / inline-terse), measuring rule-following delta vs token cost. Not a pre-ratification test. Candidate skill-authoring principle once measured.
 - Whether this runbook should itself become a portable skill: author's position at commissioning — maybe too meta; revisit after one rerun proves the codification.
+
+Compile step: page shape and the failure register are in `.claude/skills/project-coordinator/references/skill-authoring.md`; the mined corpus is the coverage test for a page, never its outline.
