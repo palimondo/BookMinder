@@ -1,0 +1,4080 @@
+ruff 0.16.2
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+exclude = [
+    "specs/",
+    "claude-dev-log-diary/",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+exclude = [".git", "__pycache__", "build", "dist", "claude-dev-log-diary"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "W", "UP", "N", "D"]
+ignore = ["E203", "D203", "D213"]  # Ignore incompatible rules
+extend-select = ["I"]
+--- ruff check py313 ---
+E501 Line too long (93 > 88)
+  --> .claude/skills/skill-creator/eval-viewer/generate_review.py:10:89
+   |
+ 8 | Usage:
+ 9 |     python generate_review.py <workspace-path> [--port PORT] [--skill-name NAME]
+10 |     python generate_review.py <workspace-path> --previous-feedback /path/to/old/feedback.json
+   |                                                                                         ^^^^^
+11 |
+12 | No dependencies beyond the Python stdlib are required.
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .claude/skills/skill-creator/eval-viewer/generate_review.py:15:1
+   |
+13 |   """
+14 |
+15 | / import argparse
+16 | | import base64
+17 | | import json
+18 | | import mimetypes
+19 | | import os
+20 | | import re
+21 | | import signal
+22 | | import subprocess
+23 | | import sys
+24 | | import time
+25 | | import webbrowser
+26 | | from functools import partial
+27 | | from http.server import HTTPServer, BaseHTTPRequestHandler
+28 | | from pathlib import Path
+   | |________________________^
+29 |
+30 |   # Files to exclude from output listings
+   |
+help: Organize imports
+   |
+26 | from functools import partial
+   - from http.server import HTTPServer, BaseHTTPRequestHandler
+27 + from http.server import BaseHTTPRequestHandler, HTTPServer
+28 | from pathlib import Path
+   |
+
+E501 Line too long (89 > 88)
+  --> .claude/skills/skill-creator/eval-viewer/generate_review.py:48:89
+   |
+46 |     ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+47 |     ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+48 |     ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+   |                                                                                         ^
+49 | }
+   |
+
+D103 Missing docstring in public function
+  --> .claude/skills/skill-creator/eval-viewer/generate_review.py:52:5
+   |
+52 | def get_mime_type(path: Path) -> str:
+   |     ^^^^^^^^^^^^^
+53 |     ext = path.suffix.lower()
+54 |     if ext in MIME_OVERRIDES:
+   |
+
+E501 Line too long (93 > 88)
+  --> .claude/skills/skill-creator/eval-viewer/generate_review.py:91:89
+   |
+90 |     # Try eval_metadata.json
+91 |     for candidate in [run_dir / "eval_metadata.json", run_dir.parent / "eval_metadata.json"]:
+   |                                                                                         ^^^^^
+92 |         if candidate.exists():
+93 |             try:
+   |
+
+E501 Line too long (92 > 88)
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:104:89
+    |
+102 |     # Fall back to transcript.md
+103 |     if not prompt:
+104 |         for candidate in [run_dir / "transcript.md", run_dir / "outputs" / "transcript.md"]:
+    |                                                                                         ^^^^
+105 |             if candidate.exists():
+106 |                 try:
+    |
+
+E501 Line too long (90 > 88)
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:169:89
+    |
+167 |             b64 = base64.b64encode(raw).decode("ascii")
+168 |         except OSError:
+169 |             return {"name": path.name, "type": "error", "content": "(Error reading file)"}
+    |                                                                                         ^^
+170 |         return {
+171 |             "name": path.name,
+    |
+
+E501 Line too long (90 > 88)
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:181:89
+    |
+179 |             b64 = base64.b64encode(raw).decode("ascii")
+180 |         except OSError:
+181 |             return {"name": path.name, "type": "error", "content": "(Error reading file)"}
+    |                                                                                         ^^
+182 |         return {
+183 |             "name": path.name,
+    |
+
+E501 Line too long (90 > 88)
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:192:89
+    |
+190 |             b64 = base64.b64encode(raw).decode("ascii")
+191 |         except OSError:
+192 |             return {"name": path.name, "type": "error", "content": "(Error reading file)"}
+    |                                                                                         ^^
+193 |         return {
+194 |             "name": path.name,
+    |
+
+E501 Line too long (90 > 88)
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:204:89
+    |
+202 |             b64 = base64.b64encode(raw).decode("ascii")
+203 |         except OSError:
+204 |             return {"name": path.name, "type": "error", "content": "(Error reading file)"}
+    |                                                                                         ^^
+205 |         return {
+206 |             "name": path.name,
+    |
+
+E501 Line too long (91 > 88)
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:281:89
+    |
+279 |     data_json = json.dumps(embedded)
+280 |
+281 |     return template.replace("/*__EMBEDDED_DATA__*/", f"const EMBEDDED_DATA = {data_json};")
+    |                                                                                         ^^^
+
+D107 Missing docstring in `__init__`
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:315:9
+    |
+313 |     """
+314 |
+315 |     def __init__(
+    |         ^^^^^^^^
+316 |         self,
+317 |         workspace: Path,
+    |
+
+D102 Missing docstring in public method
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:332:9
+    |
+330 |         super().__init__(*args, **kwargs)
+331 |
+332 |     def do_GET(self) -> None:
+    |         ^^^^^^
+333 |         if self.path == "/" or self.path == "/index.html":
+334 |             # Regenerate HTML on each request (re-scans workspace for new outputs)
+    |
+
+D102 Missing docstring in public method
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:361:9
+    |
+359 |             self.send_error(404)
+360 |
+361 |     def do_POST(self) -> None:
+    |         ^^^^^^^
+362 |         if self.path == "/api/feedback":
+363 |             length = int(self.headers.get("Content-Length", 0))
+    |
+
+D102 Missing docstring in public method
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:382:9
+    |
+380 |             self.send_error(404)
+381 |
+382 |     def log_message(self, format: str, *args: object) -> None:
+    |         ^^^^^^^^^^^
+383 |         # Suppress request logging to keep terminal clean
+384 |         pass
+    |
+
+D103 Missing docstring in public function
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:387:5
+    |
+387 | def main() -> None:
+    |     ^^^^
+388 |     parser = argparse.ArgumentParser(description="Generate and serve eval review")
+389 |     parser.add_argument("workspace", type=Path, help="Path to workspace directory")
+    |
+
+E501 Line too long (99 > 88)
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:390:89
+    |
+388 |     parser = argparse.ArgumentParser(description="Generate and serve eval review")
+389 |     parser.add_argument("workspace", type=Path, help="Path to workspace directory")
+390 |     parser.add_argument("--port", "-p", type=int, default=3117, help="Server port (default: 3117)")
+    |                                                                                         ^^^^^^^^^^^
+391 |     parser.add_argument("--skill-name", "-n", type=str, default=None, help="Skill name for header")
+392 |     parser.add_argument(
+    |
+
+E501 Line too long (99 > 88)
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:391:89
+    |
+389 |     parser.add_argument("workspace", type=Path, help="Path to workspace directory")
+390 |     parser.add_argument("--port", "-p", type=int, default=3117, help="Server port (default: 3117)")
+391 |     parser.add_argument("--skill-name", "-n", type=str, default=None, help="Skill name for header")
+    |                                                                                         ^^^^^^^^^^^
+392 |     parser.add_argument(
+393 |         "--previous-workspace", type=Path, default=None,
+    |
+
+E501 Line too long (98 > 88)
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:394:89
+    |
+392 |     parser.add_argument(
+393 |         "--previous-workspace", type=Path, default=None,
+394 |         help="Path to previous iteration's workspace (shows old outputs and feedback as context)",
+    |                                                                                         ^^^^^^^^^^
+395 |     )
+396 |     parser.add_argument(
+    |
+
+E501 Line too long (100 > 88)
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:441:89
+    |
+439 |     port = args.port
+440 |     _kill_port(port)
+441 |     handler = partial(ReviewHandler, workspace, skill_name, feedback_path, previous, benchmark_path)
+    |                                                                                         ^^^^^^^^^^^^
+442 |     try:
+443 |         server = HTTPServer(("127.0.0.1", port), handler)
+    |
+
+F541 [*] f-string without any placeholders
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:450:11
+    |
+449 |     url = f"http://localhost:{port}"
+450 |     print(f"\n  Eval Viewer")
+    |           ^^^^^^^^^^^^^^^^^^
+451 |     print(f"  ─────────────────────────────────")
+452 |     print(f"  URL:       {url}")
+    |
+help: Remove extraneous `f` prefix
+    |
+449 |     url = f"http://localhost:{port}"
+    -     print(f"\n  Eval Viewer")
+450 +     print("\n  Eval Viewer")
+451 |     print(f"  ─────────────────────────────────")
+    |
+
+F541 [*] f-string without any placeholders
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:451:11
+    |
+449 |     url = f"http://localhost:{port}"
+450 |     print(f"\n  Eval Viewer")
+451 |     print(f"  ─────────────────────────────────")
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+452 |     print(f"  URL:       {url}")
+453 |     print(f"  Workspace: {workspace}")
+    |
+help: Remove extraneous `f` prefix
+    |
+450 |     print(f"\n  Eval Viewer")
+    -     print(f"  ─────────────────────────────────")
+451 +     print("  ─────────────────────────────────")
+452 |     print(f"  URL:       {url}")
+    |
+
+F541 [*] f-string without any placeholders
+   --> .claude/skills/skill-creator/eval-viewer/generate_review.py:459:11
+    |
+457 |     if benchmark_path:
+458 |         print(f"  Benchmark: {benchmark_path}")
+459 |     print(f"\n  Press Ctrl+C to stop.\n")
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+460 |
+461 |     webbrowser.open(url)
+    |
+help: Remove extraneous `f` prefix
+    |
+458 |         print(f"  Benchmark: {benchmark_path}")
+    -     print(f"\n  Press Ctrl+C to stop.\n")
+459 +     print("\n  Press Ctrl+C to stop.\n")
+460 |
+    |
+
+D212 [*] Multi-line docstring summary should start at the first line
+  --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:2:1
+   |
+ 1 |   #!/usr/bin/env python3
+ 2 | / """
+ 3 | | Aggregate individual run results into benchmark summary statistics.
+ 4 | |
+ 5 | | Reads grading.json files from run directories and produces:
+ 6 | | - run_summary with mean, stddev, min, max for each metric
+ 7 | | - delta between with_skill and without_skill configurations
+ 8 | |
+ 9 | | Usage:
+10 | |     python aggregate_benchmark.py <benchmark_dir>
+11 | |
+12 | | Example:
+13 | |     python aggregate_benchmark.py benchmarks/2026-01-15T10-30-00/
+14 | |
+15 | | The script supports two directory layouts:
+16 | |
+17 | |     Workspace layout (from skill-creator iterations):
+18 | |     <benchmark_dir>/
+19 | |     └── eval-N/
+20 | |         ├── with_skill/
+21 | |         │   ├── run-1/grading.json
+22 | |         │   └── run-2/grading.json
+23 | |         └── without_skill/
+24 | |             ├── run-1/grading.json
+25 | |             └── run-2/grading.json
+26 | |
+27 | |     Legacy layout (with runs/ subdirectory):
+28 | |     <benchmark_dir>/
+29 | |     └── runs/
+30 | |         └── eval-N/
+31 | |             ├── with_skill/
+32 | |             │   └── run-1/grading.json
+33 | |             └── without_skill/
+34 | |                 └── run-1/grading.json
+35 | | """
+   | |___^
+36 |
+37 |   import argparse
+   |
+help: Remove whitespace after opening quotes
+  |
+1 | #!/usr/bin/env python3
+  - """
+  - Aggregate individual run results into benchmark summary statistics.
+2 + """Aggregate individual run results into benchmark summary statistics.
+3 |
+  |
+
+D413 [*] Missing blank line after last section ("Example")
+  --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:12:1
+   |
+10 |     python aggregate_benchmark.py <benchmark_dir>
+11 |
+12 | Example:
+   | ^^^^^^^
+13 |     python aggregate_benchmark.py benchmarks/2026-01-15T10-30-00/
+   |
+help: Add blank line after "Example"
+   |
+34 |                 └── run-1/grading.json
+35 +
+36 | """
+   |
+
+D212 [*] Multi-line docstring summary should start at the first line
+  --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:68:5
+   |
+67 |   def load_run_results(benchmark_dir: Path) -> dict:
+68 | /     """
+69 | |     Load all run results from a benchmark directory.
+70 | |
+71 | |     Returns dict keyed by config name (e.g. "with_skill"/"without_skill",
+72 | |     or "new_skill"/"old_skill"), each containing a list of run results.
+73 | |     """
+   | |_______^
+74 |       # Support both layouts: eval dirs directly under benchmark_dir, or under runs/
+75 |       runs_dir = benchmark_dir / "runs"
+   |
+help: Remove whitespace after opening quotes
+   |
+67 | def load_run_results(benchmark_dir: Path) -> dict:
+   -     """
+   -     Load all run results from a benchmark directory.
+68 +     """Load all run results from a benchmark directory.
+69 |
+   |
+
+E501 Line too long (90 > 88)
+  --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:81:89
+   |
+79 |         search_dir = benchmark_dir
+80 |     else:
+81 |         print(f"No eval directories found in {benchmark_dir} or {benchmark_dir / 'runs'}")
+   |                                                                                         ^^
+82 |         return {}
+   |
+
+E501 Line too long (95 > 88)
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:144:89
+    |
+142 |                         with open(timing_file) as tf:
+143 |                             timing_data = json.load(tf)
+144 |                         result["time_seconds"] = timing_data.get("total_duration_seconds", 0.0)
+    |                                                                                         ^^^^^^^
+145 |                         result["tokens"] = timing_data.get("total_tokens", 0)
+146 |                     except json.JSONDecodeError:
+    |
+
+E501 Line too long (128 > 88)
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:160:89
+    |
+158 |                 for exp in raw_expectations:
+159 |                     if "text" not in exp or "passed" not in exp:
+160 |                         print(f"Warning: expectation in {grading_file} missing required fields (text, passed, evidence): {exp}")
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+161 |                 result["expectations"] = raw_expectations
+    |
+
+D212 [*] Multi-line docstring summary should start at the first line
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:177:5
+    |
+176 |   def aggregate_results(results: dict) -> dict:
+177 | /     """
+178 | |     Aggregate run results into summary statistics.
+179 | |
+180 | |     Returns run_summary with stats for each configuration and delta.
+181 | |     """
+    | |_______^
+182 |       run_summary = {}
+183 |       configs = list(results.keys())
+    |
+help: Remove whitespace after opening quotes
+    |
+176 | def aggregate_results(results: dict) -> dict:
+    -     """
+    -     Aggregate run results into summary statistics.
+177 +     """Aggregate run results into summary statistics.
+178 |
+    |
+
+E501 Line too long (112 > 88)
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:214:89
+    |
+212 |         baseline = {}
+213 |
+214 |     delta_pass_rate = primary.get("pass_rate", {}).get("mean", 0) - baseline.get("pass_rate", {}).get("mean", 0)
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^
+215 |     delta_time = primary.get("time_seconds", {}).get("mean", 0) - baseline.get("time_seconds", {}).get("mean", 0)
+216 |     delta_tokens = primary.get("tokens", {}).get("mean", 0) - baseline.get("tokens", {}).get("mean", 0)
+    |
+
+E501 Line too long (113 > 88)
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:215:89
+    |
+214 |     delta_pass_rate = primary.get("pass_rate", {}).get("mean", 0) - baseline.get("pass_rate", {}).get("mean", 0)
+215 |     delta_time = primary.get("time_seconds", {}).get("mean", 0) - baseline.get("time_seconds", {}).get("mean", 0)
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+216 |     delta_tokens = primary.get("tokens", {}).get("mean", 0) - baseline.get("tokens", {}).get("mean", 0)
+    |
+
+E501 Line too long (103 > 88)
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:216:89
+    |
+214 |     delta_pass_rate = primary.get("pass_rate", {}).get("mean", 0) - baseline.get("pass_rate", {}).get("mean", 0)
+215 |     delta_time = primary.get("time_seconds", {}).get("mean", 0) - baseline.get("time_seconds", {}).get("mean", 0)
+216 |     delta_tokens = primary.get("tokens", {}).get("mean", 0) - baseline.get("tokens", {}).get("mean", 0)
+    |                                                                                         ^^^^^^^^^^^^^^^
+217 |
+218 |     run_summary["delta"] = {
+    |
+
+E501 Line too long (96 > 88)
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:227:89
+    |
+227 | def generate_benchmark(benchmark_dir: Path, skill_name: str = "", skill_path: str = "") -> dict:
+    |                                                                                         ^^^^^^^^
+228 |     """
+229 |     Generate complete benchmark.json from run results.
+    |
+
+D200 One-line docstring should fit on one line
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:228:5
+    |
+227 |   def generate_benchmark(benchmark_dir: Path, skill_name: str = "", skill_path: str = "") -> dict:
+228 | /     """
+229 | |     Generate complete benchmark.json from run results.
+230 | |     """
+    | |_______^
+231 |       results = load_run_results(benchmark_dir)
+232 |       run_summary = aggregate_results(results)
+    |
+help: Reformat to one line
+
+D212 [*] Multi-line docstring summary should start at the first line
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:228:5
+    |
+227 |   def generate_benchmark(benchmark_dir: Path, skill_name: str = "", skill_path: str = "") -> dict:
+228 | /     """
+229 | |     Generate complete benchmark.json from run results.
+230 | |     """
+    | |_______^
+231 |       results = load_run_results(benchmark_dir)
+232 |       run_summary = aggregate_results(results)
+    |
+help: Remove whitespace after opening quotes
+    |
+227 | def generate_benchmark(benchmark_dir: Path, skill_name: str = "", skill_path: str = "") -> dict:
+    -     """
+    -     Generate complete benchmark.json from run results.
+228 +     """Generate complete benchmark.json from run results.
+229 |     """
+    |
+
+UP017 [*] Use `datetime.UTC` alias
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:269:39
+    |
+267 |             "executor_model": "<model-name>",
+268 |             "analyzer_model": "<model-name>",
+269 |             "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    |                                       ^^^^^^^^^^^^
+270 |             "evals_run": eval_ids,
+271 |             "runs_per_configuration": 3
+    |
+help: Convert to `datetime.UTC` alias
+    |
+40  | import sys
+    - from datetime import datetime, timezone
+41  + from datetime import datetime, timezone, UTC
+42  | from pathlib import Path
+--------------------------------------------------------------------------------
+268 |             "analyzer_model": "<model-name>",
+    -             "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+269 +             "timestamp": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+270 |             "evals_run": eval_ids,
+    |
+
+E501 Line too long (134 > 88)
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:298:89
+    |
+296 |         f"**Model**: {metadata['executor_model']}",
+297 |         f"**Date**: {metadata['timestamp']}",
+298 |         f"**Evals**: {', '.join(map(str, metadata['evals_run']))} ({metadata['runs_per_configuration']} runs each per configuration)",
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+299 |         "",
+300 |         "## Summary",
+    |
+
+E501 Line too long (202 > 88)
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:313:89
+    |
+311 | …
+312 | …
+313 | …ddev', 0)*100:.0f}% | {b_pr.get('mean', 0)*100:.0f}% ± {b_pr.get('stddev', 0)*100:.0f}% | {delta.get('pass_rate', '—')} |")
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+314 | …
+315 | …
+    |
+
+E501 Line too long (193 > 88)
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:318:89
+    |
+316 | …
+317 | …
+318 | …dev', 0):.1f}s | {b_time.get('mean', 0):.1f}s ± {b_time.get('stddev', 0):.1f}s | {delta.get('time_seconds', '—')}s |")
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+319 | …
+320 | …
+    |
+
+E501 Line too long (192 > 88)
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:323:89
+    |
+321 | …
+322 | …
+323 | …t('stddev', 0):.0f} | {b_tokens.get('mean', 0):.0f} ± {b_tokens.get('stddev', 0):.0f} | {delta.get('tokens', '—')} |")
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+324 | …
+325 | …
+    |
+
+D103 Missing docstring in public function
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:338:5
+    |
+338 | def main():
+    |     ^^^^
+339 |     parser = argparse.ArgumentParser(
+340 |         description="Aggregate benchmark run results into summary statistics"
+    |
+
+F541 [*] f-string without any placeholders
+   --> .claude/skills/skill-creator/scripts/aggregate_benchmark.py:392:11
+    |
+390 |     delta = run_summary.get("delta", {})
+391 |
+392 |     print(f"\nSummary:")
+    |           ^^^^^^^^^^^^^
+393 |     for config in configs:
+394 |         pr = run_summary[config]["pass_rate"]["mean"]
+    |
+help: Remove extraneous `f` prefix
+    |
+391 |
+    -     print(f"\nSummary:")
+392 +     print("\nSummary:")
+393 |     for config in configs:
+    |
+
+E501 Line too long (103 > 88)
+  --> .claude/skills/skill-creator/scripts/generate_report.py:17:89
+   |
+16 | def generate_html(data: dict, auto_refresh: bool = False, skill_name: str = "") -> str:
+17 |     """Generate HTML report from loop output data. If auto_refresh is True, adds a meta refresh tag."""
+   |                                                                                         ^^^^^^^^^^^^^^^
+18 |     history = data.get("history", [])
+19 |     holdout = data.get("holdout", 0)
+   |
+
+F841 Local variable `holdout` is assigned to but never used
+  --> .claude/skills/skill-creator/scripts/generate_report.py:19:5
+   |
+17 |     """Generate HTML report from loop output data. If auto_refresh is True, adds a meta refresh tag."""
+18 |     history = data.get("history", [])
+19 |     holdout = data.get("holdout", 0)
+   |     ^^^^^^^
+20 |     title_prefix = html.escape(skill_name + " \u2014 ") if skill_name else ""
+   |
+help: Remove assignment to unused variable `holdout`
+
+E501 Line too long (104 > 88)
+  --> .claude/skills/skill-creator/scripts/generate_report.py:27:89
+   |
+25 |     if history:
+26 |         for r in history[0].get("train_results", history[0].get("results", [])):
+27 |             train_queries.append({"query": r["query"], "should_trigger": r.get("should_trigger", True)})
+   |                                                                                         ^^^^^^^^^^^^^^^^
+28 |         if history[0].get("test_results"):
+29 |             for r in history[0].get("test_results", []):
+   |
+
+E501 Line too long (107 > 88)
+  --> .claude/skills/skill-creator/scripts/generate_report.py:30:89
+   |
+28 |         if history[0].get("test_results"):
+29 |             for r in history[0].get("test_results", []):
+30 |                 test_queries.append({"query": r["query"], "should_trigger": r.get("should_trigger", True)})
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^
+31 |
+32 |     refresh_tag = '    <meta http-equiv="refresh" content="5">\n' if auto_refresh else ""
+   |
+
+E501 Line too long (89 > 88)
+  --> .claude/skills/skill-creator/scripts/generate_report.py:32:89
+   |
+30 |                 test_queries.append({"query": r["query"], "should_trigger": r.get("should_trigger", True)})
+31 |
+32 |     refresh_tag = '    <meta http-equiv="refresh" content="5">\n' if auto_refresh else ""
+   |                                                                                         ^
+33 |
+34 |     html_parts = ["""<!DOCTYPE html>
+   |
+
+E501 Line too long (96 > 88)
+  --> .claude/skills/skill-creator/scripts/generate_report.py:38:89
+   |
+36 | <head>
+37 |     <meta charset="utf-8">
+38 | """ + refresh_tag + """    <title>""" + title_prefix + """Skill Description Optimization</title>
+   |                                                                                         ^^^^^^^^
+39 |     <link rel="preconnect" href="https://fonts.googleapis.com">
+40 |     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   |
+
+E501 Line too long (134 > 88)
+  --> .claude/skills/skill-creator/scripts/generate_report.py:41:89
+   |
+39 |     <link rel="preconnect" href="https://fonts.googleapis.com">
+40 |     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+41 |     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+42 |     <style>
+43 |         body {
+   |
+
+E501 Line too long (140 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:139:89
+    |
+137 | …: 3px solid #788c5d; }
+138 | …: 3px solid #c44; }
+139 | …erif; display: flex; gap: 20px; margin-bottom: 10px; font-size: 13px; align-items: center; }
+    |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+140 | …s: center; gap: 6px; }
+141 | …px; border-radius: 3px; display: inline-block; }
+    |
+
+E501 Line too long (96 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:141:89
+    |
+139 | …     .legend { font-family: 'Poppins', sans-serif; display: flex; gap: 20px; margin-bottom: 10px; font-size: 13px; align-items: cent…
+140 | …     .legend-item { display: flex; align-items: center; gap: 6px; }
+141 | …     .legend-swatch { width: 16px; height: 16px; border-radius: 3px; display: inline-block; }
+    |                                                                                       ^^^^^^^^
+142 | …     .swatch-positive { background: #141413; border-bottom: 3px solid #788c5d; }
+143 | …     .swatch-negative { background: #141413; border-bottom: 3px solid #c44; }
+    |
+
+E501 Line too long (602 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:151:89
+    |
+149 | …
+150 | …
+151 | …omatically as Claude tests different versions of …e best-performing description to your skill.
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^…^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+152 | …
+153 | …
+    |
+
+F841 Local variable `best_train_score` is assigned to but never used
+   --> .claude/skills/skill-creator/scripts/generate_report.py:157:5
+    |
+155 |     # Summary section
+156 |     best_test_score = data.get('best_test_score')
+157 |     best_train_score = data.get('best_train_score')
+    |     ^^^^^^^^^^^^^^^^
+158 |     html_parts.append(f"""
+159 |     <div class="summary">
+    |
+help: Remove assignment to unused variable `best_train_score`
+
+E501 Line too long (96 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:160:89
+    |
+158 |     html_parts.append(f"""
+159 |     <div class="summary">
+160 |         <p><strong>Original:</strong> {html.escape(data.get('original_description', 'N/A'))}</p>
+    |                                                                                         ^^^^^^^^
+161 |         <p class="best"><strong>Best:</strong> {html.escape(data.get('best_description', 'N/A'))}</p>
+162 |         <p><strong>Best Score:</strong> {data.get('best_score', 'N/A')} {'(test)' if best_test_score else '(train)'}</p>
+    |
+
+E501 Line too long (101 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:161:89
+    |
+159 |     <div class="summary">
+160 |         <p><strong>Original:</strong> {html.escape(data.get('original_description', 'N/A'))}</p>
+161 |         <p class="best"><strong>Best:</strong> {html.escape(data.get('best_description', 'N/A'))}</p>
+    |                                                                                         ^^^^^^^^^^^^^
+162 |         <p><strong>Best Score:</strong> {data.get('best_score', 'N/A')} {'(test)' if best_test_score else '(train)'}</p>
+163 |         <p><strong>Iterations:</strong> {data.get('iterations_run', 0)} | <strong>Train:</strong> {data.get('train_size', '?')} | <st…
+    |
+
+E501 Line too long (120 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:162:89
+    |
+160 |         <p><strong>Original:</strong> {html.escape(data.get('original_description', 'N/A'))}</p>
+161 |         <p class="best"><strong>Best:</strong> {html.escape(data.get('best_description', 'N/A'))}</p>
+162 |         <p><strong>Best Score:</strong> {data.get('best_score', 'N/A')} {'(test)' if best_test_score else '(train)'}</p>
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+163 |         <p><strong>Iterations:</strong> {data.get('iterations_run', 0)} | <strong>Train:</strong> {data.get('train_size', '?')} | <st…
+164 |     </div>
+    |
+
+E501 Line too long (185 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:163:89
+    |
+161 | …est_description', 'N/A'))}</p>
+162 | … {'(test)' if best_test_score else '(train)'}</p>
+163 | … | <strong>Train:</strong> {data.get('train_size', '?')} | <strong>Test:</strong> {data.get('test_size', '?')}</p>
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+164 | …
+165 | …
+    |
+
+E501 Line too long (107 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:171:89
+    |
+169 |     <div class="legend">
+170 |         <span style="font-weight:600">Query columns:</span>
+171 |         <span class="legend-item"><span class="legend-swatch swatch-positive"></span> Should trigger</span>
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^
+172 |         <span class="legend-item"><span class="legend-swatch swatch-negative"></span> Should NOT trigger</span>
+173 |         <span class="legend-item"><span class="legend-swatch swatch-train"></span> Train</span>
+    |
+
+E501 Line too long (111 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:172:89
+    |
+170 |         <span style="font-weight:600">Query columns:</span>
+171 |         <span class="legend-item"><span class="legend-swatch swatch-positive"></span> Should trigger</span>
+172 |         <span class="legend-item"><span class="legend-swatch swatch-negative"></span> Should NOT trigger</span>
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^
+173 |         <span class="legend-item"><span class="legend-swatch swatch-train"></span> Train</span>
+174 |         <span class="legend-item"><span class="legend-swatch swatch-test"></span> Test</span>
+    |
+
+E501 Line too long (95 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:173:89
+    |
+171 |         <span class="legend-item"><span class="legend-swatch swatch-positive"></span> Should trigger</span>
+172 |         <span class="legend-item"><span class="legend-swatch swatch-negative"></span> Should NOT trigger</span>
+173 |         <span class="legend-item"><span class="legend-swatch swatch-train"></span> Train</span>
+    |                                                                                         ^^^^^^^
+174 |         <span class="legend-item"><span class="legend-swatch swatch-test"></span> Test</span>
+175 |     </div>
+    |
+
+E501 Line too long (93 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:174:89
+    |
+172 |         <span class="legend-item"><span class="legend-swatch swatch-negative"></span> Should NOT trigger</span>
+173 |         <span class="legend-item"><span class="legend-swatch swatch-train"></span> Train</span>
+174 |         <span class="legend-item"><span class="legend-swatch swatch-test"></span> Test</span>
+    |                                                                                         ^^^^^
+175 |     </div>
+176 | """)
+    |
+
+E501 Line too long (105 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:193:89
+    |
+191 |     for qinfo in train_queries:
+192 |         polarity = "positive-col" if qinfo["should_trigger"] else "negative-col"
+193 |         html_parts.append(f'                <th class="{polarity}">{html.escape(qinfo["query"])}</th>\n')
+    |                                                                                         ^^^^^^^^^^^^^^^^^
+194 |
+195 |     # Add column headers for test queries (different color)
+    |
+
+E501 Line too long (114 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:198:89
+    |
+196 |     for qinfo in test_queries:
+197 |         polarity = "positive-col" if qinfo["should_trigger"] else "negative-col"
+198 |         html_parts.append(f'                <th class="test-col {polarity}">{html.escape(qinfo["query"])}</th>\n')
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+199 |
+200 |     html_parts.append("""            </tr>
+    |
+
+E501 Line too long (90 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:207:89
+    |
+205 |     # Find best iteration for highlighting
+206 |     if test_queries:
+207 |         best_iter = max(history, key=lambda h: h.get("test_passed") or 0).get("iteration")
+    |                                                                                         ^^
+208 |     else:
+209 |         best_iter = max(history, key=lambda h: h.get("train_passed", h.get("passed", 0))).get("iteration")
+    |
+
+E501 Line too long (106 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:209:89
+    |
+207 |         best_iter = max(history, key=lambda h: h.get("test_passed") or 0).get("iteration")
+208 |     else:
+209 |         best_iter = max(history, key=lambda h: h.get("train_passed", h.get("passed", 0))).get("iteration")
+    |                                                                                         ^^^^^^^^^^^^^^^^^^
+210 |
+211 |     # Add rows for each iteration
+    |
+
+F841 Local variable `train_passed` is assigned to but never used
+   --> .claude/skills/skill-creator/scripts/generate_report.py:214:9
+    |
+212 |     for h in history:
+213 |         iteration = h.get("iteration", "?")
+214 |         train_passed = h.get("train_passed", h.get("passed", 0))
+    |         ^^^^^^^^^^^^
+215 |         train_total = h.get("train_total", h.get("total", 0))
+216 |         test_passed = h.get("test_passed")
+    |
+help: Remove assignment to unused variable `train_passed`
+
+F841 Local variable `train_total` is assigned to but never used
+   --> .claude/skills/skill-creator/scripts/generate_report.py:215:9
+    |
+213 |         iteration = h.get("iteration", "?")
+214 |         train_passed = h.get("train_passed", h.get("passed", 0))
+215 |         train_total = h.get("train_total", h.get("total", 0))
+    |         ^^^^^^^^^^^
+216 |         test_passed = h.get("test_passed")
+217 |         test_total = h.get("test_total")
+    |
+help: Remove assignment to unused variable `train_total`
+
+F841 Local variable `test_passed` is assigned to but never used
+   --> .claude/skills/skill-creator/scripts/generate_report.py:216:9
+    |
+214 |         train_passed = h.get("train_passed", h.get("passed", 0))
+215 |         train_total = h.get("train_total", h.get("total", 0))
+216 |         test_passed = h.get("test_passed")
+    |         ^^^^^^^^^^^
+217 |         test_total = h.get("test_total")
+218 |         description = h.get("description", "")
+    |
+help: Remove assignment to unused variable `test_passed`
+
+F841 Local variable `test_total` is assigned to but never used
+   --> .claude/skills/skill-creator/scripts/generate_report.py:217:9
+    |
+215 |         train_total = h.get("train_total", h.get("total", 0))
+216 |         test_passed = h.get("test_passed")
+217 |         test_total = h.get("test_total")
+    |         ^^^^^^^^^^
+218 |         description = h.get("description", "")
+219 |         train_results = h.get("train_results", h.get("results", []))
+    |
+help: Remove assignment to unused variable `test_total`
+
+E501 Line too long (94 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:260:89
+    |
+258 |         html_parts.append(f"""            <tr class="{row_class}">
+259 |                 <td>{iteration}</td>
+260 |                 <td><span class="score {train_class}">{train_correct}/{train_runs}</span></td>
+    |                                                                                         ^^^^^^
+261 |                 <td><span class="score {test_class}">{test_correct}/{test_runs}</span></td>
+262 |                 <td class="description">{html.escape(description)}</td>
+    |
+
+E501 Line too long (91 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:261:89
+    |
+259 |                 <td>{iteration}</td>
+260 |                 <td><span class="score {train_class}">{train_correct}/{train_runs}</span></td>
+261 |                 <td><span class="score {test_class}">{test_correct}/{test_runs}</span></td>
+    |                                                                                         ^^^
+262 |                 <td class="description">{html.escape(description)}</td>
+263 | """)
+    |
+
+E501 Line too long (137 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:275:89
+    |
+273 | … "fail"
+274 | …
+275 | … <td class="result {css_class}">{icon}<span class="rate">{triggers}/{runs}</span></td>\n')
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+276 | …
+277 | …different background)
+    |
+
+E501 Line too long (149 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:287:89
+    |
+285 | …"
+286 | …
+287 | …lass="result test-result {css_class}">{icon}<span class="rate">{triggers}/{runs}</span></td>\n')
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+288 | …
+289 | …
+    |
+
+D103 Missing docstring in public function
+   --> .claude/skills/skill-creator/scripts/generate_report.py:304:5
+    |
+304 | def main():
+    |     ^^^^
+305 |     parser = argparse.ArgumentParser(description="Generate HTML report from run_loop output")
+306 |     parser.add_argument("input", help="Path to JSON output from run_loop.py (or - for stdin)")
+    |
+
+E501 Line too long (93 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:305:89
+    |
+304 | def main():
+305 |     parser = argparse.ArgumentParser(description="Generate HTML report from run_loop output")
+    |                                                                                         ^^^^^
+306 |     parser.add_argument("input", help="Path to JSON output from run_loop.py (or - for stdin)")
+307 |     parser.add_argument("-o", "--output", default=None, help="Output HTML file (default: stdout)")
+    |
+
+E501 Line too long (94 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:306:89
+    |
+304 | def main():
+305 |     parser = argparse.ArgumentParser(description="Generate HTML report from run_loop output")
+306 |     parser.add_argument("input", help="Path to JSON output from run_loop.py (or - for stdin)")
+    |                                                                                         ^^^^^^
+307 |     parser.add_argument("-o", "--output", default=None, help="Output HTML file (default: stdout)")
+308 |     parser.add_argument("--skill-name", default="", help="Skill name to include in the report title")
+    |
+
+E501 Line too long (98 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:307:89
+    |
+305 |     parser = argparse.ArgumentParser(description="Generate HTML report from run_loop output")
+306 |     parser.add_argument("input", help="Path to JSON output from run_loop.py (or - for stdin)")
+307 |     parser.add_argument("-o", "--output", default=None, help="Output HTML file (default: stdout)")
+    |                                                                                         ^^^^^^^^^^
+308 |     parser.add_argument("--skill-name", default="", help="Skill name to include in the report title")
+309 |     args = parser.parse_args()
+    |
+
+E501 Line too long (101 > 88)
+   --> .claude/skills/skill-creator/scripts/generate_report.py:308:89
+    |
+306 |     parser.add_argument("input", help="Path to JSON output from run_loop.py (or - for stdin)")
+307 |     parser.add_argument("-o", "--output", default=None, help="Output HTML file (default: stdout)")
+308 |     parser.add_argument("--skill-name", default="", help="Skill name to include in the report title")
+    |                                                                                         ^^^^^^^^^^^^^
+309 |     args = parser.parse_args()
+    |
+
+E501 Line too long (91 > 88)
+  --> .claude/skills/skill-creator/scripts/improve_description.py:72:89
+   |
+71 |     # Build scores summary
+72 |     train_score = f"{eval_results['summary']['passed']}/{eval_results['summary']['total']}"
+   |                                                                                         ^^^
+73 |     if test_results:
+74 |         test_score = f"{test_results['summary']['passed']}/{test_results['summary']['total']}"
+   |
+
+E501 Line too long (94 > 88)
+  --> .claude/skills/skill-creator/scripts/improve_description.py:74:89
+   |
+72 |     train_score = f"{eval_results['summary']['passed']}/{eval_results['summary']['total']}"
+73 |     if test_results:
+74 |         test_score = f"{test_results['summary']['passed']}/{test_results['summary']['total']}"
+   |                                                                                         ^^^^^^
+75 |         scores_summary = f"Train: {train_score}, Test: {test_score}"
+76 |     else:
+   |
+
+E501 Line too long (480 > 88)
+  --> .claude/skills/skill-creator/scripts/improve_description.py:79:89
+   |
+77 | …
+78 | …
+79 | …led "{skill_name}". A "skill" is sort of like a pr…pts and additional documentation or examples.
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^…^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+80 | …
+81 | …ery, Claude decides whether to invoke the skill based solely on the title and on this description. Your goal is to write a description that triggers for relevant queries, and doesn't trigger for irrelevant ones.
+   |
+
+E501 Line too long (294 > 88)
+  --> .claude/skills/skill-creator/scripts/improve_description.py:81:89
+   |
+79 | …led "{skill_name}". A "skill" is sort of like a prompt, but with progressive disclosure -- there's a title and description that Claude sees when deciding whether to use the skill, and then if it does use the skill, i…
+80 | …
+81 | …ery, Claude decides whether to invoke the skill based solely on the title and on this description. Your goal is to write a description that triggers for relevant queries, and doesn't trigger for irrelevant ones.
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+82 | …
+83 | …
+   |
+
+E501 Line too long (91 > 88)
+  --> .claude/skills/skill-creator/scripts/improve_description.py:94:89
+   |
+92 |         prompt += "FAILED TO TRIGGER (should have triggered but didn't):\n"
+93 |         for r in failed_triggers:
+94 |             prompt += f'  - "{r["query"]}" (triggered {r["triggers"]}/{r["runs"]} times)\n'
+   |                                                                                         ^^^
+95 |         prompt += "\n"
+   |
+
+E501 Line too long (91 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:100:89
+    |
+ 98 |         prompt += "FALSE TRIGGERS (triggered but shouldn't have):\n"
+ 99 |         for r in false_triggers:
+100 |             prompt += f'  - "{r["query"]}" (triggered {r["triggers"]}/{r["runs"]} times)\n'
+    |                                                                                         ^^^
+101 |         prompt += "\n"
+    |
+
+E501 Line too long (103 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:104:89
+    |
+103 |     if history:
+104 |         prompt += "PREVIOUS ATTEMPTS (do NOT repeat these — try something structurally different):\n\n"
+    |                                                                                         ^^^^^^^^^^^^^^^
+105 |         for h in history:
+106 |             train_s = f"{h.get('train_passed', h.get('passed', 0))}/{h.get('train_total', h.get('total', 0))}"
+    |
+
+E501 Line too long (110 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:106:89
+    |
+104 |         prompt += "PREVIOUS ATTEMPTS (do NOT repeat these — try something structurally different):\n\n"
+105 |         for h in history:
+106 |             train_s = f"{h.get('train_passed', h.get('passed', 0))}/{h.get('train_total', h.get('total', 0))}"
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^
+107 |             test_s = f"{h.get('test_passed', '?')}/{h.get('test_total', '?')}" if h.get('test_passed') is not None else None
+108 |             score_str = f"train={train_s}" + (f", test={test_s}" if test_s else "")
+    |
+
+E501 Line too long (124 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:107:89
+    |
+105 |         for h in history:
+106 |             train_s = f"{h.get('train_passed', h.get('passed', 0))}/{h.get('train_total', h.get('total', 0))}"
+107 |             test_s = f"{h.get('test_passed', '?')}/{h.get('test_total', '?')}" if h.get('test_passed') is not None else None
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+108 |             score_str = f"train={train_s}" + (f", test={test_s}" if test_s else "")
+109 |             prompt += f'<attempt {score_str}>\n'
+    |
+
+E501 Line too long (107 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:115:89
+    |
+113 |                 for r in h["results"]:
+114 |                     status = "PASS" if r["pass"] else "FAIL"
+115 |                     prompt += f'  [{status}] "{r["query"][:80]}" (triggered {r["triggers"]}/{r["runs"]})\n'
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^
+116 |             if h.get("note"):
+117 |                 prompt += f'Note: {h["note"]}\n'
+    |
+
+E501 Line too long (554 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:127:89
+    |
+125 | …
+126 | …
+127 | …trigger correctly. When I say "based on the failu… not useful. The reason for this is twofold:
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^…^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+128 | …
+129 | …
+    |
+
+E501 Line too long (166 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:130:89
+    |
+129 | …
+130 | …ies and there might be a lot of skills, so we don't want to blow too much space on any given description.
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+131 | …
+132 | …0-200 words, even if that comes at the cost of accuracy. There is a hard limit of 1024 characters — descriptions over that will be t…
+    |
+
+E501 Line too long (232 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:132:89
+    |
+130 | … a lot of skills, so we don't want to blow too much space on any given description.
+131 | …
+132 | …hat comes at the cost of accuracy. There is a hard limit of 1024 characters — descriptions over that will be truncated, so stay comfortably under it.
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+133 | …
+134 | …
+    |
+
+E501 Line too long (101 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:135:89
+    |
+134 | Here are some tips that we've found to work well in writing these descriptions:
+135 | - The skill should be phrased in the imperative -- "Use this skill for" rather than "this skill does"
+    |                                                                                         ^^^^^^^^^^^^^
+136 | - The skill description should focus on the user's intent, what they are trying to achieve, vs. the implementation details of how the…
+137 | - The description competes with other skills for Claude's attention — make it distinctive and immediately recognizable.
+    |
+
+E501 Line too long (146 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:136:89
+    |
+134 | … writing these descriptions:
+135 | …"Use this skill for" rather than "this skill does"
+136 | …intent, what they are trying to achieve, vs. the implementation details of how the skill works.
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+137 | …aude's attention — make it distinctive and immediately recognizable.
+138 | … attempts, change things up. Try different sentence structures or wordings.
+    |
+
+E501 Line too long (119 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:137:89
+    |
+135 | - The skill should be phrased in the imperative -- "Use this skill for" rather than "this skill does"
+136 | - The skill description should focus on the user's intent, what they are trying to achieve, vs. the implementation details of how the…
+137 | - The description competes with other skills for Claude's attention — make it distinctive and immediately recognizable.
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+138 | - If you're getting lots of failures after repeated attempts, change things up. Try different sentence structures or wordings.
+    |
+
+E501 Line too long (126 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:138:89
+    |
+136 | - The skill description should focus on the user's intent, what they are trying to achieve, vs. the implementation details of how the…
+137 | - The description competes with other skills for Claude's attention — make it distinctive and immediately recognizable.
+138 | - If you're getting lots of failures after repeated attempts, change things up. Try different sentence structures or wordings.
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+139 |
+140 | I'd encourage you to be creative and mix up the style in different iterations since you'll have multiple opportunities to try differe…
+    |
+
+E501 Line too long (203 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:140:89
+    |
+138 | …Try different sentence structures or wordings.
+139 | …
+140 | …nce you'll have multiple opportunities to try different approaches and we'll just grab the highest-scoring one at the end. 
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+141 | …
+142 | …hing else."""
+    |
+
+W291 Trailing whitespace
+   --> .claude/skills/skill-creator/scripts/improve_description.py:140:203
+    |
+138 | …
+139 | …
+140 | …pproaches and we'll just grab the highest-scoring one at the end. 
+    |                                                                   ^
+141 | …
+142 | …
+    |
+help: Remove trailing whitespace
+
+E501 Line too long (93 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:142:89
+    |
+140 | I'd encourage you to be creative and mix up the style in different iterations since you'll have multiple opportunities to try differe…
+141 |
+142 | Please respond with only the new description text in <new_description> tags, nothing else."""
+    |                                                                                         ^^^^^
+143 |
+144 |     text = _call_claude(prompt, model)
+    |
+
+E501 Line too long (89 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:147:89
+    |
+146 |     match = re.search(r"<new_description>(.*?)</new_description>", text, re.DOTALL)
+147 |     description = match.group(1).strip().strip('"') if match else text.strip().strip('"')
+    |                                                                                         ^
+148 |
+149 |     transcript: dict = {
+    |
+
+E501 Line too long (95 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:175:89
+    |
+173 |         )
+174 |         shorten_text = _call_claude(shorten_prompt, model)
+175 |         match = re.search(r"<new_description>(.*?)</new_description>", shorten_text, re.DOTALL)
+    |                                                                                         ^^^^^^^
+176 |         shortened = match.group(1).strip().strip('"') if match else shorten_text.strip().strip('"')
+    |
+
+E501 Line too long (99 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:176:89
+    |
+174 |         shorten_text = _call_claude(shorten_prompt, model)
+175 |         match = re.search(r"<new_description>(.*?)</new_description>", shorten_text, re.DOTALL)
+176 |         shortened = match.group(1).strip().strip('"') if match else shorten_text.strip().strip('"')
+    |                                                                                         ^^^^^^^^^^^
+177 |
+178 |         transcript["rewrite_prompt"] = shorten_prompt
+    |
+
+D103 Missing docstring in public function
+   --> .claude/skills/skill-creator/scripts/improve_description.py:194:5
+    |
+194 | def main():
+    |     ^^^^
+195 |     parser = argparse.ArgumentParser(description="Improve a skill description based on eval results")
+196 |     parser.add_argument("--eval-results", required=True, help="Path to eval results JSON (from run_eval.py)")
+    |
+
+E501 Line too long (101 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:195:89
+    |
+194 | def main():
+195 |     parser = argparse.ArgumentParser(description="Improve a skill description based on eval results")
+    |                                                                                         ^^^^^^^^^^^^^
+196 |     parser.add_argument("--eval-results", required=True, help="Path to eval results JSON (from run_eval.py)")
+197 |     parser.add_argument("--skill-path", required=True, help="Path to skill directory")
+    |
+
+E501 Line too long (109 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:196:89
+    |
+194 | def main():
+195 |     parser = argparse.ArgumentParser(description="Improve a skill description based on eval results")
+196 |     parser.add_argument("--eval-results", required=True, help="Path to eval results JSON (from run_eval.py)")
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^
+197 |     parser.add_argument("--skill-path", required=True, help="Path to skill directory")
+198 |     parser.add_argument("--history", default=None, help="Path to history JSON (previous attempts)")
+    |
+
+E501 Line too long (99 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:198:89
+    |
+196 |     parser.add_argument("--eval-results", required=True, help="Path to eval results JSON (from run_eval.py)")
+197 |     parser.add_argument("--skill-path", required=True, help="Path to skill directory")
+198 |     parser.add_argument("--history", default=None, help="Path to history JSON (previous attempts)")
+    |                                                                                         ^^^^^^^^^^^
+199 |     parser.add_argument("--model", required=True, help="Model for improvement")
+200 |     parser.add_argument("--verbose", action="store_true", help="Print thinking to stderr")
+    |
+
+E501 Line too long (90 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:200:89
+    |
+198 |     parser.add_argument("--history", default=None, help="Path to history JSON (previous attempts)")
+199 |     parser.add_argument("--model", required=True, help="Model for improvement")
+200 |     parser.add_argument("--verbose", action="store_true", help="Print thinking to stderr")
+    |                                                                                         ^^
+201 |     args = parser.parse_args()
+    |
+
+E501 Line too long (112 > 88)
+   --> .claude/skills/skill-creator/scripts/improve_description.py:218:89
+    |
+216 |     if args.verbose:
+217 |         print(f"Current: {current_description}", file=sys.stderr)
+218 |         print(f"Score: {eval_results['summary']['passed']}/{eval_results['summary']['total']}", file=sys.stderr)
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^
+219 |
+220 |     new_description = improve_description(
+    |
+
+D212 [*] Multi-line docstring summary should start at the first line
+  --> .claude/skills/skill-creator/scripts/package_skill.py:2:1
+   |
+ 1 |   #!/usr/bin/env python3
+ 2 | / """
+ 3 | | Skill Packager - Creates a distributable .skill file of a skill folder
+ 4 | |
+ 5 | | Usage:
+ 6 | |     python utils/package_skill.py <path/to/skill-folder> [output-directory]
+ 7 | |
+ 8 | | Example:
+ 9 | |     python utils/package_skill.py skills/public/my-skill
+10 | |     python utils/package_skill.py skills/public/my-skill ./dist
+11 | | """
+   | |___^
+12 |
+13 |   import fnmatch
+   |
+help: Remove whitespace after opening quotes
+  |
+1 | #!/usr/bin/env python3
+  - """
+  - Skill Packager - Creates a distributable .skill file of a skill folder
+2 + """Skill Packager - Creates a distributable .skill file of a skill folder
+3 |
+  |
+
+D400 First line should end with a period
+  --> .claude/skills/skill-creator/scripts/package_skill.py:2:1
+   |
+ 1 |   #!/usr/bin/env python3
+ 2 | / """
+ 3 | | Skill Packager - Creates a distributable .skill file of a skill folder
+ 4 | |
+ 5 | | Usage:
+ 6 | |     python utils/package_skill.py <path/to/skill-folder> [output-directory]
+ 7 | |
+ 8 | | Example:
+ 9 | |     python utils/package_skill.py skills/public/my-skill
+10 | |     python utils/package_skill.py skills/public/my-skill ./dist
+11 | | """
+   | |___^
+12 |
+13 |   import fnmatch
+   |
+help: Add period
+
+D415 First line should end with a period, question mark, or exclamation point
+  --> .claude/skills/skill-creator/scripts/package_skill.py:2:1
+   |
+ 1 |   #!/usr/bin/env python3
+ 2 | / """
+ 3 | | Skill Packager - Creates a distributable .skill file of a skill folder
+ 4 | |
+ 5 | | Usage:
+ 6 | |     python utils/package_skill.py <path/to/skill-folder> [output-directory]
+ 7 | |
+ 8 | | Example:
+ 9 | |     python utils/package_skill.py skills/public/my-skill
+10 | |     python utils/package_skill.py skills/public/my-skill ./dist
+11 | | """
+   | |___^
+12 |
+13 |   import fnmatch
+   |
+help: Add closing punctuation
+
+D413 [*] Missing blank line after last section ("Example")
+  --> .claude/skills/skill-creator/scripts/package_skill.py:8:1
+   |
+ 6 |     python utils/package_skill.py <path/to/skill-folder> [output-directory]
+ 7 |
+ 8 | Example:
+   | ^^^^^^^
+ 9 |     python utils/package_skill.py skills/public/my-skill
+10 |     python utils/package_skill.py skills/public/my-skill ./dist
+   |
+help: Add blank line after "Example"
+   |
+10 |     python utils/package_skill.py skills/public/my-skill ./dist
+11 +
+12 | """
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .claude/skills/skill-creator/scripts/package_skill.py:13:1
+   |
+11 |   """
+12 |
+13 | / import fnmatch
+14 | | import sys
+15 | | import zipfile
+16 | | from pathlib import Path
+17 | | from scripts.quick_validate import validate_skill
+   | |_________________________________________________^
+18 |
+19 |   # Patterns to exclude when packaging skills.
+   |
+help: Organize imports
+   |
+16 | from pathlib import Path
+17 +
+18 | from scripts.quick_validate import validate_skill
+   |
+
+D212 [*] Multi-line docstring summary should start at the first line
+  --> .claude/skills/skill-creator/scripts/package_skill.py:43:5
+   |
+42 |   def package_skill(skill_path, output_dir=None):
+43 | /     """
+44 | |     Package a skill folder into a .skill file.
+45 | |
+46 | |     Args:
+47 | |         skill_path: Path to the skill folder
+48 | |         output_dir: Optional output directory for the .skill file (defaults to current directory)
+49 | |
+50 | |     Returns:
+51 | |         Path to the created .skill file, or None if error
+52 | |     """
+   | |_______^
+53 |       skill_path = Path(skill_path).resolve()
+   |
+help: Remove whitespace after opening quotes
+   |
+42 | def package_skill(skill_path, output_dir=None):
+   -     """
+   -     Package a skill folder into a .skill file.
+43 +     """Package a skill folder into a .skill file.
+44 |
+   |
+
+E501 Line too long (97 > 88)
+  --> .claude/skills/skill-creator/scripts/package_skill.py:48:89
+   |
+46 |     Args:
+47 |         skill_path: Path to the skill folder
+48 |         output_dir: Optional output directory for the .skill file (defaults to current directory)
+   |                                                                                         ^^^^^^^^^
+49 |
+50 |     Returns:
+   |
+
+D413 [*] Missing blank line after last section ("Returns")
+  --> .claude/skills/skill-creator/scripts/package_skill.py:50:5
+   |
+48 |         output_dir: Optional output directory for the .skill file (defaults to current directory)
+49 |
+50 |     Returns:
+   |     ^^^^^^^
+51 |         Path to the created .skill file, or None if error
+52 |     """
+   |
+help: Add blank line after "Returns"
+   |
+51 |         Path to the created .skill file, or None if error
+52 +
+53 |     """
+   |
+
+D103 Missing docstring in public function
+   --> .claude/skills/skill-creator/scripts/package_skill.py:111:5
+    |
+111 | def main():
+    |     ^^^^
+112 |     if len(sys.argv) < 2:
+113 |         print("Usage: python utils/package_skill.py <path/to/skill-folder> [output-directory]")
+    |
+
+E501 Line too long (95 > 88)
+   --> .claude/skills/skill-creator/scripts/package_skill.py:113:89
+    |
+111 | def main():
+112 |     if len(sys.argv) < 2:
+113 |         print("Usage: python utils/package_skill.py <path/to/skill-folder> [output-directory]")
+    |                                                                                         ^^^^^^^
+114 |         print("\nExample:")
+115 |         print("  python utils/package_skill.py skills/public/my-skill")
+    |
+
+D200 One-line docstring should fit on one line
+ --> .claude/skills/skill-creator/scripts/quick_validate.py:2:1
+  |
+1 |   #!/usr/bin/env python3
+2 | / """
+3 | | Quick validation script for skills - minimal version
+4 | | """
+  | |___^
+5 |
+6 |   import sys
+  |
+help: Reformat to one line
+
+D212 [*] Multi-line docstring summary should start at the first line
+ --> .claude/skills/skill-creator/scripts/quick_validate.py:2:1
+  |
+1 |   #!/usr/bin/env python3
+2 | / """
+3 | | Quick validation script for skills - minimal version
+4 | | """
+  | |___^
+5 |
+6 |   import sys
+  |
+help: Remove whitespace after opening quotes
+  |
+1 | #!/usr/bin/env python3
+  - """
+  - Quick validation script for skills - minimal version
+2 + """Quick validation script for skills - minimal version
+3 | """
+  |
+
+D400 First line should end with a period
+ --> .claude/skills/skill-creator/scripts/quick_validate.py:2:1
+  |
+1 |   #!/usr/bin/env python3
+2 | / """
+3 | | Quick validation script for skills - minimal version
+4 | | """
+  | |___^
+5 |
+6 |   import sys
+  |
+help: Add period
+
+D415 First line should end with a period, question mark, or exclamation point
+ --> .claude/skills/skill-creator/scripts/quick_validate.py:2:1
+  |
+1 |   #!/usr/bin/env python3
+2 | / """
+3 | | Quick validation script for skills - minimal version
+4 | | """
+  | |___^
+5 |
+6 |   import sys
+  |
+help: Add closing punctuation
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> .claude/skills/skill-creator/scripts/quick_validate.py:6:1
+   |
+ 4 |   """
+ 5 |
+ 6 | / import sys
+ 7 | | import re
+ 8 | | import yaml
+ 9 | | from pathlib import Path
+   | |________________________^
+10 |
+11 |   # Directories whose contents are not packaged as part of the skill, so any
+   |
+help: Organize imports
+   |
+5  |
+   - import sys
+6  | import re
+   - import yaml
+7  + import sys
+8  | from pathlib import Path
+9  |
+10 + import yaml
+11 +
+12 | # Directories whose contents are not packaged as part of the skill, so any
+   |
+
+D401 First line of docstring should be in imperative mood: "True if a SKILL.md at rel_path (relative to the skill root) would be packaged."
+  --> .claude/skills/skill-creator/scripts/quick_validate.py:20:5
+   |
+19 | def _counts_as_skill_md(rel_path):
+20 |     """True if a SKILL.md at rel_path (relative to the skill root) would be packaged."""
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+21 |     dir_parts = rel_path.parts[:-1]
+22 |     if any(part in EXCLUDED_DIR_PARTS for part in dir_parts):
+   |
+
+D400 First line should end with a period
+  --> .claude/skills/skill-creator/scripts/quick_validate.py:30:5
+   |
+29 | def validate_skill(skill_path):
+30 |     """Basic validation of a skill"""
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+31 |     skill_path = Path(skill_path)
+   |
+help: Add period
+
+D401 First line of docstring should be in imperative mood: "Basic validation of a skill"
+  --> .claude/skills/skill-creator/scripts/quick_validate.py:30:5
+   |
+29 | def validate_skill(skill_path):
+30 |     """Basic validation of a skill"""
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+31 |     skill_path = Path(skill_path)
+   |
+
+D415 First line should end with a period, question mark, or exclamation point
+  --> .claude/skills/skill-creator/scripts/quick_validate.py:30:5
+   |
+29 | def validate_skill(skill_path):
+30 |     """Basic validation of a skill"""
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+31 |     skill_path = Path(skill_path)
+   |
+help: Add closing punctuation
+
+E501 Line too long (95 > 88)
+  --> .claude/skills/skill-creator/scripts/quick_validate.py:59:89
+   |
+57 |             "  - Separate skills: package each on its own, or build a plugin "
+58 |             "(skills/<name>/SKILL.md).\n"
+59 |             "  - Supporting docs: rename to non-SKILL.md files (e.g. references/<topic>.md).\n"
+   |                                                                                         ^^^^^^^
+60 |             "  - Swept in by mistake: package only the one skill directory."
+61 |         )
+   |
+
+N806 Variable `ALLOWED_PROPERTIES` in function should be lowercase
+  --> .claude/skills/skill-creator/scripts/quick_validate.py:84:5
+   |
+83 |     # Define allowed properties
+84 |     ALLOWED_PROPERTIES = {'name', 'description', 'license', 'allowed-tools', 'metadata', 'compatibility'}
+   |     ^^^^^^^^^^^^^^^^^^
+85 |
+86 |     # Check for unexpected properties (excluding nested keys under metadata)
+   |
+
+E501 Line too long (105 > 88)
+  --> .claude/skills/skill-creator/scripts/quick_validate.py:84:89
+   |
+83 |     # Define allowed properties
+84 |     ALLOWED_PROPERTIES = {'name', 'description', 'license', 'allowed-tools', 'metadata', 'compatibility'}
+   |                                                                                         ^^^^^^^^^^^^^^^^^
+85 |
+86 |     # Check for unexpected properties (excluding nested keys under metadata)
+   |
+
+E501 Line too long (96 > 88)
+  --> .claude/skills/skill-creator/scripts/quick_validate.py:90:89
+   |
+88 |     if unexpected_keys:
+89 |         return False, (
+90 |             f"Unexpected key(s) in SKILL.md frontmatter: {', '.join(sorted(unexpected_keys))}. "
+   |                                                                                         ^^^^^^^^
+91 |             f"Allowed properties are: {', '.join(sorted(ALLOWED_PROPERTIES))}"
+92 |         )
+   |
+
+E501 Line too long (109 > 88)
+   --> .claude/skills/skill-creator/scripts/quick_validate.py:108:89
+    |
+106 |         # Check naming convention (kebab-case: lowercase with hyphens)
+107 |         if not re.match(r'^[a-z0-9-]+$', name):
+108 |             return False, f"Name '{name}' should be kebab-case (lowercase letters, digits, and hyphens only)"
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^
+109 |         if name.startswith('-') or name.endswith('-') or '--' in name:
+110 |             return False, f"Name '{name}' cannot start/end with hyphen or contain consecutive hyphens"
+    |
+
+E501 Line too long (102 > 88)
+   --> .claude/skills/skill-creator/scripts/quick_validate.py:110:89
+    |
+108 |             return False, f"Name '{name}' should be kebab-case (lowercase letters, digits, and hyphens only)"
+109 |         if name.startswith('-') or name.endswith('-') or '--' in name:
+110 |             return False, f"Name '{name}' cannot start/end with hyphen or contain consecutive hyphens"
+    |                                                                                         ^^^^^^^^^^^^^^
+111 |         # Check name length (max 64 characters per spec)
+112 |         if len(name) > 64:
+    |
+
+E501 Line too long (97 > 88)
+   --> .claude/skills/skill-creator/scripts/quick_validate.py:113:89
+    |
+111 |         # Check name length (max 64 characters per spec)
+112 |         if len(name) > 64:
+113 |             return False, f"Name is too long ({len(name)} characters). Maximum is 64 characters."
+    |                                                                                         ^^^^^^^^^
+114 |
+115 |     # Extract and validate description
+    |
+
+E501 Line too long (113 > 88)
+   --> .claude/skills/skill-creator/scripts/quick_validate.py:126:89
+    |
+124 |         # Check description length (max 1024 characters per spec)
+125 |         if len(description) > 1024:
+126 |             return False, f"Description is too long ({len(description)} characters). Maximum is 1024 characters."
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+127 |
+128 |     # Validate compatibility field if present (optional)
+    |
+
+E501 Line too long (95 > 88)
+   --> .claude/skills/skill-creator/scripts/quick_validate.py:132:89
+    |
+130 |     if compatibility:
+131 |         if not isinstance(compatibility, str):
+132 |             return False, f"Compatibility must be a string, got {type(compatibility).__name__}"
+    |                                                                                         ^^^^^^^
+133 |         if len(compatibility) > 500:
+134 |             return False, f"Compatibility is too long ({len(compatibility)} characters). Maximum is 500 characters."
+    |
+
+E501 Line too long (116 > 88)
+   --> .claude/skills/skill-creator/scripts/quick_validate.py:134:89
+    |
+132 |             return False, f"Compatibility must be a string, got {type(compatibility).__name__}"
+133 |         if len(compatibility) > 500:
+134 |             return False, f"Compatibility is too long ({len(compatibility)} characters). Maximum is 500 characters."
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+135 |
+136 |     return True, "Skill is valid!"
+    |
+
+E501 Line too long (98 > 88)
+   --> .claude/skills/skill-creator/scripts/run_eval.py:164:89
+    |
+162 | …                     tool_name = content_item.get("name", "")
+163 | …                     tool_input = content_item.get("input", {})
+164 | …                     if tool_name == "Skill" and clean_name in tool_input.get("skill", ""):
+    |                                                                                   ^^^^^^^^^^
+165 | …                         triggered = True
+166 | …                     elif tool_name == "Read" and clean_name in tool_input.get("file_path", ""):
+    |
+
+E501 Line too long (103 > 88)
+   --> .claude/skills/skill-creator/scripts/run_eval.py:166:89
+    |
+164 | …                     if tool_name == "Skill" and clean_name in tool_input.get("skill", ""):
+165 | …                         triggered = True
+166 | …                     elif tool_name == "Read" and clean_name in tool_input.get("file_path", ""):
+    |                                                                                   ^^^^^^^^^^^^^^^
+167 | …                         triggered = True
+168 | …                     return triggered
+    |
+
+D103 Missing docstring in public function
+   --> .claude/skills/skill-creator/scripts/run_eval.py:259:5
+    |
+259 | def main():
+    |     ^^^^
+260 |     parser = argparse.ArgumentParser(description="Run trigger evaluation for a skill description")
+261 |     parser.add_argument("--eval-set", required=True, help="Path to eval set JSON file")
+    |
+
+E501 Line too long (98 > 88)
+   --> .claude/skills/skill-creator/scripts/run_eval.py:260:89
+    |
+259 | def main():
+260 |     parser = argparse.ArgumentParser(description="Run trigger evaluation for a skill description")
+    |                                                                                         ^^^^^^^^^^
+261 |     parser.add_argument("--eval-set", required=True, help="Path to eval set JSON file")
+262 |     parser.add_argument("--skill-path", required=True, help="Path to skill directory")
+    |
+
+E501 Line too long (91 > 88)
+   --> .claude/skills/skill-creator/scripts/run_eval.py:263:89
+    |
+261 |     parser.add_argument("--eval-set", required=True, help="Path to eval set JSON file")
+262 |     parser.add_argument("--skill-path", required=True, help="Path to skill directory")
+263 |     parser.add_argument("--description", default=None, help="Override description to test")
+    |                                                                                         ^^^
+264 |     parser.add_argument("--num-workers", type=int, default=10, help="Number of parallel workers")
+265 |     parser.add_argument("--timeout", type=int, default=30, help="Timeout per query in seconds")
+    |
+
+E501 Line too long (97 > 88)
+   --> .claude/skills/skill-creator/scripts/run_eval.py:264:89
+    |
+262 |     parser.add_argument("--skill-path", required=True, help="Path to skill directory")
+263 |     parser.add_argument("--description", default=None, help="Override description to test")
+264 |     parser.add_argument("--num-workers", type=int, default=10, help="Number of parallel workers")
+    |                                                                                         ^^^^^^^^^
+265 |     parser.add_argument("--timeout", type=int, default=30, help="Timeout per query in seconds")
+266 |     parser.add_argument("--runs-per-query", type=int, default=3, help="Number of runs per query")
+    |
+
+E501 Line too long (95 > 88)
+   --> .claude/skills/skill-creator/scripts/run_eval.py:265:89
+    |
+263 |     parser.add_argument("--description", default=None, help="Override description to test")
+264 |     parser.add_argument("--num-workers", type=int, default=10, help="Number of parallel workers")
+265 |     parser.add_argument("--timeout", type=int, default=30, help="Timeout per query in seconds")
+    |                                                                                         ^^^^^^^
+266 |     parser.add_argument("--runs-per-query", type=int, default=3, help="Number of runs per query")
+267 |     parser.add_argument("--trigger-threshold", type=float, default=0.5, help="Trigger rate threshold")
+    |
+
+E501 Line too long (97 > 88)
+   --> .claude/skills/skill-creator/scripts/run_eval.py:266:89
+    |
+264 |     parser.add_argument("--num-workers", type=int, default=10, help="Number of parallel workers")
+265 |     parser.add_argument("--timeout", type=int, default=30, help="Timeout per query in seconds")
+266 |     parser.add_argument("--runs-per-query", type=int, default=3, help="Number of runs per query")
+    |                                                                                         ^^^^^^^^^
+267 |     parser.add_argument("--trigger-threshold", type=float, default=0.5, help="Trigger rate threshold")
+268 |     parser.add_argument("--model", default=None, help="Model to use for claude -p (default: user's configured model)")
+    |
+
+E501 Line too long (102 > 88)
+   --> .claude/skills/skill-creator/scripts/run_eval.py:267:89
+    |
+265 |     parser.add_argument("--timeout", type=int, default=30, help="Timeout per query in seconds")
+266 |     parser.add_argument("--runs-per-query", type=int, default=3, help="Number of runs per query")
+267 |     parser.add_argument("--trigger-threshold", type=float, default=0.5, help="Trigger rate threshold")
+    |                                                                                         ^^^^^^^^^^^^^^
+268 |     parser.add_argument("--model", default=None, help="Model to use for claude -p (default: user's configured model)")
+269 |     parser.add_argument("--verbose", action="store_true", help="Print progress to stderr")
+    |
+
+E501 Line too long (118 > 88)
+   --> .claude/skills/skill-creator/scripts/run_eval.py:268:89
+    |
+266 |     parser.add_argument("--runs-per-query", type=int, default=3, help="Number of runs per query")
+267 |     parser.add_argument("--trigger-threshold", type=float, default=0.5, help="Trigger rate threshold")
+268 |     parser.add_argument("--model", default=None, help="Model to use for claude -p (default: user's configured model)")
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+269 |     parser.add_argument("--verbose", action="store_true", help="Print progress to stderr")
+270 |     args = parser.parse_args()
+    |
+
+E501 Line too long (90 > 88)
+   --> .claude/skills/skill-creator/scripts/run_eval.py:269:89
+    |
+267 |     parser.add_argument("--trigger-threshold", type=float, default=0.5, help="Trigger rate threshold")
+268 |     parser.add_argument("--model", default=None, help="Model to use for claude -p (default: user's configured model)")
+269 |     parser.add_argument("--verbose", action="store_true", help="Print progress to stderr")
+    |                                                                                         ^^
+270 |     args = parser.parse_args()
+    |
+
+E501 Line too long (89 > 88)
+   --> .claude/skills/skill-creator/scripts/run_eval.py:300:89
+    |
+298 |     if args.verbose:
+299 |         summary = output["summary"]
+300 |         print(f"Results: {summary['passed']}/{summary['total']} passed", file=sys.stderr)
+    |                                                                                         ^
+301 |         for r in output["results"]:
+302 |             status = "PASS" if r["pass"] else "FAIL"
+    |
+
+E501 Line too long (117 > 88)
+   --> .claude/skills/skill-creator/scripts/run_eval.py:304:89
+    |
+302 |             status = "PASS" if r["pass"] else "FAIL"
+303 |             rate_str = f"{r['triggers']}/{r['runs']}"
+304 |             print(f"  [{status}] rate={rate_str} expected={r['should_trigger']}: {r['query'][:70]}", file=sys.stderr)
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+305 |
+306 |     print(json.dumps(output, indent=2))
+    |
+
+E501 Line too long (106 > 88)
+  --> .claude/skills/skill-creator/scripts/run_loop.py:24:89
+   |
+24 | def split_eval_set(eval_set: list[dict], holdout: float, seed: int = 42) -> tuple[list[dict], list[dict]]:
+   |                                                                                         ^^^^^^^^^^^^^^^^^^
+25 |     """Split eval set into train and test sets, stratified by should_trigger."""
+26 |     random.seed(seed)
+   |
+
+E501 Line too long (110 > 88)
+  --> .claude/skills/skill-creator/scripts/run_loop.py:71:89
+   |
+69 |         train_set, test_set = split_eval_set(eval_set, holdout)
+70 |         if verbose:
+71 |             print(f"Split: {len(train_set)} train, {len(test_set)} test (holdout={holdout})", file=sys.stderr)
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^
+72 |     else:
+73 |         train_set = eval_set
+   |
+
+E501 Line too long (98 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:104:89
+    |
+102 |         # Split results back into train/test by matching queries
+103 |         train_queries_set = {q["query"] for q in train_set}
+104 |         train_result_list = [r for r in all_results["results"] if r["query"] in train_queries_set]
+    |                                                                                         ^^^^^^^^^^
+105 |         test_result_list = [r for r in all_results["results"] if r["query"] not in train_queries_set]
+    |
+
+E501 Line too long (101 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:105:89
+    |
+103 |         train_queries_set = {q["query"] for q in train_set}
+104 |         train_result_list = [r for r in all_results["results"] if r["query"] in train_queries_set]
+105 |         test_result_list = [r for r in all_results["results"] if r["query"] not in train_queries_set]
+    |                                                                                         ^^^^^^^^^^^^^
+106 |
+107 |         train_passed = sum(1 for r in train_result_list if r["pass"])
+    |
+
+E501 Line too long (108 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:109:89
+    |
+107 |         train_passed = sum(1 for r in train_result_list if r["pass"])
+108 |         train_total = len(train_result_list)
+109 |         train_summary = {"passed": train_passed, "failed": train_total - train_passed, "total": train_total}
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^
+110 |         train_results = {"results": train_result_list, "summary": train_summary}
+    |
+
+E501 Line too long (107 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:115:89
+    |
+113 |             test_passed = sum(1 for r in test_result_list if r["pass"])
+114 |             test_total = len(test_result_list)
+115 |             test_summary = {"passed": test_passed, "failed": test_total - test_passed, "total": test_total}
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^
+116 |             test_results = {"results": test_result_list, "summary": test_summary}
+117 |         else:
+    |
+
+E501 Line too long (106 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:151:89
+    |
+149 |                 "history": history,
+150 |             }
+151 |             live_report_path.write_text(generate_html(partial_output, auto_refresh=True, skill_name=name))
+    |                                                                                         ^^^^^^^^^^^^^^^^^^
+152 |
+153 |         if verbose:
+    |
+
+E501 Line too long (163 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:167:89
+    |
+165 | …e 1.0
+166 | …se 0.0
+167 | …ecision={precision:.0%} recall={recall:.0%} accuracy={accuracy:.0%} ({elapsed:.1f}s)", file=sys.stderr)
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+168 | …
+169 | …
+    |
+
+E501 Line too long (125 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:171:89
+    |
+169 |                     status = "PASS" if r["pass"] else "FAIL"
+170 |                     rate_str = f"{r['triggers']}/{r['runs']}"
+171 |                     print(f"  [{status}] rate={rate_str} expected={r['should_trigger']}: {r['query'][:60]}", file=sys.stderr)
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+172 |
+173 |             print_eval_stats("Train", train_results["results"], eval_elapsed)
+    |
+
+E501 Line too long (95 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:180:89
+    |
+178 |             exit_reason = f"all_passed (iteration {iteration})"
+179 |             if verbose:
+180 |                 print(f"\nAll train queries passed on iteration {iteration}!", file=sys.stderr)
+    |                                                                                         ^^^^^^^
+181 |             break
+    |
+
+F541 [*] f-string without any placeholders
+   --> .claude/skills/skill-creator/scripts/run_loop.py:191:19
+    |
+189 |         # Improve the description based on train results
+190 |         if verbose:
+191 |             print(f"\nImproving description...", file=sys.stderr)
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+192 |
+193 |         t0 = time.time()
+    |
+help: Remove extraneous `f` prefix
+    |
+190 |         if verbose:
+    -             print(f"\nImproving description...", file=sys.stderr)
+191 +             print("\nImproving description...", file=sys.stderr)
+192 |
+    |
+
+E501 Line too long (91 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:212:89
+    |
+211 |         if verbose:
+212 |             print(f"Proposed ({improve_elapsed:.1f}s): {new_description}", file=sys.stderr)
+    |                                                                                         ^^^
+213 |
+214 |         current_description = new_description
+    |
+
+E501 Line too long (91 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:226:89
+    |
+224 |     if verbose:
+225 |         print(f"\nExit reason: {exit_reason}", file=sys.stderr)
+226 |         print(f"Best score: {best_score} (iteration {best['iteration']})", file=sys.stderr)
+    |                                                                                         ^^^
+227 |
+228 |     return {
+    |
+
+E501 Line too long (95 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:234:89
+    |
+232 |         "best_score": best_score,
+233 |         "best_train_score": f"{best['train_passed']}/{best['train_total']}",
+234 |         "best_test_score": f"{best['test_passed']}/{best['test_total']}" if test_set else None,
+    |                                                                                         ^^^^^^^
+235 |         "final_description": current_description,
+236 |         "iterations_run": len(history),
+    |
+
+D103 Missing docstring in public function
+   --> .claude/skills/skill-creator/scripts/run_loop.py:244:5
+    |
+244 | def main():
+    |     ^^^^
+245 |     parser = argparse.ArgumentParser(description="Run eval + improve loop")
+246 |     parser.add_argument("--eval-set", required=True, help="Path to eval set JSON file")
+    |
+
+E501 Line too long (92 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:248:89
+    |
+246 |     parser.add_argument("--eval-set", required=True, help="Path to eval set JSON file")
+247 |     parser.add_argument("--skill-path", required=True, help="Path to skill directory")
+248 |     parser.add_argument("--description", default=None, help="Override starting description")
+    |                                                                                         ^^^^
+249 |     parser.add_argument("--num-workers", type=int, default=10, help="Number of parallel workers")
+250 |     parser.add_argument("--timeout", type=int, default=30, help="Timeout per query in seconds")
+    |
+
+E501 Line too long (97 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:249:89
+    |
+247 |     parser.add_argument("--skill-path", required=True, help="Path to skill directory")
+248 |     parser.add_argument("--description", default=None, help="Override starting description")
+249 |     parser.add_argument("--num-workers", type=int, default=10, help="Number of parallel workers")
+    |                                                                                         ^^^^^^^^^
+250 |     parser.add_argument("--timeout", type=int, default=30, help="Timeout per query in seconds")
+251 |     parser.add_argument("--max-iterations", type=int, default=5, help="Max improvement iterations")
+    |
+
+E501 Line too long (95 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:250:89
+    |
+248 |     parser.add_argument("--description", default=None, help="Override starting description")
+249 |     parser.add_argument("--num-workers", type=int, default=10, help="Number of parallel workers")
+250 |     parser.add_argument("--timeout", type=int, default=30, help="Timeout per query in seconds")
+    |                                                                                         ^^^^^^^
+251 |     parser.add_argument("--max-iterations", type=int, default=5, help="Max improvement iterations")
+252 |     parser.add_argument("--runs-per-query", type=int, default=3, help="Number of runs per query")
+    |
+
+E501 Line too long (99 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:251:89
+    |
+249 |     parser.add_argument("--num-workers", type=int, default=10, help="Number of parallel workers")
+250 |     parser.add_argument("--timeout", type=int, default=30, help="Timeout per query in seconds")
+251 |     parser.add_argument("--max-iterations", type=int, default=5, help="Max improvement iterations")
+    |                                                                                         ^^^^^^^^^^^
+252 |     parser.add_argument("--runs-per-query", type=int, default=3, help="Number of runs per query")
+253 |     parser.add_argument("--trigger-threshold", type=float, default=0.5, help="Trigger rate threshold")
+    |
+
+E501 Line too long (97 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:252:89
+    |
+250 |     parser.add_argument("--timeout", type=int, default=30, help="Timeout per query in seconds")
+251 |     parser.add_argument("--max-iterations", type=int, default=5, help="Max improvement iterations")
+252 |     parser.add_argument("--runs-per-query", type=int, default=3, help="Number of runs per query")
+    |                                                                                         ^^^^^^^^^
+253 |     parser.add_argument("--trigger-threshold", type=float, default=0.5, help="Trigger rate threshold")
+254 |     parser.add_argument("--holdout", type=float, default=0.4, help="Fraction of eval set to hold out for testing (0 to disable)")
+    |
+
+E501 Line too long (102 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:253:89
+    |
+251 |     parser.add_argument("--max-iterations", type=int, default=5, help="Max improvement iterations")
+252 |     parser.add_argument("--runs-per-query", type=int, default=3, help="Number of runs per query")
+253 |     parser.add_argument("--trigger-threshold", type=float, default=0.5, help="Trigger rate threshold")
+    |                                                                                         ^^^^^^^^^^^^^^
+254 |     parser.add_argument("--holdout", type=float, default=0.4, help="Fraction of eval set to hold out for testing (0 to disable)")
+255 |     parser.add_argument("--model", required=True, help="Model for improvement")
+    |
+
+E501 Line too long (129 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:254:89
+    |
+252 |     parser.add_argument("--runs-per-query", type=int, default=3, help="Number of runs per query")
+253 |     parser.add_argument("--trigger-threshold", type=float, default=0.5, help="Trigger rate threshold")
+254 |     parser.add_argument("--holdout", type=float, default=0.4, help="Fraction of eval set to hold out for testing (0 to disable)")
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+255 |     parser.add_argument("--model", required=True, help="Model for improvement")
+256 |     parser.add_argument("--verbose", action="store_true", help="Print progress to stderr")
+    |
+
+E501 Line too long (90 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:256:89
+    |
+254 |     parser.add_argument("--holdout", type=float, default=0.4, help="Fraction of eval set to hold out for testing (0 to disable)")
+255 |     parser.add_argument("--model", required=True, help="Model for improvement")
+256 |     parser.add_argument("--verbose", action="store_true", help="Print progress to stderr")
+    |                                                                                         ^^
+257 |     parser.add_argument("--report", default="auto", help="Generate HTML report at this path (default: 'auto' for temp file, 'none' to…
+258 |     parser.add_argument("--results-dir", default=None, help="Save all outputs (results.json, report.html, log.txt) to a timestamped s…
+    |
+
+E501 Line too long (144 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:257:89
+    |
+255 | …help="Model for improvement")
+256 | …_true", help="Print progress to stderr")
+257 | …, help="Generate HTML report at this path (default: 'auto' for temp file, 'none' to disable)")
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+258 | …one, help="Save all outputs (results.json, report.html, log.txt) to a timestamped subdirectory here")
+259 | …
+    |
+
+E501 Line too long (151 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:258:89
+    |
+256 | …e", help="Print progress to stderr")
+257 | …lp="Generate HTML report at this path (default: 'auto' for temp file, 'none' to disable)")
+258 | … help="Save all outputs (results.json, report.html, log.txt) to a timestamped subdirectory here")
+    |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+259 | …
+    |
+
+E501 Line too long (123 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:274:89
+    |
+272 |         if args.report == "auto":
+273 |             timestamp = time.strftime("%Y%m%d_%H%M%S")
+274 |             live_report_path = Path(tempfile.gettempdir()) / f"skill_description_report_{skill_path.name}_{timestamp}.html"
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+275 |         else:
+276 |             live_report_path = Path(args.report)
+    |
+
+E501 Line too long (142 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:278:89
+    |
+276 | …
+277 | … can watch
+278 | …<h1>Starting optimization loop...</h1><meta http-equiv='refresh' content='5'></body></html>")
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+279 | …
+280 | …
+    |
+
+E501 Line too long (95 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:317:89
+    |
+315 |     # Write final HTML report (without auto-refresh)
+316 |     if live_report_path:
+317 |         live_report_path.write_text(generate_html(output, auto_refresh=False, skill_name=name))
+    |                                                                                         ^^^^^^^
+318 |         print(f"\nReport: {live_report_path}", file=sys.stderr)
+    |
+
+E501 Line too long (108 > 88)
+   --> .claude/skills/skill-creator/scripts/run_loop.py:321:89
+    |
+320 |     if results_dir and live_report_path:
+321 |         (results_dir / "report.html").write_text(generate_html(output, auto_refresh=False, skill_name=name))
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^
+322 |
+323 |     if results_dir:
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> .claude/skills/skill-creator/scripts/utils.py:3:1
+  |
+1 | """Shared utilities for skill-creator scripts."""
+2 |
+3 | from pathlib import Path
+  | ^^^^^^^^^^^^^^^^^^^^^^^^
+help: Organize imports
+  |
+5 |
+  -
+6 | def parse_skill_md(skill_path: Path) -> tuple[str, str, str]:
+  |
+
+E501 Line too long (134 > 88)
+  --> .claude/skills/skill-creator/scripts/utils.py:38:89
+   |
+36 |                 continuation_lines: list[str] = []
+37 |                 i += 1
+38 |                 while i < len(frontmatter_lines) and (frontmatter_lines[i].startswith("  ") or frontmatter_lines[i].startswith("\t")):
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+39 |                     continuation_lines.append(frontmatter_lines[i].strip())
+40 |                     i += 1
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f1b_red_first_in_time.py:57:5
+   |
+57 | def is_spec(path: str) -> bool:
+   |     ^^^^^^^
+58 |     p = path.lstrip("./")
+59 |     name = PurePosixPath(p).name
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f1b_red_first_in_time.py:70:5
+   |
+70 | def is_story(path: str) -> bool:
+   |     ^^^^^^^^
+71 |     p = path.lstrip("./")
+72 |     return bool(re.search(r"(^|/)stories/.+\.ya?ml$", p))
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f1b_red_first_in_time.py:75:5
+   |
+75 | def is_impl(path: str) -> bool:
+   |     ^^^^^^^
+76 |     p = path.lstrip("./")
+77 |     name = PurePosixPath(p).name
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f1b_red_first_in_time.py:84:5
+   |
+84 | def result_text(block: dict) -> str:
+   |     ^^^^^^^^^^^
+85 |     c = block.get("content")
+86 |     if isinstance(c, str):
+   |
+
+E501 Line too long (106 > 88)
+   --> .coordination/detectors/f1b_red_first_in_time.py:108:89
+    |
+106 |         if head == "pytest":
+107 |             run = True
+108 |         elif head in ("python", "python3") and len(rest) >= 2 and rest[0] == "-m" and rest[1] == "pytest":
+    |                                                                                         ^^^^^^^^^^^^^^^^^^
+109 |             run, rest = True, rest[2:]
+110 |         elif head == "uv" and len(rest) >= 2 and rest[0] == "run" and rest[1] == "pytest":
+    |
+
+E501 Line too long (90 > 88)
+   --> .coordination/detectors/f1b_red_first_in_time.py:110:89
+    |
+108 |         elif head in ("python", "python3") and len(rest) >= 2 and rest[0] == "-m" and rest[1] == "pytest":
+109 |             run, rest = True, rest[2:]
+110 |         elif head == "uv" and len(rest) >= 2 and rest[0] == "run" and rest[1] == "pytest":
+    |                                                                                         ^^
+111 |             run, rest = True, rest[2:]
+112 |         if run:
+    |
+
+E501 Line too long (91 > 88)
+   --> .coordination/detectors/f1b_red_first_in_time.py:113:89
+    |
+111 |             run, rest = True, rest[2:]
+112 |         if run:
+113 |             return [t.split("::")[0] for t in rest if ".py" in t and not t.startswith("-")]
+    |                                                                                         ^^^
+114 |     return None
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f1b_red_first_in_time.py:117:5
+    |
+117 | def bash_written_paths(cmd: str):
+    |     ^^^^^^^^^^^^^^^^^^
+118 |     return re.findall(r"(?:>>?|\btee\s+(?:-a\s+)?)\s*([^\s;|&'\"]+\.py)\b", cmd)
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f1b_red_first_in_time.py:121:5
+    |
+121 | def commit_messages(cmd: str):
+    |     ^^^^^^^^^^^^^^^
+122 |     msgs = []
+123 |     for m in re.finditer(r"-m\s+(?:'([^']*)'|\"([^\"]*)\"|(\S+))", cmd):
+    |
+
+E501 Line too long (101 > 88)
+   --> .coordination/detectors/f1b_red_first_in_time.py:147:89
+    |
+145 |             ts = e.get("timestamp", "")
+146 |             etype = e.get("type")
+147 |             content = e.get("message", {}).get("content") if etype in ("assistant", "user") else None
+    |                                                                                         ^^^^^^^^^^^^^
+148 |             if not isinstance(content, list):
+149 |                 continue
+    |
+
+E501 Line too long (104 > 88)
+   --> .coordination/detectors/f1b_red_first_in_time.py:154:89
+    |
+152 |                     continue
+153 |                 if etype == "assistant" and b.get("type") == "text":
+154 |                     events.append({"kind": "text", "line": lineno, "ts": ts, "text": b.get("text", "")})
+    |                                                                                         ^^^^^^^^^^^^^^^^
+155 |                 elif etype == "assistant" and b.get("type") == "tool_use":
+156 |                     pending[b.get("id")] = {"name": b.get("name"), "input": b.get("input") or {}, "line": lineno, "ts": ts}
+    |
+
+E501 Line too long (123 > 88)
+   --> .coordination/detectors/f1b_red_first_in_time.py:156:89
+    |
+154 |                     events.append({"kind": "text", "line": lineno, "ts": ts, "text": b.get("text", "")})
+155 |                 elif etype == "assistant" and b.get("type") == "tool_use":
+156 |                     pending[b.get("id")] = {"name": b.get("name"), "input": b.get("input") or {}, "line": lineno, "ts": ts}
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+157 |                 elif etype == "user" and b.get("type") == "tool_result":
+158 |                     use = pending.pop(b.get("tool_use_id"), None)
+    |
+
+E501 Line too long (90 > 88)
+   --> .coordination/detectors/f1b_red_first_in_time.py:173:89
+    |
+171 | …                     failed = bool(b.get("is_error")) or bool(
+172 | …                         re.search(
+173 | …                             r"\b\d+ failed\b|\b\d+ errors?\b|\bFAILED\b|\bERROR\b"
+    |                                                                                   ^^
+174 | …                             r"|ModuleNotFoundError|ImportError|Traceback",
+175 | …                             out,
+    |
+
+E501 Line too long (93 > 88)
+   --> .coordination/detectors/f1b_red_first_in_time.py:178:89
+    |
+176 |                                 )
+177 |                             )
+178 |                             passed = (not failed) and bool(re.search(r"\b\d+ passed\b", out))
+    |                                                                                         ^^^^^
+179 |                             events.append({"kind": "run", "targets": targets, "failed": failed, "passed": passed, **loc})
+180 |                         if re.search(r"\bgit\b[^;|&]*\bcommit\b", cmd) and not b.get("is_error"):
+    |
+
+E501 Line too long (121 > 88)
+   --> .coordination/detectors/f1b_red_first_in_time.py:179:89
+    |
+177 |                             )
+178 |                             passed = (not failed) and bool(re.search(r"\b\d+ passed\b", out))
+179 |                             events.append({"kind": "run", "targets": targets, "failed": failed, "passed": passed, **loc})
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+180 |                         if re.search(r"\bgit\b[^;|&]*\bcommit\b", cmd) and not b.get("is_error"):
+181 |                             events.append({"kind": "commit", "msg": commit_messages(cmd), "cmd": cmd, **loc})
+    |
+
+E501 Line too long (97 > 88)
+   --> .coordination/detectors/f1b_red_first_in_time.py:180:89
+    |
+178 |                             passed = (not failed) and bool(re.search(r"\b\d+ passed\b", out))
+179 |                             events.append({"kind": "run", "targets": targets, "failed": failed, "passed": passed, **loc})
+180 |                         if re.search(r"\bgit\b[^;|&]*\bcommit\b", cmd) and not b.get("is_error"):
+    |                                                                                         ^^^^^^^^^
+181 |                             events.append({"kind": "commit", "msg": commit_messages(cmd), "cmd": cmd, **loc})
+182 |                         for wp in bash_written_paths(cmd):
+    |
+
+E501 Line too long (109 > 88)
+   --> .coordination/detectors/f1b_red_first_in_time.py:181:89
+    |
+179 |                             events.append({"kind": "run", "targets": targets, "failed": failed, "passed": passed, **loc})
+180 |                         if re.search(r"\bgit\b[^;|&]*\bcommit\b", cmd) and not b.get("is_error"):
+181 |                             events.append({"kind": "commit", "msg": commit_messages(cmd), "cmd": cmd, **loc})
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^
+182 |                         for wp in bash_written_paths(cmd):
+183 |                             if not b.get("is_error"):
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f1b_red_first_in_time.py:188:5
+    |
+188 | def classify_edit(path: str):
+    |     ^^^^^^^^^^^^^
+189 |     if is_story(path):
+190 |         return "story"
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f1b_red_first_in_time.py:198:5
+    |
+198 | def run_covers(targets, spec_path):
+    |     ^^^^^^^^^^
+199 |     if not targets:
+200 |         return True
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f1b_red_first_in_time.py:205:5
+    |
+205 | def detect(events):
+    |     ^^^^^^
+206 |     findings = []
+    |
+
+E501 Line too long (92 > 88)
+   --> .coordination/detectors/f1b_red_first_in_time.py:238:89
+    |
+236 |                         "T-33",
+237 |                         ev,
+238 |                         f"{ev['path']} edited while story card {story_uncommitted['path']} "
+    |                                                                                         ^^^^
+239 |                         f"(line={story_uncommitted['line']}) is uncommitted",
+240 |                     )
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f1b_red_first_in_time.py:349:5
+    |
+349 | def main():
+    |     ^^^^
+350 |     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+351 |     ap.add_argument("--transcript", required=True, help="Claude Code session JSONL")
+    |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f2_assertion_integrity.py:28:5
+   |
+28 | def is_spec_path(path: str) -> bool:
+   |     ^^^^^^^^^^^^
+29 |     if any(path.startswith(p) for p in EXCLUDES):
+30 |         return False
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f2_assertion_integrity.py:34:5
+   |
+34 | def git(repo: str, *args: str) -> str:
+   |     ^^^
+35 |     return subprocess.run(
+36 |         ["git", "-C", repo, *args], capture_output=True, text=True, check=True
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f2_assertion_integrity.py:40:5
+   |
+40 | def git_show(repo: str, sha: str, path: str) -> str | None:
+   |     ^^^^^^^^
+41 |     proc = subprocess.run(
+42 |         ["git", "-C", repo, "show", f"{sha}:{path}"], capture_output=True, text=True
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f2_assertion_integrity.py:47:5
+   |
+47 | def dump(node: ast.AST) -> str:
+   |     ^^^^
+48 |     return ast.dump(node)
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f2_assertion_integrity.py:56:5
+   |
+56 | def masked_dump(node: ast.AST) -> str:
+   |     ^^^^^^^^^^^
+57 |     import copy
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f2_assertion_integrity.py:62:5
+   |
+62 | def unparse(node: ast.AST) -> str:
+   |     ^^^^^^^
+63 |     try:
+64 |         return ast.unparse(node)
+   |
+
+D101 Missing docstring in public class
+  --> .coordination/detectors/f2_assertion_integrity.py:70:7
+   |
+69 | @dataclass
+70 | class AssertRec:
+   |       ^^^^^^^^^
+71 |     test: ast.expr
+72 |     dump: str
+   |
+
+D101 Missing docstring in public class
+  --> .coordination/detectors/f2_assertion_integrity.py:81:7
+   |
+80 | @dataclass
+81 | class Fn:
+   |       ^^
+82 |     file: str
+83 |     qual: str
+   |
+
+D102 Missing docstring in public method
+  --> .coordination/detectors/f2_assertion_integrity.py:97:9
+   |
+96 |     @property
+97 |     def loc(self) -> str:
+   |         ^^^
+98 |         return f"{self.file}::{self.qual}"
+   |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f2_assertion_integrity.py:154:5
+    |
+154 | def analyze_fn(file: str, qual: str, node: ast.FunctionDef) -> Fn:
+    |     ^^^^^^^^^^
+155 |     body_dump = dump(ast.Module(body=node.body, type_ignores=[])) + "".join(
+156 |         dump(d) for d in node.decorator_list
+    |
+
+D205 1 blank line required between summary line and description
+   --> .coordination/detectors/f2_assertion_integrity.py:181:5
+    |
+180 |   def index_specs(file: str, source: str) -> tuple[dict[str, Fn], set[str]]:
+181 | /     """Index it_/test_ functions plus every assert dump in the file (helpers
+182 | |     included), so assertions relocated into shared helpers are not counted
+183 | |     as removed."""
+    | |__________________^
+184 |       try:
+185 |           tree = ast.parse(source)
+    |
+help: Insert single blank line
+
+D209 [*] Multi-line docstring closing quotes should be on a separate line
+   --> .coordination/detectors/f2_assertion_integrity.py:181:5
+    |
+180 |   def index_specs(file: str, source: str) -> tuple[dict[str, Fn], set[str]]:
+181 | /     """Index it_/test_ functions plus every assert dump in the file (helpers
+182 | |     included), so assertions relocated into shared helpers are not counted
+183 | |     as removed."""
+    | |__________________^
+184 |       try:
+185 |           tree = ast.parse(source)
+    |
+help: Move closing quotes to new line
+    |
+182 |     included), so assertions relocated into shared helpers are not counted
+    -     as removed."""
+183 +     as removed.
+184 +     """
+185 |     try:
+    |
+
+E501 Line too long (91 > 88)
+   --> .coordination/detectors/f2_assertion_integrity.py:223:89
+    |
+221 |             name = type(op).__name__
+222 |             if flip:
+223 |                 name = {"Gt": "Lt", "Lt": "Gt", "GtE": "LtE", "LtE": "GtE"}.get(name, name)
+    |                                                                                         ^^^
+224 |             return name, a.args[0], b.value
+225 |     return None
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f2_assertion_integrity.py:228:5
+    |
+228 | def is_guard(rec: AssertRec) -> bool:
+    |     ^^^^^^^^
+229 |     lc = _len_compare(rec.test)
+230 |     if lc and GUARD_GT.get(lc[0]) == lc[2]:
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f2_assertion_integrity.py:235:5
+    |
+235 | def is_truthiness(test: ast.expr) -> bool:
+    |     ^^^^^^^^^^^^^
+236 |     return isinstance(test, (ast.Name, ast.Attribute))
+    |
+
+D101 Missing docstring in public class
+   --> .coordination/detectors/f2_assertion_integrity.py:240:7
+    |
+239 | @dataclass
+240 | class Finding:
+    |       ^^^^^^^
+241 |     sha: str
+242 |     mode: str
+    |
+
+D102 Missing docstring in public method
+   --> .coordination/detectors/f2_assertion_integrity.py:246:9
+    |
+244 |     detail: str
+245 |
+246 |     def line(self) -> str:
+    |         ^^^^
+247 |         return f"{self.sha[:9]} {self.mode} {self.loc} -- {self.detail}"
+    |
+
+F841 Local variable `real_asserts` is assigned to but never used
+   --> .coordination/detectors/f2_assertion_integrity.py:309:5
+    |
+307 |                  "non-emptiness guard; passes vacuously on empty output")
+308 |             )
+309 |     real_asserts = fn.asserts + [
+    |     ^^^^^^^^^^^^
+310 |         AssertRec(ast.Constant(value=0), d, d, d, 0) for d in fn.mock_asserts
+311 |     ]
+    |
+help: Remove assignment to unused variable `real_asserts`
+
+D205 1 blank line required between summary line and description
+   --> .coordination/detectors/f2_assertion_integrity.py:348:5
+    |
+347 |   def _identifier_rename_only(old: ast.expr, new: ast.expr) -> bool:
+348 | /     """True when the only differing constants are identifier-like strings on
+349 | |     both sides (a coordinated field/key rename, not an expectation rewrite)."""
+    | |_______________________________________________________________________________^
+350 |       oc, nc = _constants(old), _constants(new)
+351 |       if len(oc) != len(nc):
+    |
+help: Insert single blank line
+
+D209 [*] Multi-line docstring closing quotes should be on a separate line
+   --> .coordination/detectors/f2_assertion_integrity.py:348:5
+    |
+347 |   def _identifier_rename_only(old: ast.expr, new: ast.expr) -> bool:
+348 | /     """True when the only differing constants are identifier-like strings on
+349 | |     both sides (a coordinated field/key rename, not an expectation rewrite)."""
+    | |_______________________________________________________________________________^
+350 |       oc, nc = _constants(old), _constants(new)
+351 |       if len(oc) != len(nc):
+    |
+help: Move closing quotes to new line
+    |
+348 |     """True when the only differing constants are identifier-like strings on
+    -     both sides (a coordinated field/key rename, not an expectation rewrite)."""
+349 +     both sides (a coordinated field/key rename, not an expectation rewrite).
+350 +     """
+351 |     oc, nc = _constants(old), _constants(new)
+    |
+
+D401 First line of docstring should be in imperative mood: "True when the only differing constants are identifier-like strings on"
+   --> .coordination/detectors/f2_assertion_integrity.py:348:5
+    |
+347 |   def _identifier_rename_only(old: ast.expr, new: ast.expr) -> bool:
+348 | /     """True when the only differing constants are identifier-like strings on
+349 | |     both sides (a coordinated field/key rename, not an expectation rewrite)."""
+    | |_______________________________________________________________________________^
+350 |       oc, nc = _constants(old), _constants(new)
+351 |       if len(oc) != len(nc):
+    |
+
+B905 `zip()` without an explicit `strict=` parameter
+   --> .coordination/detectors/f2_assertion_integrity.py:353:33
+    |
+351 |     if len(oc) != len(nc):
+352 |         return False
+353 |     diffs = [(a, b) for a, b in zip(oc, nc) if a != b]
+    |                                 ^^^^^^^^^^^
+354 |     return bool(diffs) and all(
+355 |         isinstance(a, str) and isinstance(b, str)
+    |
+help: Add explicit value for parameter `strict=`
+
+D205 1 blank line required between summary line and description
+   --> .coordination/detectors/f2_assertion_integrity.py:362:5
+    |
+361 |   def _membership_strengthened(old: ast.expr, new: ast.expr) -> bool:
+362 | /     """True when both are `needle in haystack` asserts and every changed
+363 | |     string constant grew to contain its old value (a stricter needle)."""
+    | |_________________________________________________________________________^
+364 |       for node in (old, new):
+365 |           if not (
+    |
+help: Insert single blank line
+
+D209 [*] Multi-line docstring closing quotes should be on a separate line
+   --> .coordination/detectors/f2_assertion_integrity.py:362:5
+    |
+361 |   def _membership_strengthened(old: ast.expr, new: ast.expr) -> bool:
+362 | /     """True when both are `needle in haystack` asserts and every changed
+363 | |     string constant grew to contain its old value (a stricter needle)."""
+    | |_________________________________________________________________________^
+364 |       for node in (old, new):
+365 |           if not (
+    |
+help: Move closing quotes to new line
+    |
+362 |     """True when both are `needle in haystack` asserts and every changed
+    -     string constant grew to contain its old value (a stricter needle)."""
+363 +     string constant grew to contain its old value (a stricter needle).
+364 +     """
+365 |     for node in (old, new):
+    |
+
+D401 First line of docstring should be in imperative mood: "True when both are `needle in haystack` asserts and every changed"
+   --> .coordination/detectors/f2_assertion_integrity.py:362:5
+    |
+361 |   def _membership_strengthened(old: ast.expr, new: ast.expr) -> bool:
+362 | /     """True when both are `needle in haystack` asserts and every changed
+363 | |     string constant grew to contain its old value (a stricter needle)."""
+    | |_________________________________________________________________________^
+364 |       for node in (old, new):
+365 |           if not (
+    |
+
+B905 `zip()` without an explicit `strict=` parameter
+   --> .coordination/detectors/f2_assertion_integrity.py:374:33
+    |
+372 |     if len(oc) != len(nc):
+373 |         return False
+374 |     diffs = [(a, b) for a, b in zip(oc, nc) if a != b]
+    |                                 ^^^^^^^^^^^
+375 |     return bool(diffs) and all(
+376 |         isinstance(a, str) and isinstance(b, str) and a in b for a, b in diffs
+    |
+help: Add explicit value for parameter `strict=`
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f2_assertion_integrity.py:380:5
+    |
+380 | def diff_pair(
+    |     ^^^^^^^^^
+381 |     sha: str, parent: Fn, child: Fn, moved: bool, child_file_dumps: set[str]
+382 | ) -> list[Finding]:
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f2_assertion_integrity.py:508:5
+    |
+508 | def analyze_commit(repo: str, sha: str, run_static: bool) -> list[Finding]:
+    |     ^^^^^^^^^^^^^^
+509 |     entries = changed_spec_files(repo, sha)
+510 |     if not entries:
+    |
+
+B007 Loop control variable `status` not used within loop body
+   --> .coordination/detectors/f2_assertion_integrity.py:516:9
+    |
+514 |     child_idx: dict[str, dict[str, Fn]] = {}
+515 |     child_dumps: dict[str, set[str]] = {}
+516 |     for status, old, new in entries:
+    |         ^^^^^^
+517 |         if old is not None:
+518 |             src = git_show(repo, parent_ref, old)
+    |
+help: Rename unused `status` to `_status`
+
+B007 Loop control variable `status` not used within loop body
+   --> .coordination/detectors/f2_assertion_integrity.py:533:9
+    |
+532 |     matched_child: set[tuple[str, str]] = set()
+533 |     for status, old, new in entries:
+    |         ^^^^^^
+534 |         if old is None:
+535 |             continue
+    |
+help: Rename unused `status` to `_status`
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f2_assertion_integrity.py:584:5
+    |
+584 | def main() -> int:
+    |     ^^^^
+585 |     ap = argparse.ArgumentParser(description=__doc__)
+586 |     ap.add_argument("--repo", required=True, help="path to the git repository")
+    |
+
+D101 Missing docstring in public class
+  --> .coordination/detectors/f3_minimality_residue.py:59:7
+   |
+59 | class Site:
+   |       ^^^^
+60 |     def __init__(self, kind, index, lineno, stmt_lineno, func, desc):
+61 |         self.kind = kind
+   |
+
+D107 Missing docstring in `__init__`
+  --> .coordination/detectors/f3_minimality_residue.py:60:9
+   |
+59 | class Site:
+60 |     def __init__(self, kind, index, lineno, stmt_lineno, func, desc):
+   |         ^^^^^^^^
+61 |         self.kind = kind
+62 |         self.index = index
+   |
+
+D205 1 blank line required between summary line and description
+  --> .coordination/detectors/f3_minimality_residue.py:70:5
+   |
+69 |   class SiteCollector(ast.NodeVisitor):
+70 | /     """Enumerate mutation sites in deterministic order, skipping docstrings
+71 | |     and annotation subtrees."""
+   | |_______________________________^
+72 |
+73 |       def __init__(self):
+   |
+help: Insert single blank line
+
+D209 [*] Multi-line docstring closing quotes should be on a separate line
+  --> .coordination/detectors/f3_minimality_residue.py:70:5
+   |
+69 |   class SiteCollector(ast.NodeVisitor):
+70 | /     """Enumerate mutation sites in deterministic order, skipping docstrings
+71 | |     and annotation subtrees."""
+   | |_______________________________^
+72 |
+73 |       def __init__(self):
+   |
+help: Move closing quotes to new line
+   |
+70 |     """Enumerate mutation sites in deterministic order, skipping docstrings
+   -     and annotation subtrees."""
+71 +     and annotation subtrees.
+72 +     """
+73 |
+   |
+
+D107 Missing docstring in `__init__`
+  --> .coordination/detectors/f3_minimality_residue.py:73:9
+   |
+71 |     and annotation subtrees."""
+72 |
+73 |     def __init__(self):
+   |         ^^^^^^^^
+74 |         self.sites = []
+75 |         self.counters = {}
+   |
+
+D102 Missing docstring in public method
+   --> .coordination/detectors/f3_minimality_residue.py:98:9
+    |
+ 96 |             self.docstrings.add(id(body[0].value))
+ 97 |
+ 98 |     def visit(self, node):
+    |         ^^^^^
+ 99 |         if isinstance(node, ast.stmt):
+100 |             self.stmt_lineno = node.lineno
+    |
+
+D205 1 blank line required between summary line and description
+   --> .coordination/detectors/f3_minimality_residue.py:155:5
+    |
+154 |   class Mutator(ast.NodeTransformer):
+155 | /     """Apply the mutation at the nth site of the given kind, walking the tree
+156 | |     in the same order as SiteCollector."""
+    | |__________________________________________^
+157 |
+158 |       def __init__(self, kind, target_index):
+    |
+help: Insert single blank line
+
+D209 [*] Multi-line docstring closing quotes should be on a separate line
+   --> .coordination/detectors/f3_minimality_residue.py:155:5
+    |
+154 |   class Mutator(ast.NodeTransformer):
+155 | /     """Apply the mutation at the nth site of the given kind, walking the tree
+156 | |     in the same order as SiteCollector."""
+    | |__________________________________________^
+157 |
+158 |       def __init__(self, kind, target_index):
+    |
+help: Move closing quotes to new line
+    |
+155 |     """Apply the mutation at the nth site of the given kind, walking the tree
+    -     in the same order as SiteCollector."""
+156 +     in the same order as SiteCollector.
+157 +     """
+158 |
+    |
+
+D107 Missing docstring in `__init__`
+   --> .coordination/detectors/f3_minimality_residue.py:158:9
+    |
+156 |     in the same order as SiteCollector."""
+157 |
+158 |     def __init__(self, kind, target_index):
+    |         ^^^^^^^^
+159 |         self.kind = kind
+160 |         self.target = target_index
+    |
+
+D102 Missing docstring in public method
+   --> .coordination/detectors/f3_minimality_residue.py:180:9
+    |
+178 |         return hit
+179 |
+180 |     def visit(self, node):
+    |         ^^^^^
+181 |         if isinstance(
+182 |             node, ast.Module | ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f3_minimality_residue.py:248:5
+    |
+248 | def copy_tree(src: Path, dst: Path):
+    |     ^^^^^^^^^
+249 |     def ignore(directory, names):
+250 |         return [n for n in names if n in IGNORE_DIRS or n.endswith(".egg-info")]
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f3_minimality_residue.py:255:5
+    |
+255 | def run_pytest(workdir: Path, extra=(), timeout=300):
+    |     ^^^^^^^^^^
+256 |     cmd = [sys.executable, "-m", "pytest", "-q", "-x", "-p", "no:cacheprovider"]
+257 |     cmd += list(extra)
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f3_minimality_residue.py:268:5
+    |
+268 | def collect_coverage(workdir: Path, package: str):
+    |     ^^^^^^^^^^^^^^^^
+269 |     rc = workdir / ".f3_coveragerc"
+270 |     cp = configparser.ConfigParser()
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f3_minimality_residue.py:291:5
+    |
+291 | def enumerate_sites(workdir: Path, package: str, cov: dict):
+    |     ^^^^^^^^^^^^^^^
+292 |     files = {}
+293 |     for path in sorted((workdir / package).rglob("*.py")):
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f3_minimality_residue.py:309:5
+    |
+309 | def sample(files: dict, per_function_cap: int, max_mutants: int):
+    |     ^^^^^^
+310 |     picked = []
+311 |     per_func = {}
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f3_minimality_residue.py:323:5
+    |
+323 | def spec_context(contexts: dict, lineno: int) -> str:
+    |     ^^^^^^^^^^^^
+324 |     ctx = sorted(c for c in contexts.get(str(lineno), []) if c)
+325 |     if ctx:
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f3_minimality_residue.py:330:5
+    |
+330 | def main():
+    |     ^^^^
+331 |     ap = argparse.ArgumentParser(description=__doc__)
+332 |     ap.add_argument("--repo", required=True, help="repo root to analyze")
+    |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f4_layering.py:51:5
+   |
+51 | def load_tree(repo: Path, rev: str | None) -> dict[str, str]:
+   |     ^^^^^^^^^
+52 |     files: dict[str, str] = {}
+53 |     if rev:
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f4_layering.py:79:5
+   |
+79 | def split_tree(files, package, specs_dir):
+   |     ^^^^^^^^^^
+80 |     prod = {p: s for p, s in files.items() if p.startswith(package + "/")}
+81 |     specs = {p: s for p, s in files.items()
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f4_layering.py:87:5
+   |
+87 | def parse_all(files):
+   |     ^^^^^^^^^
+88 |     trees = {}
+89 |     for path, src in files.items():
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f4_layering.py:97:5
+   |
+97 | def module_name_of(path: str) -> str:
+   |     ^^^^^^^^^^^^^^
+98 |     return path[:-3].replace("/", ".").removesuffix(".__init__")
+   |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f4_layering.py:111:5
+    |
+111 | def defined_names(tree: ast.Module) -> set[str]:
+    |     ^^^^^^^^^^^^^
+112 |     names = set()
+113 |     for node in tree.body:
+    |
+
+E501 Line too long (90 > 88)
+   --> .coordination/detectors/f4_layering.py:145:89
+    |
+143 |             and getattr(func.value, "id", getattr(func.value, "attr", None)) == "patch"
+144 |         ):
+145 |             if fname == "patch" and node.args and isinstance(node.args[0], ast.Constant) \
+    |                                                                                         ^^
+146 |                     and isinstance(node.args[0].value, str):
+147 |                 yield node.args[0].value, node.lineno
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f4_layering.py:164:5
+    |
+164 | def grep_lines(src: str, regexes):
+    |     ^^^^^^^^^^
+165 |     for i, line in enumerate(src.splitlines(), 1):
+166 |         for rx in regexes:
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f4_layering.py:409:5
+    |
+409 | def main() -> int:
+    |     ^^^^
+410 |     ap = argparse.ArgumentParser(description=__doc__)
+411 |     ap.add_argument("--repo", default=".", help="repo root (tree to scan)")
+    |
+
+E501 Line too long (90 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:133:89
+    |
+131 |     re.IGNORECASE,
+132 | )
+133 | SEARCH_CMD_RE = re.compile(r"\b(?:grep|rg|ag)\b|\bgit\s+blame\b|\bgit\s+log\b[^;|&]*\s-S")
+    |                                                                                         ^^
+134 | DIFFREAD_CMD_RE = re.compile(r"\bgit\s+(?:diff|status|show)\b")
+135 | FIXTURE_WRITE_CMD_RE = re.compile(
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f5_claim_vs_action.py:144:5
+    |
+144 | def is_spec(path: str) -> bool:
+    |     ^^^^^^^
+145 |     p = path.lstrip("./")
+146 |     name = PurePosixPath(p).name
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f5_claim_vs_action.py:157:5
+    |
+157 | def is_impl(path: str) -> bool:
+    |     ^^^^^^^
+158 |     p = path.lstrip("./")
+159 |     name = PurePosixPath(p).name
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f5_claim_vs_action.py:166:5
+    |
+166 | def is_fixture(path: str) -> bool:
+    |     ^^^^^^^^^^
+167 |     return "/fixtures/" in f"/{path.lstrip('./')}"
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f5_claim_vs_action.py:170:5
+    |
+170 | def result_text(block: dict) -> str:
+    |     ^^^^^^^^^^^
+171 |     c = block.get("content")
+172 |     if isinstance(c, str):
+    |
+
+E501 Line too long (106 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:192:89
+    |
+190 |         if head == "pytest":
+191 |             run = True
+192 |         elif head in ("python", "python3") and len(rest) >= 2 and rest[0] == "-m" and rest[1] == "pytest":
+    |                                                                                         ^^^^^^^^^^^^^^^^^^
+193 |             run, rest = True, rest[2:]
+194 |         elif head == "uv" and len(rest) >= 2 and rest[0] == "run" and rest[1] == "pytest":
+    |
+
+E501 Line too long (90 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:194:89
+    |
+192 |         elif head in ("python", "python3") and len(rest) >= 2 and rest[0] == "-m" and rest[1] == "pytest":
+193 |             run, rest = True, rest[2:]
+194 |         elif head == "uv" and len(rest) >= 2 and rest[0] == "run" and rest[1] == "pytest":
+    |                                                                                         ^^
+195 |             run, rest = True, rest[2:]
+196 |         if run:
+    |
+
+E501 Line too long (91 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:197:89
+    |
+195 |             run, rest = True, rest[2:]
+196 |         if run:
+197 |             return [t.split("::")[0] for t in rest if ".py" in t and not t.startswith("-")]
+    |                                                                                         ^^^
+198 |     return None
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f5_claim_vs_action.py:201:5
+    |
+201 | def commit_messages(cmd: str):
+    |     ^^^^^^^^^^^^^^^
+202 |     msgs = []
+203 |     for m in re.finditer(r"-m\s+(?:'([^']*)'|\"([^\"]*)\"|(\S+))", cmd):
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f5_claim_vs_action.py:208:5
+    |
+208 | def negated(text: str, start: int) -> bool:
+    |     ^^^^^^^
+209 |     return bool(NEGATION_GUARD_RE.search(text[max(0, start - 40) : start]))
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f5_claim_vs_action.py:212:5
+    |
+212 | def snippet(m) -> str:
+    |     ^^^^^^^
+213 |     s = m.group(0).strip().replace("\n", " ")
+214 |     return s[:60]
+    |
+
+E501 Line too long (101 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:237:89
+    |
+235 |             ts = e.get("timestamp", "")
+236 |             etype = e.get("type")
+237 |             content = e.get("message", {}).get("content") if etype in ("assistant", "user") else None
+    |                                                                                         ^^^^^^^^^^^^^
+238 |             if not isinstance(content, list):
+239 |                 continue
+    |
+
+E501 Line too long (104 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:244:89
+    |
+242 |                     continue
+243 |                 if etype == "assistant" and b.get("type") == "text":
+244 |                     events.append({"kind": "text", "line": lineno, "ts": ts, "text": b.get("text", "")})
+    |                                                                                         ^^^^^^^^^^^^^^^^
+245 |                 elif etype == "assistant" and b.get("type") == "tool_use":
+246 |                     pending[b.get("id")] = {"name": b.get("name"), "input": b.get("input") or {}, "line": lineno, "ts": ts}
+    |
+
+E501 Line too long (123 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:246:89
+    |
+244 |                     events.append({"kind": "text", "line": lineno, "ts": ts, "text": b.get("text", "")})
+245 |                 elif etype == "assistant" and b.get("type") == "tool_use":
+246 |                     pending[b.get("id")] = {"name": b.get("name"), "input": b.get("input") or {}, "line": lineno, "ts": ts}
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+247 |                 elif etype == "user" and b.get("type") == "tool_result":
+248 |                     use = pending.pop(b.get("tool_use_id"), None)
+    |
+
+E501 Line too long (93 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:267:89
+    |
+265 |                         targets = pytest_command(cmd)
+266 |                         if targets is not None:
+267 |                             inv = err and (not out.strip() or bool(INV_ERROR_RE.search(out)))
+    |                                                                                         ^^^^^
+268 |                             failed = not inv and (
+269 |                                 err
+    |
+
+E501 Line too long (94 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:272:89
+    |
+270 | …                     or bool(
+271 | …                         re.search(
+272 | …                             r"\b\d+ failed\b|\b\d+ errors?\b|\bFAILED\b|\bERROR\b"
+    |                                                                               ^^^^^^
+273 | …                             r"|ModuleNotFoundError|ImportError|Traceback",
+274 | …                             out,
+    |
+
+E501 Line too long (103 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:278:89
+    |
+276 | …             )
+277 | …         )
+278 | …         passed = not err and not failed and bool(re.search(r"\b\d+ passed\b", out))
+    |                                                                       ^^^^^^^^^^^^^^^
+279 | …         events.append({"kind": "run", "targets": targets, "failed": failed, "passed": passed, "inv_error": inv, **loc})
+280 | …     gates = set()
+    |
+
+E501 Line too long (139 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:279:89
+    |
+277 | …         )
+278 | …         passed = not err and not failed and bool(re.search(r"\b\d+ passed\b", out))
+279 | …         events.append({"kind": "run", "targets": targets, "failed": failed, "passed": passed, "inv_error": inv, **loc})
+    |                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+280 | …     gates = set()
+281 | …     if not err:
+    |
+
+E501 Line too long (107 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:288:89
+    |
+286 |                             if re.search(r"\bpre-commit\b", cmd):
+287 |                                 gates.add("pre-commit")
+288 |                             if (targets is not None and "--cov" in cmd) or re.search(r"\bcoverage\b", cmd):
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^
+289 |                                 gates.add("coverage")
+290 |                         if gates:
+    |
+
+E501 Line too long (110 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:296:89
+    |
+294 |                         if not err and DIFFREAD_CMD_RE.search(cmd):
+295 |                             events.append({"kind": "diffread", **loc})
+296 |                         if FIXTURE_WRITE_CMD_RE.search(cmd) and FIXTURE_WRITE_VERB_RE.search(cmd) and not err:
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^
+297 |                             events.append({"kind": "fixmut", "path": "(bash) " + cmd[:60], **loc})
+298 |                         if re.search(r"\bgit\b[^;|&]*\bcommit\b", cmd) and not err:
+    |
+
+E501 Line too long (98 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:297:89
+    |
+295 |                             events.append({"kind": "diffread", **loc})
+296 |                         if FIXTURE_WRITE_CMD_RE.search(cmd) and FIXTURE_WRITE_VERB_RE.search(cmd) and not err:
+297 |                             events.append({"kind": "fixmut", "path": "(bash) " + cmd[:60], **loc})
+    |                                                                                         ^^^^^^^^^^
+298 |                         if re.search(r"\bgit\b[^;|&]*\bcommit\b", cmd) and not err:
+299 |                             events.append({"kind": "commit", "msg": commit_messages(cmd), "cmd": cmd, **loc})
+    |
+
+E501 Line too long (109 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:299:89
+    |
+297 |                             events.append({"kind": "fixmut", "path": "(bash) " + cmd[:60], **loc})
+298 |                         if re.search(r"\bgit\b[^;|&]*\bcommit\b", cmd) and not err:
+299 |                             events.append({"kind": "commit", "msg": commit_messages(cmd), "cmd": cmd, **loc})
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^
+300 |     return events
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f5_claim_vs_action.py:303:5
+    |
+303 | def detect(events):
+    |     ^^^^^^
+304 |     findings = []
+    |
+
+E501 Line too long (93 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:307:89
+    |
+306 |     def flag(mode, rule, ev, detail):
+307 |         findings.append(f"{mode} [{rule}] line={ev['line']} ts={ev.get('ts', '')}: {detail}")
+    |                                                                                         ^^^^^
+308 |
+309 |     outputs = []
+    |
+
+E501 Line too long (89 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:348:89
+    |
+346 |                         "T-26",
+347 |                         ev,
+348 |                         f"{consec_edits} consecutive spec/impl edits with no pytest run "
+    |                                                                                         ^
+349 |                         f"between them (latest: {ev['path']})",
+350 |                     )
+    |
+
+E501 Line too long (92 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:386:89
+    |
+384 |             if edits_since_commit and (
+385 |                 last_diffread_idx is None
+386 |                 or (last_edit_any_idx is not None and last_diffread_idx < last_edit_any_idx)
+    |                                                                                         ^^^^
+387 |             ):
+388 |                 flag(
+    |
+
+E501 Line too long (89 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:405:89
+    |
+403 |                         "T-27/T-29",
+404 |                         ev,
+405 |                         f'"{snippet(m)}" with no successful pytest run observed earlier',
+    |                                                                                         ^
+406 |                     )
+407 |                 elif last_specimpl_edit_idx is not None and last_specimpl_edit_idx > last_success_run_idx:
+    |
+
+E501 Line too long (106 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:407:89
+    |
+405 |                         f'"{snippet(m)}" with no successful pytest run observed earlier',
+406 |                     )
+407 |                 elif last_specimpl_edit_idx is not None and last_specimpl_edit_idx > last_success_run_idx:
+    |                                                                                         ^^^^^^^^^^^^^^^^^^
+408 |                     flag(
+409 |                         "stale-tests-pass-claim",
+    |
+
+E501 Line too long (97 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:427:89
+    |
+425 |                     )
+426 |                 elif last_specimpl_edit_idx is not None and (
+427 |                     last_success_run_idx is None or last_success_run_idx < last_specimpl_edit_idx
+    |                                                                                         ^^^^^^^^^
+428 |                 ):
+429 |                     flag(
+    |
+
+E501 Line too long (91 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:477:89
+    |
+475 |                     "T-23",
+476 |                     ev,
+477 |                     f'"{snippet(m)}" with no grep/rg/Grep/git-blame call observed earlier',
+    |                                                                                         ^^^
+478 |                 )
+479 |             if last_run_ev is not None and last_run_ev.get("inv_error") and not inv_concluded:
+    |
+
+E501 Line too long (94 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:479:89
+    |
+477 |                     f'"{snippet(m)}" with no grep/rg/Grep/git-blame call observed earlier',
+478 |                 )
+479 |             if last_run_ev is not None and last_run_ev.get("inv_error") and not inv_concluded:
+    |                                                                                         ^^^^^^
+480 |                 fm = FAIL_OUTCOME_RE.search(text) or PASS_CLAIM_RE.search(text)
+481 |                 if fm:
+    |
+
+E501 Line too long (93 > 88)
+   --> .coordination/detectors/f5_claim_vs_action.py:493:89
+    |
+491 |     for fail_idx, claim in contradictions:
+492 |         window = events[fail_idx + 1 : fail_idx + 1 + LOOKAHEAD]
+493 |         retracted = any(w["kind"] == "text" and RETRACT_RE.search(w["text"]) for w in window)
+    |                                                                                         ^^^^^
+494 |         if not retracted:
+495 |             flag(
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f5_claim_vs_action.py:507:5
+    |
+507 | def main():
+    |     ^^^^
+508 |     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+509 |     ap.add_argument("--transcript", required=True, help="Claude Code session JSONL")
+    |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f6_refactor_honesty.py:36:5
+   |
+36 | def git(repo: str, *args: str) -> str:
+   |     ^^^
+37 |     return subprocess.run(
+38 |         ["git", "-C", repo, *args], capture_output=True, text=True, check=True
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f6_refactor_honesty.py:42:5
+   |
+42 | def git_show(repo: str, sha: str, path: str) -> str | None:
+   |     ^^^^^^^^
+43 |     proc = subprocess.run(
+44 |         ["git", "-C", repo, "show", f"{sha}:{path}"],
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f6_refactor_honesty.py:50:5
+   |
+50 | def excluded(path: str) -> bool:
+   |     ^^^^^^^^
+51 |     return any(path.startswith(p) for p in EXCLUDES)
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f6_refactor_honesty.py:54:5
+   |
+54 | def is_spec_side(path: str) -> bool:
+   |     ^^^^^^^^^^^^
+55 |     if excluded(path):
+56 |         return False
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f6_refactor_honesty.py:67:5
+   |
+67 | def is_impl(path: str) -> bool:
+   |     ^^^^^^^
+68 |     return path.endswith(".py") and not excluded(path) and not is_spec_side(path)
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f6_refactor_honesty.py:81:5
+   |
+81 | def dump(node: ast.AST) -> str:
+   |     ^^^^
+82 |     return ast.dump(node)
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f6_refactor_honesty.py:85:5
+   |
+85 | def masked(node: ast.AST, names: bool = False) -> str:
+   |     ^^^^^^
+86 |     masker = _NameMasker() if names else _ConstMasker()
+87 |     return ast.dump(masker.visit(copy.deepcopy(node)))
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/f6_refactor_honesty.py:90:5
+   |
+90 | def unparse(node: ast.AST) -> str:
+   |     ^^^^^^^
+91 |     try:
+92 |         return ast.unparse(node)
+   |
+
+D101 Missing docstring in public class
+   --> .coordination/detectors/f6_refactor_honesty.py:98:7
+    |
+ 97 | @dataclass
+ 98 | class Finding:
+    |       ^^^^^^^
+ 99 |     sha: str
+100 |     mode: str
+    |
+
+D102 Missing docstring in public method
+   --> .coordination/detectors/f6_refactor_honesty.py:104:9
+    |
+102 |     detail: str
+103 |
+104 |     def line(self) -> str:
+    |         ^^^^
+105 |         return f"{self.sha[:9]} {self.mode} {self.loc} -- {self.detail}"
+    |
+
+D101 Missing docstring in public class
+   --> .coordination/detectors/f6_refactor_honesty.py:109:7
+    |
+108 | @dataclass
+109 | class AssertRec:
+    |       ^^^^^^^^^
+110 |     dump: str
+111 |     name_masked: str
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f6_refactor_honesty.py:117:5
+    |
+117 | def parse(source: str) -> ast.Module | None:
+    |     ^^^^^
+118 |     try:
+119 |         return ast.parse(source)
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f6_refactor_honesty.py:124:5
+    |
+124 | def collect_asserts(source: str) -> list[AssertRec]:
+    |     ^^^^^^^^^^^^^^^
+125 |     tree = parse(source)
+126 |     if tree is None:
+    |
+
+B905 `zip()` without an explicit `strict=` parameter
+   --> .coordination/detectors/f6_refactor_honesty.py:155:33
+    |
+153 |         return False
+154 |     oc, nc = _constants(old), _constants(new)
+155 |     diffs = [(a, b) for a, b in zip(oc, nc) if a != b]
+    |                                 ^^^^^^^^^^^
+156 |     return bool(diffs) and all(
+157 |         isinstance(a, str) and isinstance(b, str)
+    |
+help: Add explicit value for parameter `strict=`
+
+B905 `zip()` without an explicit `strict=` parameter
+   --> .coordination/detectors/f6_refactor_honesty.py:173:33
+    |
+171 |     if len(oc) != len(nc):
+172 |         return False
+173 |     diffs = [(a, b) for a, b in zip(oc, nc) if a != b]
+    |                                 ^^^^^^^^^^^
+174 |     return bool(diffs) and all(
+175 |         isinstance(a, str) and isinstance(b, str) and a in b for a, b in diffs
+    |
+help: Add explicit value for parameter `strict=`
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f6_refactor_honesty.py:204:5
+    |
+204 | def tree_files(repo: str, sha: str) -> list[str]:
+    |     ^^^^^^^^^^
+205 |     return git(repo, "ls-tree", "-r", "--name-only", sha).splitlines()
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f6_refactor_honesty.py:210:5
+    |
+208 | # ---------------------------------------------------------------- spec check
+209 |
+210 | def check_spec_expectations(repo: str, sha: str,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^
+211 |                             entries: list[tuple[str, str | None, str | None]]
+212 |                             ) -> list[Finding]:
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f6_refactor_honesty.py:298:5
+    |
+298 | def check_impl(repo: str, sha: str,
+    |     ^^^^^^^^^^
+299 |                entries: list[tuple[str, str | None, str | None]]
+300 |                ) -> list[Finding]:
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f6_refactor_honesty.py:423:5
+    |
+423 | def check_behavior(repo: str, sha: str) -> list[Finding]:
+    |     ^^^^^^^^^^^^^^
+424 |     parent_ref = git(repo, "rev-parse", f"{sha}^").strip()
+425 |     parent_specs = [
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f6_refactor_honesty.py:491:5
+    |
+489 | # ---------------------------------------------------------------- driver
+490 |
+491 | def is_refactor_claim(subject: str, pattern: re.Pattern[str]) -> bool:
+    |     ^^^^^^^^^^^^^^^^^
+492 |     s = subject.strip()
+493 |     if s.lower().startswith(("revert", 'revert "')):
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f6_refactor_honesty.py:498:5
+    |
+498 | def analyze_commit(repo: str, sha: str, static_only: bool) -> list[Finding]:
+    |     ^^^^^^^^^^^^^^
+499 |     entries = changed_files(repo, sha)
+500 |     touched_py = [
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/f6_refactor_honesty.py:515:5
+    |
+515 | def main() -> int:
+    |     ^^^^
+516 |     ap = argparse.ArgumentParser(description=__doc__)
+517 |     ap.add_argument("--repo", required=True, help="path to the git repository")
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/fixtures/f2_assertion_integrity/make_fixture_repo.py:106:5
+    |
+106 | def git(repo: Path, *args: str) -> str:
+    |     ^^^
+107 |     return subprocess.run(
+108 |         ["git", "-C", str(repo), *args], capture_output=True, text=True,
+    |
+
+D103 Missing docstring in public function
+   --> .coordination/detectors/fixtures/f2_assertion_integrity/make_fixture_repo.py:113:5
+    |
+113 | def main() -> None:
+    |     ^^^^
+114 |     repo = Path(sys.argv[1])
+115 |     repo.mkdir(parents=True, exist_ok=True)
+    |
+
+D100 Missing docstring in public module
+--> .coordination/detectors/fixtures/f3_minimality_residue/forced/mini/mod.py:1:1
+
+D103 Missing docstring in public function
+ --> .coordination/detectors/fixtures/f3_minimality_residue/forced/mini/mod.py:1:5
+  |
+1 | def classify(n: int) -> str:
+  |     ^^^^^^^^
+2 |     if n < 0:
+3 |         return "negative"
+  |
+
+D100 Missing docstring in public module
+--> .coordination/detectors/fixtures/f3_minimality_residue/forced/specs/mod_spec.py:1:1
+
+D103 Missing docstring in public function
+ --> .coordination/detectors/fixtures/f3_minimality_residue/forced/specs/mod_spec.py:4:5
+  |
+4 | def describe_classify():
+  |     ^^^^^^^^^^^^^^^^^
+5 |     def it_labels_negative_numbers():
+6 |         assert classify(-1) == "negative"
+  |
+
+D100 Missing docstring in public module
+--> .coordination/detectors/fixtures/f3_minimality_residue/unforced/mini/mod.py:1:1
+
+D103 Missing docstring in public function
+ --> .coordination/detectors/fixtures/f3_minimality_residue/unforced/mini/mod.py:1:5
+  |
+1 | def classify(n: int) -> str:
+  |     ^^^^^^^^
+2 |     if n < 0:
+3 |         return "negative"
+  |
+
+D100 Missing docstring in public module
+--> .coordination/detectors/fixtures/f3_minimality_residue/unforced/specs/mod_spec.py:1:1
+
+D103 Missing docstring in public function
+ --> .coordination/detectors/fixtures/f3_minimality_residue/unforced/specs/mod_spec.py:4:5
+  |
+4 | def describe_classify():
+  |     ^^^^^^^^^^^^^^^^^
+5 |     def it_returns_a_label():
+6 |         assert isinstance(classify(-1), str)
+  |
+
+E501 Line too long (91 > 88)
+ --> .coordination/detectors/fixtures/f4_layering/violating/bookminder/apple_books/library.py:1:89
+  |
+1 | """Synthetic violating fixture: library layer for boundary-text and dup-constant checks."""
+  |                                                                                         ^^^
+2 |
+3 | SUPPORTED_FILTERS = {"cloud", "!cloud", "sample", "!sample"}
+  |
+
+D101 Missing docstring in public class
+ --> .coordination/detectors/fixtures/f4_layering/violating/bookminder/apple_books/library.py:6:7
+  |
+6 | class BookminderError(Exception):
+  |       ^^^^^^^^^^^^^^^
+7 |     pass
+  |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/fixtures/f4_layering/violating/bookminder/apple_books/library.py:10:5
+   |
+10 | def list_recent_books(user_home):
+   |     ^^^^^^^^^^^^^^^^^
+11 |     raise BookminderError(f"BKLibrary directory not found: {user_home}")
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/fixtures/f4_layering/violating/bookminder/cli.py:9:5
+   |
+ 9 | def recent(user: str | None) -> list[str]:
+   |     ^^^^^^
+10 |     if user == "test_reader":
+11 |         db = Path("specs/fixtures/users") / user
+   |
+
+E501 Line too long (90 > 88)
+  --> .coordination/detectors/fixtures/f4_layering/violating/bookminder/cli.py:13:89
+   |
+11 |         db = Path("specs/fixtures/users") / user
+12 |     else:
+13 |         db = Path.home() / "Library/Containers/com.apple.iBooksX/Data/Documents/BKLibrary"
+   |                                                                                         ^^
+14 |     conn = sqlite3.connect(db / "BKLibrary-1.sqlite")
+15 |     rows = conn.execute("SELECT ZTITLE, ZAUTHOR FROM ZBKLIBRARYASSET WHERE ZSTATE = 3")
+   |
+
+D100 Missing docstring in public module
+--> .coordination/detectors/fixtures/f4_layering/violating/specs/cli_spec.py:1:1
+
+D103 Missing docstring in public function
+ --> .coordination/detectors/fixtures/f4_layering/violating/specs/cli_spec.py:4:5
+  |
+4 | def describe_cli_error_boundary():
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5 |     def it_reports_missing_database():
+6 |         with patch("bookminder.cli.list_recent_books") as mock:
+  |
+
+E501 Line too long (107 > 88)
+  --> .coordination/detectors/fixtures/f6_refactor_honesty/make_fixture_repo.py:54:89
+   |
+52 | ).replace(
+53 |     "    if b == 0:\n        raise ValueError(\"division by zero\")\n    return a / b",
+54 |     "    return a / b\n\n\ndef _check(b):\n    if b == 0:\n        raise ValueError(\"division by zero\")",
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^
+55 | )
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/fixtures/f6_refactor_honesty/make_fixture_repo.py:85:5
+   |
+85 | def run(cwd: Path, *args: str) -> None:
+   |     ^^^
+86 |     subprocess.run(args, cwd=cwd, check=True, capture_output=True)
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/fixtures/f6_refactor_honesty/make_fixture_repo.py:89:5
+   |
+89 | def commit(repo: Path, msg: str, files: dict[str, str]) -> None:
+   |     ^^^^^^
+90 |     for name, content in files.items():
+91 |         (repo / name).write_text(content)
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/detectors/fixtures/f6_refactor_honesty/make_fixture_repo.py:96:5
+   |
+96 | def main() -> None:
+   |     ^^^^
+97 |     repo = Path(sys.argv[1])
+98 |     repo.mkdir(parents=True, exist_ok=True)
+   |
+
+D100 Missing docstring in public module
+--> .coordination/tools/dupescan.py:1:1
+
+E501 Line too long (92 > 88)
+  --> .coordination/tools/dupescan.py:30:89
+   |
+28 | for name, rows in kept.items():
+29 |     for idx in range(len(rows) - K + 1):
+30 |         sh = hashlib.md5("".join(h for _, h in rows[idx:idx + K]).encode()).hexdigest()[:16]
+   |                                                                                         ^^^^
+31 |         shingles[sh].append((name, idx))
+   |
+
+E501 Line too long (121 > 88)
+ --> .coordination/tools/rule.py:5:89
+  |
+4 | Usage:
+5 |   rule.py <corpus-id>...                      print the raw YAML fragment(s), verbatim source lines with file:line header
+  |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+6 |   rule.py -c [N] <corpus-id>...               also print transcript windows around every day-NNN:LNNN reference in the
+7 |                                               fragment (N context lines each side, default 60), with line numbers
+  |
+
+E501 Line too long (118 > 88)
+ --> .coordination/tools/rule.py:6:89
+  |
+4 | Usage:
+5 |   rule.py <corpus-id>...                      print the raw YAML fragment(s), verbatim source lines with file:line header
+6 |   rule.py -c [N] <corpus-id>...               also print transcript windows around every day-NNN:LNNN reference in the
+  |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7 |                                               fragment (N context lines each side, default 60), with line numbers
+8 |   rule.py -r <compiled-id>... [-c [N]]        resolve compiled rule ids (T-NN / P-NN / B-NN / AP-NN / INV-*) to their
+  |
+
+E501 Line too long (113 > 88)
+ --> .coordination/tools/rule.py:7:89
+  |
+5 |   rule.py <corpus-id>...                      print the raw YAML fragment(s), verbatim source lines with file:line header
+6 |   rule.py -c [N] <corpus-id>...               also print transcript windows around every day-NNN:LNNN reference in the
+7 |                                               fragment (N context lines each side, default 60), with line numbers
+  |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+8 |   rule.py -r <compiled-id>... [-c [N]]        resolve compiled rule ids (T-NN / P-NN / B-NN / AP-NN / INV-*) to their
+9 |                                               corpus sources via .coordination/compile/rule-index-*.md, then as above
+  |
+
+E501 Line too long (117 > 88)
+ --> .coordination/tools/rule.py:8:89
+  |
+6 |   rule.py -c [N] <corpus-id>...               also print transcript windows around every day-NNN:LNNN reference in the
+7 |                                               fragment (N context lines each side, default 60), with line numbers
+8 |   rule.py -r <compiled-id>... [-c [N]]        resolve compiled rule ids (T-NN / P-NN / B-NN / AP-NN / INV-*) to their
+  |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+9 |                                               corpus sources via .coordination/compile/rule-index-*.md, then as above
+  |
+
+E501 Line too long (117 > 88)
+  --> .coordination/tools/rule.py:9:89
+   |
+ 7 |                                               fragment (N context lines each side, default 60), with line numbers
+ 8 |   rule.py -r <compiled-id>... [-c [N]]        resolve compiled rule ids (T-NN / P-NN / B-NN / AP-NN / INV-*) to their
+ 9 |                                               corpus sources via .coordination/compile/rule-index-*.md, then as above
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+10 |
+11 | Corpus ids look like d019-R2, p020s1-R9, p021-R8, d006-R15. Run from the repo root.
+   |
+
+E501 Line too long (113 > 88)
+  --> .coordination/tools/rule.py:12:89
+   |
+11 | Corpus ids look like d019-R2, p020s1-R9, p021-R8, d006-R15. Run from the repo root.
+12 | The transcript windows are the verification substrate: judge quote fidelity, episode fidelity, and generalization
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+13 | against these, never against the YAML summary alone.
+14 | """
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/tools/rule.py:30:5
+   |
+30 | def find_fragments(wanted):
+   |     ^^^^^^^^^^^^^^
+31 |     found = {}
+32 |     for d in CORPUS_DIRS:
+   |
+
+E501 Line too long (100 > 88)
+  --> .coordination/tools/rule.py:35:89
+   |
+33 |         for f in sorted(d.glob("*.yaml")):
+34 |             lines = f.read_text(errors="replace").splitlines()
+35 |             starts = [(i, m.group(1)) for i, line in enumerate(lines) if (m := ID_LINE.match(line))]
+   |                                                                                         ^^^^^^^^^^^^
+36 |             for pos, (i, item_id) in enumerate(starts):
+37 |                 if item_id not in wanted or item_id in found:
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/tools/rule.py:46:5
+   |
+46 | def resolve_compiled(rids):
+   |     ^^^^^^^^^^^^^^^^
+47 |     corpus_ids, seen_rows = [], []
+48 |     for f in sorted(Path(".").glob(RULE_INDEX_GLOB)):
+   |
+
+E501 Line too long (114 > 88)
+  --> .coordination/tools/rule.py:55:89
+   |
+53 | …     matched = CORPUS_ID.findall(line)
+54 | …     corpus_ids += matched
+55 | …     leftovers = [t for t in LOOSE_ID.findall(line) if t not in matched and not CORPUS_ID.fullmatch(t)]
+   |                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+56 | …     if leftovers:
+57 | …         print(f"# WARNING {cells[0]}: abbreviated/unresolvable id tokens in index row, fetch by hand: {', '.join(leftovers)}", file=…
+   |
+
+E501 Line too long (155 > 88)
+  --> .coordination/tools/rule.py:57:89
+   |
+55 | …l(line) if t not in matched and not CORPUS_ID.fullmatch(t)]
+56 | …
+57 | …viated/unresolvable id tokens in index row, fetch by hand: {', '.join(leftovers)}", file=sys.stderr)
+   |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+58 | …
+59 | …
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/tools/rule.py:64:5
+   |
+64 | def print_transcript_windows(text, ctx):
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+65 |     refs = {m.groups() for m in LOC_REF.finditer(text)}
+66 |     days = {day for day, _, _ in refs}
+   |
+
+E501 Line too long (101 > 88)
+  --> .coordination/tools/rule.py:81:89
+   |
+79 |         lines = day_file.read_text(errors="replace").splitlines()
+80 |         lo, hi = max(0, start - 1 - ctx), min(len(lines), end + ctx)
+81 |         print(f"## {day_file}:L{lo + 1}-L{hi} (cited: L{start}{f'-L{end}' if end != start else ''})")
+   |                                                                                         ^^^^^^^^^^^^^
+82 |         for n in range(lo, hi):
+83 |             marker = ">" if start <= n + 1 <= end else " "
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/tools/rule.py:88:5
+   |
+88 | def main(argv):
+   |     ^^^^
+89 |     ctx, want_ctx, resolve, ids = 60, False, False, []
+90 |     it = iter(argv)
+   |
+
+E501 Line too long (104 > 88)
+ --> .coordination/tools/scrub_scan.py:6:89
+  |
+4 | Usage: scrub_scan.py <file-or-dir>... — scans text files for credential-shaped content.
+5 | Prints file:line + masked match per hit; exit 1 if any hit, 0 when clean.
+6 | A hit is a finding to review with the author, not proof — mask or drop the line, never rewrite silently.
+  |                                                                                         ^^^^^^^^^^^^^^^^
+7 | """
+  |
+
+E501 Line too long (93 > 88)
+  --> .coordination/tools/scrub_scan.py:22:89
+   |
+20 |     ("slack-token", re.compile(r"\b(xox[baprs]-[A-Za-z0-9-]{10,})")),
+21 |     ("private-key-block", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")),
+22 |     ("bearer-header", re.compile(r"Authorization:\s*Bearer\s+([A-Za-z0-9._\-]{16,})", re.I)),
+   |                                                                                         ^^^^^
+23 |     ("basic-auth-url", re.compile(r"https?://[^/\s:]+:([^@\s]{6,})@")),
+24 |     ("generic-assignment", re.compile(r"\b(?:api[_-]?key|token|secret|password|passwd)\b\s*[=:]\s*['\"]([^'\"\s]{12,})['\"]", re.I)),
+   |
+
+E501 Line too long (133 > 88)
+  --> .coordination/tools/scrub_scan.py:24:89
+   |
+22 |     ("bearer-header", re.compile(r"Authorization:\s*Bearer\s+([A-Za-z0-9._\-]{16,})", re.I)),
+23 |     ("basic-auth-url", re.compile(r"https?://[^/\s:]+:([^@\s]{6,})@")),
+24 |     ("generic-assignment", re.compile(r"\b(?:api[_-]?key|token|secret|password|passwd)\b\s*[=:]\s*['\"]([^'\"\s]{12,})['\"]", re.I)),
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+25 |     ("jwt", re.compile(r"\b(eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,})")),
+26 |     ("netrc-or-pgpass", re.compile(r"\bmachine\s+\S+\s+login\s+\S+\s+password\s+(\S+)", re.I)),
+   |
+
+E501 Line too long (94 > 88)
+  --> .coordination/tools/scrub_scan.py:25:89
+   |
+23 |     ("basic-auth-url", re.compile(r"https?://[^/\s:]+:([^@\s]{6,})@")),
+24 |     ("generic-assignment", re.compile(r"\b(?:api[_-]?key|token|secret|password|passwd)\b\s*[=:]\s*['\"]([^'\"\s]{12,})['\"]", re.I)),
+25 |     ("jwt", re.compile(r"\b(eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,})")),
+   |                                                                                         ^^^^^^
+26 |     ("netrc-or-pgpass", re.compile(r"\bmachine\s+\S+\s+login\s+\S+\s+password\s+(\S+)", re.I)),
+27 | ]
+   |
+
+E501 Line too long (95 > 88)
+  --> .coordination/tools/scrub_scan.py:26:89
+   |
+24 |     ("generic-assignment", re.compile(r"\b(?:api[_-]?key|token|secret|password|passwd)\b\s*[=:]\s*['\"]([^'\"\s]{12,})['\"]", re.I)),
+25 |     ("jwt", re.compile(r"\b(eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,})")),
+26 |     ("netrc-or-pgpass", re.compile(r"\bmachine\s+\S+\s+login\s+\S+\s+password\s+(\S+)", re.I)),
+   |                                                                                         ^^^^^^^
+27 | ]
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/tools/scrub_scan.py:32:5
+   |
+32 | def mask(value: str) -> str:
+   |     ^^^^
+33 |     return value[:6] + "…" + value[-3:] if len(value) > 12 else value[:3] + "…"
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/tools/scrub_scan.py:36:5
+   |
+36 | def scan_file(path: Path) -> int:
+   |     ^^^^^^^^^
+37 |     hits = 0
+38 |     try:
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/tools/scrub_scan.py:52:5
+   |
+52 | def main(argv: list[str]) -> int:
+   |     ^^^^
+53 |     if not argv:
+54 |         sys.exit(__doc__)
+   |
+
+E501 Line too long (97 > 88)
+  --> .coordination/tools/scrub_scan.py:58:89
+   |
+56 |     for arg in argv:
+57 |         root = Path(arg)
+58 |         files = [root] if root.is_file() else [p for p in sorted(root.rglob("*")) if p.is_file()]
+   |                                                                                         ^^^^^^^^^
+59 |         for f in files:
+60 |             if f.suffix.lower() in SKIP_SUFFIXES:
+   |
+
+E501 Line too long (96 > 88)
+ --> .coordination/tools/validate_mining.py:1:89
+  |
+1 | """Schema gate for mining YAMLs. Usage: validate_mining.py <yaml>... Exit 1 on any violation."""
+  |                                                                                         ^^^^^^^^
+2 |
+3 | import re
+  |
+
+E501 Line too long (93 > 88)
+  --> .coordination/tools/validate_mining.py:17:89
+   |
+15 |     "taught_or_enforced": {"taught-once", "repeated", "needed-enforcement"},
+16 |     "skill_target": {"tdd-bdd", "project-memory", "pair-programming", "claude-md"},
+17 |     "era_class": {"timeless-discipline", "2025-agentic", "harness-solved", "model-artifact"},
+   |                                                                                         ^^^^^
+18 |     "detectable_by": {"git", "transcript", "both"},
+19 | }
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/tools/validate_mining.py:35:5
+   |
+35 | def norm(s: str) -> str:
+   |     ^^^^
+36 |     t = "".join(str(s).split())
+37 |     return t.translate({ord(c): None for c in GLYPHS})
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/tools/validate_mining.py:40:5
+   |
+40 | def norm_source(text: str) -> str:
+   |     ^^^^^^^^^^^
+41 |     # shard files prefix each line with "NNNN\t" — strip before normalizing
+42 |     return norm(re.sub(r"^\d+\t", "", text, flags=re.M))
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/tools/validate_mining.py:45:5
+   |
+45 | def source_text(day: str) -> str:
+   |     ^^^^^^^^^^^
+46 |     for base in (DIARY / f"{day}.md", SHARDS / f"{day}.md"):
+47 |         if base.exists():
+   |
+
+D103 Missing docstring in public function
+  --> .coordination/tools/validate_mining.py:52:5
+   |
+52 | def check(path: Path) -> list[str]:
+   |     ^^^^^
+53 |     errs = []
+54 |     try:
+   |
+
+E501 Line too long (93 > 88)
+  --> .coordination/tools/validate_mining.py:62:89
+   |
+60 |             errs.append(f"missing top-level field: {top}")
+61 |     day = str(doc.get("file", ""))
+62 |     body = source_text(day.split(":")[0]) or source_text(day.replace("day-020-", "day-020-"))
+   |                                                                                         ^^^^^
+63 |     if day.startswith("day-020-"):
+64 |         body = body or source_text(day)
+   |
+
+E501 Line too long (112 > 88)
+  --> .coordination/tools/validate_mining.py:75:89
+   |
+73 |                     errs.append(f"{where}: missing {f}")
+74 |             for f, allowed in ENUMS.items():
+75 |                 if f in item and item[f] not in allowed and not str(item.get(f, "")).startswith("needs-rework"):
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^
+76 |                     if f != "feasibility":
+77 |                         errs.append(f"{where}: bad enum {f}={item[f]!r}")
+   |
+
+E501 Line too long (102 > 88)
+  --> .coordination/tools/validate_mining.py:81:89
+   |
+79 |             if loc and not LOC_RE.match(str(loc)):
+80 |                 errs.append(f"{where}: malformed loc {loc!r}")
+81 |             if item.get("source") == "user-verbatim" or item.get("because_source") == "user-verbatim":
+   |                                                                                         ^^^^^^^^^^^^^^
+82 |                 if not item.get("quote"):
+83 |                     errs.append(f"{where}: user-verbatim without quote")
+   |
+
+E501 Line too long (94 > 88)
+  --> .coordination/tools/validate_mining.py:98:89
+   |
+96 |                     pos = i + 1
+97 |                 if not ok:
+98 |                     errs.append(f"{where}: quote NOT verbatim in source ({str(q)[:50]!r}...)")
+   |                                                                                         ^^^^^^
+99 |     return errs
+   |
+
+Found 370 errors.
+[*] 25 fixable with the `--fix` option (22 hidden fixes can be enabled with the `--unsafe-fixes` option).
+EXIT=1
