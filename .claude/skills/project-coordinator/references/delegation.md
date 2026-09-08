@@ -23,7 +23,7 @@ The tools' own schemas and descriptions carry their mechanics; what they do not 
 ## Briefing workers
 
 - **Brief design beats model tier.** A shallow deliverable is usually brief-induced; a re-briefed Opus at xhigh can match Fable. Before blaming a model, re-run with a better brief.
-- **Demand motivation, not observation.** Every rule a worker extracts must be stated as "X because Y" — the author cares about why he does things the way he does — and where the rationale is unrecoverable the worker must say so rather than invent one.
+- **Demand motivation, not observation.** Every rule a worker extracts must be stated as "X because Y", because a rule without its why cannot be applied to a case it did not anticipate, and where the rationale is unrecoverable the worker must say so rather than invent one.
 - **Control contamination explicitly.** Orientation documents (repo map, process notes) = allowed and named; prior attempts at the same deliverable = forbidden and named.
 - **Restart early rather than patch late.** When a brief is wrong and the worker is minutes in, `TaskStop` and relaunch with the corrected lens; a clean restart beats reconciling a misaimed deliverable.
 - Give every worker its exact deliverable path, the no-hard-wrap rule, and a bounded return format ("return a max-10-line summary"). Long worker returns land in your context and become the wall of text.

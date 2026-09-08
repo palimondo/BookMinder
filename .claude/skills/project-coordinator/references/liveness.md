@@ -10,7 +10,7 @@ The architecture that survives it, in order of importance:
 1. **Deliverables committed as they land** — reclamation cannot destroy finished work.
 2. **Journal-based resume** — relaunching the workflow against its prior run's journal replays cached agents; a restart costs only in-flight work.
 3. **A self-re-arming watchdog** — a `send_later` / Routine firing into this session that checks liveness per run, resumes killed slices, batch-commits orphans, runs the persistence sweep (mechanics in `persistence.md` — embed the sweep instruction in the watchdog trigger's own prompt so it fires by machinery), posts a progress report, and schedules the next firing before it finishes.
-4. **Cadence is 20 minutes**, set by the author. Do not lengthen it without asking.
+4. **Cadence is 20 minutes.** Do not lengthen it without asking.
 5. **`PushNotification` when he is away**, carrying counts and liveness only — "N/24 done, all slices alive" — never time estimates. He explicitly leaves you to work and waits on iOS notifications.
 6. Re-arm the watchdog whenever you stop a swarm to edit it. A *disabled* watchdog left over from a stop leaves the next run unprotected — the worst persistence gap there is.
 7. Record this architecture in `threads.md`; it is not obvious to a post-compaction reader.
