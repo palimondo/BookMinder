@@ -1,6 +1,6 @@
 # Apple Books on disk
 
-Read the section for any store, column, or user state before writing code or a spec that touches it. What a spec pins against the fixtures is established; what this page calls unknown is a boundary, not a gap to fill by reasoning from the UI or from prose. Open `docs/apple_books.md` only for the evidence behind a section; the map at the end names where it sits.
+How Apple Books stores a library on macOS, as far as the project has learned it. The page grows as storage is learned, one positive statement per fact in the section that owns it; the recon brief names which section each finding updates. `docs/apple_books.md` is evidence only, mapped at the end.
 
 ## What exists on disk
 
