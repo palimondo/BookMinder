@@ -44,7 +44,7 @@ Use the mapping in force: 1 = present locally (downloaded books and downloaded s
 
 ### Samples
 
-A sample is `ZSTATE = 6 OR ZISSAMPLE = 1`. Never treat `ZISSAMPLE = 0` as proof of a full book: unmistakable samples carry 0 and are identifiable only by ZSTATE 6. Treat the lifecycle (a store sample enters as 6/0 and becomes 1/1 once opened) as a proposal, not an observation: it is inferred from one title flipping between queries, never from one row seen before and after. Re-run the query for any per-title value; never quote a title's state from notes.
+A sample is `ZSTATE = 6 OR ZISSAMPLE = 1`. Never treat `ZISSAMPLE = 0` as proof of a full book: unmistakable samples carry 0 and are identifiable only by ZSTATE 6. Treat the lifecycle (a store sample enters as 6/0 and becomes 1/1 once opened) as a proposal, not an observation: it is inferred from one title flipping between queries, never from one row seen before and after.
 
 Samples were never seen with `ZREADINGPROGRESS` above 0.0; their reading position lives in the AEAnnotation database instead. A sample filter on a progress-based recent list is therefore structurally near-empty; sample listing belongs on the library-wide list.
 
