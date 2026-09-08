@@ -15,9 +15,9 @@ Two further stores exist: an AEAnnotation database holding highlights and annota
 
 ## Books.plist
 
-The plist is a dict whose `Books` key holds a list of dicts, one per downloaded item, each carrying `itemName`, `artistName`, `path`, `updateDate`, and `itemId`, the asset id that also names its `.epub` file. It is the only store that carries a file path, so it is the entry point to a book's content.
+The plist is a dict whose `Books` key holds a list of dicts, one per downloaded item, each carrying `itemName`, `artistName`, `path`, `updateDate`, and `itemId`, the asset id that also names its `.epub` file. It is the only store that carries a file path.
 
-Do not read reading state or membership from it. Its only progress field, `BKPercentComplete`, appears on finished books alone and always as 1.0, so it cannot express progress. Titles the database knows can be missing from the plist, even from a fresh copy, for a reason never established, so never infer membership or cloud status from plist absence. Do not sort or filter on `updateDate` either: its meaning is unverified, probably the publisher's revision date rather than reading activity; a sort on it was once built and removed for that reason. Take recency from the database's `ZLASTOPENDATE`.
+Do not read reading state or membership from it. Its only progress field, `BKPercentComplete`, appears on finished books alone and always as 1.0, so it cannot express progress. Titles the database knows can be missing from the plist, even from a fresh copy, for a reason never established, so never infer membership or cloud status from plist absence. Do not sort or filter on `updateDate` either: its meaning is unverified, probably the publisher's revision date rather than reading activity. Take recency from the database's `ZLASTOPENDATE`.
 
 Read the plist with `plistlib.load` on a binary-mode handle, which detects binary and XML itself; never shell out to `plutil -convert` from code. Guard for the list shape: a dict-keyed variant parses without error and yields zero books. For exploration, render a plist as Swift literals with `plutil -convert swift -o out.swift Books.plist`, far cheaper in tokens than XML.
 
@@ -34,8 +34,8 @@ Convert every timestamp column from the Apple epoch: values count seconds from 2
 
 ### Reading-state columns
 
-- `ZREADINGPROGRESS` runs 0.0 to 1.0. A book with progress above 0 has been opened; that is what "recent" means.
-- `ZLASTOPENDATE` is the recency source and sort key. It was never seen NULL on a row with progress above 0, so it needs no NULL guard; the doc's NULL-timestamp warnings are speculation, not observations. Add a guard only on live evidence and with a spec.
+- `ZREADINGPROGRESS` runs 0.0 to 1.0; a value above 0 means the book has been opened.
+- `ZLASTOPENDATE` is the recency source and sort key. It was never seen NULL on a row with progress above 0; the doc's NULL-timestamp warnings are speculation, not observations.
 - `ZISFINISHED = 1`, alone, defines finished. Finished books exist below 100% progress, so never require `ZREADINGPROGRESS = 1.0`; `ZDATEFINISHED` is not a marker either, since one unfinished row at 69% carries a date in it, for a reason never established. Unfinished rows carry NULL, not 0, in `ZISFINISHED`, so a not-finished predicate written as `= 0` or `!= 1` matches nothing.
 
 ### ZSTATE
@@ -46,11 +46,7 @@ Use the mapping in force: 1 = present locally (downloaded books and downloaded s
 
 A sample is `ZSTATE = 6 OR ZISSAMPLE = 1`. Never treat `ZISSAMPLE = 0` as proof of a full book: unmistakable samples carry 0 and are identifiable only by ZSTATE 6. Treat the lifecycle (a store sample enters as 6/0 and becomes 1/1 once opened) as a proposal, not an observation: it is inferred from one title flipping between queries, never from one row seen before and after.
 
-Samples were never seen with `ZREADINGPROGRESS` above 0.0; their reading position lives in the AEAnnotation database instead. A sample filter on a progress-based recent list is therefore structurally near-empty; sample listing belongs on the library-wide list.
-
-### Cloud: display versus filter
-
-A book is cloud for display when `ZSTATE in (3, 6)`, so a cloud sample renders with the cloud glyph; the cloud filter matches `ZSTATE = 3` only and its negation `ZSTATE != 3`, so a cloud sample displays as cloud yet is excluded by the cloud filter. Leave the two as they disagree. The 3-only filter is where the author's revert of an unauthorized 3-or-6 widening left it, reverted for landing before approval, not because the wider predicate was ruled wrong; change neither side without his direction and a spec. The library-wide list accepts the cloud filter values and applies no cloud predicate; that is the current-state page's silent cloud filter.
+Samples were never seen with `ZREADINGPROGRESS` above 0.0; their reading position lives in the AEAnnotation database instead.
 
 ### ZCONTENTTYPE
 
@@ -58,17 +54,17 @@ Treat the mapping as unverified: likely 1 = book (EPUB), 3 = PDF. Every row seen
 
 ### ZPATH
 
-Leave `path` empty on database-backed books, pending a `ZASSETID`-keyed correlation with `Books.plist`. Whether the database offers a usable path column was never checked on a live library: `ZPATH` exists, and in copied real rows it holds the absolute `.epub` path on local full books, NULL on cloud rows and on one downloaded sample, and on another downloaded sample a path into a `.DocumentRevisions-V100` versions store rather than the Books directory; do not rely on it. This is design debt the author left as a TODO; do not resolve it as a drive-by.
+Whether `ZPATH` is a usable path column was never checked on a live library. In copied real rows it holds the absolute `.epub` path on local full books, NULL on cloud rows and on one downloaded sample, and on another downloaded sample a path into a `.DocumentRevisions-V100` versions store rather than the Books directory; do not rely on it. The only path source in use is the plist, keyed by asset id.
 
 ## What the app computes
 
-Treat "Want to Read" as computed by Apple, not marked by the user: its observed composition is unread-or-sample, `ZREADINGPROGRESS = 0` and not finished, or a sample. Its ordering is unknown; do not reuse the recorded ZCREATIONDATE conclusion, which rests on an arithmetic error. Document observed database behavior, never inferred user intent, and write "unknown" where the mechanism is unknown.
+Treat "Want to Read" as computed by Apple, not marked by the user: its observed composition is unread-or-sample, `ZREADINGPROGRESS = 0` and not finished, or a sample. Its ordering is unknown; do not reuse the recorded ZCREATIONDATE conclusion, which rests on an arithmetic error.
 
-Expect the UI's vocabulary to differ per platform and to lie a little: iPhone tiles and macOS list views use different attribute vocabularies, macOS "Complete" is a percentage rather than a status, and cloud samples render a fake "1%" progress. Document such quirks and never replicate them in code.
+Expect the UI's vocabulary to differ per platform and to lie a little: iPhone tiles and macOS list views use different attribute vocabularies, macOS "Complete" is a percentage rather than a status, and cloud samples render a fake "1%" progress.
 
 ## What exists on a machine, by user state
 
-macOS creates `com.apple.iBooksX` at account setup. The first launch of Apple Books creates `com.apple.BKAgentService`, `Books.plist`, and an empty-table `BKLibrary-*.sqlite` together, with no Apple ID required. An older install can carry `Books.plist` with no `BKLibrary` directory at all. A missing `BKLibrary` directory, an empty one, and a zero-byte database are three distinct states; report each distinctly. Reading another user's `~/Library` requires sudo, so a plain `--user <name>` run fails with PermissionError.
+macOS creates `com.apple.iBooksX` at account setup. The first launch of Apple Books creates `com.apple.BKAgentService`, `Books.plist`, and an empty-table `BKLibrary-*.sqlite` together, with no Apple ID required. An older install can carry `Books.plist` with no `BKLibrary` directory at all. A missing `BKLibrary` directory, an empty one, and a zero-byte database are three distinct states. Reading another user's `~/Library` requires sudo, so a plain `--user <name>` run fails with PermissionError.
 
 ## Working the database
 
@@ -80,7 +76,7 @@ It is the research spike's territory map, re-aligned with the project's recorded
 
 ## Editing docs/apple_books.md
 
-Keep it descriptive of storage: no SQL that prescribes a feature's filtering strategy. Keep every SQL query in the single "Database to UI Mapping" section and link to it from elsewhere; two copies of one query is how the doc came to contradict itself. Commit screenshots under `docs/ui/apple/` and reference each beside the claim it supports, labelled with the platform that produced it, because the platforms' vocabularies differ. Preserve the existing segmentation when updating contents.
+Keep it descriptive of storage: no SQL that prescribes a feature's filtering strategy. Keep every SQL query in the single "Database to UI Mapping" section and link to it from elsewhere; two copies of one query is how the doc came to contradict itself. Commit screenshots under `docs/ui/apple/` and reference each beside the claim it supports, labelled with the platform that produced it, because the platforms' vocabularies differ. Preserve the existing segmentation when updating contents. Record observed database behavior, never inferred user intent, and write "unknown" where the mechanism is unknown. Document UI quirks such as the fake "1%"; never replicate them in code.
 
 ## Further reading in `docs/apple_books.md`
 
