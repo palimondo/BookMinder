@@ -40,7 +40,7 @@ Convert every timestamp column from the Apple epoch: values count seconds from 2
 
 ### ZSTATE
 
-Use the mapping in force: 1 = present locally (downloaded books and downloaded samples), 3 = cloud book, 6 = cloud sample not yet downloaded. Treat 5 as unmapped: it was seen on a series entity row and on unowned member titles sharing a `ZSERIESID`, no criterion for telling those apart was established, and the population is large. Treat "which values show a cloud icon" as unsettled: cloud-icon books were seen at 1, 3, and 6, but that observation paired an iPhone screenshot with the Mac's database, where one title can legitimately differ, so 1 may mean local on the queried machine only. When you take a census, enumerate every distinct value from the database first and characterize each; never reason from the UI toward values you already know.
+Use the mapping in force: 1 = present locally (downloaded books and downloaded samples), 3 = cloud book, 6 = cloud sample not yet downloaded. Treat 5 as unmapped: it was seen on a series entity row and on unowned member titles sharing a `ZSERIESID`, no criterion for telling those apart was established, and the population is large.
 
 ### Samples
 
